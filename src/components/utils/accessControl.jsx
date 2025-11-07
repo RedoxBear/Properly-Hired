@@ -1,0 +1,144 @@
+/**
+ * Access control utilities for feature gating based on subscription tier
+ */
+
+export const TIERS = {
+  FREE: "free",
+  PRO: "pro",
+  ENTERPRISE: "enterprise"
+};
+
+export const TIER_LIMITS = {
+  free: {
+    max_resumes: 3,
+    max_applications_per_month: 10,
+    ai_credits_per_month: 5,
+    cover_letters: false,
+    transferable_skills: false,
+    insights: false,
+    priority_support: false,
+    features: ["job_analysis", "resume_upload", "basic_optimization"]
+  },
+  pro: {
+    max_resumes: 20,
+    max_applications_per_month: 100,
+    ai_credits_per_month: 50,
+    cover_letters: true,
+    transferable_skills: true,
+    insights: true,
+    priority_support: false,
+    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters", "transferable_skills", "insights", "autofill_vault", "application_qna"]
+  },
+  enterprise: {
+    max_resumes: -1, // unlimited
+    max_applications_per_month: -1,
+    ai_credits_per_month: -1,
+    cover_letters: true,
+    transferable_skills: true,
+    insights: true,
+    priority_support: true,
+    features: ["*"] // all features
+  }
+};
+
+export const PRICING = {
+  free: {
+    price: 0,
+    period: "forever",
+    description: "Get started with basic job search tools"
+  },
+  pro: {
+    price: 4.99,
+    period: "week",
+    description: "Full AI-powered career toolkit",
+    discounted_price: 2.99,
+    discount_note: "Use code CAREER40 for 40% off"
+  },
+  enterprise: {
+    price: "Custom",
+    period: "contact us",
+    description: "Unlimited access + priority support",
+    contact_required: true
+  }
+};
+
+/**
+ * Check if user has access to a feature
+ */
+export function hasAccess(user, feature) {
+  if (!user) return false;
+  
+  const tier = user.subscription_tier || TIERS.FREE;
+  const limits = TIER_LIMITS[tier];
+  
+  if (!limits) return false;
+  
+  // Enterprise has access to everything
+  if (tier === TIERS.ENTERPRISE) return true;
+  
+  // Check if feature is in allowed list
+  return limits.features.includes(feature) || limits.features.includes("*");
+}
+
+/**
+ * Check if user can perform an action based on limits
+ */
+export function canPerformAction(user, action, currentCount) {
+  if (!user) return false;
+  
+  const tier = user.subscription_tier || TIERS.FREE;
+  const limits = TIER_LIMITS[tier];
+  
+  if (!limits) return false;
+  
+  const actionLimits = {
+    create_resume: limits.max_resumes,
+    track_application: limits.max_applications_per_month,
+    use_ai: limits.ai_credits_per_month
+  };
+  
+  const limit = actionLimits[action];
+  if (limit === undefined) return true; // No limit for this action
+  if (limit === -1) return true; // Unlimited
+  
+  return currentCount < limit;
+}
+
+/**
+ * Get remaining quota for an action
+ */
+export function getRemainingQuota(user, action, currentCount) {
+  if (!user) return 0;
+  
+  const tier = user.subscription_tier || TIERS.FREE;
+  const limits = TIER_LIMITS[tier];
+  
+  if (!limits) return 0;
+  
+  const actionLimits = {
+    create_resume: limits.max_resumes,
+    track_application: limits.max_applications_per_month,
+    use_ai: user.credits_remaining || limits.ai_credits_per_month
+  };
+  
+  const limit = actionLimits[action];
+  if (limit === -1) return Infinity;
+  
+  return Math.max(0, limit - currentCount);
+}
+
+/**
+ * Get upgrade CTA message based on blocked feature
+ */
+export function getUpgradeMessage(feature) {
+  const messages = {
+    cover_letters: "Unlock AI-powered cover letter generation with Pro",
+    transferable_skills: "Discover your transferable skills with Pro",
+    insights: "Get detailed activity insights with Pro",
+    max_resumes: "You've reached your resume limit. Upgrade to Pro for 20 resumes",
+    max_applications: "You've reached your monthly application limit. Upgrade to Pro",
+    ai_credits: "You're out of AI credits. Upgrade to Pro for 50 credits/week"
+  };
+  
+  return messages[feature] || "Upgrade to Pro to unlock this feature";
+}
