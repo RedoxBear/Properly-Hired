@@ -331,12 +331,18 @@ export default function MyResumes() {
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
-                                                        <Link to={createPageUrl(`ResumeEditor?resumeId=${resume.id}`)}>
-                                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 gap-1">
-                                                                <Edit className="w-3 h-3" />
-                                                                Edit & Improve
-                                                            </Button>
-                                                        </Link>
+                                                        <Button 
+                                                            size="sm" 
+                                                            className="bg-blue-600 hover:bg-blue-700 gap-1"
+                                                            onClick={() => {
+                                                                console.log("Navigating to editor with resume:", resume);
+                                                                navigate(createPageUrl(`ResumeEditor?resumeId=${resume.id}`));
+                                                            }}
+                                                            disabled={!resume.id}
+                                                        >
+                                                            <Edit className="w-3 h-3" />
+                                                            Edit & Improve
+                                                        </Button>
                                                         <Link to={createPageUrl(`ResumeQuality?resumeId=${resume.id}`)}>
                                                             <Button size="sm" variant="outline" title="View quality analysis">
                                                                 Analysis
