@@ -30,15 +30,31 @@ export default function ResumeEditor() {
 
   useEffect(() => {
     if (!resumeId) {
-      setError("No resumeId provided.");
+      console.error("No resumeId in URL params:", window.location.search);
+      setError("No resumeId provided. Please select a resume from My Resumes.");
       setLoading(false);
       return;
     }
+    
+    console.log("Loading resume with ID:", resumeId);
+    
     (async () => {
       try {
         const r = await base44.entities.Resume.get(resumeId);
+        console.log("Loaded resume:", r);
+        
+        if (!r) {
+          setError("Resume not found. It may have been deleted.");
+          setLoading(false);
+          return;
+        }
+        
         setResume(r);
+        
+        // Try to parse the resume content
         const parsed = safeParse(r.parsed_content);
+        console.log("Parsed content:", parsed);
+        
         setDraft(parsed || {
           personal_info: {},
           summary: "",
@@ -47,12 +63,13 @@ export default function ResumeEditor() {
           experience: [],
           education: []
         });
+        
         const base = Number(r?.quality_scores?.overall ?? 0);
         setBaselineScore(isFinite(base) ? base : null);
         setCurrentScore(isFinite(base) ? base : null);
       } catch (e) {
-        console.error(e);
-        setError("Could not load resume.");
+        console.error("Error loading resume:", e);
+        setError(`Could not load resume: ${e.message || "Unknown error"}`);
       }
       setLoading(false);
     })();
@@ -192,7 +209,10 @@ export default function ResumeEditor() {
   if (!resume) {
     return (
       <div className="min-h-screen p-6 flex flex-col items-center justify-center text-center space-y-3">
-        <p className="text-slate-700">{error || "Resume not found."}</p>
+        <p className="text-slate-700 mb-2">{error || "Resume not found."}</p>
+        {!resumeId && (
+          <p className="text-sm text-slate-500">Debug: Current URL: {window.location.href}</p>
+        )}
         <Button onClick={() => navigate(createPageUrl("MyResumes"))} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> Back to My Resumes
         </Button>
