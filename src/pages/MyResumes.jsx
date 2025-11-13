@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Resume } from "@/entities/Resume";
 import { UploadFile, ExtractDataFromUploadedFile } from "@/integrations/Core";
@@ -88,7 +87,11 @@ export default function MyResumes() {
             const plain = resumeJsonToPlainText(parsedObj);
             const analysis = await analyzeResumeAgainstJD(plain, "");
 
-            // Create as DRAFT (not master) until user improves it
+            // Demote existing master resumes to make room for the new upload
+            const currentMasters = resumes.filter(r => r.is_master_resume);
+            await Promise.all(currentMasters.map(r => Resume.update(r.id, { is_master_resume: false })));
+
+            // Create as MASTER resume (newly uploaded resumes should be master by default)
             const resumeData = {
                 version_name: versionName,
                 original_file_url: file_url,
@@ -97,7 +100,7 @@ export default function MyResumes() {
                 skills: parsedObj.skills || [],
                 experience: parsedObj.experience || [],
                 education: parsedObj.education || [],
-                is_master_resume: false, // DRAFT until improved
+                is_master_resume: true, // Newly uploaded resumes are Master by default
                 quality_scores: analysis?.scores || null,
                 quality_flags: analysis?.flags || [],
                 quality_last_analyzed_at: new Date().toISOString()
@@ -270,7 +273,7 @@ export default function MyResumes() {
                                     {isUploading ? 'Processing...' : 'Upload Resume'}
                                 </Button>
                                 <p className="text-xs text-slate-500 mt-2 text-center">Supported types: PDF, PNG, JPG, JPEG</p>
-                                <p className="text-xs text-blue-600 mt-2 text-center">You'll be able to improve it before setting as Master</p>
+                                <p className="text-xs text-blue-600 mt-2 text-center">Will be set as Master Resume - you can improve it in the editor</p>
                             </CardContent>
                         </Card>
 
