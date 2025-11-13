@@ -170,8 +170,7 @@ export default function ResumeEditor() {
 
   const promoteToMaster = async () => {
     try {
-      const masters = await base44.entities.Resume.filter({ is_master_resume: true }, "-created_date", 50);
-      await Promise.all(masters.map(m => m.id !== resumeId ? base44.entities.Resume.update(m.id, { is_master_resume: false }) : Promise.resolve()));
+      // Simply promote this resume to master without demoting others
       await base44.entities.Resume.update(resumeId, { is_master_resume: true });
       const updated = await base44.entities.Resume.get(resumeId);
       setResume(updated);
