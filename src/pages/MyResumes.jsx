@@ -87,11 +87,7 @@ export default function MyResumes() {
             const plain = resumeJsonToPlainText(parsedObj);
             const analysis = await analyzeResumeAgainstJD(plain, "");
 
-            // Demote existing master resumes to make room for the new upload
-            const currentMasters = resumes.filter(r => r.is_master_resume);
-            await Promise.all(currentMasters.map(r => Resume.update(r.id, { is_master_resume: false })));
-
-            // Create as MASTER resume (newly uploaded resumes should be master by default)
+            // Create as MASTER resume (newly uploaded resumes are Master by default)
             const resumeData = {
                 version_name: versionName,
                 original_file_url: file_url,
@@ -107,7 +103,7 @@ export default function MyResumes() {
             };
             const created = await Resume.create(resumeData);
             
-            // Redirect to editor with "new" flag
+            // Redirect to editor with "new" flag so user can improve it
             navigate(createPageUrl(`ResumeEditor?resumeId=${created.id}&new=1`));
 
         } catch (err) {
