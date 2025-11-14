@@ -17,7 +17,8 @@ import {
     TrendingUp,
     Boxes,
     Crown,
-    Target
+    Target,
+    User
 } from "lucide-react";
 import {
     Sidebar,
