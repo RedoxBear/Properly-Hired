@@ -31,6 +31,7 @@ import RecentApplications from "../components/dashboard/RecentApplications";
 import QuickActions from "../components/dashboard/QuickActions";
 import FollowUpList from "../components/followups/FollowUpList";
 import DailyEncouragement from "../components/dashboard/DailyEncouragement";
+import ApplicationInsightsWidget from "../components/dashboard/ApplicationInsightsWidget";
 
 const heroPresets = {
     elegant: {
@@ -357,7 +358,8 @@ export default function Dashboard() {
                         />
                     </div>
 
-                    <div>
+                    <div className="space-y-6">
+                        <ApplicationInsightsWidget applications={applications} />
                         <QuickActions />
                     </div>
                 </div>
