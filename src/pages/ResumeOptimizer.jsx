@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Resume } from "@/entities/Resume";
 import { JobApplication } from "@/entities/JobApplication";
+import { JobMatch } from "@/entities/JobMatch";
 import { InvokeLLM } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Sparkles, Briefcase, Star, Loader2, Lightbulb } from "lucide-react";
+import { Sparkles, Briefcase, Star, Loader2, Lightbulb, Target, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OptimizationResults from "@/components/resume/OptimizationResults";
 import { retryWithBackoff } from "@/components/utils/retry";
@@ -18,14 +19,17 @@ import AISuggestions from "@/components/resume/AISuggestions";
 
 export default function ResumeOptimizer() {
   const [jobApplications, setJobApplications] = useState([]);
+  const [jobMatches, setJobMatches] = useState([]);
   const [masterResumes, setMasterResumes] = useState([]);
   const [selectedJobId, setSelectedJobId] = useState("");
+  const [selectedMatchId, setSelectedMatchId] = useState("");
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [optimizationResults, setOptimizationResults] = useState(null);
   const [error, setError] = useState("");
   const [retargetEnabled, setRetargetEnabled] = useState(true);
   const [optimizeMode, setOptimizeMode] = useState("two_page"); // "ats_one_page" | "two_page" | "full_cv"
+  const [useJobMatch, setUseJobMatch] = useState(false);
 
   // NEW: Controls for coverage and humanization
   const [aggressiveMatch, setAggressiveMatch] = useState(true);
@@ -116,12 +120,14 @@ export default function ResumeOptimizer() {
     setIsProcessing(true);
     setError("");
     try {
-      const [applications, resumes] = await Promise.all([
+      const [applications, resumes, matches] = await Promise.all([
         JobApplication.list("-created_date", 50),
-        Resume.filter({ is_master_resume: true }, "-created_date", 100)
+        Resume.filter({ is_master_resume: true }, "-created_date", 100),
+        JobMatch.list("-created_date", 50)
       ]);
       setJobApplications(applications);
       setMasterResumes(resumes);
+      setJobMatches(matches);
       if (resumes.length === 0) {
         setError("Please upload or build a master resume first.");
       }
@@ -147,15 +153,37 @@ export default function ResumeOptimizer() {
   }, [jobApplications]);
 
   const optimizeResume = async () => {
-    if (!selectedJobId || !selectedResumeId) {
-      setError("Please select a job application and a master resume.");
+    if (useJobMatch && !selectedMatchId) {
+      setError("Please select a job match to optimize for.");
+      return;
+    }
+    if (!useJobMatch && !selectedJobId) {
+      setError("Please select a job application.");
+      return;
+    }
+    if (!selectedResumeId) {
+      setError("Please select a master resume.");
       return;
     }
     setIsProcessing(true);
     setError("");
 
-    const selectedJob = jobApplications.find(j => j.id === selectedJobId);
+    const selectedMatch = useJobMatch ? jobMatches.find(m => m.id === selectedMatchId) : null;
+    const selectedJob = !useJobMatch ? jobApplications.find(j => j.id === selectedJobId) : null;
     const selectedResume = masterResumes.find(r => r.id === selectedResumeId);
+
+    // Build job data from either JobMatch or JobApplication
+    const jobData = selectedMatch ? {
+      job_title: selectedMatch.job_title,
+      company_name: selectedMatch.company_name,
+      job_description: selectedMatch.job_description,
+      id: selectedMatch.id
+    } : {
+      job_title: selectedJob.job_title,
+      company_name: selectedJob.company_name,
+      job_description: selectedJob.job_description,
+      id: selectedJob.id
+    };
 
     const modeLabel =
       optimizeMode === "ats_one_page" ? "ATS 1-Page" :
@@ -165,9 +193,42 @@ export default function ResumeOptimizer() {
     // For Full CV, disable retargeting to avoid title rewriting
     const computedRetarget = optimizeMode === "full_cv" ? false : retargetEnabled;
 
+    // NEW: JobMatch data integration
+    const jobMatchEnhancement = selectedMatch ? `
+**IMPORTANT - JOB MATCH INSIGHTS AVAILABLE:**
+You have access to detailed AI-generated job match analysis. Use this data strategically:
+
+**Key Keywords to Incorporate (${selectedMatch.key_keywords?.length || 0} identified):**
+${(selectedMatch.key_keywords || []).join(", ")}
+→ Naturally weave these throughout the resume, especially in summary, skills, and experience bullets.
+
+**Identified Strengths (leverage these):**
+${(selectedMatch.fit_analysis?.strengths || []).map((s, i) => `${i+1}. ${s}`).join("\n")}
+
+**Identified Gaps (address where truthful):**
+${(selectedMatch.fit_analysis?.gaps || []).map((g, i) => `${i+1}. ${g}`).join("\n")}
+
+**Required Skills Match:**
+${(selectedMatch.fit_analysis?.required_skills_match || []).map(s => 
+  `- ${s.skill}: ${s.has_skill ? "✓ HAS (evidence: " + s.evidence + ")" : "✗ MISSING - " + (s.evidence || "not evident in resume")}`
+).join("\n")}
+
+**Improvement Suggestions to Apply:**
+${(selectedMatch.fit_analysis?.improvement_suggestions || []).map((sugg, i) => `${i+1}. ${sugg}`).join("\n")}
+
+**How to Use This Data:**
+1. **Keywords**: Incorporate the key_keywords naturally into your bullets and summary
+2. **Strengths**: Emphasize these areas more prominently in experience bullets
+3. **Gaps**: Where you have related experience, reframe it to address these gaps
+4. **Required Skills**: For skills marked as "HAS", cite the evidence. For "MISSING", see if any transferable experience can truthfully address them
+5. **Improvement Suggestions**: Apply these specific recommendations to the resume content
+
+Remember: Stay truthful. Don't fabricate experience, but do reframe and emphasize what's relevant.
+` : "";
+
     // NEW: clauses for coverage/humanization
     const coverageClause = aggressiveMatch
-      ? `Coverage target: Aim for 95–100% coverage of critical role-specific terms from JOB_POSTING.
+      ? `Coverage target: Aim for 95–100% coverage of critical role-specific terms from JOB_POSTING${selectedMatch ? " and the Key Keywords identified in the Job Match data" : ""}.
 - Include each critical term at least once in a meaningful sentence or bullet.
 - Use synonyms and close variants where natural. Avoid keyword stuffing or awkward phrasing.
 - If something is irrelevant or untrue, omit it and leave it as missing.`
@@ -249,6 +310,8 @@ Core rules:
 
 Transferable-skill retargeting: ${computedRetarget ? "ENABLED" : "DISABLED"}.
 
+${jobMatchEnhancement}
+
 ${coverageClause}
 
 ${humanizeClause}
@@ -275,7 +338,7 @@ MASTER_RESUME_JSON:
 ${selectedResume.parsed_content}
 
 JOB_POSTING:
-${selectedJob.job_description}
+${jobData.job_description}
 
 Output JSON:
 {
@@ -374,31 +437,43 @@ Output JSON:
       const shapedOptimized = shapeOptimizedForMode(mergedOptimized, optimizeMode, masterData, baseSummary);
       const shapedWithExec = { ...shapedOptimized, executive_summary: execSummary };
 
-      const baseName = response.target_title || `${selectedJob.job_title} — ${selectedJob.company_name}`;
-      const newVersion = await Resume.create({ // Changed from base44.entities.Resume.create to Resume.create
+      const baseName = response.target_title || `${jobData.job_title} — ${jobData.company_name}`;
+      const newVersion = await Resume.create({
         version_name: `${baseName} — ${modeLabel}`,
         original_file_url: selectedResume.original_file_url,
         parsed_content: selectedResume.parsed_content,
         optimized_content: JSON.stringify(shapedWithExec),
         is_master_resume: false,
-        job_application_id: selectedJob.id
+        job_application_id: useJobMatch ? null : jobData.id
       });
 
-      await JobApplication.update(selectedJobId, { // Changed from base44.entities.JobApplication.update to JobApplication.update
-        optimization_score: response.optimization_score,
-        master_resume_id: selectedResumeId,
-        optimized_resume_id: newVersion.id,
-        application_status: "ready"
-      });
+      // Update JobApplication or JobMatch status
+      if (useJobMatch && selectedMatch) {
+        await JobMatch.update(selectedMatchId, {
+          status: "interested"
+        });
+      } else if (selectedJob) {
+        await JobApplication.update(selectedJobId, {
+          optimization_score: response.optimization_score,
+          master_resume_id: selectedResumeId,
+          optimized_resume_id: newVersion.id,
+          application_status: "ready"
+        });
+      }
 
       setOptimizationResults({
         ...response,
         executive_summary: execSummary,
         optimized_resume_content: shapedWithExec,
-        jobTitle: selectedJob.job_title,
-        companyName: selectedJob.company_name,
+        jobTitle: jobData.job_title,
+        companyName: jobData.company_name,
         // NEW: pass coverage
-        keyword_coverage: response.keyword_coverage || null
+        keyword_coverage: response.keyword_coverage || null,
+        usedJobMatch: useJobMatch,
+        jobMatchData: selectedMatch ? {
+          match_score: selectedMatch.match_score,
+          overall_fit: selectedMatch.fit_analysis?.overall_fit
+        } : null
       });
 
       // telemetry: resume rendered in chosen mode
@@ -406,9 +481,10 @@ Output JSON:
         await logEvent({
           type: "resume_rendered",
           ts: new Date().toISOString(),
-          app_id: selectedJob.id,
+          app_id: jobData.id,
           mode: optimizeMode,
-          humanized: deepHumanize
+          humanized: deepHumanize,
+          used_job_match: useJobMatch
         });
       } catch (logError) {
         console.error("Telemetry logEvent failed:", logError);
@@ -424,14 +500,23 @@ Output JSON:
   const resetOptimization = () => {
     setOptimizationResults(null);
     setSelectedJobId("");
+    setSelectedMatchId("");
     setSelectedResumeId("");
     setSuggestions(null);
   };
 
   // NEW: Get AI Suggestions before full optimization
   const getAISuggestions = async () => {
-    if (!selectedJobId || !selectedResumeId) {
-      setError("Please select a job application and a master resume first.");
+    if (useJobMatch && !selectedMatchId) {
+      setError("Please select a job match first.");
+      return;
+    }
+    if (!useJobMatch && !selectedJobId) {
+      setError("Please select a job application first.");
+      return;
+    }
+    if (!selectedResumeId) {
+      setError("Please select a master resume first.");
       return;
     }
 
@@ -439,13 +524,31 @@ Output JSON:
     setError("");
     setSuggestions(null);
 
-    const selectedJob = jobApplications.find(j => j.id === selectedJobId);
+    const selectedMatch = useJobMatch ? jobMatches.find(m => m.id === selectedMatchId) : null;
+    const selectedJob = !useJobMatch ? jobApplications.find(j => j.id === selectedJobId) : null;
     const selectedResume = masterResumes.find(r => r.id === selectedResumeId);
+
+    const jobDescription = selectedMatch ? selectedMatch.job_description : selectedJob.job_description;
+
+    const jobMatchContext = selectedMatch ? `
+**EXISTING JOB MATCH ANALYSIS:**
+This job has already been analyzed. Use these insights to refine your suggestions:
+- Match Score: ${selectedMatch.match_score}/100
+- Overall Fit: ${selectedMatch.fit_analysis?.overall_fit || "N/A"}
+- Key Keywords Already Identified: ${(selectedMatch.key_keywords || []).join(", ")}
+- Known Strengths: ${(selectedMatch.fit_analysis?.strengths || []).join("; ")}
+- Known Gaps: ${(selectedMatch.fit_analysis?.gaps || []).join("; ")}
+- Improvement Suggestions Already Made: ${(selectedMatch.fit_analysis?.improvement_suggestions || []).join("; ")}
+
+Your task is to provide even MORE specific, tactical suggestions based on this analysis.
+` : "";
 
     const suggestionPrompt = `You are an expert ATS and resume optimization specialist. Analyze the job posting and the candidate's current resume, then provide specific, actionable suggestions.
 
+${jobMatchContext}
+
 **JOB POSTING:**
-${selectedJob.job_description}
+${jobDescription}
 
 **CANDIDATE'S CURRENT RESUME:**
 ${selectedResume.parsed_content}
@@ -549,24 +652,85 @@ Return JSON with:
             <motion.div key="optimizer" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0.98, scale: 0.98 }}>
               <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle>Select Job & Master Resume</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Select Job & Master Resume</span>
+                    {jobMatches.length > 0 && (
+                      <Badge variant={useJobMatch ? "default" : "outline"} className="text-xs">
+                        {useJobMatch ? "Using Job Match Data" : "Standard Mode"}
+                      </Badge>
+                    )}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="font-medium flex items-center gap-2"><Briefcase className="w-4 h-4"/>{`Job Application`}</label>
-                    <Select value={selectedJobId} onValueChange={setSelectedJobId} disabled={isProcessing}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a job to optimize for" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {jobApplications.map((job) => (
-                          <SelectItem key={job.id} value={job.id}>
-                            {job.job_title} — {job.company_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {jobMatches.length > 0 && (
+                    <div className="flex items-center justify-between rounded-lg border p-3 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                      <div>
+                        <div className="font-medium text-purple-800 flex items-center gap-2">
+                          <Target className="w-4 h-4" />
+                          Use Job Match Insights
+                        </div>
+                        <p className="text-sm text-purple-700">
+                          Leverage AI analysis from Job Matcher for smarter optimization
+                        </p>
+                      </div>
+                      <Switch checked={useJobMatch} onCheckedChange={setUseJobMatch} />
+                    </div>
+                  )}
+
+                  {useJobMatch && jobMatches.length > 0 ? (
+                    <div className="space-y-2">
+                      <label className="font-medium flex items-center gap-2">
+                        <Target className="w-4 h-4 text-purple-600"/>
+                        Job Match
+                      </label>
+                      <Select value={selectedMatchId} onValueChange={setSelectedMatchId} disabled={isProcessing}>
+                        <SelectTrigger className="border-purple-200">
+                          <SelectValue placeholder="Choose a job match to optimize for" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {jobMatches.filter(m => m.status !== "dismissed").map((match) => (
+                            <SelectItem key={match.id} value={match.id}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">{Math.round(match.match_score)}</span>
+                                <span>•</span>
+                                <span>{match.job_title} — {match.company_name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {selectedMatchId && jobMatches.find(m => m.id === selectedMatchId) && (
+                        <Alert className="border-purple-200 bg-purple-50 mt-3">
+                          <AlertDescription className="text-purple-800 text-sm">
+                            <div className="space-y-1">
+                              <div><strong>Match Score:</strong> {Math.round(jobMatches.find(m => m.id === selectedMatchId).match_score)}/100</div>
+                              <div><strong>Fit:</strong> {jobMatches.find(m => m.id === selectedMatchId).fit_analysis?.overall_fit || "N/A"}</div>
+                              <div className="text-xs mt-2">
+                                <Zap className="w-3 h-3 inline mr-1" />
+                                Will auto-incorporate {jobMatches.find(m => m.id === selectedMatchId).key_keywords?.length || 0} key keywords and apply fit analysis insights
+                              </div>
+                            </div>
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <label className="font-medium flex items-center gap-2"><Briefcase className="w-4 h-4"/>{`Job Application`}</label>
+                      <Select value={selectedJobId} onValueChange={setSelectedJobId} disabled={isProcessing}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a job to optimize for" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {jobApplications.map((job) => (
+                            <SelectItem key={job.id} value={job.id}>
+                              {job.job_title} — {job.company_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <label className="font-medium flex items-center gap-2"><Star className="w-4 h-4"/>{`Master Resume`}</label>
@@ -631,7 +795,7 @@ Return JSON with:
                   <div className="grid gap-3 md:grid-cols-2">
                     <Button 
                       onClick={getAISuggestions} 
-                      disabled={isLoadingSuggestions || isProcessing || !selectedJobId || !selectedResumeId} 
+                      disabled={isLoadingSuggestions || isProcessing || (useJobMatch ? !selectedMatchId : !selectedJobId) || !selectedResumeId} 
                       variant="outline"
                       className="h-12 border-2 border-blue-200 hover:bg-blue-50"
                     >
@@ -650,7 +814,7 @@ Return JSON with:
 
                     <Button 
                       onClick={optimizeResume} 
-                      disabled={isProcessing || !selectedJobId || !selectedResumeId} 
+                      disabled={isProcessing || (useJobMatch ? !selectedMatchId : !selectedJobId) || !selectedResumeId} 
                       className="bg-blue-600 hover:bg-blue-700 h-12"
                     >
                       {isProcessing ? (
@@ -661,7 +825,7 @@ Return JSON with:
                       ) : (
                         <>
                           <Sparkles className="w-5 h-5 mr-2" />
-                          Optimize Resume
+                          {useJobMatch ? "Optimize with Match Data" : "Optimize Resume"}
                         </>
                       )}
                     </Button>
