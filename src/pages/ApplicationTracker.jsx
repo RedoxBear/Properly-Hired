@@ -34,6 +34,9 @@ import {
 import { motion } from "framer-motion";
 import FollowUpList from "@/components/followups/FollowUpList";
 import ApplicationInsights from "@/components/insights/ApplicationInsights";
+import FollowUpScheduleCard from "@/components/followups/FollowUpScheduleCard";
+import { generateFollowUpSchedule, calculateFollowUpDates, getNextFollowUp } from "@/components/utils/aiFollowUp";
+import { UserPreferences } from "@/entities/UserPreferences";
 
 export default function ApplicationTracker() {
     const [applications, setApplications] = useState([]);
@@ -57,6 +60,9 @@ export default function ApplicationTracker() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [selectedIds, setSelectedIds] = useState([]);
+    const [selectedAppForSchedule, setSelectedAppForSchedule] = useState(null);
+    const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false);
+    const [userPrefs, setUserPrefs] = useState(null);
 
     const statusConfig = {
         ready: { color: "bg-yellow-100 text-yellow-800", label: "Not Applied", icon: Clock },
@@ -73,12 +79,14 @@ export default function ApplicationTracker() {
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const [apps, resumeList] = await Promise.all([
+            const [apps, resumeList, prefs] = await Promise.all([
                 JobApplication.list("-created_date"),
-                Resume.list("-created_date", 100)
+                Resume.list("-created_date", 100),
+                UserPreferences.list("-created_date", 1)
             ]);
             setApplications(apps);
             setResumes(resumeList);
+            setUserPrefs(prefs && prefs[0] ? prefs[0] : {});
         } catch (e) {
             console.error("Error loading data:", e);
             setError("Failed to load applications");
@@ -208,6 +216,53 @@ export default function ApplicationTracker() {
 
     const toggleSelected = (id) => {
         setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    };
+
+    const generateSmartSchedule = async (app) => {
+        setIsGeneratingSchedule(true);
+        try {
+            const schedule = await generateFollowUpSchedule(app, userPrefs);
+            const dates = calculateFollowUpDates(app.applied_at || new Date().toISOString(), schedule.follow_up_schedule);
+            const nextFollowUp = getNextFollowUp(dates);
+            
+            await JobApplication.update(app.id, {
+                follow_up_policy: "ai_generated",
+                scheduled_follow_ups: dates.map(d => d.date),
+                next_follow_up_at: nextFollowUp?.date || null,
+                ai_follow_up_schedule: {
+                    ...schedule,
+                    follow_up_schedule: dates
+                }
+            });
+            
+            await loadData();
+        } catch (e) {
+            console.error("Error generating schedule:", e);
+            setError("Failed to generate follow-up schedule");
+        }
+        setIsGeneratingSchedule(false);
+    };
+
+    const logFollowUp = async (app, followUpData) => {
+        try {
+            const history = app.follow_up_history || [];
+            history.push(followUpData);
+            
+            const remainingFollowUps = (app.scheduled_follow_ups || []).filter(
+                date => new Date(date) > new Date()
+            );
+            
+            await JobApplication.update(app.id, {
+                follow_up_history: history,
+                next_follow_up_at: remainingFollowUps[0] || null
+            });
+            
+            await loadData();
+            setSelectedAppForSchedule(null);
+        } catch (e) {
+            console.error("Error logging follow-up:", e);
+            setError("Failed to log follow-up");
+        }
     };
 
     const filteredApplications = applications.filter(app => {
