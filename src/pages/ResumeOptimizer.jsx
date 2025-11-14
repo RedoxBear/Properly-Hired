@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Resume } from "@/entities/Resume";
 import { JobApplication } from "@/entities/JobApplication";
@@ -8,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Sparkles, Briefcase, Star, Loader2 } from "lucide-react";
+import { Sparkles, Briefcase, Star, Loader2, Lightbulb } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OptimizationResults from "@/components/resume/OptimizationResults";
 import { retryWithBackoff } from "@/components/utils/retry";
 import ResumeLengthControls from "@/components/resume/ResumeLengthControls";
 import { logEvent } from "@/components/utils/telemetry";
 import { Badge } from "@/components/ui/badge";
+import AISuggestions from "@/components/resume/AISuggestions";
 
 export default function ResumeOptimizer() {
   const [jobApplications, setJobApplications] = useState([]);
@@ -30,6 +30,10 @@ export default function ResumeOptimizer() {
   // NEW: Controls for coverage and humanization
   const [aggressiveMatch, setAggressiveMatch] = useState(true);
   const [deepHumanize, setDeepHumanize] = useState(true);
+  
+  // NEW: AI Suggestions state
+  const [suggestions, setSuggestions] = useState(null);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   // Helper: trim summary to 2 sentences or 300 chars for ATS mode
   const shortenSummary = (text, maxSentences = 2, maxChars = 300) => {
@@ -421,6 +425,103 @@ Output JSON:
     setOptimizationResults(null);
     setSelectedJobId("");
     setSelectedResumeId("");
+    setSuggestions(null);
+  };
+
+  // NEW: Get AI Suggestions before full optimization
+  const getAISuggestions = async () => {
+    if (!selectedJobId || !selectedResumeId) {
+      setError("Please select a job application and a master resume first.");
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    setError("");
+    setSuggestions(null);
+
+    const selectedJob = jobApplications.find(j => j.id === selectedJobId);
+    const selectedResume = masterResumes.find(r => r.id === selectedResumeId);
+
+    const suggestionPrompt = `You are an expert ATS and resume optimization specialist. Analyze the job posting and the candidate's current resume, then provide specific, actionable suggestions.
+
+**JOB POSTING:**
+${selectedJob.job_description}
+
+**CANDIDATE'S CURRENT RESUME:**
+${selectedResume.parsed_content}
+
+**Your Task:**
+Provide specific suggestions to tailor this resume for the job posting. Be concrete and actionable.
+
+Return JSON with:
+{
+  "keywords": string[], // 15-25 critical keywords/phrases from JD that should appear in resume (ATS-friendly terms)
+  "experience_suggestions": [
+    {
+      "text": string, // Specific achievement bullet suggestion (with metrics)
+      "rationale": string // Why this bullet would be valuable (1 sentence)
+    }
+  ], // 5-8 suggested experience bullets that align with the job
+  "education_tips": string[], // 3-5 specific education/certification highlights to emphasize
+  "skill_gaps": [
+    {
+      "skill": string, // A skill from JD that's missing/weak in resume
+      "suggestion": string // How to address it or emphasize related experience
+    }
+  ] // 3-5 skill gaps to address
+}
+
+**Guidelines:**
+- Keywords should be actual terms from the JD (technologies, methodologies, role-specific terms)
+- Experience suggestions should be realistic adaptations of their actual experience
+- Include metrics and specifics in experience suggestions (%, $, time, scale)
+- Education tips should highlight relevant degrees/certs they already have
+- For skill gaps, suggest truthful ways to emphasize related experience
+- Keep suggestions concrete and immediately actionable
+- Make it sound human, not robotic`;
+
+    try {
+      const response = await retryWithBackoff(() =>
+        InvokeLLM({
+          prompt: suggestionPrompt,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              keywords: { type: "array", items: { type: "string" } },
+              experience_suggestions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    text: { type: "string" },
+                    rationale: { type: "string" }
+                  }
+                }
+              },
+              education_tips: { type: "array", items: { type: "string" } },
+              skill_gaps: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    skill: { type: "string" },
+                    suggestion: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        }),
+        { retries: 2, baseDelay: 1000 }
+      );
+
+      setSuggestions(response);
+    } catch (e) {
+      console.error("Failed to get AI suggestions:", e);
+      setError("Failed to generate suggestions. You can still run the full optimization.");
+    }
+
+    setIsLoadingSuggestions(false);
   };
 
   return (
@@ -527,11 +628,56 @@ Output JSON:
                     </p>
                   </div>
 
-                  <Button onClick={optimizeResume} disabled={isProcessing || !selectedJobId || !selectedResumeId} className="w-full bg-blue-600 hover:bg-blue-700 h-12">
-                    {isProcessing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Optimizing...</> : <><Sparkles className="w-5 h-5 mr-2" />Optimize Resume</>}
-                  </Button>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Button 
+                      onClick={getAISuggestions} 
+                      disabled={isLoadingSuggestions || isProcessing || !selectedJobId || !selectedResumeId} 
+                      variant="outline"
+                      className="h-12 border-2 border-blue-200 hover:bg-blue-50"
+                    >
+                      {isLoadingSuggestions ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Lightbulb className="w-5 h-5 mr-2" />
+                          Get AI Suggestions
+                        </>
+                      )}
+                    </Button>
+
+                    <Button 
+                      onClick={optimizeResume} 
+                      disabled={isProcessing || !selectedJobId || !selectedResumeId} 
+                      className="bg-blue-600 hover:bg-blue-700 h-12"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Optimizing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Optimize Resume
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
+
+              {suggestions && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6"
+                >
+                  <AISuggestions suggestions={suggestions} />
+                </motion.div>
+              )}
             </motion.div>
           ) : (
             <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
