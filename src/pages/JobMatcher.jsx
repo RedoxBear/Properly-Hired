@@ -42,7 +42,7 @@ import { motion } from "framer-motion";
 export default function JobMatcher() {
     const [matches, setMatches] = useState([]);
     const [resumes, setResumes] = useState([]);
-    const [selectedResume, setSelectedResume] = useState(null);
+    const [selectedResume, setSelectedResume] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isScanning, setIsScanning] = useState(false);
     const [error, setError] = useState("");
@@ -65,6 +65,7 @@ export default function JobMatcher() {
 
     const loadData = async () => {
         setIsLoading(true);
+        setError("");
         try {
             const [fetchedMatches, fetchedResumes] = await Promise.all([
                 JobMatch.list("-created_date"),
@@ -72,12 +73,19 @@ export default function JobMatcher() {
             ]);
             setMatches(fetchedMatches);
             setResumes(fetchedResumes);
+            
+            // Auto-select first resume if none selected
             if (fetchedResumes.length > 0 && !selectedResume) {
                 setSelectedResume(fetchedResumes[0].id);
             }
+            
+            // Show warning if no resumes exist
+            if (fetchedResumes.length === 0) {
+                setError("Please create a master resume first before adding jobs to match.");
+            }
         } catch (e) {
             console.error("Error loading data:", e);
-            setError("Failed to load data");
+            setError("Failed to load data. Please refresh the page.");
         }
         setIsLoading(false);
     };
@@ -181,7 +189,8 @@ Return JSON with:
     };
 
     const handleAddJob = async () => {
-        if (!jobInput.job_title || !jobInput.company_name || !jobInput.job_description) {
+        // Validation
+        if (!jobInput.job_title?.trim() || !jobInput.company_name?.trim() || !jobInput.job_description?.trim()) {
             setError("Job title, company name, and description are required");
             return;
         }
@@ -191,39 +200,56 @@ Return JSON with:
             return;
         }
 
+        // Verify resume exists
+        const resume = resumes.find(r => r.id === selectedResume);
+        if (!resume) {
+            setError("Selected resume not found. Please select a valid resume.");
+            return;
+        }
+
         setIsScanning(true);
         setError("");
 
         try {
+            console.log("Starting job analysis with resume:", selectedResume);
+            
             const analysis = await analyzeJobFit(jobInput, selectedResume);
 
+            console.log("Analysis complete:", analysis);
+
             const matchData = {
-                job_title: jobInput.job_title,
-                company_name: jobInput.company_name,
-                job_url: jobInput.job_url || "",
-                job_description: jobInput.job_description,
-                location: jobInput.location || "",
-                salary_range: jobInput.salary_range || "",
+                job_title: jobInput.job_title.trim(),
+                company_name: jobInput.company_name.trim(),
+                job_url: jobInput.job_url?.trim() || "",
+                job_description: jobInput.job_description.trim(),
+                location: jobInput.location?.trim() || "",
+                salary_range: jobInput.salary_range?.trim() || "",
                 posted_date: new Date().toISOString(),
                 resume_id: selectedResume,
-                match_score: analysis.match_score,
+                match_score: analysis.match_score || 0,
                 fit_analysis: {
-                    overall_fit: analysis.overall_fit,
-                    strengths: analysis.strengths,
-                    gaps: analysis.gaps,
-                    required_skills_match: analysis.required_skills_match,
-                    experience_alignment: analysis.experience_alignment,
-                    education_match: analysis.education_match,
-                    improvement_suggestions: analysis.improvement_suggestions
+                    overall_fit: analysis.overall_fit || "unknown",
+                    strengths: analysis.strengths || [],
+                    gaps: analysis.gaps || [],
+                    required_skills_match: analysis.required_skills_match || [],
+                    experience_alignment: analysis.experience_alignment || "",
+                    education_match: analysis.education_match || "",
+                    improvement_suggestions: analysis.improvement_suggestions || []
                 },
-                key_keywords: analysis.key_keywords,
+                key_keywords: analysis.key_keywords || [],
                 status: "new",
-                ai_reasoning: analysis.ai_reasoning,
+                ai_reasoning: analysis.ai_reasoning || "",
                 auto_matched: false,
                 job_source: "manual"
             };
 
-            await JobMatch.create(matchData);
+            console.log("Creating job match with data:", matchData);
+            
+            const created = await JobMatch.create(matchData);
+            
+            console.log("Job match created successfully:", created);
+
+            // Reset form and close dialog
             setShowAddDialog(false);
             setJobInput({
                 job_url: "",
@@ -233,13 +259,16 @@ Return JSON with:
                 location: "",
                 salary_range: ""
             });
+            
+            // Reload data to show new match
             await loadData();
+            
         } catch (e) {
             console.error("Error analyzing job:", e);
-            setError("Failed to analyze job fit. Please try again.");
+            setError(`Failed to analyze job fit: ${e.message || "Please try again."}`);
+        } finally {
+            setIsScanning(false);
         }
-
-        setIsScanning(false);
     };
 
     const updateMatchStatus = async (matchId, newStatus) => {
@@ -441,6 +470,7 @@ Return JSON with:
                                                     value={jobInput.job_url}
                                                     onChange={(e) => setJobInput({...jobInput, job_url: e.target.value})}
                                                     placeholder="https://..."
+                                                    disabled={resumes.length === 0}
                                                 />
                                             </div>
                                             <div className="grid md:grid-cols-2 gap-4">
@@ -450,6 +480,7 @@ Return JSON with:
                                                         value={jobInput.location}
                                                         onChange={(e) => setJobInput({...jobInput, location: e.target.value})}
                                                         placeholder="e.g. San Francisco, CA"
+                                                        disabled={resumes.length === 0}
                                                     />
                                                 </div>
                                                 <div>
@@ -458,6 +489,7 @@ Return JSON with:
                                                         value={jobInput.salary_range}
                                                         onChange={(e) => setJobInput({...jobInput, salary_range: e.target.value})}
                                                         placeholder="e.g. $120k-$180k"
+                                                        disabled={resumes.length === 0}
                                                     />
                                                 </div>
                                             </div>
@@ -468,6 +500,7 @@ Return JSON with:
                                                     onChange={(e) => setJobInput({...jobInput, job_description: e.target.value})}
                                                     placeholder="Paste the full job description..."
                                                     className="min-h-[200px]"
+                                                    disabled={resumes.length === 0}
                                                 />
                                             </div>
                                             <Alert className="border-blue-200 bg-blue-50">
@@ -478,7 +511,7 @@ Return JSON with:
                                             <div className="flex gap-3">
                                                 <Button 
                                                     onClick={handleAddJob} 
-                                                    disabled={isScanning}
+                                                    disabled={isScanning || resumes.length === 0}
                                                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                                                 >
                                                     {isScanning ? (
@@ -495,7 +528,10 @@ Return JSON with:
                                                 </Button>
                                                 <Button 
                                                     variant="outline" 
-                                                    onClick={() => setShowAddDialog(false)}
+                                                    onClick={() => {
+                                                        setShowAddDialog(false);
+                                                        setError("");
+                                                    }}
                                                     disabled={isScanning}
                                                 >
                                                     Cancel
