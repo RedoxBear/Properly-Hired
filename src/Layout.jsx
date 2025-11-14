@@ -18,7 +18,8 @@ import {
     Boxes,
     Crown,
     Target,
-    User
+    User,
+    Building2
 } from "lucide-react";
 import {
     Sidebar,
@@ -49,6 +50,7 @@ function AppShell({ children, currentPageName }) {
         { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" },
         { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis" },
         { title: "App Tracker", url: createPageUrl("ApplicationTracker"), icon: Briefcase, description: "Track all your applications" },
+        { title: "Company Research", url: createPageUrl("CompanyResearchDashboard"), icon: Building2, description: "Research & fit analysis" },
         { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings" },
         { title: "Resume Optimizer", url: createPageUrl("ResumeOptimizer"), icon: FileText, description: "Tailor Your Resume" },
         { title: "Autofill Vault", url: createPageUrl("AutofillVault"), icon: Boxes, description: "Keep answers." },
