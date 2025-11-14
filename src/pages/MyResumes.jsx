@@ -338,14 +338,15 @@ export default function MyResumes() {
                                                                 console.log("=== CLICK DEBUG ===");
                                                                 console.log("Resume object:", resume);
                                                                 console.log("Resume ID:", resume.id);
-                                                                const url = createPageUrl(`ResumeEditorTest?resumeId=${resume.id}`);
-                                                                console.log("Navigating to:", url);
-                                                                navigate(url);
+                                                                const basePath = createPageUrl('ResumeEditor');
+                                                                const fullUrl = `${basePath}?resumeId=${resume.id}`;
+                                                                console.log("Navigating to:", fullUrl);
+                                                                navigate(fullUrl);
                                                             }}
                                                             disabled={!resume.id}
                                                         >
                                                             <Edit className="w-3 h-3" />
-                                                            Test Editor
+                                                            Edit & Improve
                                                         </Button>
                                                         <Link to={createPageUrl(`ResumeQuality?resumeId=${resume.id}`)}>
                                                             <Button size="sm" variant="outline" title="View quality analysis">
