@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, ArrowLeft, CheckCircle2, Sparkles, Star, TrendingUp, Plus, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
@@ -23,20 +23,22 @@ export default function ResumeEditor() {
   const [currentScore, setCurrentScore] = useState(null);
   const [improved, setImproved] = useState(false);
   const navigate = useNavigate();
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const resumeId = urlParams.get("resumeId");
-  const isNew = urlParams.get("new") === "1";
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    const resumeId = searchParams.get("resumeId");
+    const isNew = searchParams.get("new") === "1";
+    
     if (!resumeId) {
       console.error("No resumeId in URL params:", window.location.search);
+      console.error("Search params:", Object.fromEntries(searchParams));
       setError("No resumeId provided. Please select a resume from My Resumes.");
       setLoading(false);
       return;
     }
     
     console.log("Loading resume with ID:", resumeId);
+    console.log("isNew flag:", isNew);
     
     (async () => {
       try {
@@ -73,7 +75,7 @@ export default function ResumeEditor() {
       }
       setLoading(false);
     })();
-  }, [resumeId]);
+  }, [searchParams]);
 
   const plain = useMemo(() => resumeJsonToPlainText(draft || {}), [draft]);
 
@@ -133,6 +135,9 @@ export default function ResumeEditor() {
   };
 
   const rescore = async () => {
+    const resumeId = searchParams.get("resumeId");
+    if (!resumeId) return;
+    
     setScoring(true);
     setError("");
     try {
@@ -158,6 +163,9 @@ export default function ResumeEditor() {
   };
 
   const saveEdits = async () => {
+    const resumeId = searchParams.get("resumeId");
+    if (!resumeId) return;
+    
     setSaving(true);
     setError("");
     try {
@@ -186,6 +194,9 @@ export default function ResumeEditor() {
   };
 
   const promoteToMaster = async () => {
+    const resumeId = searchParams.get("resumeId");
+    if (!resumeId) return;
+    
     try {
       // Simply promote this resume to master without demoting others
       await base44.entities.Resume.update(resumeId, { is_master_resume: true });
@@ -207,6 +218,7 @@ export default function ResumeEditor() {
   }
 
   if (!resume) {
+    const resumeId = searchParams.get("resumeId");
     return (
       <div className="min-h-screen p-6 flex flex-col items-center justify-center text-center space-y-3">
         <p className="text-slate-700 mb-2">{error || "Resume not found."}</p>
@@ -219,6 +231,8 @@ export default function ResumeEditor() {
       </div>
     );
   }
+
+  const isNew = searchParams.get("new") === "1";
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50">
