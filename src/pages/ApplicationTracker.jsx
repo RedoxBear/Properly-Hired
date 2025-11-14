@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import FollowUpList from "@/components/followups/FollowUpList";
+import ApplicationInsights from "@/components/insights/ApplicationInsights";
 
 export default function ApplicationTracker() {
     const [applications, setApplications] = useState([]);
@@ -290,6 +291,9 @@ export default function ApplicationTracker() {
                 {needsFollowUp.length > 0 && (
                     <FollowUpList apps={needsFollowUp} onUpdated={loadData} />
                 )}
+
+                {/* Application Insights */}
+                <ApplicationInsights applications={applications} />
 
                 {/* Search & Filters */}
                 <Card>
