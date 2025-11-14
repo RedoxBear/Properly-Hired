@@ -200,12 +200,12 @@ You have access to detailed AI-generated job match analysis. Use this data strat
 
 **Key Keywords to Incorporate (${selectedMatch.key_keywords?.length || 0} identified):**
 ${(selectedMatch.key_keywords || []).join(", ")}
-→ Naturally weave these throughout the resume, especially in summary, skills, and experience bullets.
+→ ONLY incorporate keywords that align with their ACTUAL experience. Never force keywords for things they haven't done.
 
 **Identified Strengths (leverage these):**
 ${(selectedMatch.fit_analysis?.strengths || []).map((s, i) => `${i+1}. ${s}`).join("\n")}
 
-**Identified Gaps (address where truthful):**
+**Identified Gaps (be honest about these):**
 ${(selectedMatch.fit_analysis?.gaps || []).map((g, i) => `${i+1}. ${g}`).join("\n")}
 
 **Required Skills Match:**
@@ -216,14 +216,16 @@ ${(selectedMatch.fit_analysis?.required_skills_match || []).map(s =>
 **Improvement Suggestions to Apply:**
 ${(selectedMatch.fit_analysis?.improvement_suggestions || []).map((sugg, i) => `${i+1}. ${sugg}`).join("\n")}
 
-**How to Use This Data:**
-1. **Keywords**: Incorporate the key_keywords naturally into your bullets and summary
-2. **Strengths**: Emphasize these areas more prominently in experience bullets
-3. **Gaps**: Where you have related experience, reframe it to address these gaps
-4. **Required Skills**: For skills marked as "HAS", cite the evidence. For "MISSING", see if any transferable experience can truthfully address them
-5. **Improvement Suggestions**: Apply these specific recommendations to the resume content
+**CRITICAL - How to Use This Data (STAY TRUTHFUL):**
+1. **Keywords**: ONLY incorporate keywords that match their actual experience. If a keyword is for something they haven't done, skip it.
+2. **Strengths**: Emphasize these areas more prominently since they're proven matches.
+3. **Gaps**: If a gap exists and they have ZERO related experience, leave it as a gap. DO NOT fabricate or stretch the truth.
+4. **Required Skills**: 
+   - For "HAS": Cite the specific evidence mentioned and make it more prominent
+   - For "MISSING": Only mention if they have genuinely related/transferable experience. Otherwise, ignore it.
+5. **Improvement Suggestions**: ONLY apply suggestions that involve rewording/reframing EXISTING experience, not adding fake experience.
 
-Remember: Stay truthful. Don't fabricate experience, but do reframe and emphasize what's relevant.
+**GROUND RULE: If they didn't do it, don't claim they did. Focus on better articulation of what they ACTUALLY accomplished.**
 ` : "";
 
     // NEW: clauses for coverage/humanization
@@ -301,12 +303,15 @@ Your output must follow this exact structure:
 
 Core rules:
 - Optimize for ATS parsing AND for a human reader (varied sentence length, concrete outcomes, avoid buzzword salad).
-- Keep facts truthful; do not invent employers, dates, or achievements.
+- **CRITICAL**: Keep facts truthful; do not invent employers, dates, achievements, skills, or experience.
+- **CRITICAL**: Only include keywords that match their ACTUAL experience. Never add keywords for things they haven't done.
+- **CRITICAL**: All bullet points must be grounded in real work they performed. No fabrication or exaggeration.
 - Favor strong, metrics-driven bullet points with clear outcomes (%, $, time saved, throughput, quality, etc.).
 - De-duplicate repetitive bullets; prefer consolidated, stronger statements.
 - IMPORTANT: Career Highlights should be HIGH-LEVEL achievements that span the career. Do NOT repeat these same bullets in the work history.
 - IMPORTANT: Do NOT change company names, original role titles, locations, or date ranges. Preserve them exactly as in MASTER_RESUME_JSON.
 - If you want to suggest a retitled emphasis, include it in "title_adjustment_notes" only. Do not alter the "position" fields in the output data.
+- **When a skill or experience is missing from their background, leave it missing. Do not try to fill gaps with fabricated content.**
 
 Transferable-skill retargeting: ${computedRetarget ? "ENABLED" : "DISABLED"}.
 
@@ -545,6 +550,12 @@ Your task is to provide even MORE specific, tactical suggestions based on this a
 
     const suggestionPrompt = `You are an expert ATS and resume optimization specialist. Analyze the job posting and the candidate's current resume, then provide specific, actionable suggestions.
 
+**CRITICAL RULE: STAY GROUNDED IN THEIR ACTUAL EXPERIENCE**
+- Only suggest improvements that REFRAME or REWORD what they've already done
+- Never suggest adding skills, experiences, or achievements they don't have
+- Be honest about gaps - if they're missing something, acknowledge it but don't suggest fabricating it
+- Focus on better ARTICULATION of real accomplishments, not inventing new ones
+
 ${jobMatchContext}
 
 **JOB POSTING:**
@@ -554,34 +565,39 @@ ${jobDescription}
 ${selectedResume.parsed_content}
 
 **Your Task:**
-Provide specific suggestions to tailor this resume for the job posting. Be concrete and actionable.
+Provide specific, TRUTHFUL suggestions to better position their EXISTING experience for this role.
 
 Return JSON with:
 {
-  "keywords": string[], // 15-25 critical keywords/phrases from JD that should appear in resume (ATS-friendly terms)
+  "keywords": string[], // 15-25 keywords from JD that MATCH their actual experience (skip keywords for things they haven't done)
   "experience_suggestions": [
     {
-      "text": string, // Specific achievement bullet suggestion (with metrics)
-      "rationale": string // Why this bullet would be valuable (1 sentence)
+      "text": string, // Suggested rewording of an EXISTING achievement (reference something they actually did)
+      "rationale": string // Why reframing this existing bullet would help (1 sentence)
     }
-  ], // 5-8 suggested experience bullets that align with the job
-  "education_tips": string[], // 3-5 specific education/certification highlights to emphasize
+  ], // 5-8 suggestions to REFRAME existing bullets (not add new fake ones)
+  "education_tips": string[], // 3-5 tips to highlight education/certs THEY ALREADY HAVE
   "skill_gaps": [
     {
       "skill": string, // A skill from JD that's missing/weak in resume
-      "suggestion": string // How to address it or emphasize related experience
+      "suggestion": string // Be honest: "This skill is not evident in your background" OR "Emphasize [related experience they have]"
     }
-  ] // 3-5 skill gaps to address
+  ] // 3-5 skill gaps to address HONESTLY
 }
 
 **Guidelines:**
-- Keywords should be actual terms from the JD (technologies, methodologies, role-specific terms)
-- Experience suggestions should be realistic adaptations of their actual experience
-- Include metrics and specifics in experience suggestions (%, $, time, scale)
-- Education tips should highlight relevant degrees/certs they already have
-- For skill gaps, suggest truthful ways to emphasize related experience
+- Keywords: ONLY include keywords that align with their actual background
+- Experience suggestions: Must reference ACTUAL projects/roles they've had
+  - Good: "Reframe your Q3 2023 dashboard project to emphasize the data visualization aspect"
+  - Bad: "Add a bullet about machine learning model deployment" (if they've never done ML)
+- Include metrics and specifics, but ONLY from their real work
+- Education tips: Only mention degrees/certs they ACTUALLY have
+- For skill gaps: Be honest if something is truly missing. Don't suggest stretching the truth.
+  - Good: "This role requires Python. If you have any coding experience, mention it; otherwise, this is a true gap."
+  - Bad: "Add Python to your skills" (if they don't know Python)
 - Keep suggestions concrete and immediately actionable
-- Make it sound human, not robotic`;
+- Make it sound human, not robotic
+- **If they don't have relevant experience for something, say so honestly rather than suggesting they fake it.**`;
 
     try {
       const response = await retryWithBackoff(() =>

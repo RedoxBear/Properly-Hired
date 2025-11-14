@@ -88,6 +88,13 @@ export default function JobMatcher() {
 
         const analysisPrompt = `You are an expert career advisor and ATS specialist. Analyze how well this candidate's resume matches the job posting.
 
+**CRITICAL RULE: STAY GROUNDED IN ACTUAL EXPERIENCE**
+- Only suggest improvements based on what the candidate has ACTUALLY done
+- Never suggest adding skills, experience, or achievements they don't have
+- Focus on REFRAMING and REPOSITIONING existing experience, not inventing new content
+- Be honest about gaps - don't suggest fabricating experience to fill them
+- Improvement suggestions should be about better ARTICULATION of real experience, not adding fake experience
+
 **JOB POSTING:**
 Title: ${jobData.job_title}
 Company: ${jobData.company_name}
@@ -101,7 +108,7 @@ ${jobData.job_description}
 ${resume.parsed_content}
 
 **Your Task:**
-Provide a comprehensive fit analysis with actionable insights.
+Provide a comprehensive fit analysis with actionable insights that are TRUTHFUL and GROUNDED in their actual background.
 
 Return JSON with:
 {
@@ -118,20 +125,25 @@ Return JSON with:
   ], // 8-12 key required skills
   "experience_alignment": string, // 2-3 sentences on experience fit
   "education_match": string, // 1-2 sentences on education/certification fit
-  "improvement_suggestions": string[], // 5-7 specific, actionable ways to improve resume for this role
+  "improvement_suggestions": string[], // 5-7 specific ways to REFRAME/REWORD existing experience for this role (NOT adding new experience)
   "key_keywords": string[], // 15-20 critical keywords from JD for ATS
   "ai_reasoning": string // 2-3 sentences explaining the match score and overall assessment
 }
 
 **Guidelines:**
 - Be honest and specific - don't inflate scores
-- Strengths should cite actual resume content
+- Strengths should cite actual resume content with specific examples
 - Gaps should be constructive, not harsh
-- Improvement suggestions must be actionable and specific
+- **CRITICAL**: Improvement suggestions must ONLY suggest rewording/reframing EXISTING experience
+  - Good: "Reframe your project management experience to emphasize Agile methodology you used"
+  - Bad: "Add Agile certification to your resume" (if they don't have it)
+  - Good: "Highlight the data analysis you did in your Q3 2023 project"
+  - Bad: "Add machine learning experience" (if they don't have it)
 - Keywords should be actual terms from the JD
-- For required_skills_match, focus on must-have technical and soft skills
+- For required_skills_match, cite specific examples from resume or mark as "Not evident"
 - Consider years of experience, seniority level, industry fit
-- Assessment should help candidate decide if they should apply`;
+- Assessment should help candidate decide if they should apply
+- If a skill is missing, say it's missing - don't suggest fabricating it`;
 
         const response = await retryWithBackoff(() =>
             InvokeLLM({
