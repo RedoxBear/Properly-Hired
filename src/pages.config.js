@@ -23,6 +23,7 @@ import Pricing from './pages/Pricing';
 import ResumeEditor from './pages/ResumeEditor';
 import ResumeHumanizer from './pages/ResumeHumanizer';
 import ResumeEditorTest from './pages/ResumeEditorTest';
+import ApplicationTracker from './pages/ApplicationTracker';
 import Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "ResumeEditor": ResumeEditor,
     "ResumeHumanizer": ResumeHumanizer,
     "ResumeEditorTest": ResumeEditorTest,
+    "ApplicationTracker": ApplicationTracker,
 }
 
 export const pagesConfig = {
