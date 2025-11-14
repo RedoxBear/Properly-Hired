@@ -441,7 +441,7 @@ Return JSON with:
                                             Add Job
                                         </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-slate-200 shadow-xl">
                                         <DialogHeader>
                                             <DialogTitle>Add Job to Match</DialogTitle>
                                         </DialogHeader>
