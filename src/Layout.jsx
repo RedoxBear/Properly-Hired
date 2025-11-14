@@ -16,7 +16,8 @@ import {
     ArrowRightLeft,
     TrendingUp,
     Boxes,
-    Crown
+    Crown,
+    Target
 } from "lucide-react";
 import {
     Sidebar,
@@ -44,6 +45,7 @@ function AppShell({ children, currentPageName }) {
         { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Overview & Quick Actions" },
         { title: "My Resumes", url: createPageUrl("MyResumes"), icon: Archive, description: "Manage all your resumes" },
         { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" },
+        { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis" },
         { title: "App Tracker", url: createPageUrl("ApplicationTracker"), icon: Briefcase, description: "Track all your applications" },
         { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings" },
         { title: "Resume Optimizer", url: createPageUrl("ResumeOptimizer"), icon: FileText, description: "Tailor Your Resume" },

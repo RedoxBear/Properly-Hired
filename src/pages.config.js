@@ -24,6 +24,7 @@ import ResumeEditor from './pages/ResumeEditor';
 import ResumeHumanizer from './pages/ResumeHumanizer';
 import ResumeEditorTest from './pages/ResumeEditorTest';
 import ApplicationTracker from './pages/ApplicationTracker';
+import JobMatcher from './pages/JobMatcher';
 import Layout from './Layout.jsx';
 
 
@@ -54,6 +55,7 @@ export const PAGES = {
     "ResumeHumanizer": ResumeHumanizer,
     "ResumeEditorTest": ResumeEditorTest,
     "ApplicationTracker": ApplicationTracker,
+    "JobMatcher": JobMatcher,
 }
 
 export const pagesConfig = {
