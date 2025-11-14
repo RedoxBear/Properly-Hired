@@ -446,6 +446,30 @@ Return JSON with:
                                             <DialogTitle>Add Job to Match</DialogTitle>
                                         </DialogHeader>
                                         <div className="space-y-4 py-4">
+                                            {resumes.length === 0 && (
+                                                <Alert variant="destructive">
+                                                    <AlertDescription>
+                                                        You need to create a master resume first. Go to <strong>My Resumes</strong> to upload or build one.
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                            
+                                            <div>
+                                                <label className="text-sm font-medium mb-2 block">Match Against Resume *</label>
+                                                <Select value={selectedResume || ""} onValueChange={setSelectedResume}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a resume..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {resumes.map(r => (
+                                                            <SelectItem key={r.id} value={r.id}>
+                                                                {r.version_name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            
                                             <div className="grid md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="text-sm font-medium">Job Title *</label>
@@ -453,6 +477,7 @@ Return JSON with:
                                                         value={jobInput.job_title}
                                                         onChange={(e) => setJobInput({...jobInput, job_title: e.target.value})}
                                                         placeholder="e.g. Senior Software Engineer"
+                                                        disabled={resumes.length === 0}
                                                     />
                                                 </div>
                                                 <div>
@@ -461,6 +486,7 @@ Return JSON with:
                                                         value={jobInput.company_name}
                                                         onChange={(e) => setJobInput({...jobInput, company_name: e.target.value})}
                                                         placeholder="e.g. Google"
+                                                        disabled={resumes.length === 0}
                                                     />
                                                 </div>
                                             </div>
