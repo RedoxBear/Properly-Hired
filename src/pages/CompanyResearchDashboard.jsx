@@ -320,9 +320,9 @@ Return JSON with:
                                         Research Company
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent>
+                                <DialogContent className="bg-white text-slate-800">
                                     <DialogHeader>
-                                        <DialogTitle>Research New Company</DialogTitle>
+                                        <DialogTitle className="text-slate-800">Research New Company</DialogTitle>
                                     </DialogHeader>
                                     <div className="space-y-4 py-4">
                                         <div>
@@ -383,11 +383,11 @@ Return JSON with:
                 {isLoading ? (
                     <div className="text-center py-12 text-muted-foreground">Loading companies...</div>
                 ) : filteredCompanies.length === 0 ? (
-                    <Card>
+                    <Card className="bg-white">
                         <CardContent className="py-16 text-center">
                             <Building2 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                            <h3 className="text-xl font-medium text-foreground mb-2">No companies researched yet</h3>
-                            <p className="text-muted-foreground mb-6">Start researching companies to track insights and calculate fit scores.</p>
+                            <h3 className="text-xl font-medium text-slate-800 mb-2">No companies researched yet</h3>
+                            <p className="text-slate-600 mb-6">Start researching companies to track insights and calculate fit scores.</p>
                             <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
                                 <Plus className="w-4 h-4 mr-2" />
                                 Research Your First Company
