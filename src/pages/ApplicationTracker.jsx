@@ -115,7 +115,7 @@ export default function ApplicationTracker() {
             job_posting_url: app.job_posting_url || "",
             job_description: app.job_description || "",
             application_status: app.application_status || "applied",
-            interview_status: app.interview_status || "active",
+            interview_status: app.interview_status || "",
             is_rejected: app.is_rejected || false,
             user_rating: app.user_rating || 0,
             date_applied: app.applied_at ? format(new Date(app.applied_at), "yyyy-MM-dd") : "",
@@ -404,13 +404,14 @@ export default function ApplicationTracker() {
                                             <div>
                                                 <Label>Interview Status</Label>
                                                 <Select 
-                                                    value={formData.interview_status} 
-                                                    onValueChange={(val) => setFormData({...formData, interview_status: val})}
+                                                    value={formData.interview_status || ""} 
+                                                    onValueChange={(val) => setFormData({...formData, interview_status: val || null})}
                                                 >
                                                     <SelectTrigger>
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
+                                                        <SelectItem value={null}>—</SelectItem>
                                                         <SelectItem value="active">Active</SelectItem>
                                                         <SelectItem value="inactive">Inactive</SelectItem>
                                                     </SelectContent>
@@ -626,13 +627,14 @@ export default function ApplicationTracker() {
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Select 
-                                                            value={app.interview_status || "active"} 
-                                                            onValueChange={(val) => updateStatus(app, "interview_status", val)}
+                                                            value={app.interview_status || ""} 
+                                                            onValueChange={(val) => updateStatus(app, "interview_status", val || null)}
                                                         >
                                                             <SelectTrigger className="h-8 text-xs w-28">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
+                                                                <SelectItem value={null}>—</SelectItem>
                                                                 <SelectItem value="active">Active</SelectItem>
                                                                 <SelectItem value="inactive">Inactive</SelectItem>
                                                             </SelectContent>
