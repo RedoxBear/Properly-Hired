@@ -18,8 +18,7 @@ import {
     Boxes,
     Crown,
     Target,
-    User,
-    Building2
+    User
 } from "lucide-react";
 import {
     Sidebar,
