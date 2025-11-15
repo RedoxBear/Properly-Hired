@@ -245,7 +245,7 @@ Return JSON with:
     };
 
     return (
-        <div className="min-h-screen p-4 md:p-8 bg-gray-50">
+        <div className="min-h-screen p-4 md:p-8 bg-background">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -253,8 +253,8 @@ Return JSON with:
                         <Building2 className="w-4 h-4" />
                         Company Research
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Company Research Dashboard</h1>
-                    <p className="text-lg text-slate-600">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Company Research Dashboard</h1>
+                    <p className="text-lg text-muted-foreground">
                         Research companies, track culture insights, and calculate personalized fit scores.
                     </p>
                 </motion.div>
@@ -269,8 +269,8 @@ Return JSON with:
                 <div className="grid grid-cols-3 gap-4">
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-slate-800">{stats.total}</div>
-                            <div className="text-sm text-slate-600">Companies Researched</div>
+                            <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+                            <div className="text-sm text-muted-foreground">Companies Researched</div>
                         </CardContent>
                     </Card>
                     <Card className="bg-green-50 border-green-200">
@@ -381,13 +381,13 @@ Return JSON with:
 
                 {/* Company List / Details View */}
                 {isLoading ? (
-                    <div className="text-center py-12 text-slate-600">Loading companies...</div>
+                    <div className="text-center py-12 text-muted-foreground">Loading companies...</div>
                 ) : filteredCompanies.length === 0 ? (
                     <Card>
                         <CardContent className="py-16 text-center">
                             <Building2 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                            <h3 className="text-xl font-medium text-slate-600 mb-2">No companies researched yet</h3>
-                            <p className="text-slate-500 mb-6">Start researching companies to track insights and calculate fit scores.</p>
+                            <h3 className="text-xl font-medium text-foreground mb-2">No companies researched yet</h3>
+                            <p className="text-muted-foreground mb-6">Start researching companies to track insights and calculate fit scores.</p>
                             <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
                                 <Plus className="w-4 h-4 mr-2" />
                                 Research Your First Company
@@ -426,14 +426,14 @@ Return JSON with:
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="space-y-1 text-xs text-slate-600">
+                                            <div className="space-y-1 text-xs text-muted-foreground">
                                                 {company.industry && <div>📊 {company.industry}</div>}
                                                 {company.headquarters && <div>📍 {company.headquarters}</div>}
                                             </div>
                                         </CardHeader>
                                         <CardContent>
                                             {linkedApps.length > 0 && (
-                                                <div className="flex items-center gap-2 text-sm text-slate-600 mb-3">
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                                                     <Briefcase className="w-4 h-4" />
                                                     {linkedApps.length} linked application{linkedApps.length !== 1 ? 's' : ''}
                                                 </div>
