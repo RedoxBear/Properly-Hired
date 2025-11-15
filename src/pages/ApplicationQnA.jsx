@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
+import { Resume } from "@/entities/Resume";
 import { InvokeLLM } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,7 @@ export default function QAAssistant() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState("");
     const [answerStyle, setAnswerStyle] = useState("balanced"); // concise | balanced | detailed
+    const [resumes, setResumes] = useState([]);
 
     useEffect(() => {
         loadJobApplications();
@@ -36,8 +38,12 @@ export default function QAAssistant() {
 
     const loadJobApplications = async () => {
         try {
-            const applications = await JobApplication.list("-created_date", 20);
+            const [applications, resumeList] = await Promise.all([
+                JobApplication.list("-created_date", 20),
+                Resume.list("-created_date", 100)
+            ]);
             setJobApplications(applications);
+            setResumes(resumeList);
         } catch (error) {
             console.error("Error loading job applications:", error);
         }
@@ -77,6 +83,26 @@ export default function QAAssistant() {
         try {
             const selectedJob = jobApplications.find(job => job.id === selectedJobId);
             
+            // Get the resume to use (optimized version if available, otherwise master)
+            const resumeToUse = (() => {
+                if (selectedJob.optimized_resume_id) {
+                    const optimized = resumes.find(r => r.id === selectedJob.optimized_resume_id);
+                    if (optimized) return optimized;
+                }
+                if (selectedJob.master_resume_id) {
+                    const master = resumes.find(r => r.id === selectedJob.master_resume_id);
+                    if (master) return master;
+                }
+                // Fallback to any master resume
+                return resumes.find(r => r.is_master_resume);
+            })();
+
+            const resumeContent = resumeToUse ? (
+                resumeToUse.optimized_content 
+                    ? (typeof resumeToUse.optimized_content === 'string' ? resumeToUse.optimized_content : JSON.stringify(resumeToUse.optimized_content))
+                    : (typeof resumeToUse.parsed_content === 'string' ? resumeToUse.parsed_content : JSON.stringify(resumeToUse.parsed_content))
+            ) : "No resume available";
+            
             const styleGuidance = {
                 concise: "Be brief and to the point. 2-3 sentences maximum unless the character limit requires more.",
                 balanced: "Provide focused, well-structured answers. Use 1-2 short paragraphs with key details.",
@@ -84,13 +110,23 @@ export default function QAAssistant() {
             };
 
             const qaPrompt = `
-You are helping a job applicant answer application questions. Provide tailored answers for each question below.
+You are helping a job applicant answer application questions. Provide tailored answers based on their ACTUAL resume and the job requirements.
 
 JOB CONTEXT:
 - Job Title: ${selectedJob.job_title}
 - Company: ${selectedJob.company_name}
 - Job Description: ${selectedJob.job_description}
 - Key Requirements: ${selectedJob.key_requirements?.join(', ') || 'Not specified'}
+
+CANDIDATE'S RESUME:
+${resumeContent}
+
+CRITICAL INSTRUCTIONS:
+- Base ALL answers on the candidate's ACTUAL experience from their resume
+- Use SPECIFIC examples, achievements, and metrics from their resume
+- Never fabricate or exaggerate experience they don't have
+- If the question asks about something they haven't done, acknowledge it honestly or pivot to related experience they DO have
+- Make answers sound authentically human - avoid robotic patterns and AI buzzwords
 
 ANSWER STYLE: ${styleGuidance[answerStyle]}
 
@@ -101,15 +137,23 @@ ${i + 1}. "${q.question}"
 `).join('\n')}
 
 INSTRUCTIONS:
-- Align answers with the job requirements
-- Use STAR method when appropriate (Situation, Task, Action, Result)
-- Include specific examples and quantifiable achievements
-- Use keywords from the job description naturally
+- Base answers ONLY on information in their resume - use specific examples and metrics they actually achieved
+- Align answers with the job requirements by highlighting relevant experience
+- Use STAR method when appropriate (Situation, Task, Action, Result) from their actual work history
+- Include specific examples and quantifiable achievements FROM THEIR RESUME
+- Use keywords from the job description naturally, but only where they match real experience
 - Respect character limits strictly
-- Be authentic and professional
+- Be authentic and professional - sound like a real person, not a marketing brochure
 - Make each answer unique to its question
+- If they lack experience in a specific area, either acknowledge it professionally or pivot to the closest related experience they DO have
 
-Return one focused answer per question.
+**Anti-AI Writing Rules:**
+- Avoid: "leveraged," "spearheaded," "facilitated," "championed," "drove," "utilized"
+- Use concrete action verbs: "Built," "Created," "Led," "Reduced," "Improved," "Designed"
+- Sound conversational and genuine, not robotic
+- Include natural imperfections and varied sentence structure
+
+Return one focused answer per question grounded in their actual resume.
             `;
 
             const response = await retryWithBackoff(() => InvokeLLM({
