@@ -382,7 +382,7 @@ export default function ApplicationTracker() {
                                         Add Application
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-slate-200">
                                     <DialogHeader>
                                         <DialogTitle>
                                             {editingApp ? "Edit Application" : "Add New Application"}
