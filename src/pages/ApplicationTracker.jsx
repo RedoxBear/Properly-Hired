@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -13,30 +13,23 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { format, formatDistanceToNow, addDays, isBefore } from "date-fns";
+import { format } from "date-fns";
 import {
     Plus,
-    Clock,
     Search,
     Briefcase,
-    Building,
-    Calendar,
-    FileText,
-    Bell,
+    Star,
     Edit,
     Trash2,
     ExternalLink,
-    CheckCircle2,
-    AlertCircle,
-    Target,
-    Filter
+    CheckCircle,
+    XCircle,
+    Calendar as CalendarIcon,
+    FileText,
+    MessageSquare,
+    Users
 } from "lucide-react";
 import { motion } from "framer-motion";
-import FollowUpList from "@/components/followups/FollowUpList";
-import ApplicationInsights from "@/components/insights/ApplicationInsights";
-import FollowUpScheduleCard from "@/components/followups/FollowUpScheduleCard";
-import { generateFollowUpSchedule, calculateFollowUpDates, getNextFollowUp } from "@/components/utils/aiFollowUp";
-import { UserPreferences } from "@/entities/UserPreferences";
 
 export default function ApplicationTracker() {
     const [applications, setApplications] = useState([]);
@@ -51,25 +44,25 @@ export default function ApplicationTracker() {
         job_title: "",
         job_posting_url: "",
         job_description: "",
-        application_status: "ready",
+        application_status: "applied",
+        interview_status: "active",
+        is_rejected: false,
+        user_rating: 0,
         date_applied: "",
-        follow_up_date: "",
         notes: "",
         optimized_resume_id: ""
     });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [selectedIds, setSelectedIds] = useState([]);
-    const [selectedAppForSchedule, setSelectedAppForSchedule] = useState(null);
-    const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false);
-    const [userPrefs, setUserPrefs] = useState(null);
 
     const statusConfig = {
-        ready: { color: "bg-yellow-100 text-yellow-800", label: "Not Applied", icon: Clock },
-        applied: { color: "bg-blue-100 text-blue-800", label: "Applied", icon: CheckCircle2 },
-        interview: { color: "bg-purple-100 text-purple-800", label: "Interview", icon: Calendar },
-        offer: { color: "bg-emerald-100 text-emerald-800", label: "Offer", icon: Target },
-        rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: AlertCircle }
+        applied: { color: "bg-blue-100 text-blue-800", label: "Applied", icon: FileText },
+        first_interview: { color: "bg-purple-100 text-purple-800", label: "1st Interview", icon: MessageSquare },
+        second_interview: { color: "bg-purple-100 text-purple-800", label: "2nd Interview", icon: MessageSquare },
+        final_interview: { color: "bg-purple-100 text-purple-800", label: "Final Interview", icon: Users },
+        hired: { color: "bg-green-100 text-green-800", label: "Hired", icon: CheckCircle },
+        rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: XCircle }
     };
 
     useEffect(() => {
@@ -79,14 +72,12 @@ export default function ApplicationTracker() {
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const [apps, resumeList, prefs] = await Promise.all([
+            const [apps, resumeList] = await Promise.all([
                 JobApplication.list("-created_date"),
-                Resume.list("-created_date", 100),
-                UserPreferences.list("-created_date", 1)
+                Resume.list("-created_date", 100)
             ]);
             setApplications(apps);
             setResumes(resumeList);
-            setUserPrefs(prefs && prefs[0] ? prefs[0] : {});
         } catch (e) {
             console.error("Error loading data:", e);
             setError("Failed to load applications");
@@ -100,9 +91,11 @@ export default function ApplicationTracker() {
             job_title: "",
             job_posting_url: "",
             job_description: "",
-            application_status: "ready",
+            application_status: "applied",
+            interview_status: "active",
+            is_rejected: false,
+            user_rating: 0,
             date_applied: "",
-            follow_up_date: "",
             notes: "",
             optimized_resume_id: ""
         });
@@ -121,9 +114,11 @@ export default function ApplicationTracker() {
             job_title: app.job_title || "",
             job_posting_url: app.job_posting_url || "",
             job_description: app.job_description || "",
-            application_status: app.application_status || "ready",
+            application_status: app.application_status || "applied",
+            interview_status: app.interview_status || "active",
+            is_rejected: app.is_rejected || false,
+            user_rating: app.user_rating || 0,
             date_applied: app.applied_at ? format(new Date(app.applied_at), "yyyy-MM-dd") : "",
-            follow_up_date: app.next_follow_up_at ? format(new Date(app.next_follow_up_at), "yyyy-MM-dd") : "",
             notes: app.summary?.notes || "",
             optimized_resume_id: app.optimized_resume_id || ""
         });
@@ -146,10 +141,12 @@ export default function ApplicationTracker() {
                 job_posting_url: formData.job_posting_url || "",
                 job_description: formData.job_description || "",
                 application_status: formData.application_status,
+                interview_status: formData.interview_status,
+                is_rejected: formData.is_rejected,
+                user_rating: formData.user_rating || null,
                 optimized_resume_id: formData.optimized_resume_id || null,
-                applied: formData.application_status === "applied",
-                applied_at: formData.date_applied ? new Date(formData.date_applied).toISOString() : null,
-                next_follow_up_at: formData.follow_up_date ? new Date(formData.follow_up_date).toISOString() : null,
+                applied: true,
+                applied_at: formData.date_applied ? new Date(formData.date_applied).toISOString() : new Date().toISOString(),
                 summary: {
                     ...(editingApp?.summary || {}),
                     notes: formData.notes
@@ -198,71 +195,26 @@ export default function ApplicationTracker() {
         }
     };
 
-    const updateStatus = async (app, newStatus) => {
+    const updateStatus = async (app, field, value) => {
         try {
-            const payload = { application_status: newStatus };
-            if (newStatus === "applied" && !app.applied_at) {
-                payload.applied = true;
-                payload.applied_at = new Date().toISOString();
-                // Auto-set follow-up for 3 days from now
-                payload.next_follow_up_at = addDays(new Date(), 3).toISOString();
-            }
-            await JobApplication.update(app.id, payload);
+            await JobApplication.update(app.id, { [field]: value });
             await loadData();
         } catch (e) {
-            console.error("Error updating status:", e);
+            console.error("Error updating:", e);
+        }
+    };
+
+    const updateRating = async (app, rating) => {
+        try {
+            await JobApplication.update(app.id, { user_rating: rating });
+            await loadData();
+        } catch (e) {
+            console.error("Error updating rating:", e);
         }
     };
 
     const toggleSelected = (id) => {
         setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-    };
-
-    const generateSmartSchedule = async (app) => {
-        setIsGeneratingSchedule(true);
-        try {
-            const schedule = await generateFollowUpSchedule(app, userPrefs);
-            const dates = calculateFollowUpDates(app.applied_at || new Date().toISOString(), schedule.follow_up_schedule);
-            const nextFollowUp = getNextFollowUp(dates);
-            
-            await JobApplication.update(app.id, {
-                follow_up_policy: "ai_generated",
-                scheduled_follow_ups: dates.map(d => d.date),
-                next_follow_up_at: nextFollowUp?.date || null,
-                ai_follow_up_schedule: {
-                    ...schedule,
-                    follow_up_schedule: dates
-                }
-            });
-            
-            await loadData();
-        } catch (e) {
-            console.error("Error generating schedule:", e);
-            setError("Failed to generate follow-up schedule");
-        }
-        setIsGeneratingSchedule(false);
-    };
-
-    const logFollowUp = async (app, followUpData) => {
-        try {
-            const history = app.follow_up_history || [];
-            history.push(followUpData);
-            
-            const remainingFollowUps = (app.scheduled_follow_ups || []).filter(
-                date => new Date(date) > new Date()
-            );
-            
-            await JobApplication.update(app.id, {
-                follow_up_history: history,
-                next_follow_up_at: remainingFollowUps[0] || null
-            });
-            
-            await loadData();
-            setSelectedAppForSchedule(null);
-        } catch (e) {
-            console.error("Error logging follow-up:", e);
-            setError("Failed to log follow-up");
-        }
     };
 
     const filteredApplications = applications.filter(app => {
@@ -273,39 +225,84 @@ export default function ApplicationTracker() {
         return matchesSearch && matchesStatus;
     });
 
-    // Separate applications needing follow-up
-    const needsFollowUp = filteredApplications.filter(app => 
-        app.next_follow_up_at && isBefore(new Date(app.next_follow_up_at), new Date())
-    );
-
-    // Group by status
-    const groupedApps = filteredApplications.reduce((acc, app) => {
-        const status = app.application_status || "ready";
-        if (!acc[status]) acc[status] = [];
-        acc[status].push(app);
-        return acc;
-    }, {});
-
     const stats = {
-        total: applications.length,
+        all: applications.length,
+        rejected: applications.filter(a => a.is_rejected || a.application_status === "rejected").length,
         applied: applications.filter(a => a.application_status === "applied").length,
-        interview: applications.filter(a => a.application_status === "interview").length,
-        offer: applications.filter(a => a.application_status === "offer").length
+        interview: applications.filter(a => ["first_interview", "second_interview", "final_interview"].includes(a.application_status)).length,
+        hired: applications.filter(a => a.application_status === "hired").length
+    };
+
+    const StarRating = ({ rating, onRate, readOnly = false }) => {
+        return (
+            <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                        key={star}
+                        onClick={() => !readOnly && onRate(star)}
+                        disabled={readOnly}
+                        className={`${readOnly ? 'cursor-default' : 'cursor-pointer hover:scale-110'} transition-transform`}
+                    >
+                        <Star 
+                            className={`w-4 h-4 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                        />
+                    </button>
+                ))}
+            </div>
+        );
     };
 
     return (
         <div className="min-h-screen p-4 md:p-8 bg-gray-50">
-            <div className="max-w-7xl mx-auto space-y-6">
-                {/* Header */}
+            <div className="max-w-[1400px] mx-auto space-y-6">
+                {/* Header with Stats */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-4">
-                        <Briefcase className="w-4 h-4" />
-                        Application Tracking System
+                    <div className="flex flex-wrap gap-4 mb-6">
+                        <button className="flex flex-col items-center px-4 py-2 bg-white rounded-lg border hover:bg-gray-50">
+                            <div className="text-2xl font-bold text-slate-800">{stats.all}</div>
+                            <div className="text-xs text-slate-600">All</div>
+                        </button>
+                        <button 
+                            className="flex flex-col items-center px-4 py-2 bg-white rounded-lg border hover:bg-gray-50"
+                            onClick={() => setStatusFilter("rejected")}
+                        >
+                            <div className="flex items-center gap-1">
+                                <XCircle className="w-4 h-4 text-red-600" />
+                                <div className="text-2xl font-bold text-slate-800">{stats.rejected}</div>
+                            </div>
+                            <div className="text-xs text-slate-600">Rejected</div>
+                        </button>
+                        <button 
+                            className="flex flex-col items-center px-4 py-2 bg-white rounded-lg border hover:bg-gray-50"
+                            onClick={() => setStatusFilter("applied")}
+                        >
+                            <div className="flex items-center gap-1">
+                                <FileText className="w-4 h-4 text-blue-600" />
+                                <div className="text-2xl font-bold text-slate-800">{stats.applied}</div>
+                            </div>
+                            <div className="text-xs text-slate-600">Applied</div>
+                        </button>
+                        <button 
+                            className="flex flex-col items-center px-4 py-2 bg-white rounded-lg border hover:bg-gray-50"
+                            onClick={() => setStatusFilter("all")}
+                        >
+                            <div className="flex items-center gap-1">
+                                <MessageSquare className="w-4 h-4 text-purple-600" />
+                                <div className="text-2xl font-bold text-slate-800">{stats.interview}</div>
+                            </div>
+                            <div className="text-xs text-slate-600">Interview</div>
+                        </button>
+                        <button 
+                            className="flex flex-col items-center px-4 py-2 bg-white rounded-lg border hover:bg-gray-50"
+                            onClick={() => setStatusFilter("hired")}
+                        >
+                            <div className="flex items-center gap-1">
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                                <div className="text-2xl font-bold text-slate-800">{stats.hired}</div>
+                            </div>
+                            <div className="text-xs text-slate-600">Hired</div>
+                        </button>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Application Tracker</h1>
-                    <p className="text-lg text-slate-600">
-                        Manage your job applications, track status updates, and never miss a follow-up.
-                    </p>
                 </motion.div>
 
                 {error && (
@@ -314,59 +311,22 @@ export default function ApplicationTracker() {
                     </Alert>
                 )}
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card className="bg-white">
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-slate-800">{stats.total}</div>
-                            <div className="text-sm text-slate-600">Total Applications</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-blue-50 border-blue-200">
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-blue-700">{stats.applied}</div>
-                            <div className="text-sm text-blue-600">Applied</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-purple-50 border-purple-200">
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-purple-700">{stats.interview}</div>
-                            <div className="text-sm text-purple-600">Interviews</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-emerald-50 border-emerald-200">
-                        <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-emerald-700">{stats.offer}</div>
-                            <div className="text-sm text-emerald-600">Offers</div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Follow-up Reminders */}
-                {needsFollowUp.length > 0 && (
-                    <FollowUpList apps={needsFollowUp} onUpdated={loadData} />
-                )}
-
-                {/* Application Insights */}
-                <ApplicationInsights applications={applications} />
-
-                {/* Search & Filters */}
+                {/* Search & Add */}
                 <Card>
                     <CardContent className="p-4">
-                        <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex gap-4">
                             <div className="relative flex-1">
                                 <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                                 <Input
-                                    placeholder="Search by company or role..."
+                                    placeholder="Search applications..."
                                     className="pl-10"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                             <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-full md:w-[180px]">
-                                    <Filter className="w-4 h-4 mr-2" />
-                                    <SelectValue placeholder="Filter Status" />
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Filter by status" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Statuses</SelectItem>
@@ -424,9 +384,9 @@ export default function ApplicationTracker() {
                                                 className="min-h-[100px]"
                                             />
                                         </div>
-                                        <div className="grid md:grid-cols-2 gap-4">
+                                        <div className="grid md:grid-cols-3 gap-4">
                                             <div>
-                                                <Label>Status</Label>
+                                                <Label>Stage</Label>
                                                 <Select 
                                                     value={formData.application_status} 
                                                     onValueChange={(val) => setFormData({...formData, application_status: val})}
@@ -442,21 +402,32 @@ export default function ApplicationTracker() {
                                                 </Select>
                                             </div>
                                             <div>
-                                                <Label>Linked Resume</Label>
+                                                <Label>Interview Status</Label>
                                                 <Select 
-                                                    value={formData.optimized_resume_id} 
-                                                    onValueChange={(val) => setFormData({...formData, optimized_resume_id: val})}
+                                                    value={formData.interview_status} 
+                                                    onValueChange={(val) => setFormData({...formData, interview_status: val})}
                                                 >
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Select resume..." />
+                                                        <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value={null}>None</SelectItem>
-                                                        {resumes.map(r => (
-                                                            <SelectItem key={r.id} value={r.id}>
-                                                                {r.version_name}
-                                                            </SelectItem>
-                                                        ))}
+                                                        <SelectItem value="active">Active</SelectItem>
+                                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div>
+                                                <Label>Rejected</Label>
+                                                <Select 
+                                                    value={formData.is_rejected ? "yes" : "no"} 
+                                                    onValueChange={(val) => setFormData({...formData, is_rejected: val === "yes"})}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="no">No</SelectItem>
+                                                        <SelectItem value="yes">Yes</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </div>
@@ -471,20 +442,40 @@ export default function ApplicationTracker() {
                                                 />
                                             </div>
                                             <div>
-                                                <Label>Follow-up Date</Label>
-                                                <Input
-                                                    type="date"
-                                                    value={formData.follow_up_date}
-                                                    onChange={(e) => setFormData({...formData, follow_up_date: e.target.value})}
-                                                />
+                                                <Label>Your Rating</Label>
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <StarRating 
+                                                        rating={formData.user_rating} 
+                                                        onRate={(r) => setFormData({...formData, user_rating: r})}
+                                                    />
+                                                </div>
                                             </div>
+                                        </div>
+                                        <div>
+                                            <Label>Linked Resume</Label>
+                                            <Select 
+                                                value={formData.optimized_resume_id} 
+                                                onValueChange={(val) => setFormData({...formData, optimized_resume_id: val})}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select resume..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value={null}>None</SelectItem>
+                                                    {resumes.map(r => (
+                                                        <SelectItem key={r.id} value={r.id}>
+                                                            {r.version_name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                         <div>
                                             <Label>Notes</Label>
                                             <Textarea
                                                 value={formData.notes}
                                                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                                                placeholder="Add any notes about this application..."
+                                                placeholder="Add any notes..."
                                                 className="min-h-[80px]"
                                             />
                                         </div>
@@ -513,158 +504,195 @@ export default function ApplicationTracker() {
 
                 {/* Bulk Actions */}
                 {selectedIds.length > 0 && (
-                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                        <Card className="bg-blue-50 border-blue-200">
-                            <CardContent className="p-4 flex items-center justify-between">
-                                <span className="font-medium text-blue-900">
-                                    {selectedIds.length} application(s) selected
-                                </span>
-                                <div className="flex gap-2">
-                                    <Button variant="destructive" size="sm" onClick={bulkDelete}>
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Delete Selected
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => setSelectedIds([])}>
-                                        Clear Selection
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+                    <Card className="bg-blue-50 border-blue-200">
+                        <CardContent className="p-4 flex items-center justify-between">
+                            <span className="font-medium text-blue-900">
+                                {selectedIds.length} selected
+                            </span>
+                            <div className="flex gap-2">
+                                <Button variant="destructive" size="sm" onClick={bulkDelete}>
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={() => setSelectedIds([])}>
+                                    Clear
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 )}
 
-                {/* Applications List */}
+                {/* Table */}
                 {isLoading ? (
-                    <div className="text-center py-12 text-slate-600">Loading applications...</div>
+                    <div className="text-center py-12 text-slate-600">Loading...</div>
                 ) : filteredApplications.length === 0 ? (
                     <Card>
                         <CardContent className="py-16 text-center">
                             <Briefcase className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                             <h3 className="text-xl font-medium text-slate-600 mb-2">No applications yet</h3>
-                            <p className="text-slate-500 mb-6">Start tracking your job applications by adding your first one!</p>
+                            <p className="text-slate-500 mb-6">Start tracking your job applications!</p>
                             <Button onClick={openAddDialog} className="bg-blue-600 hover:bg-blue-700">
                                 <Plus className="w-4 h-4 mr-2" />
-                                Add Your First Application
+                                Add First Application
                             </Button>
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="space-y-3">
-                        {filteredApplications.map(app => {
-                            const StatusIcon = statusConfig[app.application_status]?.icon || Clock;
-                            const isOverdue = app.next_follow_up_at && isBefore(new Date(app.next_follow_up_at), new Date());
-                            const linkedResume = resumes.find(r => r.id === app.optimized_resume_id);
-
-                            return (
-                                <motion.div key={app.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                                    <Card className={`hover:shadow-lg transition-all ${isOverdue ? 'border-amber-300 bg-amber-50/30' : ''}`}>
-                                        <CardContent className="p-4">
-                                            <div className="flex items-start gap-4">
+                    <Card>
+                        <CardContent className="p-0">
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50 border-b">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-10">
                                                 <Checkbox
-                                                    checked={selectedIds.includes(app.id)}
-                                                    onCheckedChange={() => toggleSelected(app.id)}
-                                                    className="mt-1"
+                                                    checked={selectedIds.length === filteredApplications.length}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            setSelectedIds(filteredApplications.map(a => a.id));
+                                                        } else {
+                                                            setSelectedIds([]);
+                                                        }
+                                                    }}
                                                 />
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-start justify-between gap-4 mb-2">
-                                                        <div className="flex-1 min-w-0">
-                                                            <h3 className="text-lg font-semibold text-slate-800 truncate">
-                                                                {app.job_title}
-                                                            </h3>
-                                                            <div className="flex items-center gap-2 text-slate-600 mb-1">
-                                                                <Building className="w-4 h-4" />
-                                                                <span className="truncate">{app.company_name}</span>
-                                                            </div>
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Application Name
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Applied
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Stage
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Interview Status
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Rejected?
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Your Rating
+                                            </th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-24">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                        {filteredApplications.map(app => {
+                                            const StatusIcon = statusConfig[app.application_status]?.icon;
+                                            return (
+                                                <motion.tr 
+                                                    key={app.id} 
+                                                    initial={{ opacity: 0 }} 
+                                                    animate={{ opacity: 1 }}
+                                                    className="hover:bg-gray-50"
+                                                >
+                                                    <td className="px-4 py-3">
+                                                        <Checkbox
+                                                            checked={selectedIds.includes(app.id)}
+                                                            onCheckedChange={() => toggleSelected(app.id)}
+                                                        />
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div>
+                                                            <div className="font-medium text-slate-800">{app.job_title}</div>
+                                                            <div className="text-sm text-slate-500">{app.company_name}</div>
                                                         </div>
-                                                        <Badge className={statusConfig[app.application_status]?.color}>
-                                                            <StatusIcon className="w-3 h-3 mr-1" />
-                                                            {statusConfig[app.application_status]?.label}
-                                                        </Badge>
-                                                    </div>
-
-                                                    <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-3">
-                                                        {app.applied_at && (
-                                                            <div className="flex items-center gap-1">
-                                                                <Calendar className="w-4 h-4" />
-                                                                Applied {formatDistanceToNow(new Date(app.applied_at), { addSuffix: true })}
-                                                            </div>
-                                                        )}
-                                                        {app.next_follow_up_at && (
-                                                            <div className={`flex items-center gap-1 ${isOverdue ? 'text-amber-700 font-medium' : ''}`}>
-                                                                <Bell className="w-4 h-4" />
-                                                                Follow-up: {format(new Date(app.next_follow_up_at), 'MMM d')}
-                                                                {isOverdue && ' (Overdue!)'}
-                                                            </div>
-                                                        )}
-                                                        {linkedResume && (
-                                                            <div className="flex items-center gap-1">
-                                                                <FileText className="w-4 h-4" />
-                                                                {linkedResume.version_name}
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {app.summary?.notes && (
-                                                        <p className="text-sm text-slate-600 line-clamp-2 mb-3">
-                                                            {app.summary.notes}
-                                                        </p>
-                                                    )}
-
-                                                    <div className="flex flex-wrap gap-2">
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-slate-600">
+                                                        {app.applied_at ? format(new Date(app.applied_at), "d MMM yyyy") : "—"}
+                                                    </td>
+                                                    <td className="px-4 py-3">
                                                         <Select 
                                                             value={app.application_status} 
-                                                            onValueChange={(val) => updateStatus(app, val)}
+                                                            onValueChange={(val) => updateStatus(app, "application_status", val)}
                                                         >
-                                                            <SelectTrigger className="w-[140px] h-8 text-xs">
+                                                            <SelectTrigger className="h-8 text-xs">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {Object.entries(statusConfig).map(([key, config]) => (
-                                                                    <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                                                                    <SelectItem key={key} value={key}>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {config.icon && <config.icon className="w-3 h-3" />}
+                                                                            {config.label}
+                                                                        </div>
+                                                                    </SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        <Button 
-                                                            size="sm" 
-                                                            variant="outline"
-                                                            onClick={() => openEditDialog(app)}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <Select 
+                                                            value={app.interview_status || "active"} 
+                                                            onValueChange={(val) => updateStatus(app, "interview_status", val)}
                                                         >
-                                                            <Edit className="w-3 h-3 mr-1" />
-                                                            Edit
-                                                        </Button>
-                                                        {app.job_posting_url && (
-                                                            <a href={app.job_posting_url} target="_blank" rel="noopener noreferrer">
-                                                                <Button size="sm" variant="outline">
-                                                                    <ExternalLink className="w-3 h-3 mr-1" />
-                                                                    View Job
-                                                                </Button>
-                                                            </a>
-                                                        )}
-                                                        {app.optimized_resume_id && (
-                                                            <Link to={createPageUrl(`ResumeViewer?resumeId=${app.optimized_resume_id}`)}>
-                                                                <Button size="sm" variant="outline">
-                                                                    <FileText className="w-3 h-3 mr-1" />
-                                                                    Resume
-                                                                </Button>
-                                                            </Link>
-                                                        )}
-                                                        <Button 
-                                                            size="sm" 
-                                                            variant="ghost"
-                                                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                            onClick={() => handleDelete(app.id)}
+                                                            <SelectTrigger className="h-8 text-xs w-28">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="active">Active</SelectItem>
+                                                                <SelectItem value="inactive">Inactive</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <Select 
+                                                            value={app.is_rejected ? "yes" : "no"} 
+                                                            onValueChange={(val) => updateStatus(app, "is_rejected", val === "yes")}
                                                         >
-                                                            <Trash2 className="w-3 h-3" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
+                                                            <SelectTrigger className="h-8 text-xs w-20">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="no">No</SelectItem>
+                                                                <SelectItem value="yes">Yes</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <StarRating 
+                                                            rating={app.user_rating || 0} 
+                                                            onRate={(r) => updateRating(app, r)}
+                                                        />
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex gap-1">
+                                                            <Button 
+                                                                size="sm" 
+                                                                variant="ghost"
+                                                                onClick={() => openEditDialog(app)}
+                                                                className="h-8 w-8 p-0"
+                                                            >
+                                                                <Edit className="w-4 h-4" />
+                                                            </Button>
+                                                            {app.job_posting_url && (
+                                                                <a href={app.job_posting_url} target="_blank" rel="noopener noreferrer">
+                                                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                                                        <ExternalLink className="w-4 h-4" />
+                                                                    </Button>
+                                                                </a>
+                                                            )}
+                                                            <Button 
+                                                                size="sm" 
+                                                                variant="ghost"
+                                                                onClick={() => handleDelete(app.id)}
+                                                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </motion.tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </CardContent>
+                    </Card>
                 )}
             </div>
         </div>
