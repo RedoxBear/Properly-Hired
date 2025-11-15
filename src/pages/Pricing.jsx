@@ -3,17 +3,32 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Crown, Zap, Mail } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, Mail, Gift } from "lucide-react";
 import { motion } from "framer-motion";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Referral } from "@/entities/Referral";
 import { TIERS, TIER_LIMITS, PRICING } from "@/components/utils/accessControl";
 
 export default function Pricing() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [referralCode, setReferralCode] = useState("");
+    const [discountApplied, setDiscountApplied] = useState(false);
+    const [discountPercentage] = useState(20);
 
     useEffect(() => {
         loadUser();
+        checkReferralCode();
     }, []);
+
+    const checkReferralCode = () => {
+        const params = new URLSearchParams(window.location.search);
+        const refCode = params.get("ref");
+        if (refCode) {
+            setReferralCode(refCode);
+            setDiscountApplied(true);
+        }
+    };
 
     const loadUser = async () => {
         try {
@@ -109,6 +124,20 @@ export default function Pricing() {
                     )}
                 </motion.div>
 
+                {discountApplied && (
+                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 px-2">
+                        <Alert className="border-green-200 bg-green-50">
+                            <AlertDescription className="flex items-center gap-2 text-green-800">
+                                <Gift className="w-5 h-5 text-green-600" />
+                                <div>
+                                    <strong>🎉 Referral discount applied!</strong> You'll get <strong>{discountPercentage}% off</strong> your first month.
+                                    <span className="text-xs ml-2">(Code: {referralCode})</span>
+                                </div>
+                            </AlertDescription>
+                        </Alert>
+                    </motion.div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12 px-2">
                     {tiers.map((tier, index) => {
                         const Icon = tier.icon;
@@ -141,6 +170,21 @@ export default function Pricing() {
                                         {isEnterprise ? (
                                             <div className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
                                                 Contact Us
+                                            </div>
+                                        ) : discountApplied && tier.id !== TIERS.FREE ? (
+                                            <div>
+                                                <div className="text-xl md:text-2xl font-bold text-slate-400 line-through">
+                                                    ${pricing.price}
+                                                </div>
+                                                <div className="text-3xl md:text-4xl font-bold text-green-600">
+                                                    ${(pricing.price * (1 - discountPercentage / 100)).toFixed(2)}
+                                                    <span className="text-base md:text-lg font-normal text-slate-600">
+                                                        /{pricing.period}
+                                                    </span>
+                                                </div>
+                                                <Badge className="mt-1 bg-green-600 text-white text-xs">
+                                                    -{discountPercentage}% First Month
+                                                </Badge>
                                             </div>
                                         ) : (
                                             <div className="text-3xl md:text-4xl font-bold text-slate-800">
