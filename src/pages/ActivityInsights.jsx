@@ -233,5 +233,6 @@ export default function ActivityInsights() {
         )}
       </div>
     </div>
+    </PageAccessGuard>
   );
 }

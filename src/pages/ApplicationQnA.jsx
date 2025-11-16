@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { InvokeLLM } from "@/integrations/Core";
+import PageAccessGuard from "@/components/utils/PageAccessGuard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

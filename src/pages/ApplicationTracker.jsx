@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
+import PageAccessGuard from "@/components/utils/PageAccessGuard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

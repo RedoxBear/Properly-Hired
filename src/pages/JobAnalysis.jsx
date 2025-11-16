@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { InvokeLLM } from "@/integrations/Core";
@@ -463,6 +462,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
     const { indeed, linkedin } = buildSearchLinks();
 
     return (
+        <PageAccessGuard requiredFeature="job_analysis" featureName="Job Analysis">
         <div className="min-h-screen p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}

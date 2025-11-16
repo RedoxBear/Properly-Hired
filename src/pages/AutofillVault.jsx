@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { AutofillVault } from "@/entities/AutofillVault";
 import { Resume } from "@/entities/Resume";

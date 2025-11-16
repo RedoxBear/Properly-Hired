@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import { Resume } from "@/entities/Resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
