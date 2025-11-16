@@ -254,6 +254,7 @@ export default function ApplicationTracker() {
     };
 
     return (
+        <PageAccessGuard requiredFeature="application_tracker" featureName="Application Tracker">
         <div className="min-h-screen p-4 md:p-8 bg-gray-50">
             <div className="max-w-[1400px] mx-auto space-y-6">
                 {/* Header with Stats */}
@@ -699,5 +700,6 @@ export default function ApplicationTracker() {
                 )}
             </div>
         </div>
+        </PageAccessGuard>
     );
 }

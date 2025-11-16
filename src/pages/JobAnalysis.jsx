@@ -926,5 +926,6 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                 </AnimatePresence>
             </div>
         </div>
+        </PageAccessGuard>
     );
 }
