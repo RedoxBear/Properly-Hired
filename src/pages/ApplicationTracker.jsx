@@ -604,14 +604,16 @@ export default function ApplicationTracker() {
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Select
-                                                            value={app.applied_at || ""}
-                                                            onValueChange={(val) => updateStatus(app, "applied_at", val || null)}
+                                                            value={app.applied_at || "none"}
+                                                            onValueChange={(val) => updateStatus(app, "applied_at", val === "none" ? null : val)}
                                                         >
                                                             <SelectTrigger className="h-8 text-xs w-32">
-                                                                <SelectValue placeholder="Select date" />
+                                                                <SelectValue>
+                                                                    {app.applied_at ? format(new Date(app.applied_at), "d MMM yyyy") : "Select date"}
+                                                                </SelectValue>
                                                             </SelectTrigger>
                                                             <SelectContent className="max-h-[300px]">
-                                                                <SelectItem value={null}>—</SelectItem>
+                                                                <SelectItem value="none">—</SelectItem>
                                                                 {Array.from({ length: 90 }, (_, i) => {
                                                                     const date = new Date();
                                                                     date.setDate(date.getDate() - i);
