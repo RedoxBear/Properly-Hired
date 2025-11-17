@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
@@ -603,29 +605,22 @@ export default function ApplicationTracker() {
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <Select
-                                                            value={app.applied_at || "none"}
-                                                            onValueChange={(val) => updateStatus(app, "applied_at", val === "none" ? null : val)}
-                                                        >
-                                                            <SelectTrigger className="h-8 text-xs w-32">
-                                                                <SelectValue>
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <Button variant="outline" className="h-8 text-xs w-32 justify-start font-normal">
+                                                                    <CalendarIcon className="mr-2 h-3 w-3" />
                                                                     {app.applied_at ? format(new Date(app.applied_at), "d MMM yyyy") : "Select date"}
-                                                                </SelectValue>
-                                                            </SelectTrigger>
-                                                            <SelectContent className="max-h-[300px]">
-                                                                <SelectItem value="none">—</SelectItem>
-                                                                {Array.from({ length: 90 }, (_, i) => {
-                                                                    const date = new Date();
-                                                                    date.setDate(date.getDate() - i);
-                                                                    const isoDate = date.toISOString();
-                                                                    return (
-                                                                        <SelectItem key={i} value={isoDate}>
-                                                                            {format(date, "d MMM yyyy")}
-                                                                        </SelectItem>
-                                                                    );
-                                                                })}
-                                                            </SelectContent>
-                                                        </Select>
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                                <Calendar
+                                                                    mode="single"
+                                                                    selected={app.applied_at ? new Date(app.applied_at) : undefined}
+                                                                    onSelect={(date) => updateStatus(app, "applied_at", date ? date.toISOString() : null)}
+                                                                    initialFocus
+                                                                />
+                                                            </PopoverContent>
+                                                        </Popover>
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Select 
