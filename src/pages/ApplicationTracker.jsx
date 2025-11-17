@@ -602,8 +602,13 @@ export default function ApplicationTracker() {
                                                             <div className="text-sm text-slate-500">{app.company_name}</div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-3 text-sm text-slate-600">
-                                                        {app.applied_at ? format(new Date(app.applied_at), "d MMM yyyy") : "—"}
+                                                    <td className="px-4 py-3">
+                                                        <Input
+                                                            type="date"
+                                                            value={app.applied_at ? format(new Date(app.applied_at), "yyyy-MM-dd") : ""}
+                                                            onChange={(e) => updateStatus(app, "applied_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
+                                                            className="h-8 text-xs w-32"
+                                                        />
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Select 
