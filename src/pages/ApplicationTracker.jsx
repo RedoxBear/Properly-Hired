@@ -603,12 +603,27 @@ export default function ApplicationTracker() {
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <Input
-                                                            type="date"
-                                                            value={app.applied_at ? format(new Date(app.applied_at), "yyyy-MM-dd") : ""}
-                                                            onChange={(e) => updateStatus(app, "applied_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
-                                                            className="h-8 text-xs w-32"
-                                                        />
+                                                        <Select
+                                                            value={app.applied_at || ""}
+                                                            onValueChange={(val) => updateStatus(app, "applied_at", val || null)}
+                                                        >
+                                                            <SelectTrigger className="h-8 text-xs w-32">
+                                                                <SelectValue placeholder="Select date" />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="max-h-[300px]">
+                                                                <SelectItem value={null}>—</SelectItem>
+                                                                {Array.from({ length: 90 }, (_, i) => {
+                                                                    const date = new Date();
+                                                                    date.setDate(date.getDate() - i);
+                                                                    const isoDate = date.toISOString();
+                                                                    return (
+                                                                        <SelectItem key={i} value={isoDate}>
+                                                                            {format(date, "d MMM yyyy")}
+                                                                        </SelectItem>
+                                                                    );
+                                                                })}
+                                                            </SelectContent>
+                                                        </Select>
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Select 
