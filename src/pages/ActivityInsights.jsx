@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BarChart as BarChartIcon, Activity as ActivityIcon, PieChart as PieChartIcon } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import PageAccessGuard from "@/components/utils/PageAccessGuard";
 
 const daysBack = (n) => {
   const arr = [];
@@ -171,6 +172,7 @@ export default function ActivityInsights() {
   const noData = !events || events.length === 0;
 
   return (
+    <PageAccessGuard requiredFeature="insights" featureName="Activity Insights">
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
