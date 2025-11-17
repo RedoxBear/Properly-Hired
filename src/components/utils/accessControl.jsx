@@ -13,11 +13,11 @@ export const TIER_LIMITS = {
     max_resumes: 3,
     max_applications_per_month: 10,
     ai_credits_per_month: 5,
-    cover_letters: true,
+    cover_letters: false,
     transferable_skills: false,
     insights: false,
     priority_support: false,
-    features: ["my_resumes", "resume_builder", "user_profile", "cover_letters"]
+    features: ["job_analysis", "resume_upload", "basic_optimization"]
   },
   pro: {
     max_resumes: 20,
@@ -27,11 +27,7 @@ export const TIER_LIMITS = {
     transferable_skills: true,
     insights: true,
     priority_support: false,
-    features: [
-      "my_resumes", "resume_builder", "user_profile", "cover_letters",
-      "job_matcher", "application_tracker", "job_analysis", "resume_optimizer",
-      "autofill_vault", "transferable_skills", "application_qna", "resume_templates", "insights"
-    ]
+    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters", "transferable_skills", "insights", "autofill_vault", "application_qna"]
   },
   enterprise: {
     max_resumes: -1, // unlimited

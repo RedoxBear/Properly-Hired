@@ -3,7 +3,6 @@ import { JobMatch } from "@/entities/JobMatch";
 import { Resume } from "@/entities/Resume";
 import { JobApplication } from "@/entities/JobApplication";
 import { InvokeLLM } from "@/integrations/Core";
-import PageAccessGuard from "@/components/utils/PageAccessGuard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -339,7 +338,6 @@ Return JSON with:
     };
 
     return (
-        <PageAccessGuard requiredFeature="job_matcher" featureName="Job Matcher">
         <div className="min-h-screen p-4 md:p-8 bg-gray-50">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
@@ -742,6 +740,5 @@ Return JSON with:
                 )}
             </div>
         </div>
-        </PageAccessGuard>
     );
 }
