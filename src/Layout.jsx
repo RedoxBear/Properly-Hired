@@ -19,7 +19,8 @@ import {
     Crown,
     Target,
     User,
-    Gift
+    Gift,
+    Settings
 } from "lucide-react";
 import {
     Sidebar,
@@ -35,6 +36,12 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const PRAGUE_DAY_CIRCLE = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/8925775c9_PragueDayLogo-Circle.png";
 const PRAGUE_DAY_FULL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/50e0a16e9_image.png";
@@ -45,7 +52,6 @@ function AppShell({ children, currentPageName }) {
 
     const navigationItems = [
         { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Overview & Quick Actions" },
-        { title: "My Profile", url: createPageUrl("UserProfile"), icon: User, description: "Preferences & Settings" },
         { title: "My Resumes", url: createPageUrl("MyResumes"), icon: Archive, description: "Manage all your resumes" },
         { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" },
         { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis" },
@@ -260,6 +266,30 @@ function AppShell({ children, currentPageName }) {
                 </Sidebar>
 
                 <main className="flex-1 flex flex-col app-main">
+                    {/* Desktop Header */}
+                    <header className="hidden md:flex bg-white/90 backdrop-blur-xl border-b border-slate-200/60 px-6 py-3 sticky top-0 z-10">
+                        <div className="flex items-center justify-end w-full">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="flex items-center gap-2 hover:bg-slate-100">
+                                        <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                                            <User className="w-4 h-4 text-slate-600" />
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-700">My Account</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                    <DropdownMenuItem asChild>
+                                        <RouterLink to={createPageUrl("UserProfile")} className="flex items-center gap-2 cursor-pointer">
+                                            <Settings className="w-4 h-4" />
+                                            <span>Profile & Settings</span>
+                                        </RouterLink>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </header>
+
                     {/* Mobile Header */}
                     <header className="bg-white/90 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 md:hidden sticky top-0 z-10">
                         <div className="flex items-center justify-between gap-4">
@@ -279,9 +309,21 @@ function AppShell({ children, currentPageName }) {
                                 />
                                 <h1 className="text-base font-bold text-slate-800">Prague Day</h1>
                             </div>
-                            {isMobile && (
-                                <div className="text-xs text-slate-500 font-mono">📱</div>
-                            )}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="min-w-[44px] min-h-[44px]">
+                                        <User className="w-5 h-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem asChild>
+                                        <RouterLink to={createPageUrl("UserProfile")} className="flex items-center gap-2">
+                                            <Settings className="w-4 h-4" />
+                                            <span>Profile & Settings</span>
+                                        </RouterLink>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     </header>
 
