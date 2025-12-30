@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles } from "lucide-react";
+import { Sparkles, RefreshCw } from "lucide-react";
 import { EncouragementQuote } from "@/entities/EncouragementQuote";
+import { InvokeLLM } from "@/integrations/Core";
+import { differenceInDays } from "date-fns";
 
 const FALLBACK_QUOTES = [
   { text: "Believe you can and you’re halfway there.", author: "Theodore Roosevelt" },
@@ -23,11 +25,61 @@ export default function DailyEncouragement() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await EncouragementQuote.list("-created_date", 200);
+        let list = await EncouragementQuote.list("-created_date", 200);
+        
+        // Check if we need to fetch new quotes (if latest is older than 7 days or we have very few)
+        const latest = list[0];
+        const shouldFetch = !latest || differenceInDays(new Date(), new Date(latest.created_date)) >= 7 || list.length < 5;
+
+        if (shouldFetch) {
+           try {
+             const existingTexts = new Set(list.map(q => q.text));
+             const response = await InvokeLLM({
+                prompt: `Find 5 distinct, powerful, and non-cliché encouragement quotes specifically for someone job hunting or building their career. 
+                Avoid these if possible: ${Array.from(existingTexts).slice(0, 10).join(", ")}.
+                Return a JSON object with a "quotes" array.`,
+                add_context_from_internet: true, // Use web to get fresh/varied content
+                response_json_schema: {
+                  type: "object",
+                  properties: {
+                    quotes: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          text: { type: "string" },
+                          author: { type: "string" },
+                          source_url: { type: "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+             });
+
+             if (response?.quotes && Array.isArray(response.quotes)) {
+                const newQuotes = response.quotes.filter(q => !existingTexts.has(q.text));
+                if (newQuotes.length > 0) {
+                   // Add new quotes to DB
+                   await Promise.all(newQuotes.map(q => EncouragementQuote.create({
+                     ...q,
+                     approved: true,
+                     tags: ["fresh_web_content"]
+                   })));
+                   // Refresh list
+                   list = await EncouragementQuote.list("-created_date", 200);
+                }
+             }
+           } catch (err) {
+             console.error("Failed to fetch new quotes:", err);
+           }
+        }
+
         const approved = Array.isArray(list) ? list.filter(q => q.approved !== false) : [];
         const pick = approved.length ? approved[dayIndex(approved.length)] : FALLBACK_QUOTES[dayIndex(FALLBACK_QUOTES.length)];
         setQuote(pick);
-      } catch {
+      } catch (e) {
+        console.error("Error loading quotes:", e);
         const pick = FALLBACK_QUOTES[dayIndex(FALLBACK_QUOTES.length)];
         setQuote(pick);
       }
