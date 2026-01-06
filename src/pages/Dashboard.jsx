@@ -137,6 +137,17 @@ export default function Dashboard() {
         return preset.headline;
     };
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen p-8 flex items-center justify-center">
+                <div className="text-center">
+                    <Sparkles className="w-8 h-8 animate-pulse text-blue-600 mx-auto mb-4" />
+                    <p className="text-slate-600">Loading your dashboard...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 bg-background">
             <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
