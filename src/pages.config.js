@@ -28,6 +28,11 @@ import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Dashboard from './pages/Dashboard';
+import NetworkingHub from './pages/NetworkingHub';
+import PeopleSearch from './pages/PeopleSearch';
+import NetworkingMessages from './pages/NetworkingMessages';
+import RecruiterConnect from './pages/RecruiterConnect';
+import MyNetwork from './pages/MyNetwork';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +67,11 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Dashboard": Dashboard,
+    "NetworkingHub": NetworkingHub,
+    "PeopleSearch": PeopleSearch,
+    "NetworkingMessages": NetworkingMessages,
+    "RecruiterConnect": RecruiterConnect,
+    "MyNetwork": MyNetwork,
 }
 
 export const pagesConfig = {

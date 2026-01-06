@@ -64,6 +64,7 @@ function AppShell({ children, currentPageName }) {
         { title: "Application Q&A", url: createPageUrl("ApplicationQnA"), icon: MessageCircleQuestion, description: "Prepare portal answers" },
         { title: "Resume Templates", url: createPageUrl("ResumeTemplates"), icon: Palette, description: "Choose & Print Templates" },
         { title: "Insights", url: createPageUrl("ActivityInsights"), icon: TrendingUp, description: "Activity & Timing Insights" },
+        { title: "Networking Hub", url: createPageUrl("NetworkingHub"), icon: Users, description: "Professional Networking" },
         { title: "Referral Program", url: createPageUrl("ReferralProgram"), icon: Gift, description: "Refer & Get Rewards" },
         { title: "Upgrade", url: createPageUrl("Pricing"), icon: Crown, description: "View Plans & Pricing" }
     ];
