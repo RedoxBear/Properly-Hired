@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { readEvents } from "@/components/utils/telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -83,10 +83,10 @@ const detectAtsVendor = (host = "", vendor = "") => {
 };
 
 export default function ActivityInsights() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     (async () => {
       try {
         const evs = await readEvents();
@@ -97,7 +97,7 @@ export default function ActivityInsights() {
     })();
   }, []);
 
-  const byType = useMemo(() => {
+  const byType = React.useMemo(() => {
     const m = new Map();
     for (const e of events) {
       const a = m.get(e.type) || [];
@@ -133,7 +133,7 @@ export default function ActivityInsights() {
     ats_detected: kpiCount("ats_detected"),
   };
 
-  const atsVendors = useMemo(() => {
+  const atsVendors = React.useMemo(() => {
     const rows = (byType.get("ats_detected") || []).reduce((acc, e) => {
       const vendor = detectAtsVendor(e.host, e.vendor);
       acc[vendor] = (acc[vendor] || 0) + 1;
