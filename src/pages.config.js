@@ -4,6 +4,7 @@ import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
 import CoverLetter from './pages/CoverLetter';
 import CoverLetters from './pages/CoverLetters';
+import Dashboard from './pages/Dashboard';
 import ExtensionGuide from './pages/ExtensionGuide';
 import Home from './pages/Home';
 import JobAnalysis from './pages/JobAnalysis';
@@ -11,10 +12,15 @@ import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
 import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
+import MyNetwork from './pages/MyNetwork';
 import MyResumes from './pages/MyResumes';
+import NetworkingHub from './pages/NetworkingHub';
+import NetworkingMessages from './pages/NetworkingMessages';
 import OptimizeResume from './pages/OptimizeResume';
+import PeopleSearch from './pages/PeopleSearch';
 import Pricing from './pages/Pricing';
 import QAAssistant from './pages/QAAssistant';
+import RecruiterConnect from './pages/RecruiterConnect';
 import ReferralProgram from './pages/ReferralProgram';
 import ResumeBuilder from './pages/ResumeBuilder';
 import ResumeEditor from './pages/ResumeEditor';
@@ -27,12 +33,6 @@ import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
-import Dashboard from './pages/Dashboard';
-import NetworkingHub from './pages/NetworkingHub';
-import PeopleSearch from './pages/PeopleSearch';
-import NetworkingMessages from './pages/NetworkingMessages';
-import RecruiterConnect from './pages/RecruiterConnect';
-import MyNetwork from './pages/MyNetwork';
 import __Layout from './Layout.jsx';
 
 
@@ -43,6 +43,7 @@ export const PAGES = {
     "AutofillVault": AutofillVault,
     "CoverLetter": CoverLetter,
     "CoverLetters": CoverLetters,
+    "Dashboard": Dashboard,
     "ExtensionGuide": ExtensionGuide,
     "Home": Home,
     "JobAnalysis": JobAnalysis,
@@ -50,10 +51,15 @@ export const PAGES = {
     "JobLibrary": JobLibrary,
     "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
+    "MyNetwork": MyNetwork,
     "MyResumes": MyResumes,
+    "NetworkingHub": NetworkingHub,
+    "NetworkingMessages": NetworkingMessages,
     "OptimizeResume": OptimizeResume,
+    "PeopleSearch": PeopleSearch,
     "Pricing": Pricing,
     "QAAssistant": QAAssistant,
+    "RecruiterConnect": RecruiterConnect,
     "ReferralProgram": ReferralProgram,
     "ResumeBuilder": ResumeBuilder,
     "ResumeEditor": ResumeEditor,
@@ -66,12 +72,6 @@ export const PAGES = {
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
-    "Dashboard": Dashboard,
-    "NetworkingHub": NetworkingHub,
-    "PeopleSearch": PeopleSearch,
-    "NetworkingMessages": NetworkingMessages,
-    "RecruiterConnect": RecruiterConnect,
-    "MyNetwork": MyNetwork,
 }
 
 export const pagesConfig = {

@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Resume } from "@/entities/Resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,11 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function ResumeViewer() {
-    const [resume, setResume] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [resume, setResume] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
+    React.useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get("resumeId");
         if (!id) {

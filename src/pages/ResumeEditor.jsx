@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,19 +13,19 @@ import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
 
 export default function ResumeEditor() {
-  const [resume, setResume] = useState(null);
-  const [draft, setDraft] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [scoring, setScoring] = useState(false);
-  const [error, setError] = useState("");
-  const [baselineScore, setBaselineScore] = useState(null);
-  const [currentScore, setCurrentScore] = useState(null);
-  const [improved, setImproved] = useState(false);
+  const [resume, setResume] = React.useState(null);
+  const [draft, setDraft] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
+  const [scoring, setScoring] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [baselineScore, setBaselineScore] = React.useState(null);
+  const [currentScore, setCurrentScore] = React.useState(null);
+  const [improved, setImproved] = React.useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const resumeId = searchParams.get("resumeId");
     const isNew = searchParams.get("new") === "1";
     
@@ -77,7 +77,7 @@ export default function ResumeEditor() {
     })();
   }, [searchParams]);
 
-  const plain = useMemo(() => resumeJsonToPlainText(draft || {}), [draft]);
+  const plain = React.useMemo(() => resumeJsonToPlainText(draft || {}), [draft]);
 
   function safeParse(json) {
     try { return json ? JSON.parse(json) : null; } catch { return null; }
