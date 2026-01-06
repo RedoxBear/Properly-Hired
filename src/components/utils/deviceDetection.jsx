@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 
 export function useDeviceDetection() {
-  const [deviceInfo, setDeviceInfo] = useState({
+  const [deviceInfo, setDeviceInfo] = React.useState({
     isMobile: false,
     isTablet: false,
     isDesktop: true,
     deviceType: 'desktop'
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     const detectDevice = () => {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       
