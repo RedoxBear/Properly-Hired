@@ -415,38 +415,38 @@ export default function ResumeOptimizer() {
                   </CardContent>
                   </Card>
                   )}
-                  </motion.div>
-                  ) : (
-                  <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                </motion.div>
+              ) : (
+                <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                   {optimizedVersions.length > 1 && (
-                  <Card className="mb-6 bg-blue-50 border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-blue-900 text-base">Compare Optimized Versions</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2">
-                      {optimizedVersions.map((version, idx) => (
-                        <Button
-                          key={idx}
-                          onClick={() => {
-                            setSelectedVersion(idx);
-                            setOptimizationResults(version);
-                          }}
-                          variant={selectedVersion === idx ? "default" : "outline"}
-                          size="sm"
-                        >
-                          Version {idx + 1} ({version.optimization_score}%)
-                        </Button>
-                      ))}
-                    </div>
-                  </CardContent>
-                  </Card>
+                    <Card className="mb-6 bg-blue-50 border-blue-200">
+                      <CardHeader>
+                        <CardTitle className="text-blue-900 text-base">Compare Optimized Versions</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex gap-2">
+                          {optimizedVersions.map((version, idx) => (
+                            <Button
+                              key={idx}
+                              onClick={() => {
+                                setSelectedVersion(idx);
+                                setOptimizationResults(version);
+                              }}
+                              variant={selectedVersion === idx ? "default" : "outline"}
+                              size="sm"
+                            >
+                              Version {idx + 1} ({version.optimization_score}%)
+                            </Button>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
-                   <OptimizationResults results={optimizationResults} onReset={resetOptimization} />
-                  </motion.div>
-                  )}
-                  </AnimatePresence>
-                  </div>
-                  </div>
-                  );
-                  }
+                  <OptimizationResults results={optimizationResults} onReset={resetOptimization} />
+                </motion.div>
+              )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
