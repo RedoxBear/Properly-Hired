@@ -37,6 +37,10 @@ export default function ResumeOptimizer() {
   const [deepHumanize, setDeepHumanize] = React.useState(true);
   const [suggestions, setSuggestions] = React.useState(null);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
+  const [tailoringSuggestions, setTailoringSuggestions] = React.useState(null);
+  const [isLoadingTailoring, setIsLoadingTailoring] = React.useState(false);
+  const [optimizedVersions, setOptimizedVersions] = React.useState([]);
+  const [selectedVersion, setSelectedVersion] = React.useState(0);
 
   const loadInitialData = React.useCallback(async () => {
     setIsProcessing(true);
@@ -73,7 +77,80 @@ export default function ResumeOptimizer() {
     }
   }, [jobApplications]);
 
-  const optimizeResume = async () => {
+  const generateTailoringSuggestions = async () => {
+      if (!selectedJobId || !selectedResumeId) {
+          setError("Please select both a job and resume");
+          return;
+      }
+
+      setIsLoadingTailoring(true);
+      try {
+          const job = jobApplications.find(j => j.id === selectedJobId);
+          const resume = masterResumes.find(r => r.id === selectedResumeId);
+
+          const resumeContent = JSON.parse(resume.parsed_content || resume.optimized_content);
+          const currentSummary = resumeContent.summary || resumeContent.executive_summary || "";
+          const experiences = resumeContent.experience || [];
+
+          const prompt = `Analyze this resume against the job description and provide specific tailoring suggestions.
+
+  Job Title: ${job.job_title}
+  Job Description: ${job.job_description}
+
+  Current Resume Summary: ${currentSummary}
+
+  Current Experience Bullets (first 3 roles):
+  ${experiences.slice(0, 3).map((exp, idx) => `
+  Role ${idx + 1}: ${exp.position} at ${exp.company}
+  Bullets: ${(exp.achievements || []).slice(0, 3).join("; ")}
+  `).join("\n")}
+
+  Provide:
+  1. A tailored professional summary (2-3 sentences) optimized for this role
+  2. For each experience section, suggest 3 improved bullet points that emphasize relevant skills/achievements
+  3. Keywords from JD that should appear in the resume
+
+  Return JSON with:
+  {
+  "tailored_summary": "string",
+  "experience_suggestions": [
+  {
+    "role": "string",
+    "bullets": ["bullet1", "bullet2", "bullet3"]
+  }
+  ],
+  "missing_keywords": ["keyword1", "keyword2"]
+  }`;
+
+          const response = await base44.integrations.Core.InvokeLLM({
+              prompt,
+              response_json_schema: {
+                  type: "object",
+                  properties: {
+                      tailored_summary: { type: "string" },
+                      experience_suggestions: {
+                          type: "array",
+                          items: {
+                              type: "object",
+                              properties: {
+                                  role: { type: "string" },
+                                  bullets: { type: "array", items: { type: "string" } }
+                              }
+                          }
+                      },
+                      missing_keywords: { type: "array", items: { type: "string" } }
+                  }
+              }
+          });
+
+          setTailoringSuggestions(response);
+      } catch (e) {
+          console.error("Failed to generate tailoring suggestions:", e);
+      }
+      setIsLoadingTailoring(false);
+  };
+
+  const optimizeResume = async (generateMultiple = false) => {
     if (useJobMatch && !selectedMatchId) {
       setError("Please select a job match to optimize for.");
       return;
@@ -108,44 +185,58 @@ export default function ResumeOptimizer() {
     const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
 
     try {
-      const response = await retryWithBackoff(() =>
-        base44.integrations.Core.InvokeLLM({
-          prompt: `Optimize this resume for the job posting. Mode: ${modeLabel}. Resume: ${selectedResume.parsed_content}. Job: ${jobData.job_description}`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              optimization_score: { type: "number" },
-              recommendations: { type: "array", items: { type: "string" } },
-              optimized_resume_content: { type: "object" }
-            }
-          }
-        }),
-        { retries: 3, baseDelay: 1200 }
-      );
+        const numVersions = generateMultiple ? 3 : 1;
+        const versions = [];
 
-      const newVersion = await Resume.create({
-        version_name: `${jobData.job_title} — ${jobData.company_name} — ${modeLabel}`,
-        original_file_url: selectedResume.original_file_url,
-        parsed_content: selectedResume.parsed_content,
-        optimized_content: JSON.stringify(response.optimized_resume_content),
-        is_master_resume: false,
-        job_application_id: useJobMatch ? null : jobData.id
-      });
+        for (let i = 0; i < numVersions; i++) {
+            const response = await retryWithBackoff(() =>
+              base44.integrations.Core.InvokeLLM({
+                prompt: `Optimize this resume for the job posting. Mode: ${modeLabel}. Resume: ${selectedResume.parsed_content}. Job: ${jobData.job_description}. ${generateMultiple ? `Create variation ${i + 1} with slightly different emphasis.` : ''}`,
+                response_json_schema: {
+                  type: "object",
+                  properties: {
+                    optimization_score: { type: "number" },
+                    recommendations: { type: "array", items: { type: "string" } },
+                    optimized_resume_content: { type: "object" }
+                  }
+                }
+              }),
+              { retries: 3, baseDelay: 1200 }
+            );
 
-      if (!useJobMatch && selectedJob) {
-        await JobApplication.update(selectedJobId, {
-          optimization_score: response.optimization_score,
-          master_resume_id: selectedResumeId,
-          optimized_resume_id: newVersion.id,
-          application_status: "ready"
-        });
-      }
+            const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
+            const newVersion = await Resume.create({
+              version_name: `${jobData.job_title} — ${jobData.company_name} — ${modeLabel}${versionSuffix}`,
+              original_file_url: selectedResume.original_file_url,
+              parsed_content: selectedResume.parsed_content,
+              optimized_content: JSON.stringify(response.optimized_resume_content),
+              is_master_resume: false,
+              job_application_id: useJobMatch ? null : jobData.id
+            });
 
-      setOptimizationResults({
-        ...response,
-        jobTitle: jobData.job_title,
-        companyName: jobData.company_name
-      });
+            versions.push({
+                ...response,
+                resumeId: newVersion.id,
+                jobTitle: jobData.job_title,
+                companyName: jobData.company_name
+            });
+        }
+
+        if (generateMultiple) {
+            setOptimizedVersions(versions);
+            setSelectedVersion(0);
+        }
+
+        if (!useJobMatch && selectedJob) {
+          await JobApplication.update(selectedJobId, {
+            optimization_score: versions[0].optimization_score,
+            master_resume_id: selectedResumeId,
+            optimized_resume_id: versions[0].resumeId,
+            application_status: "ready"
+          });
+        }
+
+        setOptimizationResults(versions[0]);
 
       try {
         await logEvent({
@@ -166,11 +257,14 @@ export default function ResumeOptimizer() {
   };
 
   const resetOptimization = () => {
-    setOptimizationResults(null);
-    setSelectedJobId("");
-    setSelectedMatchId("");
-    setSelectedResumeId("");
-    setSuggestions(null);
+      setOptimizationResults(null);
+      setSelectedJobId("");
+      setSelectedMatchId("");
+      setSelectedResumeId("");
+      setSuggestions(null);
+      setTailoringSuggestions(null);
+      setOptimizedVersions([]);
+      setSelectedVersion(0);
   };
 
   return (
@@ -269,13 +363,85 @@ export default function ResumeOptimizer() {
                     <Switch checked={deepHumanize} onCheckedChange={setDeepHumanize} />
                   </div>
 
-                  <Button onClick={optimizeResume} disabled={isProcessing} className="w-full bg-blue-600 hover:bg-blue-700 h-12">
-                    {isProcessing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processing...</> : <><Sparkles className="w-5 h-5 mr-2" />Optimize Resume</>}
+                  <div className="flex gap-3">
+                      <Button onClick={() => optimizeResume(false)} disabled={isProcessing} className="flex-1 bg-blue-600 hover:bg-blue-700 h-12">
+                        {isProcessing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processing...</> : <><Sparkles className="w-5 h-5 mr-2" />Optimize Resume</>}
+                      </Button>
+                      <Button onClick={() => optimizeResume(true)} disabled={isProcessing} variant="outline" className="border-purple-600 text-purple-700 h-12">
+                        Generate 3 Versions
+                      </Button>
+                  </div>
+                  <Button onClick={generateTailoringSuggestions} disabled={isLoadingTailoring || !selectedJobId || !selectedResumeId} variant="outline" className="w-full">
+                    {isLoadingTailoring ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Get AI Tailoring Suggestions</>}
                   </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ) : (
+                  </CardContent>
+                  </Card>
+
+                  {tailoringSuggestions && (
+                  <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+                  <CardHeader>
+                    <CardTitle className="text-purple-900 flex items-center gap-2">
+                      <Lightbulb className="w-5 h-5 text-yellow-500" />
+                      AI Tailoring Suggestions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {tailoringSuggestions.tailored_summary && (
+                      <div>
+                        <h4 className="font-semibold text-sm text-purple-800 mb-2">Suggested Professional Summary:</h4>
+                        <p className="text-sm text-purple-900 bg-white/70 p-3 rounded-lg border border-purple-200">{tailoringSuggestions.tailored_summary}</p>
+                      </div>
+                    )}
+                    {tailoringSuggestions.experience_suggestions?.map((exp, idx) => (
+                      <div key={idx}>
+                        <h4 className="font-semibold text-sm text-purple-800 mb-2">{exp.role}:</h4>
+                        <ul className="space-y-1">
+                          {exp.bullets?.map((bullet, bidx) => (
+                            <li key={bidx} className="text-sm text-purple-900 bg-white/70 p-2 rounded border border-purple-100">• {bullet}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                    {tailoringSuggestions.missing_keywords?.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-sm text-purple-800 mb-2">Keywords to Add:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {tailoringSuggestions.missing_keywords.map((kw, idx) => (
+                            <Badge key={idx} className="bg-yellow-100 text-yellow-800 border-yellow-200">{kw}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                  </Card>
+                  )}
+                  </motion.div>
+                  ) : (
+                  <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                  {optimizedVersions.length > 1 && (
+                  <Card className="mb-6 bg-blue-50 border-blue-200">
+                  <CardHeader>
+                    <CardTitle className="text-blue-900 text-base">Compare Optimized Versions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2">
+                      {optimizedVersions.map((version, idx) => (
+                        <Button
+                          key={idx}
+                          onClick={() => {
+                            setSelectedVersion(idx);
+                            setOptimizationResults(version);
+                          }}
+                          variant={selectedVersion === idx ? "default" : "outline"}
+                          size="sm"
+                        >
+                          Version {idx + 1} ({version.optimization_score}%)
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                  </Card>
+                  )}
             <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <OptimizationResults results={optimizationResults} onReset={resetOptimization} />
             </motion.div>
