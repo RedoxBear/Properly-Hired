@@ -20,8 +20,8 @@ import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 export default function ResumeOptimizer() {
   // Grammar/Style check state
-  const [grammarSuggestions, setGrammarSuggestions] = React.React.useState(null);
-  const [isCheckingGrammar, setIsCheckingGrammar] = React.React.useState(false);
+  const [grammarSuggestions, setGrammarSuggestions] = React.useState(null);
+  const [isCheckingGrammar, setIsCheckingGrammar] = React.useState(false);
   const grammarCheckTextRef = React.useRef("");
 
   const [jobApplications, setJobApplications] = React.React.useState([]);
