@@ -36,11 +36,14 @@ import {
     ExternalLink,
     Zap,
     RefreshCw,
-    Filter
+    Filter,
+    Lightbulb
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function JobMatcher() {
+    const navigate = useNavigate();
     const [matches, setMatches] = React.useState([]);
     const [resumes, setResumes] = React.useState([]);
     const [selectedResume, setSelectedResume] = React.useState("");
@@ -55,6 +58,8 @@ export default function JobMatcher() {
     const [minScoreFilter, setMinScoreFilter] = React.useState(0);
     const [locationFilter, setLocationFilter] = React.useState("");
     const [sortBy, setSortBy] = React.useState("score_desc");
+    const [aiSuggestions, setAiSuggestions] = React.useState(null);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
     
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
@@ -302,6 +307,77 @@ Return JSON with:
             console.error("Error creating application:", e);
             setError("Failed to create application");
         }
+    };
+
+    const quickApplyToTracker = async (match) => {
+        try {
+            const newApp = await JobApplication.create({
+                job_title: match.job_title,
+                company_name: match.company_name,
+                job_posting_url: match.job_url,
+                job_description: match.job_description,
+                application_status: "ready",
+                optimization_score: match.match_score,
+                key_requirements: match.key_keywords,
+                master_resume_id: match.resume_id,
+                applied: false
+            });
+            
+            await updateMatchStatus(match.id, "interested");
+            navigate(createPageUrl("ApplicationTracker"));
+        } catch (e) {
+            console.error("Quick apply failed:", e);
+            setError("Failed to add to tracker");
+        }
+    };
+
+    const generateAiSuggestions = async () => {
+        if (!selectedResume) {
+            setError("Please select a resume first");
+            return;
+        }
+
+        setIsLoadingSuggestions(true);
+        try {
+            const resume = resumes.find(r => r.id === selectedResume);
+            if (!resume) return;
+
+            const resumeContent = JSON.parse(resume.parsed_content || resume.optimized_content);
+            const skills = Array.isArray(resumeContent.skills) ? resumeContent.skills.join(", ") : "";
+            const experience = Array.isArray(resumeContent.experience) 
+                ? resumeContent.experience.map(e => `${e.position} at ${e.company}`).join("; ")
+                : "";
+
+            const prompt = `Based on this resume profile, suggest 5 specific job titles/roles and 3 industry sectors this candidate should target.
+
+Resume Summary:
+Skills: ${skills}
+Experience: ${experience}
+
+Return JSON with:
+{
+  "job_titles": [array of 5 specific job titles],
+  "industries": [array of 3 industries],
+  "reasoning": "brief explanation of why these are good fits"
+}`;
+
+            const response = await base44.integrations.Core.InvokeLLM({
+                prompt,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        job_titles: { type: "array", items: { type: "string" } },
+                        industries: { type: "array", items: { type: "string" } },
+                        reasoning: { type: "string" }
+                    }
+                }
+            });
+
+            setAiSuggestions(response);
+        } catch (e) {
+            console.error("Failed to generate suggestions:", e);
+        }
+        setIsLoadingSuggestions(false);
     };
 
     const autoSearchJobs = async () => {
@@ -624,6 +700,24 @@ IMPORTANT:
                                         </>
                                     )}
                                 </Button>
+                                <Button 
+                                    onClick={generateAiSuggestions} 
+                                    disabled={isLoadingSuggestions || !selectedResume} 
+                                    variant="outline" 
+                                    className="border-blue-600 text-blue-700"
+                                >
+                                    {isLoadingSuggestions ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Loading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Lightbulb className="w-4 h-4 mr-2" />
+                                            Get AI Suggestions
+                                        </>
+                                    )}
+                                </Button>
                             </div>
                             {!selectedResume && (
                                 <Alert className="border-amber-200 bg-amber-50">
@@ -635,6 +729,41 @@ IMPORTANT:
                         </div>
                     </CardContent>
                 </Card>
+
+                {aiSuggestions && (
+                    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                        <CardHeader>
+                            <CardTitle className="text-blue-900 flex items-center gap-2">
+                                <Lightbulb className="w-5 h-5 text-yellow-500" />
+                                AI Career Suggestions
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <h4 className="font-semibold text-sm text-blue-800 mb-2">Recommended Job Titles:</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {aiSuggestions.job_titles?.map((title, idx) => (
+                                        <Badge key={idx} className="bg-blue-100 text-blue-800 border-blue-200">{title}</Badge>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-sm text-blue-800 mb-2">Target Industries:</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {aiSuggestions.industries?.map((ind, idx) => (
+                                        <Badge key={idx} className="bg-indigo-100 text-indigo-800 border-indigo-200">{ind}</Badge>
+                                    ))}
+                                </div>
+                            </div>
+                            {aiSuggestions.reasoning && (
+                                <div>
+                                    <h4 className="font-semibold text-sm text-blue-800 mb-2">Why These Are Good Fits:</h4>
+                                    <p className="text-sm text-blue-900">{aiSuggestions.reasoning}</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Controls */}
                 <Card>
@@ -1019,21 +1148,30 @@ IMPORTANT:
                                                             Mark Reviewed
                                                         </Button>
                                                         <Button 
-                                                            size="sm" 
-                                                            onClick={() => createApplication(match)}
-                                                            className="bg-blue-600 hover:bg-blue-700"
+                                                           size="sm" 
+                                                           onClick={() => createApplication(match)}
+                                                           className="bg-green-600 hover:bg-green-700"
                                                         >
-                                                            <ThumbsUp className="w-4 h-4 mr-1" />
-                                                            I'm Interested
+                                                           <ThumbsUp className="w-4 h-4 mr-1" />
+                                                           Full Analysis
                                                         </Button>
                                                         <Button 
-                                                            size="sm" 
-                                                            onClick={() => updateMatchStatus(match.id, "dismissed")}
-                                                            variant="outline"
-                                                            className="text-red-600 hover:text-red-700"
+                                                           size="sm" 
+                                                           onClick={() => quickApplyToTracker(match)}
+                                                           variant="outline"
+                                                           className="border-blue-600 text-blue-700"
                                                         >
-                                                            <ThumbsDown className="w-4 h-4 mr-1" />
-                                                            Not Interested
+                                                           <Briefcase className="w-4 h-4 mr-1" />
+                                                           Quick Apply
+                                                        </Button>
+                                                        <Button 
+                                                           size="sm" 
+                                                           onClick={() => updateMatchStatus(match.id, "dismissed")}
+                                                           variant="outline"
+                                                           className="text-red-600 hover:text-red-700"
+                                                        >
+                                                           <ThumbsDown className="w-4 h-4 mr-1" />
+                                                           Dismiss
                                                         </Button>
                                                     </>
                                                 )}

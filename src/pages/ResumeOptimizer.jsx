@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Sparkles, Briefcase, Star, Loader2, Lightbulb, Target, Zap } from "lucide-react";
+import { Sparkles, Briefcase, Star, Loader2, Lightbulb, Target, Zap, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OptimizationResults from "@/components/resume/OptimizationResults";
 import { retryWithBackoff } from "@/components/utils/retry";
