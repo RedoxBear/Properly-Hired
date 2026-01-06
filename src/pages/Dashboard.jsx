@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { AutofillVault } from "@/entities/AutofillVault";
+import { User } from "@/entities/User";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -32,6 +33,7 @@ import QuickActions from "../components/dashboard/QuickActions";
 import FollowUpList from "../components/followups/FollowUpList";
 import DailyEncouragement from "../components/dashboard/DailyEncouragement";
 import ApplicationInsightsWidget from "../components/dashboard/ApplicationInsightsWidget";
+import SubscriptionStatus from "../components/dashboard/SubscriptionStatus";
 
 const heroPresets = {
     elegant: {
@@ -60,6 +62,7 @@ const heroPresets = {
 export default function Dashboard() {
     const [applications, setApplications] = useState([]);
     const [resumes, setResumes] = useState([]);
+    const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [vaultUpdatedAt, setVaultUpdatedAt] = useState(null);
     const [masterQuality, setMasterQuality] = useState(null);
@@ -73,14 +76,16 @@ export default function Dashboard() {
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const [fetchedApplications, fetchedResumes, vaultList] = await Promise.all([
+            const [fetchedApplications, fetchedResumes, vaultList, userList] = await Promise.all([
                 JobApplication.list("-created_date", 10),
                 Resume.list("-created_date", 5),
-                AutofillVault.list("-updated_date", 1)
+                AutofillVault.list("-updated_date", 1),
+                User.list()
             ]);
             setApplications(fetchedApplications);
             setResumes(fetchedResumes);
             setVaultUpdatedAt(vaultList && vaultList[0] ? vaultList[0].updated_at : null);
+            setUserData(userList && userList[0] ? userList[0] : null);
 
             const masters = fetchedResumes.filter(r => r.is_master_resume);
             if (masters.length > 0 && masters[0].quality_scores) {
@@ -359,6 +364,7 @@ export default function Dashboard() {
                     </div>
 
                     <div className="space-y-6">
+                        <SubscriptionStatus user={userData} />
                         <ApplicationInsightsWidget applications={applications} />
                         <QuickActions />
                     </div>

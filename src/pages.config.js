@@ -1,65 +1,67 @@
-import Dashboard from './pages/Dashboard';
-import JobAnalysis from './pages/JobAnalysis';
-import ResumeOptimizer from './pages/ResumeOptimizer';
-import CoverLetters from './pages/CoverLetters';
-import QAAssistant from './pages/QAAssistant';
-import MyResumes from './pages/MyResumes';
-import JobLibrary from './pages/JobLibrary';
-import ResumeViewer from './pages/ResumeViewer';
-import ResumeTemplates from './pages/ResumeTemplates';
-import ResumeBuilder from './pages/ResumeBuilder';
-import JobDetails from './pages/JobDetails';
-import TransferableSkills from './pages/TransferableSkills';
-import ApplicationQnA from './pages/ApplicationQnA';
-import ExtensionGuide from './pages/ExtensionGuide';
-import JobSummary from './pages/JobSummary';
-import OptimizeResume from './pages/OptimizeResume';
-import CoverLetter from './pages/CoverLetter';
 import ActivityInsights from './pages/ActivityInsights';
+import ApplicationQnA from './pages/ApplicationQnA';
+import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
+import CoverLetter from './pages/CoverLetter';
+import CoverLetters from './pages/CoverLetters';
+import Dashboard from './pages/Dashboard';
+import ExtensionGuide from './pages/ExtensionGuide';
+import Home from './pages/Home';
+import JobAnalysis from './pages/JobAnalysis';
+import JobDetails from './pages/JobDetails';
+import JobLibrary from './pages/JobLibrary';
+import JobMatcher from './pages/JobMatcher';
+import JobSummary from './pages/JobSummary';
+import MyResumes from './pages/MyResumes';
+import OptimizeResume from './pages/OptimizeResume';
+import Pricing from './pages/Pricing';
+import QAAssistant from './pages/QAAssistant';
+import ReferralProgram from './pages/ReferralProgram';
+import ResumeBuilder from './pages/ResumeBuilder';
+import ResumeEditor from './pages/ResumeEditor';
+import ResumeEditorTest from './pages/ResumeEditorTest';
+import ResumeHumanizer from './pages/ResumeHumanizer';
+import ResumeOptimizer from './pages/ResumeOptimizer';
 import ResumeQuality from './pages/ResumeQuality';
 import ResumeReview from './pages/ResumeReview';
-import Pricing from './pages/Pricing';
-import ResumeEditor from './pages/ResumeEditor';
-import ResumeHumanizer from './pages/ResumeHumanizer';
-// import ResumeEditorTest from './pages/ResumeEditorTest';
-import ApplicationTracker from './pages/ApplicationTracker';
-import JobMatcher from './pages/JobMatcher';
+import ResumeTemplates from './pages/ResumeTemplates';
+import ResumeViewer from './pages/ResumeViewer';
+import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
-import ReferralProgram from './pages/ReferralProgram';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "JobAnalysis": JobAnalysis,
-    "ResumeOptimizer": ResumeOptimizer,
-    "CoverLetters": CoverLetters,
-    "QAAssistant": QAAssistant,
-    "MyResumes": MyResumes,
-    "JobLibrary": JobLibrary,
-    "ResumeViewer": ResumeViewer,
-    "ResumeTemplates": ResumeTemplates,
-    "ResumeBuilder": ResumeBuilder,
-    "JobDetails": JobDetails,
-    "TransferableSkills": TransferableSkills,
-    "ApplicationQnA": ApplicationQnA,
-    "ExtensionGuide": ExtensionGuide,
-    "JobSummary": JobSummary,
-    "OptimizeResume": OptimizeResume,
-    "CoverLetter": CoverLetter,
     "ActivityInsights": ActivityInsights,
+    "ApplicationQnA": ApplicationQnA,
+    "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
+    "CoverLetter": CoverLetter,
+    "CoverLetters": CoverLetters,
+    "Dashboard": Dashboard,
+    "ExtensionGuide": ExtensionGuide,
+    "Home": Home,
+    "JobAnalysis": JobAnalysis,
+    "JobDetails": JobDetails,
+    "JobLibrary": JobLibrary,
+    "JobMatcher": JobMatcher,
+    "JobSummary": JobSummary,
+    "MyResumes": MyResumes,
+    "OptimizeResume": OptimizeResume,
+    "Pricing": Pricing,
+    "QAAssistant": QAAssistant,
+    "ReferralProgram": ReferralProgram,
+    "ResumeBuilder": ResumeBuilder,
+    "ResumeEditor": ResumeEditor,
+    "ResumeEditorTest": ResumeEditorTest,
+    "ResumeHumanizer": ResumeHumanizer,
+    "ResumeOptimizer": ResumeOptimizer,
     "ResumeQuality": ResumeQuality,
     "ResumeReview": ResumeReview,
-    "Pricing": Pricing,
-    "ResumeEditor": ResumeEditor,
-    "ResumeHumanizer": ResumeHumanizer,
-    // "ResumeEditorTest": ResumeEditorTest,
-    "ApplicationTracker": ApplicationTracker,
-    "JobMatcher": JobMatcher,
+    "ResumeTemplates": ResumeTemplates,
+    "ResumeViewer": ResumeViewer,
+    "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
-    "ReferralProgram": ReferralProgram,
 }
 
 export const pagesConfig = {
