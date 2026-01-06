@@ -317,15 +317,37 @@ Return JSON with:
         setError("");
 
         try {
-            // Extract skills and titles from resume for search
+            // Parse full resume content for comprehensive matching
             const resumeData = JSON.parse(resume.parsed_content || "{}");
-            const skills = resumeData.skills?.slice(0, 5).join(", ") || "";
-            const latestRole = resumeData.experience?.[0]?.position || "";
+            const skills = resumeData.skills || [];
+            const experience = resumeData.experience || [];
+            const latestRole = experience[0]?.position || "";
+            const yearsExp = experience.length;
             
-            const query = searchQuery || latestRole || skills;
+            // Build rich context from CV
+            const cvContext = {
+                current_title: latestRole,
+                skills: skills.slice(0, 8).join(", "),
+                experience_level: yearsExp > 7 ? "Senior" : yearsExp > 3 ? "Mid-level" : "Entry-level",
+                industries: [...new Set(experience.map(e => e.company).slice(0, 3))].join(", "),
+                key_achievements: experience.slice(0, 2).flatMap(e => e.achievements?.slice(0, 2) || []).join("; ")
+            };
+            
+            const query = searchQuery || latestRole || skills.slice(0, 3).join(", ");
 
-            // Search for jobs using AI with internet access
-            const searchPrompt = `Search for job postings from Indeed.com, LinkedIn Jobs, Glassdoor.com, and ZipRecruiter.com for: "${query}"
+            // Enhanced search using full CV context
+            const searchPrompt = `Search for job postings from Indeed.com, LinkedIn Jobs, Glassdoor.com, and ZipRecruiter.com.
+
+**CANDIDATE PROFILE (from their CV):**
+- Current/Latest Role: ${cvContext.current_title}
+- Experience Level: ${cvContext.experience_level}
+- Top Skills: ${cvContext.skills}
+- Industries: ${cvContext.industries}
+- Key Achievements: ${cvContext.key_achievements}
+
+**SEARCH TARGET:** "${query}"
+
+Find jobs that match this candidate's profile and skill set.
 
 Return the top 10-15 UNIQUE job postings (no duplicates) in JSON format. For each job, provide:
 - job_title: exact title
@@ -534,38 +556,61 @@ IMPORTANT:
                             </div>
                             <div>
                                 <h3 className="font-semibold text-slate-800">AI Job Search</h3>
-                                <p className="text-sm text-slate-600">Automatically find & match jobs from Indeed, LinkedIn, Glassdoor, and ZipRecruiter</p>
+                                <p className="text-sm text-slate-600">Automatically find & match jobs from Indeed, LinkedIn, Glassdoor, and ZipRecruiter based on your CV</p>
                             </div>
                         </div>
-                        <div className="flex gap-3">
-                            <Input
-                                placeholder="Search for roles (e.g., Software Engineer, Data Analyst)..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                disabled={isAutoSearching || !selectedResume}
-                                className="flex-1"
-                            />
-                            <Button 
-                                onClick={autoSearchJobs} 
-                                disabled={isAutoSearching || !selectedResume}
-                                className="bg-purple-600 hover:bg-purple-700"
-                            >
-                                {isAutoSearching ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                        Searching...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4 mr-2" />
-                                        Auto-Search
-                                    </>
-                                )}
-                            </Button>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                    Select Your Resume/CV *
+                                </label>
+                                <Select value={selectedResume || ""} onValueChange={setSelectedResume}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose a resume to match against..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {resumes.map(r => (
+                                            <SelectItem key={r.id} value={r.id}>
+                                                {r.version_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex gap-3">
+                                <Input
+                                    placeholder="Optional: Specify role (leave blank to use your CV's latest role)"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    disabled={isAutoSearching || !selectedResume}
+                                    className="flex-1"
+                                />
+                                <Button 
+                                    onClick={autoSearchJobs} 
+                                    disabled={isAutoSearching || !selectedResume}
+                                    className="bg-purple-600 hover:bg-purple-700 whitespace-nowrap"
+                                >
+                                    {isAutoSearching ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Searching...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-4 h-4 mr-2" />
+                                            Auto-Search Jobs
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                            {!selectedResume && (
+                                <Alert className="border-amber-200 bg-amber-50">
+                                    <AlertDescription className="text-amber-800">
+                                        Please select your resume/CV above to start searching
+                                    </AlertDescription>
+                                </Alert>
+                            )}
                         </div>
-                        {!selectedResume && (
-                            <p className="text-sm text-amber-600 mt-2">Please select a resume below first</p>
-                        )}
                     </CardContent>
                 </Card>
 
