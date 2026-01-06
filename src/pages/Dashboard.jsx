@@ -59,6 +59,7 @@ const heroPresets = {
     }
 };
 
+// Cycle fix
 export default function Dashboard() {
     const [applications, setApplications] = useState([]);
     const [resumes, setResumes] = useState([]);

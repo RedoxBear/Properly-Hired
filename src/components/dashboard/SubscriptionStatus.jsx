@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Crown, Zap, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 
 export default function SubscriptionStatus({ user }) {
     if (!user) return null;
@@ -46,7 +45,7 @@ export default function SubscriptionStatus({ user }) {
                                 <div className="text-xs text-indigo-200">Applications</div>
                             </div>
                         </div>
-                        <Link to={createPageUrl("UserProfile")}>
+                        <Link to="/UserProfile">
                             <Button variant="secondary" className="w-full text-indigo-700 hover:text-indigo-800 bg-white">
                                 Manage Subscription
                             </Button>
@@ -64,7 +63,7 @@ export default function SubscriptionStatus({ user }) {
                     <CardTitle className="text-base font-semibold text-slate-800">
                         Free Plan
                     </CardTitle>
-                    <Link to={createPageUrl("Pricing")}>
+                    <Link to="/Pricing">
                         <Button size="sm" variant="ghost" className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                             Upgrade <Zap className="w-3 h-3 ml-1" />
                         </Button>
@@ -93,7 +92,7 @@ export default function SubscriptionStatus({ user }) {
                     <p className="text-xs text-slate-500 mb-3">
                         Unlock unlimited AI usage and premium features.
                     </p>
-                    <Link to={createPageUrl("Pricing")}>
+                    <Link to="/Pricing">
                         <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md">
                             <Lock className="w-3 h-3 mr-2 opacity-70" />
                             Upgrade to Premium
