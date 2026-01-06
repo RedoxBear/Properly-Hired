@@ -202,9 +202,9 @@ export default function ResumeOptimizer() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center gap-3 p-4 bg-slate-100 rounded-lg border border-slate-200">
                     <Switch checked={useJobMatch} onCheckedChange={setUseJobMatch} />
-                    <span className="text-sm">Use Job Match instead of Application</span>
+                    <span className="text-sm font-medium text-slate-700">Use Job Match instead of Application</span>
                   </div>
 
                   {!useJobMatch ? (
@@ -259,17 +259,17 @@ export default function ResumeOptimizer() {
 
                   <ResumeLengthControls value={optimizeMode} onChange={setOptimizeMode} />
 
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm">Aggressive Keyword Matching</span>
+                  <div className="flex items-center justify-between p-4 bg-slate-100 rounded-lg border border-slate-200">
+                    <span className="text-sm font-medium text-slate-700">Aggressive Keyword Matching</span>
                     <Switch checked={aggressiveMatch} onCheckedChange={setAggressiveMatch} />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm">Deep Humanization (Anti-AI Detection)</span>
+                  <div className="flex items-center justify-between p-4 bg-slate-100 rounded-lg border border-slate-200">
+                    <span className="text-sm font-medium text-slate-700">Deep Humanization (Anti-AI Detection)</span>
                     <Switch checked={deepHumanize} onCheckedChange={setDeepHumanize} />
                   </div>
 
-                  <Button onClick={optimizeResume} disabled={isProcessing} className="w-full bg-green-600 hover:bg-green-700 h-12">
+                  <Button onClick={optimizeResume} disabled={isProcessing} className="w-full bg-blue-600 hover:bg-blue-700 h-12">
                     {isProcessing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processing...</> : <><Sparkles className="w-5 h-5 mr-2" />Optimize Resume</>}
                   </Button>
                 </CardContent>
