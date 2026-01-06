@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, RefreshCw } from "lucide-react";
@@ -20,9 +20,9 @@ function dayIndex(len) {
 }
 
 export default function DailyEncouragement() {
-  const [quote, setQuote] = useState(null);
+  const [quote, setQuote] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     (async () => {
       try {
         let list = await EncouragementQuote.list("-created_date", 200);

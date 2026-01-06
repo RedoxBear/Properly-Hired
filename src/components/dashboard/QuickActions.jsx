@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -8,9 +7,9 @@ import { Search, FileText, Target, Sparkles, ArrowRight } from "lucide-react";
 import { JobApplication } from "@/entities/JobApplication";
 
 export default function QuickActions() {
-  const [lastAppId, setLastAppId] = useState("");
+  const [lastAppId, setLastAppId] = React.useState("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     (async () => {
       try {
         const apps = await JobApplication.list("-created_date", 1);
