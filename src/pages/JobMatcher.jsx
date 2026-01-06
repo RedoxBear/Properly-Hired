@@ -52,6 +52,9 @@ export default function JobMatcher() {
     const [scoreFilter, setScoreFilter] = React.useState("all");
     const [isAutoSearching, setIsAutoSearching] = React.useState(false);
     const [searchQuery, setSearchQuery] = React.useState("");
+    const [minScoreFilter, setMinScoreFilter] = React.useState(0);
+    const [locationFilter, setLocationFilter] = React.useState("");
+    const [sortBy, setSortBy] = React.useState("score_desc");
     
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
@@ -459,16 +462,35 @@ IMPORTANT:
         setIsAutoSearching(false);
     };
 
-    const filteredMatches = matches.filter(match => {
-        const statusMatch = statusFilter === "all" || match.status === statusFilter;
-        const scoreMatch = 
-            scoreFilter === "all" ||
-            (scoreFilter === "excellent" && match.match_score >= 85) ||
-            (scoreFilter === "good" && match.match_score >= 70 && match.match_score < 85) ||
-            (scoreFilter === "fair" && match.match_score >= 50 && match.match_score < 70) ||
-            (scoreFilter === "poor" && match.match_score < 50);
-        return statusMatch && scoreMatch;
-    });
+    const filteredMatches = React.useMemo(() => {
+        let filtered = matches.filter(match => {
+            const statusMatch = statusFilter === "all" || match.status === statusFilter;
+            const scoreMatch = 
+                scoreFilter === "all" ||
+                (scoreFilter === "excellent" && match.match_score >= 85) ||
+                (scoreFilter === "good" && match.match_score >= 70 && match.match_score < 85) ||
+                (scoreFilter === "fair" && match.match_score >= 50 && match.match_score < 70) ||
+                (scoreFilter === "poor" && match.match_score < 50);
+            const minScoreMatch = match.match_score >= minScoreFilter;
+            const locationMatch = !locationFilter || 
+                (match.location && match.location.toLowerCase().includes(locationFilter.toLowerCase()));
+            
+            return statusMatch && scoreMatch && minScoreMatch && locationMatch;
+        });
+
+        // Sort
+        if (sortBy === "score_desc") {
+            filtered.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+        } else if (sortBy === "score_asc") {
+            filtered.sort((a, b) => (a.match_score || 0) - (b.match_score || 0));
+        } else if (sortBy === "date_desc") {
+            filtered.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+        } else if (sortBy === "date_asc") {
+            filtered.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+        }
+
+        return filtered;
+    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, sortBy]);
 
     const stats = {
         total: matches.length,
@@ -617,58 +639,33 @@ IMPORTANT:
                 {/* Controls */}
                 <Card>
                     <CardContent className="p-4">
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex-1">
-                                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                                    Match Against Resume:
-                                </label>
-                                <Select value={selectedResume || ""} onValueChange={setSelectedResume}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a resume..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {resumes.map(r => (
-                                            <SelectItem key={r.id} value={r.id}>
-                                                {r.version_name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="flex gap-2 items-end">
-                                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                    <SelectTrigger className="w-[140px]">
-                                        <Filter className="w-4 h-4 mr-2" />
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Status</SelectItem>
-                                        <SelectItem value="new">New</SelectItem>
-                                        <SelectItem value="reviewed">Reviewed</SelectItem>
-                                        <SelectItem value="interested">Interested</SelectItem>
-                                        <SelectItem value="applied">Applied</SelectItem>
-                                        <SelectItem value="dismissed">Dismissed</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                                    <SelectTrigger className="w-[140px]">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Scores</SelectItem>
-                                        <SelectItem value="excellent">Excellent (85+)</SelectItem>
-                                        <SelectItem value="good">Good (70-84)</SelectItem>
-                                        <SelectItem value="fair">Fair (50-69)</SelectItem>
-                                        <SelectItem value="poor">Poor (&lt;50)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-                                    <DialogTrigger asChild>
-                                        <Button className="bg-blue-600 hover:bg-blue-700">
-                                            <Plus className="w-4 h-4 mr-2" />
-                                            Add Job
-                                        </Button>
-                                    </DialogTrigger>
+                        <div className="space-y-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="flex-1">
+                                    <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                        Match Against Resume:
+                                    </label>
+                                    <Select value={selectedResume || ""} onValueChange={setSelectedResume}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a resume..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {resumes.map(r => (
+                                                <SelectItem key={r.id} value={r.id}>
+                                                    {r.version_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex gap-2 items-end">
+                                    <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+                                        <DialogTrigger asChild>
+                                            <Button className="bg-blue-600 hover:bg-blue-700">
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                Add Job
+                                            </Button>
+                                        </DialogTrigger>
                                     <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-slate-200 shadow-xl">
                                         <DialogHeader>
                                             <DialogTitle>Add Job to Match</DialogTitle>
@@ -796,6 +793,102 @@ IMPORTANT:
                                 </Dialog>
                             </div>
                         </div>
+                        
+                        {/* Filters & Sort */}
+                        <div className="border-t pt-4 mt-4">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Filter className="w-4 h-4 text-slate-500" />
+                                <span className="text-sm font-medium text-slate-700">Filters & Sort</span>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Status</label>
+                                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Status</SelectItem>
+                                            <SelectItem value="new">New</SelectItem>
+                                            <SelectItem value="reviewed">Reviewed</SelectItem>
+                                            <SelectItem value="interested">Interested</SelectItem>
+                                            <SelectItem value="applied">Applied</SelectItem>
+                                            <SelectItem value="dismissed">Dismissed</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Score Range</label>
+                                    <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Scores</SelectItem>
+                                            <SelectItem value="excellent">85+</SelectItem>
+                                            <SelectItem value="good">70-84</SelectItem>
+                                            <SelectItem value="fair">50-69</SelectItem>
+                                            <SelectItem value="poor">&lt;50</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Min Score</label>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        value={minScoreFilter}
+                                        onChange={(e) => setMinScoreFilter(Number(e.target.value))}
+                                        className="h-9"
+                                        placeholder="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Location</label>
+                                    <Input
+                                        value={locationFilter}
+                                        onChange={(e) => setLocationFilter(e.target.value)}
+                                        className="h-9"
+                                        placeholder="City, Remote..."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Sort By</label>
+                                    <Select value={sortBy} onValueChange={setSortBy}>
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="score_desc">Score (High to Low)</SelectItem>
+                                            <SelectItem value="score_asc">Score (Low to High)</SelectItem>
+                                            <SelectItem value="date_desc">Date (Newest)</SelectItem>
+                                            <SelectItem value="date_asc">Date (Oldest)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            {(statusFilter !== "all" || scoreFilter !== "all" || minScoreFilter > 0 || locationFilter) && (
+                                <div className="flex items-center gap-2 mt-3">
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => {
+                                            setStatusFilter("all");
+                                            setScoreFilter("all");
+                                            setMinScoreFilter(0);
+                                            setLocationFilter("");
+                                        }}
+                                    >
+                                        Clear Filters
+                                    </Button>
+                                    <span className="text-xs text-slate-500">
+                                        Showing {filteredMatches.length} of {matches.length} matches
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                     </CardContent>
                 </Card>
 
