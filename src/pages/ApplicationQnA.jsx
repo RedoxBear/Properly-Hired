@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { InvokeLLM } from "@/integrations/Core";
@@ -24,15 +24,15 @@ import { retryWithBackoff } from "@/components/utils/retry";
 import { logEvent } from "@/components/utils/telemetry";
 
 export default function QAAssistant() {
-    const [jobApplications, setJobApplications] = useState([]);
-    const [selectedJobId, setSelectedJobId] = useState("");
-    const [questions, setQuestions] = useState([{ question: "", character_limit: "", answer: "" }]);
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [error, setError] = useState("");
-    const [answerStyle, setAnswerStyle] = useState("balanced"); // concise | balanced | detailed
-    const [resumes, setResumes] = useState([]);
+    const [jobApplications, setJobApplications] = React.useState([]);
+    const [selectedJobId, setSelectedJobId] = React.useState("");
+    const [questions, setQuestions] = React.useState([{ question: "", character_limit: "", answer: "" }]);
+    const [isGenerating, setIsGenerating] = React.useState(false);
+    const [error, setError] = React.useState("");
+    const [answerStyle, setAnswerStyle] = React.useState("balanced"); // concise | balanced | detailed
+    const [resumes, setResumes] = React.useState([]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadJobApplications();
     }, []);
 

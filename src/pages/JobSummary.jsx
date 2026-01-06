@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,9 +6,9 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function JobSummary() {
-  const [app, setApp] = useState(null);
+  const [app, setApp] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const qp = new URLSearchParams(window.location.search);
     const id = qp.get("id");
     (async () => {

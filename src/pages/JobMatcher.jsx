@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobMatch } from "@/entities/JobMatch";
 import { Resume } from "@/entities/Resume";
 import { JobApplication } from "@/entities/JobApplication";
@@ -40,17 +40,17 @@ import {
 import { motion } from "framer-motion";
 
 export default function JobMatcher() {
-    const [matches, setMatches] = useState([]);
-    const [resumes, setResumes] = useState([]);
-    const [selectedResume, setSelectedResume] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
-    const [isScanning, setIsScanning] = useState(false);
-    const [error, setError] = useState("");
-    const [showAddDialog, setShowAddDialog] = useState(false);
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [scoreFilter, setScoreFilter] = useState("all");
+    const [matches, setMatches] = React.useState([]);
+    const [resumes, setResumes] = React.useState([]);
+    const [selectedResume, setSelectedResume] = React.useState("");
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isScanning, setIsScanning] = React.useState(false);
+    const [error, setError] = React.useState("");
+    const [showAddDialog, setShowAddDialog] = React.useState(false);
+    const [statusFilter, setStatusFilter] = React.useState("all");
+    const [scoreFilter, setScoreFilter] = React.useState("all");
     
-    const [jobInput, setJobInput] = useState({
+    const [jobInput, setJobInput] = React.useState({
         job_url: "",
         job_title: "",
         company_name: "",
@@ -59,7 +59,7 @@ export default function JobMatcher() {
         salary_range: ""
     });
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadData();
     }, []);
 

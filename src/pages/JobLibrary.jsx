@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,11 +32,11 @@ import { schedule48_72 } from "@/components/utils/followups";
 import { logEvent } from "@/components/utils/telemetry";
 
 export default function JobLibrary() {
-    const [applications, setApplications] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [selectedIds, setSelectedIds] = useState([]); // NEW: selection for bulk delete
+    const [applications, setApplications] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [statusFilter, setStatusFilter] = React.useState("all");
+    const [selectedIds, setSelectedIds] = React.useState([]); // NEW: selection for bulk delete
 
     // Dynamically create statusConfig using plain English for labels
     const statusConfig = {
@@ -49,7 +48,7 @@ export default function JobLibrary() {
         offer: { color: "bg-emerald-100 text-emerald-800", label: "Offer" }
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadApplications();
     }, []);
 
