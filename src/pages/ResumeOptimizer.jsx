@@ -442,12 +442,11 @@ export default function ResumeOptimizer() {
                   </CardContent>
                   </Card>
                   )}
-            <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <OptimizationResults results={optimizationResults} onReset={resetOptimization} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
+                   <OptimizationResults results={optimizationResults} onReset={resetOptimization} />
+                  </motion.div>
+                  )}
+                  </AnimatePresence>
+                  </div>
+                  </div>
+                  );
+                  }
