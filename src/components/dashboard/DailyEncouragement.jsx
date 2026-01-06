@@ -2,9 +2,11 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, RefreshCw } from "lucide-react";
-import { EncouragementQuote } from "@/entities/EncouragementQuote";
-import { InvokeLLM } from "@/integrations/Core";
+import { base44 } from "@/api/base44Client";
 import { differenceInDays } from "date-fns";
+
+const EncouragementQuote = base44.entities.EncouragementQuote;
+const InvokeLLM = base44.integrations.Core.InvokeLLM;
 
 const FALLBACK_QUOTES = [
   { text: "Believe you can and you’re halfway there.", author: "Theodore Roosevelt" },

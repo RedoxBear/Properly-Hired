@@ -1,8 +1,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { JobApplication } from "@/entities/JobApplication";
+import { base44 } from "@/api/base44Client";
 import { nextFollowUp } from "@/components/utils/followups";
+
+const JobApplication = base44.entities.JobApplication;
 
 export default function FollowUpList({ apps = [], onUpdated }) {
   const now = new Date();

@@ -1,8 +1,9 @@
 import React from "react";
-import { JobApplication } from "@/entities/JobApplication";
-import { Resume } from "@/entities/Resume";
-import { AutofillVault } from "@/entities/AutofillVault";
 import { base44 } from "@/api/base44Client";
+
+const JobApplication = base44.entities.JobApplication;
+const Resume = base44.entities.Resume;
+const AutofillVault = base44.entities.AutofillVault;
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";

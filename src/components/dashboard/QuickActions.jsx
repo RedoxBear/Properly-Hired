@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Search, FileText, Target, Sparkles, ArrowRight } from "lucide-react";
-import { JobApplication } from "@/entities/JobApplication";
+import { base44 } from "@/api/base44Client";
+
+const JobApplication = base44.entities.JobApplication;
 
 export default function QuickActions() {
   const [lastAppId, setLastAppId] = React.useState("");
