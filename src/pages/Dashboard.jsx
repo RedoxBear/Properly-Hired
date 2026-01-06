@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { AutofillVault } from "@/entities/AutofillVault";
@@ -61,16 +61,16 @@ const heroPresets = {
 
 // Cycle fix
 export default function Dashboard() {
-    const [applications, setApplications] = useState([]);
-    const [resumes, setResumes] = useState([]);
-    const [userData, setUserData] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [vaultUpdatedAt, setVaultUpdatedAt] = useState(null);
-    const [masterQuality, setMasterQuality] = useState(null);
+    const [applications, setApplications] = React.useState([]);
+    const [resumes, setResumes] = React.useState([]);
+    const [userData, setUserData] = React.useState(null);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [vaultUpdatedAt, setVaultUpdatedAt] = React.useState(null);
+    const [masterQuality, setMasterQuality] = React.useState(null);
     
     const { isMobile, isTablet, isDesktop, deviceType } = useDeviceDetection();
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadData();
     }, []);
 
