@@ -4,7 +4,6 @@ import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
 import CoverLetter from './pages/CoverLetter';
 import CoverLetters from './pages/CoverLetters';
-import Dashboard from './pages/Dashboard';
 import ExtensionGuide from './pages/ExtensionGuide';
 import Home from './pages/Home';
 import JobAnalysis from './pages/JobAnalysis';
@@ -28,6 +27,7 @@ import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
+import Dashboard from './pages/Dashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -38,7 +38,6 @@ export const PAGES = {
     "AutofillVault": AutofillVault,
     "CoverLetter": CoverLetter,
     "CoverLetters": CoverLetters,
-    "Dashboard": Dashboard,
     "ExtensionGuide": ExtensionGuide,
     "Home": Home,
     "JobAnalysis": JobAnalysis,
@@ -62,6 +61,7 @@ export const PAGES = {
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
+    "Dashboard": Dashboard,
 }
 
 export const pagesConfig = {

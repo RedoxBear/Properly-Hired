@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,13 @@ import { Referral } from "@/entities/Referral";
 import { TIERS, TIER_LIMITS, PRICING } from "@/components/utils/accessControl";
 
 export default function Pricing() {
-    const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [referralCode, setReferralCode] = useState("");
-    const [discountApplied, setDiscountApplied] = useState(false);
-    const [discountPercentage] = useState(20);
+    const [user, setUser] = React.useState(null);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [referralCode, setReferralCode] = React.useState("");
+    const [discountApplied, setDiscountApplied] = React.useState(false);
+    const [discountPercentage] = React.useState(20);
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadUser();
         checkReferralCode();
     }, []);

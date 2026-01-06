@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Referral } from "@/entities/Referral";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,13 +10,13 @@ import { Gift, Copy, Check, Users, Percent, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ReferralProgram() {
-    const [user, setUser] = useState(null);
-    const [referralCode, setReferralCode] = useState("");
-    const [referrals, setReferrals] = useState([]);
-    const [copied, setCopied] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = React.useState(null);
+    const [referralCode, setReferralCode] = React.useState("");
+    const [referrals, setReferrals] = React.useState([]);
+    const [copied, setCopied] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(true);
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadData();
     }, []);
 

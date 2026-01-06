@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,10 @@ import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 
 export default function CoverLetters() {
-    const [jobApplications, setJobApplications] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [jobApplications, setJobApplications] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadJobApplications();
     }, []);
 

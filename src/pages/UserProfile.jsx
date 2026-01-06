@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,18 +13,18 @@ import { Loader2, User, Target, MapPin, DollarSign, Bell, FileText, Settings, Ch
 import { motion } from "framer-motion";
 
 export default function UserProfile() {
-    const [user, setUser] = useState(null);
-    const [preferences, setPreferences] = useState(null);
-    const [resumes, setResumes] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState(false);
-    const [newRole, setNewRole] = useState("");
-    const [newIndustry, setNewIndustry] = useState("");
-    const [newLocation, setNewLocation] = useState("");
+    const [user, setUser] = React.useState(null);
+    const [preferences, setPreferences] = React.useState(null);
+    const [resumes, setResumes] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState("");
+    const [success, setSuccess] = React.useState(false);
+    const [newRole, setNewRole] = React.useState("");
+    const [newIndustry, setNewIndustry] = React.useState("");
+    const [newLocation, setNewLocation] = React.useState("");
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadData();
     }, []);
 

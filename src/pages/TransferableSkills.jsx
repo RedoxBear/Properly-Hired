@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Resume } from "@/entities/Resume";
 import { InvokeLLM } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
@@ -12,15 +12,15 @@ import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
 
 export default function TransferableSkills() {
-  const [resumes, setResumes] = useState([]);
-  const [selectedId, setSelectedId] = useState("");
-  const [targetRole, setTargetRole] = useState("");
-  const [targetIndustry, setTargetIndustry] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
+  const [resumes, setResumes] = React.useState([]);
+  const [selectedId, setSelectedId] = React.useState("");
+  const [targetRole, setTargetRole] = React.useState("");
+  const [targetIndustry, setTargetIndustry] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [result, setResult] = React.useState(null);
+  const [error, setError] = React.useState("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     const init = async () => {
       try {
         const list = await Resume.list("-created_date", 50);
