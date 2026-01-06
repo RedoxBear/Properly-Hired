@@ -6,7 +6,6 @@ import { base44 } from "@/api/base44Client";
 import { differenceInDays } from "date-fns";
 
 const EncouragementQuote = base44.entities.EncouragementQuote;
-const InvokeLLM = base44.integrations.Core.InvokeLLM;
 
 const FALLBACK_QUOTES = [
   { text: "Believe you can and you’re halfway there.", author: "Theodore Roosevelt" },
@@ -36,7 +35,7 @@ export default function DailyEncouragement() {
         if (shouldFetch) {
            try {
              const existingTexts = new Set(list.map(q => q.text));
-             const response = await InvokeLLM({
+             const response = await base44.integrations.Core.InvokeLLM({
                 prompt: `Find 5 distinct, powerful, and non-cliché encouragement quotes specifically for someone job hunting or building their career. 
                 Avoid these if possible: ${Array.from(existingTexts).slice(0, 10).join(", ")}.
                 Return a JSON object with a "quotes" array.`,
