@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AutofillVault } from "@/entities/AutofillVault";
 import { Resume } from "@/entities/Resume";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -23,9 +23,9 @@ function timeAgo(ts) {
 }
 
 export default function AutofillVaultPage() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [vaultRec, setVaultRec] = useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
+  const [vaultRec, setVaultRec] = React.useState(null);
 
   // default structure
   const emptyVault = {
@@ -57,7 +57,7 @@ export default function AutofillVaultPage() {
     updated_at: new Date().toISOString()
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     (async () => {
       setLoading(true);
       const list = await AutofillVault.list("-updated_date", 1);
