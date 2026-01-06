@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Printer, Save, Sparkles, Loader2, Building, MessageCircle, Target, Lightbulb, Heart } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FileText, Printer, Save, Sparkles, Loader2, Building, MessageCircle, Target, Lightbulb, Heart, Briefcase } from "lucide-react";
 import { USER_DEFAULT, fillTemplate } from "@/components/coverletter/template";
 import { getVault } from "@/components/utils/vault";
 import { fetchOrgResearch } from "@/components/utils/orgResearch";
@@ -28,6 +29,12 @@ export default function CoverLetter() {
   const [isResearchLoading, setIsResearchLoading] = useState(false);
   const [error, setError] = useState("");
   const [openingStyle, setOpeningStyle] = useState("direct_hook");
+  
+  // NEW: Tone and emphasis controls
+  const [tone, setTone] = useState("professional");
+  const [keyPoints, setKeyPoints] = useState("");
+  const [variations, setVariations] = useState([]);
+  const [selectedVariation, setSelectedVariation] = useState(0);
   
   // AI Feedback state
   const [aiFeedback, setAIFeedback] = useState(null);
@@ -56,28 +63,25 @@ export default function CoverLetter() {
           const a = await JobApplication.get(appId);
           setApp(a);
           
-          let currentResume = null; // Use a local variable to manage resume within this effect run
+          let currentResume = null;
 
-          // Attempt to load optimized resume if an ID is present
           if (a.optimized_resume_id) {
             try {
               const resume = await Resume.get(a.optimized_resume_id);
               currentResume = resume;
-              setOptimizedResume(resume); // Update state
+              setOptimizedResume(resume);
             } catch (e) {
               console.error("Failed to load optimized resume:", e);
-              // Do not set error here, as we might still find a master resume.
             }
           }
           
-          // If no optimized resume was found or specified, try to load a master resume as fallback
-          if (!currentResume) { // Check the local variable
+          if (!currentResume) {
             try {
               const masters = await Resume.filter({ is_master_resume: true }, "-created_date", 1);
               if (masters && masters[0]) {
                 currentResume = masters[0];
-                setOptimizedResume(masters[0]); // Update state
-                setError(""); // Clear any previous general error if a master resume is found successfully
+                setOptimizedResume(masters[0]);
+                setError("");
               } else {
                 setError("No resume found. Please upload a master resume or optimize one for this job first.");
               }
@@ -87,20 +91,17 @@ export default function CoverLetter() {
             }
           }
           
-          // Check if we already have organization research from Job Analysis
           if (a.summary?.company_overview || a.summary?.research_snapshot) {
             setOrgResearch({
               overview: a.summary.company_overview,
               ...a.summary.research_snapshot
             });
           } else if (a.company_name) {
-            // Fetch fresh organization research
             setIsResearchLoading(true);
             try {
               const research = await fetchOrgResearch(a.company_name);
               setOrgResearch(research);
               
-              // Save research back to the job application
               await JobApplication.update(appId, {
                 summary: {
                   ...(a.summary || {}),
@@ -128,7 +129,6 @@ export default function CoverLetter() {
     })();
   }, [appId]);
 
-  // Autofill from Vault + JobApplication when available
   useEffect(() => {
     if (!vault && !app) return;
     setVars(prev => ({
@@ -150,7 +150,29 @@ export default function CoverLetter() {
 
   const onVar = (k) => (e) => setVars({ ...vars, [k]: e.target.value });
 
-  // Opening style configurations
+  const toneConfigs = {
+    professional: {
+      label: "Professional",
+      description: "Balanced, polished tone suitable for most corporate roles",
+      instructions: "Use clear, professional language. Maintain formality while staying approachable."
+    },
+    enthusiastic: {
+      label: "Enthusiastic",
+      description: "Show genuine excitement and energy for the opportunity",
+      instructions: "Express authentic enthusiasm and passion. Use active, energetic language while remaining professional."
+    },
+    concise: {
+      label: "Concise",
+      description: "Brief and to-the-point, respecting busy hiring managers",
+      instructions: "Be direct and efficient. Every sentence should add value. Aim for shorter paragraphs."
+    },
+    formal: {
+      label: "Formal",
+      description: "Traditional business tone for conservative industries",
+      instructions: "Use formal business language. Maintain traditional structure and decorum."
+    }
+  };
+
   const openingStyles = {
     direct_hook: {
       label: "Direct Hook",
@@ -249,16 +271,16 @@ MUST include:
 1. A genuine, human reaction or observation
 2. Specific detail about the role/company (not generic)
 3. The position: ${app?.job_title || '[role]'}
-4. Why NOW (what prompted you to apply)
+4. WHY NOW (what prompted you to apply)
 
 Write like you're explaining to a friend why you're excited about this opportunity. Professional but human.`
     }
   };
 
   const selectedStyleConfig = openingStyles[openingStyle];
+  const selectedToneConfig = toneConfigs[tone];
 
-  // AI-Powered Cover Letter Generation
-  const generateCoverLetter = async () => {
+  const generateCoverLetter = async (generateMultiple = false) => {
     if (!app) {
       setError("Job application data is missing. Please go back and analyze the job first.");
       return;
@@ -273,16 +295,13 @@ Write like you're explaining to a friend why you're excited about this opportuni
     setError("");
 
     try {
-      // Parse resume data
       const resumeData = optimizedResume.optimized_content 
         ? JSON.parse(optimizedResume.optimized_content)
         : JSON.parse(optimizedResume.parsed_content);
 
-      // Build comprehensive context
       const candidateName = vars.candidate_name || resumeData?.personal_info?.name || "Candidate";
       const companyName = app.company_name;
       
-      // Extract key achievements from resume
       const achievements = [];
       if (resumeData.experience) {
         resumeData.experience.forEach(exp => {
@@ -296,9 +315,15 @@ Write like you're explaining to a friend why you're excited about this opportuni
         ? resumeData.skills.slice(0, 8).join(", ") 
         : "";
 
+      const keyPointsText = keyPoints.trim() 
+        ? `\n**KEY POINTS TO EMPHASIZE (MUST address these):**\n${keyPoints}\n` 
+        : "";
+
       const prompt = `You are an expert cover letter writer who creates compelling, personalized, and authentically human cover letters.
 
 CRITICAL OBJECTIVE: Write a cover letter that sounds 100% human-written and passes ATS AI-detection systems.
+
+**TONE REQUIREMENT:** ${selectedToneConfig.instructions}
 
 CRITICAL OUTPUT RULES:
 ❌ DO NOT copy-paste resume bullets or raw achievement text
@@ -312,7 +337,7 @@ CRITICAL OUTPUT RULES:
 - Position: ${app.job_title}
 - Company: ${companyName}
 - Job Description: ${app.job_description}
-
+${keyPointsText}
 **Candidate Information:**
 - Name: ${candidateName}
 - Email: ${vars.candidate_email}
@@ -370,71 +395,62 @@ ${selectedStyleConfig.instructions}
 ❌ Buzzword soup and keyword stuffing
 ❌ Resume bullets or achievement lists
 
-**HUMANIZATION CHECKLIST:**
-- Read it aloud - does it sound like a real person?
-- Would you send this to a friend for review without embarrassment?
-- Does it have personality while staying professional?
-- Is there at least ONE unique detail about the company?
-- Zero clichés or corporate jargon?
-- NO resume-style bullets or achievement dumps?
-
-**EXAMPLE TRANSFORMATIONS FOR BODY PARAGRAPHS:**
-
-❌ BAD (resume dump): "In my previous role as Executive Vice President at ALIGCUS Inc., I partnered with executive leadership to implement performance-driven OKR programs, boosting productivity by 30%. I also streamlined operations through Monday.com and BuilderTrend, enhancing efficiency across divisions."
-
-✅ GOOD (natural prose): "When I joined my previous company as EVP, the leadership team wanted to shift toward more measurable, outcome-driven performance. I worked closely with our C-suite to design and roll out an OKR framework that made sense for our culture. The result? Productivity climbed 30% within the year, and teams finally had clear visibility into how their work connected to company goals."
-
 **OUTPUT FORMAT:**
 
 Return ONLY a JSON object with these 4 clean paragraph strings:
 {
-  "intro_mission": "2-3 sentence opening paragraph following the ${openingStyle} style - MUST NOT start with generic phrases",
+  "intro_mission": "2-3 sentence opening paragraph following the ${openingStyle} style with ${tone} tone",
   "para_experience": "4-5 sentence paragraph about experience - NO BULLETS, natural storytelling with metrics woven in",
   "para_alignment": "4-5 sentence paragraph showing company knowledge and genuine fit",
   "closing": "2-3 sentence closing paragraph"
-}
+}`;
 
-CRITICAL REMINDERS:
-- Opening MUST follow the ${openingStyle} style instructions above
-- Write in flowing paragraph prose ONLY
-- Transform all achievements into natural sentences
-- NO copy-pasting from resume bullets
-- Make it sound like a confident professional sharing their story
-- This should pass both ATS systems AND impress human recruiters`;
+      const numVariations = generateMultiple ? 3 : 1;
+      const generatedVariations = [];
 
-      const response = await retryWithBackoff(() =>
-        base44.integrations.Core.InvokeLLM({
-          prompt: prompt,
-          add_context_from_internet: false,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              intro_mission: { type: "string" },
-              para_experience: { type: "string" },
-              para_alignment: { type: "string" },
-              closing: { type: "string" }
+      for (let i = 0; i < numVariations; i++) {
+        const response = await retryWithBackoff(() =>
+          base44.integrations.Core.InvokeLLM({
+            prompt: prompt,
+            add_context_from_internet: false,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                intro_mission: { type: "string" },
+                para_experience: { type: "string" },
+                para_alignment: { type: "string" },
+                closing: { type: "string" }
+              }
             }
-          }
-        }), { retries: 3, baseDelay: 1200 }
-      );
+          }), { retries: 3, baseDelay: 1200 }
+        );
 
-      // Sanitize output to remove any bullet points or resume artifacts
-      const sanitize = (text) => {
-        if (!text) return "";
-        return String(text)
-          .replace(/^[\s]*[•·\-\*]\s+/gm, '')
-          .replace(/^[\s]*(Role|Position|Company|Duration):\s*/gmi, '')
-          .replace(/\s{2,}/g, ' ')
-          .trim();
-      };
+        const sanitize = (text) => {
+          if (!text) return "";
+          return String(text)
+            .replace(/^[\s]*[•·\-\*]\s+/gm, '')
+            .replace(/^[\s]*(Role|Position|Company|Duration):\s*/gmi, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+        };
 
-      // Update variables with AI-generated content (sanitized)
+        generatedVariations.push({
+          intro_mission: sanitize(response.intro_mission),
+          para_experience: sanitize(response.para_experience),
+          para_alignment: sanitize(response.para_alignment),
+          closing: sanitize(response.closing)
+        });
+      }
+
+      if (generateMultiple) {
+        setVariations(generatedVariations);
+        setSelectedVariation(0);
+      }
+
+      // Apply first variation
       setVars(prev => ({
         ...prev,
-        intro_mission: sanitize(response.intro_mission) || prev.intro_mission,
-        para_experience: sanitize(response.para_experience) || prev.para_experience,
-        para_alignment: sanitize(response.para_alignment) || prev.para_alignment,
-        closing: sanitize(response.closing) || prev.closing
+        ...generatedVariations[0]
       }));
 
     } catch (e) {
@@ -443,6 +459,14 @@ CRITICAL REMINDERS:
     }
 
     setIsGenerating(false);
+  };
+
+  const applyVariation = (index) => {
+    setSelectedVariation(index);
+    setVars(prev => ({
+      ...prev,
+      ...variations[index]
+    }));
   };
 
   const handleSave = async () => {
@@ -462,7 +486,6 @@ CRITICAL REMINDERS:
 
   const handlePrint = () => window.print();
 
-  // Run AI feedback/review using GPT-4 via Base44
   const runAIFeedback = async () => {
     setIsCheckingFeedback(true);
     setAIFeedback(null);
@@ -527,7 +550,6 @@ CRITICAL REMINDERS:
         </Alert>
       )}
 
-      {/* Organization Research Card */}
       {isResearchLoading && (
         <Alert>
           <AlertDescription className="flex items-center gap-2">
@@ -537,106 +559,146 @@ CRITICAL REMINDERS:
         </Alert>
       )}
 
-      {orgResearch && (
-        <>
-          <Card className="bg-blue-50 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-blue-800 flex items-center gap-2">
-                <Building className="w-5 h-5" />
-                Organization Research
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-blue-900 space-y-2">
-              {orgResearch.overview && <p><strong>Overview:</strong> {orgResearch.overview}</p>}
-              <div className="grid grid-cols-2 gap-2">
-                {orgResearch.industry && <p><strong>Industry:</strong> {orgResearch.industry}</p>}
-                {orgResearch.size && <p><strong>Size:</strong> {orgResearch.size}</p>}
-                {orgResearch.headquarters && <p><strong>Location:</strong> {orgResearch.headquarters}</p>}
-                {orgResearch.founded && <p><strong>Founded:</strong> {orgResearch.founded}</p>}
-              </div>
-              {orgResearch.website && (
-                <p>
-                  <strong>Website:</strong>{" "}
-                  <a href={orgResearch.website} target="_blank" rel="noopener noreferrer" className="underline">
-                    {orgResearch.website}
-                  </a>
-                </p>
-              )}
-            </CardContent>
-          </Card>
-          <CompanyResearchCard company={app?.company_name} orgResearch={orgResearch} />
-        </>
-      )}
+      {orgResearch && <CompanyResearchCard company={app?.company_name} orgResearch={orgResearch} />}
 
-      {/* AI Generate Section with Opening Style Selector */}
+      {/* AI Generate Section */}
       <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
         <CardContent className="p-4 space-y-4">
           <div>
             <h3 className="font-semibold text-green-800 mb-1">AI-Powered Cover Letter Generator</h3>
             <p className="text-sm text-green-700 mb-4">
-              Combines your optimized resume + organization research + job requirements to create a personalized, human-sounding cover letter.
+              Combines your optimized resume + organization research + job requirements to create personalized, human-sounding cover letters.
             </p>
 
-            {/* Opening Style Selector */}
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-green-800">Choose Your Opening Style:</label>
-              <Select value={openingStyle} onValueChange={setOpeningStyle}>
-                <SelectTrigger className="bg-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(openingStyles).map(([key, style]) => {
-                    const Icon = style.icon;
-                    return (
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              {/* Tone Selector */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-green-800">Tone:</label>
+                <Select value={tone} onValueChange={setTone}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(toneConfigs).map(([key, config]) => (
                       <SelectItem key={key} value={key}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="w-4 h-4" />
-                          <div>
-                            <div className="font-medium">{style.label}</div>
-                            <div className="text-xs text-slate-500">{style.description}</div>
-                          </div>
+                        <div>
+                          <div className="font-medium">{config.label}</div>
+                          <div className="text-xs text-slate-500">{config.description}</div>
                         </div>
                       </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {/* Style Preview */}
-              <div className="bg-white border border-green-200 rounded-lg p-3">
-                <div className="flex items-start gap-2 mb-2">
-                  {React.createElement(selectedStyleConfig.icon, { className: "w-4 h-4 text-green-600 mt-0.5" })}
-                  <div>
-                    <div className="font-medium text-sm text-slate-800">{selectedStyleConfig.label}</div>
-                    <div className="text-xs text-slate-600">{selectedStyleConfig.description}</div>
-                  </div>
+              {/* Opening Style Selector */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-green-800">Opening Style:</label>
+                <Select value={openingStyle} onValueChange={setOpeningStyle}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(openingStyles).map(([key, style]) => {
+                      const Icon = style.icon;
+                      return (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="w-4 h-4" />
+                            <div>
+                              <div className="font-medium">{style.label}</div>
+                              <div className="text-xs text-slate-500">{style.description}</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Key Points Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-green-800">Key Points to Emphasize (Optional):</label>
+              <Textarea
+                placeholder="List specific experiences, skills, or achievements you want highlighted in the cover letter..."
+                value={keyPoints}
+                onChange={(e) => setKeyPoints(e.target.value)}
+                className="min-h-[80px] bg-white"
+              />
+              <p className="text-xs text-green-700">
+                Example: "3 years managing remote teams", "Led digital transformation project", "Fluent in Spanish"
+              </p>
+            </div>
+
+            {/* Style Preview */}
+            <div className="bg-white border border-green-200 rounded-lg p-3">
+              <div className="flex items-start gap-2 mb-2">
+                {React.createElement(selectedStyleConfig.icon, { className: "w-4 h-4 text-green-600 mt-0.5" })}
+                <div>
+                  <div className="font-medium text-sm text-slate-800">{selectedStyleConfig.label} - {selectedToneConfig.label}</div>
+                  <div className="text-xs text-slate-600">{selectedStyleConfig.description}</div>
                 </div>
-                <div className="text-xs text-slate-500 italic mt-2 pl-6">
-                  Example: "{selectedStyleConfig.example}"
-                </div>
+              </div>
+              <div className="text-xs text-slate-500 italic mt-2 pl-6">
+                Example: "{selectedStyleConfig.example}"
               </div>
             </div>
           </div>
 
-          <Button
-            onClick={generateCoverLetter}
-            disabled={isGenerating || !app || !optimizedResume}
-            className="w-full bg-green-600 hover:bg-green-700"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate with AI
-              </>
-            )}
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => generateCoverLetter(false)}
+              disabled={isGenerating || !app || !optimizedResume}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate Cover Letter
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={() => generateCoverLetter(true)}
+              disabled={isGenerating || !app || !optimizedResume}
+              variant="outline"
+              className="border-green-600 text-green-700 hover:bg-green-50"
+            >
+              Generate 3 Variations
+            </Button>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Variations Selector */}
+      {variations.length > 0 && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-blue-800 text-base">Generated Variations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              {variations.map((_, index) => (
+                <Button
+                  key={index}
+                  onClick={() => applyVariation(index)}
+                  variant={selectedVariation === index ? "default" : "outline"}
+                  size="sm"
+                >
+                  Variation {index + 1}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
@@ -700,7 +762,6 @@ CRITICAL REMINDERS:
                 ))
               }
             </div>
-            {/* AI Feedback Button and Suggestions */}
             <div className="mt-6">
               <Button onClick={runAIFeedback} disabled={isCheckingFeedback} className="mb-4">
                 {isCheckingFeedback ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}

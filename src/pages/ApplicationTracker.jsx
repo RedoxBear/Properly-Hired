@@ -30,9 +30,13 @@ import {
     FileText,
     MessageSquare,
     Users,
-    Sparkles
+    Sparkles,
+    Building2,
+    ChevronDown,
+    ChevronUp
 } from "lucide-react";
 import { motion } from "framer-motion";
+import CompanyResearchDisplay from "@/components/company/CompanyResearchDisplay";
 
 export default function ApplicationTracker() {
     const [applications, setApplications] = React.useState([]);
@@ -58,6 +62,7 @@ export default function ApplicationTracker() {
     const [saving, setSaving] = React.useState(false);
     const [error, setError] = React.useState("");
     const [selectedIds, setSelectedIds] = React.useState([]);
+    const [expandedApp, setExpandedApp] = React.useState(null);
 
     const statusConfig = {
         applied: { color: "bg-blue-100 text-blue-800", label: "Applied", icon: FileText },
@@ -591,25 +596,37 @@ export default function ApplicationTracker() {
                                     <tbody className="divide-y divide-gray-200">
                                         {filteredApplications.map(app => {
                                             const StatusIcon = statusConfig[app.application_status]?.icon;
+                                            const isExpanded = expandedApp === app.id;
                                             return (
-                                                <motion.tr 
-                                                    key={app.id} 
-                                                    initial={{ opacity: 0 }} 
-                                                    animate={{ opacity: 1 }}
-                                                    className="hover:bg-gray-50"
-                                                >
-                                                    <td className="px-4 py-3">
-                                                        <Checkbox
-                                                            checked={selectedIds.includes(app.id)}
-                                                            onCheckedChange={() => toggleSelected(app.id)}
-                                                        />
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div>
-                                                            <div className="font-medium text-slate-800">{app.job_title}</div>
-                                                            <div className="text-sm text-slate-500">{app.company_name}</div>
-                                                        </div>
-                                                    </td>
+                                                <React.Fragment key={app.id}>
+                                                    <motion.tr 
+                                                        initial={{ opacity: 0 }} 
+                                                        animate={{ opacity: 1 }}
+                                                        className="hover:bg-gray-50"
+                                                    >
+                                                        <td className="px-4 py-3">
+                                                            <Checkbox
+                                                                checked={selectedIds.includes(app.id)}
+                                                                onCheckedChange={() => toggleSelected(app.id)}
+                                                            />
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <button
+                                                                    onClick={() => setExpandedApp(isExpanded ? null : app.id)}
+                                                                    className="text-slate-400 hover:text-slate-600"
+                                                                >
+                                                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                                </button>
+                                                                <div>
+                                                                    <div className="font-medium text-slate-800">{app.job_title}</div>
+                                                                    <div className="text-sm text-slate-500 flex items-center gap-1">
+                                                                        <Building2 className="w-3 h-3" />
+                                                                        {app.company_name}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
                                                     <td className="px-4 py-3">
                                                         <Popover>
                                                             <PopoverTrigger asChild>
@@ -731,6 +748,17 @@ export default function ApplicationTracker() {
                                                         </div>
                                                     </td>
                                                 </motion.tr>
+                                                {isExpanded && (
+                                                    <tr>
+                                                        <td colSpan="8" className="px-4 py-4 bg-slate-50">
+                                                            <CompanyResearchDisplay 
+                                                                company={app.company_name} 
+                                                                jobApplication={app}
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
                                             );
                                         })}
                                     </tbody>
