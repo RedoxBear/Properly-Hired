@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { AutofillVault } from "@/entities/AutofillVault";
-import { User } from "@/entities/User";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -80,7 +80,7 @@ export default function Dashboard() {
                 JobApplication.list("-created_date", 10),
                 Resume.list("-created_date", 5),
                 AutofillVault.list("-updated_date", 1),
-                User.list()
+                base44.entities.User.list()
             ]);
             setApplications(fetchedApplications);
             setResumes(fetchedResumes);

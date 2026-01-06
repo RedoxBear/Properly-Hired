@@ -1,6 +1,5 @@
 import ActivityInsights from './pages/ActivityInsights';
 import ApplicationQnA from './pages/ApplicationQnA';
-import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
 import CoverLetter from './pages/CoverLetter';
 import CoverLetters from './pages/CoverLetters';
@@ -10,7 +9,6 @@ import Home from './pages/Home';
 import JobAnalysis from './pages/JobAnalysis';
 import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
-import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
 import MyResumes from './pages/MyResumes';
 import OptimizeResume from './pages/OptimizeResume';
@@ -21,20 +19,21 @@ import ResumeBuilder from './pages/ResumeBuilder';
 import ResumeEditor from './pages/ResumeEditor';
 import ResumeEditorTest from './pages/ResumeEditorTest';
 import ResumeHumanizer from './pages/ResumeHumanizer';
-import ResumeOptimizer from './pages/ResumeOptimizer';
 import ResumeQuality from './pages/ResumeQuality';
 import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
+import ApplicationTracker from './pages/ApplicationTracker';
+import JobMatcher from './pages/JobMatcher';
+import ResumeOptimizer from './pages/ResumeOptimizer';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActivityInsights": ActivityInsights,
     "ApplicationQnA": ApplicationQnA,
-    "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
     "CoverLetter": CoverLetter,
     "CoverLetters": CoverLetters,
@@ -44,7 +43,6 @@ export const PAGES = {
     "JobAnalysis": JobAnalysis,
     "JobDetails": JobDetails,
     "JobLibrary": JobLibrary,
-    "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
     "MyResumes": MyResumes,
     "OptimizeResume": OptimizeResume,
@@ -55,13 +53,15 @@ export const PAGES = {
     "ResumeEditor": ResumeEditor,
     "ResumeEditorTest": ResumeEditorTest,
     "ResumeHumanizer": ResumeHumanizer,
-    "ResumeOptimizer": ResumeOptimizer,
     "ResumeQuality": ResumeQuality,
     "ResumeReview": ResumeReview,
     "ResumeTemplates": ResumeTemplates,
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
+    "ApplicationTracker": ApplicationTracker,
+    "JobMatcher": JobMatcher,
+    "ResumeOptimizer": ResumeOptimizer,
 }
 
 export const pagesConfig = {
