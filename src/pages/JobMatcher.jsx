@@ -57,6 +57,7 @@ export default function JobMatcher() {
     const [searchQuery, setSearchQuery] = React.useState("");
     const [minScoreFilter, setMinScoreFilter] = React.useState(0);
     const [locationFilter, setLocationFilter] = React.useState("");
+    const [locationTypeFilter, setLocationTypeFilter] = React.useState("all");
     const [sortBy, setSortBy] = React.useState("score_desc");
     const [aiSuggestions, setAiSuggestions] = React.useState(null);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
@@ -548,10 +549,25 @@ IMPORTANT:
                 (scoreFilter === "fair" && match.match_score >= 50 && match.match_score < 70) ||
                 (scoreFilter === "poor" && match.match_score < 50);
             const minScoreMatch = match.match_score >= minScoreFilter;
+            
+            // Location type filter (Remote, City, State)
+            let locationTypeMatch = true;
+            if (locationTypeFilter !== "all") {
+                const loc = (match.location || "").toLowerCase();
+                if (locationTypeFilter === "remote") {
+                    locationTypeMatch = /remote|work from home|wfh|anywhere/i.test(match.location || "");
+                } else if (locationTypeFilter === "city") {
+                    locationTypeMatch = loc && !/remote|work from home|wfh/i.test(loc) && /,/.test(loc);
+                } else if (locationTypeFilter === "state") {
+                    // State-level filtering - locations with US state abbreviations
+                    locationTypeMatch = loc && /\b[A-Z]{2}\b/.test(match.location || "");
+                }
+            }
+            
             const locationMatch = !locationFilter || 
                 (match.location && match.location.toLowerCase().includes(locationFilter.toLowerCase()));
             
-            return statusMatch && scoreMatch && minScoreMatch && locationMatch;
+            return statusMatch && scoreMatch && minScoreMatch && locationTypeMatch && locationMatch;
         });
 
         // Sort
@@ -566,7 +582,7 @@ IMPORTANT:
         }
 
         return filtered;
-    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, sortBy]);
+    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, locationTypeFilter, sortBy]);
 
     const stats = {
         total: matches.length,
@@ -929,7 +945,7 @@ IMPORTANT:
                                 <Filter className="w-4 h-4 text-slate-500" />
                                 <span className="text-sm font-medium text-slate-700">Filters & Sort</span>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                                 <div>
                                     <label className="text-xs text-slate-600 mb-1 block">Status</label>
                                     <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -974,12 +990,26 @@ IMPORTANT:
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs text-slate-600 mb-1 block">Location</label>
+                                    <label className="text-xs text-slate-600 mb-1 block">Location Type</label>
+                                    <Select value={locationTypeFilter} onValueChange={setLocationTypeFilter}>
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Types</SelectItem>
+                                            <SelectItem value="remote">Remote</SelectItem>
+                                            <SelectItem value="city">City</SelectItem>
+                                            <SelectItem value="state">State</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Search Location</label>
                                     <Input
                                         value={locationFilter}
                                         onChange={(e) => setLocationFilter(e.target.value)}
                                         className="h-9"
-                                        placeholder="City, Remote..."
+                                        placeholder="Search..."
                                     />
                                 </div>
                                 <div>
@@ -997,7 +1027,7 @@ IMPORTANT:
                                     </Select>
                                 </div>
                             </div>
-                            {(statusFilter !== "all" || scoreFilter !== "all" || minScoreFilter > 0 || locationFilter) && (
+                            {(statusFilter !== "all" || scoreFilter !== "all" || minScoreFilter > 0 || locationFilter || locationTypeFilter !== "all") && (
                                 <div className="flex items-center gap-2 mt-3">
                                     <Button 
                                         size="sm" 
@@ -1007,6 +1037,7 @@ IMPORTANT:
                                             setScoreFilter("all");
                                             setMinScoreFilter(0);
                                             setLocationFilter("");
+                                            setLocationTypeFilter("all");
                                         }}
                                     >
                                         Clear Filters
