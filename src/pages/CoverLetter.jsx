@@ -1,39 +1,4 @@
-import { useRef } from "react";
-  // AI Feedback state
-  const [aiFeedback, setAIFeedback] = useState(null);
-  const [isCheckingFeedback, setIsCheckingFeedback] = useState(false);
-  const feedbackTextRef = useRef("");
-
-  // Run AI feedback/review using GPT-4 via Base44
-  const runAIFeedback = async () => {
-    setIsCheckingFeedback(true);
-    setAIFeedback(null);
-    let textToCheck = output;
-    feedbackTextRef.current = textToCheck;
-    try {
-      const prompt = `You are a world-class recruiter and AI/ATS expert. Carefully review the following cover letter for recruiter appeal, clarity, human tone, and ATS-friendliness.\n\nCover Letter:\n${textToCheck}\n\nReturn ONLY a JSON array of objects: [{\n  "issue": string, // short description of the problem or opportunity\n  "original": string, // the problematic or improvable sentence/phrase\n  "suggestion": string // improved version or actionable advice\n}]`;
-      const response = await retryWithBackoff(() => base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              issue: { type: "string" },
-              original: { type: "string" },
-              suggestion: { type: "string" }
-            }
-          }
-        }
-      }), { retries: 2, baseDelay: 1200 });
-      setAIFeedback(response);
-    } catch (e) {
-      setAIFeedback([{ issue: "Error running AI feedback", original: "", suggestion: "Try again later." }]);
-    }
-    setIsCheckingFeedback(false);
-  };
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
@@ -63,6 +28,11 @@ export default function CoverLetter() {
   const [isResearchLoading, setIsResearchLoading] = useState(false);
   const [error, setError] = useState("");
   const [openingStyle, setOpeningStyle] = useState("direct_hook");
+  
+  // AI Feedback state
+  const [aiFeedback, setAIFeedback] = useState(null);
+  const [isCheckingFeedback, setIsCheckingFeedback] = useState(false);
+  const feedbackTextRef = useRef("");
 
   const [vars, setVars] = useState({
     candidate_name: "",
@@ -491,6 +461,35 @@ CRITICAL REMINDERS:
   };
 
   const handlePrint = () => window.print();
+
+  // Run AI feedback/review using GPT-4 via Base44
+  const runAIFeedback = async () => {
+    setIsCheckingFeedback(true);
+    setAIFeedback(null);
+    let textToCheck = output;
+    feedbackTextRef.current = textToCheck;
+    try {
+      const prompt = `You are a world-class recruiter and AI/ATS expert. Carefully review the following cover letter for recruiter appeal, clarity, human tone, and ATS-friendliness.\n\nCover Letter:\n${textToCheck}\n\nReturn ONLY a JSON array of objects: [{\n  "issue": string, // short description of the problem or opportunity\n  "original": string, // the problematic or improvable sentence/phrase\n  "suggestion": string // improved version or actionable advice\n}]`;
+      const response = await retryWithBackoff(() => base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              issue: { type: "string" },
+              original: { type: "string" },
+              suggestion: { type: "string" }
+            }
+          }
+        }
+      }), { retries: 2, baseDelay: 1200 });
+      setAIFeedback(response);
+    } catch (e) {
+      setAIFeedback([{ issue: "Error running AI feedback", original: "", suggestion: "Try again later." }]);
+    }
+    setIsCheckingFeedback(false);
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
