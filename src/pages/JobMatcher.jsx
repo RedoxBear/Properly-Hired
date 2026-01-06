@@ -1,8 +1,9 @@
 import React from "react";
-import { JobMatch } from "@/entities/JobMatch";
-import { Resume } from "@/entities/Resume";
-import { JobApplication } from "@/entities/JobApplication";
-import { InvokeLLM } from "@/integrations/Core";
+import { base44 } from "@/api/base44Client";
+
+const JobMatch = base44.entities.JobMatch;
+const Resume = base44.entities.Resume;
+const JobApplication = base44.entities.JobApplication;
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,8 @@ export default function JobMatcher() {
     const [showAddDialog, setShowAddDialog] = React.useState(false);
     const [statusFilter, setStatusFilter] = React.useState("all");
     const [scoreFilter, setScoreFilter] = React.useState("all");
+    const [isAutoSearching, setIsAutoSearching] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState("");
     
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
@@ -154,7 +157,7 @@ Return JSON with:
 - If a skill is missing, say it's missing - don't suggest fabricating it`;
 
         const response = await retryWithBackoff(() =>
-            InvokeLLM({
+            base44.integrations.Core.InvokeLLM({
                 prompt: analysisPrompt,
                 response_json_schema: {
                     type: "object",
@@ -298,6 +301,142 @@ Return JSON with:
         }
     };
 
+    const autoSearchJobs = async () => {
+        if (!selectedResume) {
+            setError("Please select a resume first");
+            return;
+        }
+
+        const resume = resumes.find(r => r.id === selectedResume);
+        if (!resume) {
+            setError("Selected resume not found");
+            return;
+        }
+
+        setIsAutoSearching(true);
+        setError("");
+
+        try {
+            // Extract skills and titles from resume for search
+            const resumeData = JSON.parse(resume.parsed_content || "{}");
+            const skills = resumeData.skills?.slice(0, 5).join(", ") || "";
+            const latestRole = resumeData.experience?.[0]?.position || "";
+            
+            const query = searchQuery || latestRole || skills;
+
+            // Search for jobs using AI with internet access
+            const searchPrompt = `Search for job postings from Indeed.com, LinkedIn Jobs, Glassdoor.com, and ZipRecruiter.com for: "${query}"
+
+Return the top 10-15 UNIQUE job postings (no duplicates) in JSON format. For each job, provide:
+- job_title: exact title
+- company_name: company name
+- job_url: direct link to posting
+- job_description: full description (at least 200 words)
+- location: job location
+- salary_range: if available
+- source: which site (Indeed, LinkedIn, Glassdoor, or ZipRecruiter)
+
+IMPORTANT:
+- Minimize redundancy - if the same job appears on multiple sites, include it ONCE with the best source
+- Prioritize recently posted jobs (within last 30 days)
+- Only include legitimate job postings, not ads or expired listings
+- Ensure job descriptions are complete and detailed`;
+
+            const searchResults = await retryWithBackoff(() =>
+                base44.integrations.Core.InvokeLLM({
+                    prompt: searchPrompt,
+                    add_context_from_internet: true,
+                    response_json_schema: {
+                        type: "object",
+                        properties: {
+                            jobs: {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        job_title: { type: "string" },
+                                        company_name: { type: "string" },
+                                        job_url: { type: "string" },
+                                        job_description: { type: "string" },
+                                        location: { type: "string" },
+                                        salary_range: { type: "string" },
+                                        source: { type: "string" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }),
+                { retries: 2, baseDelay: 1500 }
+            );
+
+            const jobs = searchResults?.jobs || [];
+            
+            if (jobs.length === 0) {
+                setError("No jobs found. Try a different search term or check back later.");
+                setIsAutoSearching(false);
+                return;
+            }
+
+            // Analyze each job against the resume
+            let processedCount = 0;
+            for (const job of jobs) {
+                try {
+                    // Check if job already exists (by URL or title+company)
+                    const existing = matches.find(m => 
+                        (m.job_url && m.job_url === job.job_url) ||
+                        (m.job_title === job.job_title && m.company_name === job.company_name)
+                    );
+                    
+                    if (existing) {
+                        console.log(`Skipping duplicate: ${job.job_title} at ${job.company_name}`);
+                        continue;
+                    }
+
+                    const analysis = await analyzeJobFit(job, selectedResume);
+
+                    await JobMatch.create({
+                        job_title: job.job_title,
+                        company_name: job.company_name,
+                        job_url: job.job_url || "",
+                        job_description: job.job_description,
+                        location: job.location || "",
+                        salary_range: job.salary_range || "",
+                        posted_date: new Date().toISOString(),
+                        resume_id: selectedResume,
+                        match_score: analysis.match_score || 0,
+                        fit_analysis: {
+                            overall_fit: analysis.overall_fit || "unknown",
+                            strengths: analysis.strengths || [],
+                            gaps: analysis.gaps || [],
+                            required_skills_match: analysis.required_skills_match || [],
+                            experience_alignment: analysis.experience_alignment || "",
+                            education_match: analysis.education_match || "",
+                            improvement_suggestions: analysis.improvement_suggestions || []
+                        },
+                        key_keywords: analysis.key_keywords || [],
+                        status: "new",
+                        ai_reasoning: analysis.ai_reasoning || "",
+                        auto_matched: true,
+                        job_source: job.source || "web_search"
+                    });
+
+                    processedCount++;
+                } catch (e) {
+                    console.error(`Error processing job ${job.job_title}:`, e);
+                }
+            }
+
+            await loadData();
+            setError(`Successfully found and analyzed ${processedCount} new job matches!`);
+        } catch (e) {
+            console.error("Error searching jobs:", e);
+            setError("Failed to search jobs. Please try again.");
+        }
+
+        setIsAutoSearching(false);
+    };
+
     const filteredMatches = matches.filter(match => {
         const statusMatch = statusFilter === "all" || match.status === statusFilter;
         const scoreMatch = 
@@ -385,6 +524,50 @@ Return JSON with:
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Auto Search */}
+                <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                                <Search className="w-5 h-5 text-purple-600" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-slate-800">AI Job Search</h3>
+                                <p className="text-sm text-slate-600">Automatically find & match jobs from Indeed, LinkedIn, Glassdoor, and ZipRecruiter</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <Input
+                                placeholder="Search for roles (e.g., Software Engineer, Data Analyst)..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                disabled={isAutoSearching || !selectedResume}
+                                className="flex-1"
+                            />
+                            <Button 
+                                onClick={autoSearchJobs} 
+                                disabled={isAutoSearching || !selectedResume}
+                                className="bg-purple-600 hover:bg-purple-700"
+                            >
+                                {isAutoSearching ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Searching...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-4 h-4 mr-2" />
+                                        Auto-Search
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                        {!selectedResume && (
+                            <p className="text-sm text-amber-600 mt-2">Please select a resume below first</p>
+                        )}
+                    </CardContent>
+                </Card>
 
                 {/* Controls */}
                 <Card>
