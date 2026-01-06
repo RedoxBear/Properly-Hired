@@ -249,16 +249,6 @@ Return JSON with:
             
             console.log("Job match created successfully:", created);
 
-            // Automatically send job details to Job Analysis
-            const analysisResult = await analyzeJobPosting({
-                job_title: matchData.job_title,
-                company_name: matchData.company_name,
-                job_description: matchData.job_description,
-                job_url: matchData.job_url
-            });
-
-            console.log("Job Analysis completed:", analysisResult);
-
             // Reset form and close dialog
             setShowAddDialog(false);
             setJobInput({
