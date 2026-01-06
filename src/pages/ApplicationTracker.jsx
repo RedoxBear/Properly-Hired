@@ -29,7 +29,8 @@ import {
     Calendar as CalendarIcon,
     FileText,
     MessageSquare,
-    Users
+    Users,
+    Sparkles
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -699,6 +700,26 @@ export default function ApplicationTracker() {
                                                                     </Button>
                                                                 </a>
                                                             )}
+                                                            <Link to={createPageUrl(`JobSummary?id=${app.id}`)}>
+                                                                <Button 
+                                                                    size="sm" 
+                                                                    variant="ghost"
+                                                                    title="View Job Analysis"
+                                                                    className="h-8 w-8 p-0"
+                                                                >
+                                                                    <Search className="w-4 h-4" />
+                                                                </Button>
+                                                            </Link>
+                                                            <Link to={createPageUrl(`ResumeOptimizer?id=${app.id}`)}>
+                                                                <Button 
+                                                                    size="sm" 
+                                                                    variant="ghost"
+                                                                    title="Optimize Resume"
+                                                                    className="h-8 w-8 p-0"
+                                                                >
+                                                                    <Sparkles className="w-4 h-4" />
+                                                                </Button>
+                                                            </Link>
                                                             <Button 
                                                                 size="sm" 
                                                                 variant="ghost"
