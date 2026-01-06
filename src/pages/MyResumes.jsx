@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React from "react";
 import { Resume } from "@/entities/Resume";
 import { UploadFile, ExtractDataFromUploadedFile } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
@@ -27,16 +27,16 @@ import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
 
 export default function MyResumes() {
-    const [resumes, setResumes] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isUploading, setIsUploading] = useState(false);
-    const [error, setError] = useState("");
+    const [resumes, setResumes] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [isUploading, setIsUploading] = React.useState(false);
+    const [error, setError] = React.useState("");
     const fileInputRef = React.useRef(null);
-    const [sortBy, setSortBy] = useState("date_desc");
-    const [selectedIds, setSelectedIds] = useState([]);
+    const [sortBy, setSortBy] = React.useState("date_desc");
+    const [selectedIds, setSelectedIds] = React.useState([]);
     const navigate = useNavigate();
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadResumes();
     }, []);
 
@@ -177,7 +177,7 @@ export default function MyResumes() {
     const masterResumes = resumes.filter(r => r.is_master_resume);
     const optimizedVersions = resumes.filter(r => !r.is_master_resume);
 
-    const sortedMasterResumes = useMemo(() => {
+    const sortedMasterResumes = React.useMemo(() => {
         const arr = [...masterResumes];
         if (sortBy === "date_desc") return arr.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
         if (sortBy === "date_asc") return arr.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
@@ -187,7 +187,7 @@ export default function MyResumes() {
     }, [masterResumes, sortBy]);
 
     // Get master benchmark for comparison
-    const masterBenchmark = useMemo(() => {
+    const masterBenchmark = React.useMemo(() => {
         const masters = resumes.filter(r => r.is_master_resume);
         if (!masters.length) return null;
         const scores = masters.map(m => m.quality_scores?.overall).filter(s => typeof s === 'number');

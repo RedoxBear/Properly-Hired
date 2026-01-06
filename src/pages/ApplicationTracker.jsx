@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,14 +34,14 @@ import {
 import { motion } from "framer-motion";
 
 export default function ApplicationTracker() {
-    const [applications, setApplications] = useState([]);
-    const [resumes, setResumes] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [showAddDialog, setShowAddDialog] = useState(false);
-    const [editingApp, setEditingApp] = useState(null);
-    const [formData, setFormData] = useState({
+    const [applications, setApplications] = React.useState([]);
+    const [resumes, setResumes] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [searchTerm, setSearchTerm] = React.useState("");
+    const [statusFilter, setStatusFilter] = React.useState("all");
+    const [showAddDialog, setShowAddDialog] = React.useState(false);
+    const [editingApp, setEditingApp] = React.useState(null);
+    const [formData, setFormData] = React.useState({
         company_name: "",
         job_title: "",
         job_posting_url: "",
@@ -54,9 +54,9 @@ export default function ApplicationTracker() {
         notes: "",
         optimized_resume_id: ""
     });
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState("");
-    const [selectedIds, setSelectedIds] = useState([]);
+    const [saving, setSaving] = React.useState(false);
+    const [error, setError] = React.useState("");
+    const [selectedIds, setSelectedIds] = React.useState([]);
 
     const statusConfig = {
         applied: { color: "bg-blue-100 text-blue-800", label: "Applied", icon: FileText },
@@ -67,7 +67,7 @@ export default function ApplicationTracker() {
         rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: XCircle }
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         loadData();
     }, []);
 

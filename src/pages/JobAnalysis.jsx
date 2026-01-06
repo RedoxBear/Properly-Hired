@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { InvokeLLM } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
@@ -39,27 +39,27 @@ const createPageUrl = (path) => {
 };
 
 export default function JobAnalysis() {
-    const [jobUrl, setJobUrl] = useState("");
-    const [jobDescription, setJobDescription] = useState("");
-    const [companyName, setCompanyName] = useState("");
-    const [jobTitle, setJobTitle] = useState("");
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysisResult, setAnalysisResult] = useState(null);
-    const [error, setError] = useState("");
-    const [resumeTextForReview, setResumeTextForReview] = useState("");
-    const [lengthMode, setLengthMode] = useState("two_page");
-    const [prefillInfo, setPrefillInfo] = useState("");
-    const [masterResumeRecord, setMasterResumeRecord] = useState(null);
-    const [savedApp, setSavedApp] = useState(null);
+    const [jobUrl, setJobUrl] = React.useState("");
+    const [jobDescription, setJobDescription] = React.useState("");
+    const [companyName, setCompanyName] = React.useState("");
+    const [jobTitle, setJobTitle] = React.useState("");
+    const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+    const [analysisResult, setAnalysisResult] = React.useState(null);
+    const [error, setError] = React.useState("");
+    const [resumeTextForReview, setResumeTextForReview] = React.useState("");
+    const [lengthMode, setLengthMode] = React.useState("two_page");
+    const [prefillInfo, setPrefillInfo] = React.useState("");
+    const [masterResumeRecord, setMasterResumeRecord] = React.useState(null);
+    const [savedApp, setSavedApp] = React.useState(null);
 
     // NEW: URL fetch state and editable lock for JD
-    const [isFetchingFromUrl, setIsFetchingFromUrl] = useState(false);
-    const [jdLocked, setJdLocked] = useState(false);
+    const [isFetchingFromUrl, setIsFetchingFromUrl] = React.useState(false);
+    const [jdLocked, setJdLocked] = React.useState(false);
 
     // NEW: track if we've already logged a job search in this session
     const jobSearchLoggedRef = React.useRef(false);
 
-    useEffect(() => {
+    React.useEffect(() => {
         (async () => {
             try {
                 const masters = await Resume.filter({ is_master_resume: true }, "-created_date", 1);
@@ -148,7 +148,7 @@ URL: ${jobUrl}
     }
 
     // NEW: Auto-try once when user pastes a URL and title/company/JD are empty
-    useEffect(() => {
+    React.useEffect(() => {
         if (!jobUrl) return;
         const emptyKeyFields = !jobTitle && !companyName && !jobDescription;
         if (emptyKeyFields) {
@@ -160,7 +160,7 @@ URL: ${jobUrl}
 
     // Deep-link prefill and optional autostart (for browser extension)
     const autoStartedRef = React.useRef(false);
-    useEffect(() => {
+    React.useEffect(() => {
         const qp = new URLSearchParams(window.location.search);
         const u = qp.get("url") || "";
         const t = qp.get("title") || "";
