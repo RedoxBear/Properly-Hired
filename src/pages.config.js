@@ -22,7 +22,7 @@ import ResumeReview from './pages/ResumeReview';
 import Pricing from './pages/Pricing';
 import ResumeEditor from './pages/ResumeEditor';
 import ResumeHumanizer from './pages/ResumeHumanizer';
-import ResumeEditorTest from './pages/ResumeEditorTest';
+// import ResumeEditorTest from './pages/ResumeEditorTest';
 import ApplicationTracker from './pages/ApplicationTracker';
 import JobMatcher from './pages/JobMatcher';
 import UserProfile from './pages/UserProfile';
@@ -55,7 +55,7 @@ export const PAGES = {
     "Pricing": Pricing,
     "ResumeEditor": ResumeEditor,
     "ResumeHumanizer": ResumeHumanizer,
-    "ResumeEditorTest": ResumeEditorTest,
+    // "ResumeEditorTest": ResumeEditorTest,
     "ApplicationTracker": ApplicationTracker,
     "JobMatcher": JobMatcher,
     "UserProfile": UserProfile,

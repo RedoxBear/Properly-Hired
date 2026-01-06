@@ -1,4 +1,4 @@
-export const RICHARD_DEFAULT = `
+export const USER_DEFAULT = `
 {{candidate_name}}    {{candidate_email}} | {{candidate_phone}}
 LinkedIn: {{candidate_linkedin}}
 

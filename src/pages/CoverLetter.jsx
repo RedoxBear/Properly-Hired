@@ -1,3 +1,37 @@
+import { useRef } from "react";
+  // AI Feedback state
+  const [aiFeedback, setAIFeedback] = useState(null);
+  const [isCheckingFeedback, setIsCheckingFeedback] = useState(false);
+  const feedbackTextRef = useRef("");
+
+  // Run AI feedback/review using GPT-4 via Base44
+  const runAIFeedback = async () => {
+    setIsCheckingFeedback(true);
+    setAIFeedback(null);
+    let textToCheck = output;
+    feedbackTextRef.current = textToCheck;
+    try {
+      const prompt = `You are a world-class recruiter and AI/ATS expert. Carefully review the following cover letter for recruiter appeal, clarity, human tone, and ATS-friendliness.\n\nCover Letter:\n${textToCheck}\n\nReturn ONLY a JSON array of objects: [{\n  "issue": string, // short description of the problem or opportunity\n  "original": string, // the problematic or improvable sentence/phrase\n  "suggestion": string // improved version or actionable advice\n}]`;
+      const response = await retryWithBackoff(() => base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              issue: { type: "string" },
+              original: { type: "string" },
+              suggestion: { type: "string" }
+            }
+          }
+        }
+      }), { retries: 2, baseDelay: 1200 });
+      setAIFeedback(response);
+    } catch (e) {
+      setAIFeedback([{ issue: "Error running AI feedback", original: "", suggestion: "Try again later." }]);
+    }
+    setIsCheckingFeedback(false);
+  };
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
@@ -10,11 +44,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Printer, Save, Sparkles, Loader2, Building, MessageCircle, Target, Lightbulb, Heart } from "lucide-react";
-import { RICHARD_DEFAULT, fillTemplate } from "@/components/coverletter/template";
+import { USER_DEFAULT, fillTemplate } from "@/components/coverletter/template";
 import { getVault } from "@/components/utils/vault";
 import { fetchOrgResearch } from "@/components/utils/orgResearch";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import { retryWithBackoff } from "@/components/utils/retry";
 
 export default function CoverLetter() {
@@ -42,7 +77,7 @@ export default function CoverLetter() {
     para_alignment: "",
     closing: ""
   });
-  const [template, setTemplate] = useState(RICHARD_DEFAULT);
+  const [template, setTemplate] = useState(USER_DEFAULT);
 
   useEffect(() => {
     (async () => {
@@ -504,31 +539,34 @@ CRITICAL REMINDERS:
       )}
 
       {orgResearch && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardHeader>
-            <CardTitle className="text-blue-800 flex items-center gap-2">
-              <Building className="w-5 h-5" />
-              Organization Research
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-blue-900 space-y-2">
-            {orgResearch.overview && <p><strong>Overview:</strong> {orgResearch.overview}</p>}
-            <div className="grid grid-cols-2 gap-2">
-              {orgResearch.industry && <p><strong>Industry:</strong> {orgResearch.industry}</p>}
-              {orgResearch.size && <p><strong>Size:</strong> {orgResearch.size}</p>}
-              {orgResearch.headquarters && <p><strong>Location:</strong> {orgResearch.headquarters}</p>}
-              {orgResearch.founded && <p><strong>Founded:</strong> {orgResearch.founded}</p>}
-            </div>
-            {orgResearch.website && (
-              <p>
-                <strong>Website:</strong>{" "}
-                <a href={orgResearch.website} target="_blank" rel="noopener noreferrer" className="underline">
-                  {orgResearch.website}
-                </a>
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <>
+          <Card className="bg-blue-50 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-blue-800 flex items-center gap-2">
+                <Building className="w-5 h-5" />
+                Organization Research
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-blue-900 space-y-2">
+              {orgResearch.overview && <p><strong>Overview:</strong> {orgResearch.overview}</p>}
+              <div className="grid grid-cols-2 gap-2">
+                {orgResearch.industry && <p><strong>Industry:</strong> {orgResearch.industry}</p>}
+                {orgResearch.size && <p><strong>Size:</strong> {orgResearch.size}</p>}
+                {orgResearch.headquarters && <p><strong>Location:</strong> {orgResearch.headquarters}</p>}
+                {orgResearch.founded && <p><strong>Founded:</strong> {orgResearch.founded}</p>}
+              </div>
+              {orgResearch.website && (
+                <p>
+                  <strong>Website:</strong>{" "}
+                  <a href={orgResearch.website} target="_blank" rel="noopener noreferrer" className="underline">
+                    {orgResearch.website}
+                  </a>
+                </p>
+              )}
+            </CardContent>
+          </Card>
+          <CompanyResearchCard company={app?.company_name} orgResearch={orgResearch} />
+        </>
       )}
 
       {/* AI Generate Section with Opening Style Selector */}
@@ -662,6 +700,27 @@ CRITICAL REMINDERS:
                   <p key={idx} className="leading-7">{para.trim()}</p>
                 ))
               }
+            </div>
+            {/* AI Feedback Button and Suggestions */}
+            <div className="mt-6">
+              <Button onClick={runAIFeedback} disabled={isCheckingFeedback} className="mb-4">
+                {isCheckingFeedback ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                {isCheckingFeedback ? "Checking..." : "Get AI Feedback"}
+              </Button>
+              {aiFeedback && aiFeedback.length > 0 && (
+                <div className="space-y-3">
+                  {aiFeedback.map((s, i) => (
+                    <div key={i} className="border rounded p-2 bg-slate-50">
+                      <div className="text-xs text-slate-500 mb-1">{s.issue}</div>
+                      <div><span className="font-semibold">Original:</span> {s.original}</div>
+                      <div><span className="font-semibold">Suggestion:</span> {s.suggestion}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {aiFeedback && aiFeedback.length === 0 && (
+                <div className="text-green-700">No major recruiter/AI issues found!</div>
+              )}
             </div>
           </CardContent>
         </Card>

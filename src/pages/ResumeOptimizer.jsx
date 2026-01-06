@@ -1,3 +1,45 @@
+import { useRef } from "react";
+  // Grammar/Style check state
+  const [grammarSuggestions, setGrammarSuggestions] = useState(null);
+  const [isCheckingGrammar, setIsCheckingGrammar] = useState(false);
+  const grammarCheckTextRef = useRef("");
+
+  // Run grammar/style check using OpenAI GPT-4 via Base44
+  const runGrammarCheck = async () => {
+    setIsCheckingGrammar(true);
+    setGrammarSuggestions(null);
+    let textToCheck = "";
+    // Prefer optimized output, else editable resume
+    if (optimizationResults && optimizationResults.optimized_resume_content) {
+      // Flatten all text fields for grammar check
+      const { summary = "", highlights = [], experience = [], education = [], references = [] } = optimizationResults.optimized_resume_content;
+      textToCheck = [summary, ...highlights, ...experience.flatMap(e => e.achievements || []), ...education.map(e => e.institution || ""), ...references.map(r => r.name || "")].join("\n");
+    } else {
+      textToCheck = editableResume;
+    }
+    grammarCheckTextRef.current = textToCheck;
+    try {
+      const prompt = `You are a world-class resume editor and proofreader. Carefully review the following resume text for grammar, clarity, conciseness, and professional tone. Suggest corrections and improvements, but do NOT rewrite the entire text—only point out specific issues and provide improved versions for each.\n\nResume Text:\n${textToCheck}\n\nReturn ONLY a JSON array of objects: [{\n  "issue": string, // short description of the problem\n  "original": string, // the problematic sentence or phrase\n  "suggestion": string // improved version\n}]`;
+      const response = await retryWithBackoff(() => InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              issue: { type: "string" },
+              original: { type: "string" },
+              suggestion: { type: "string" }
+            }
+          }
+        }
+      }), { retries: 2, baseDelay: 1200 });
+      setGrammarSuggestions(response);
+    } catch (e) {
+      setGrammarSuggestions([{ issue: "Error running grammar check", original: "", suggestion: "Try again later." }]);
+    }
+    setIsCheckingGrammar(false);
+  };
 import React, { useState, useEffect, useCallback } from "react";
 import { Resume } from "@/entities/Resume";
 import { JobApplication } from "@/entities/JobApplication";
@@ -16,6 +58,7 @@ import ResumeLengthControls from "@/components/resume/ResumeLengthControls";
 import { logEvent } from "@/components/utils/telemetry";
 import { Badge } from "@/components/ui/badge";
 import AISuggestions from "@/components/resume/AISuggestions";
+import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 export default function ResumeOptimizer() {
   const [jobApplications, setJobApplications] = useState([]);
@@ -643,228 +686,114 @@ Return JSON with:
     setIsLoadingSuggestions(false);
   };
 
+  // ...existing code...
+  // New: Show and allow editing of original resume and full_cv
+  const [editableResume, setEditableResume] = useState("");
+  const [editableFullCV, setEditableFullCV] = useState("");
+
+  useEffect(() => {
+    if (selectedResumeId) {
+      const selectedResume = masterResumes.find(r => r.id === selectedResumeId);
+      setEditableResume(selectedResume?.parsed_content || "");
+      setEditableFullCV(selectedResume?.parsed_content || ""); // If full_cv is a separate field, replace here
+    }
+  }, [selectedResumeId, masterResumes]);
+
+  // ...existing code...
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-4">
-            <Sparkles className="w-4 h-4" />
-            AI Resume Optimization
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800 mb-2">Resume Optimizer</h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Analyze a job posting and tailor your master resume for maximum impact—optimized for ATS and human reviewers with anti-AI-detection humanization.
-          </p>
-        </motion.div>
-
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+        {/* ...existing code... */}
+        {/* Editable Original Resume Section */}
+        {selectedResumeId && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Original Resume (Editable)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <textarea
+                className="w-full h-40 border rounded p-2 text-sm font-mono"
+                value={editableResume}
+                onChange={e => setEditableResume(e.target.value)}
+                disabled={isProcessing}
+              />
+            </CardContent>
+          </Card>
+        )}
+        {/* Editable Full CV Section */}
+        {selectedResumeId && optimizeMode === "full_cv" && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Full CV (Editable)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <textarea
+                className="w-full h-40 border rounded p-2 text-sm font-mono"
+                value={editableFullCV}
+                onChange={e => setEditableFullCV(e.target.value)}
+                disabled={isProcessing}
+              />
+            </CardContent>
+          </Card>
+        )}
+        {/* ...existing code... */}
+        {/* If optimizationResults, show De-AI rewritten output for matching sections */}
+        {optimizationResults && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>De-AI Humanized Output (Matching JD)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm whitespace-pre-line">
+                {optimizationResults.optimized_resume_content?.experience?.map((role, idx) => {
+                  // Check if any achievements match JD terms
+                  const jdTerms = optimizationResults.keyword_coverage?.required_keywords || [];
+                  const matchedBullets = (role.achievements || []).filter(bullet =>
+                    jdTerms.some(term => bullet.toLowerCase().includes(term.toLowerCase()))
+                  );
+                  return matchedBullets.length > 0 ? (
+                    <div key={idx} className="mb-4">
+                      <div className="font-semibold">{role.company} — {role.position}</div>
+                      <ul className="list-disc ml-6">
+                        {matchedBullets.map((bullet, i) => (
+                          <li key={i}>{bullet}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        <AnimatePresence mode="wait">
-          {!optimizationResults ? (
-            <motion.div key="optimizer" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0.98, scale: 0.98 }}>
-              <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Select Job & Master Resume</span>
-                    {jobMatches.length > 0 && (
-                      <Badge variant={useJobMatch ? "default" : "outline"} className="text-xs">
-                        {useJobMatch ? "Using Job Match Data" : "Standard Mode"}
-                      </Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {jobMatches.length > 0 && (
-                    <div className="flex items-center justify-between rounded-lg border p-3 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-                      <div>
-                        <div className="font-medium text-purple-800 flex items-center gap-2">
-                          <Target className="w-4 h-4" />
-                          Use Job Match Insights
-                        </div>
-                        <p className="text-sm text-purple-700">
-                          Leverage AI analysis from Job Matcher for smarter optimization
-                        </p>
-                      </div>
-                      <Switch checked={useJobMatch} onCheckedChange={setUseJobMatch} />
-                    </div>
-                  )}
-
-                  {useJobMatch && jobMatches.length > 0 ? (
-                    <div className="space-y-2">
-                      <label className="font-medium flex items-center gap-2">
-                        <Target className="w-4 h-4 text-purple-600"/>
-                        Job Match
-                      </label>
-                      <Select value={selectedMatchId} onValueChange={setSelectedMatchId} disabled={isProcessing}>
-                        <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder="Choose a job match to optimize for" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {jobMatches.filter(m => m.status !== "dismissed").map((match) => (
-                            <SelectItem key={match.id} value={match.id}>
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold">{Math.round(match.match_score)}</span>
-                                <span>•</span>
-                                <span>{match.job_title} — {match.company_name}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {selectedMatchId && jobMatches.find(m => m.id === selectedMatchId) && (
-                        <Alert className="border-purple-200 bg-purple-50 mt-3">
-                          <AlertDescription className="text-purple-800 text-sm">
-                            <div className="space-y-1">
-                              <div><strong>Match Score:</strong> {Math.round(jobMatches.find(m => m.id === selectedMatchId).match_score)}/100</div>
-                              <div><strong>Fit:</strong> {jobMatches.find(m => m.id === selectedMatchId).fit_analysis?.overall_fit || "N/A"}</div>
-                              <div className="text-xs mt-2">
-                                <Zap className="w-3 h-3 inline mr-1" />
-                                Will auto-incorporate {jobMatches.find(m => m.id === selectedMatchId).key_keywords?.length || 0} key keywords and apply fit analysis insights
-                              </div>
-                            </div>
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <label className="font-medium flex items-center gap-2"><Briefcase className="w-4 h-4"/>{`Job Application`}</label>
-                      <Select value={selectedJobId} onValueChange={setSelectedJobId} disabled={isProcessing}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a job to optimize for" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {jobApplications.map((job) => (
-                            <SelectItem key={job.id} value={job.id}>
-                              {job.job_title} — {job.company_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <label className="font-medium flex items-center gap-2"><Star className="w-4 h-4"/>{`Master Resume`}</label>
-                    <Select value={selectedResumeId} onValueChange={setSelectedResumeId} disabled={isProcessing}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a master resume" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {masterResumes.map((res) => (
-                          <SelectItem key={res.id} value={res.id}>
-                            {res.version_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+        {/* Grammar/Style Check Section */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Grammar & Style Suggestions (AI-Powered)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={runGrammarCheck} disabled={isCheckingGrammar} className="mb-4">
+              {isCheckingGrammar ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+              {isCheckingGrammar ? "Checking..." : "Check Resume with AI"}
+            </Button>
+            {grammarSuggestions && grammarSuggestions.length > 0 && (
+              <div className="space-y-3">
+                {grammarSuggestions.map((s, i) => (
+                  <div key={i} className="border rounded p-2 bg-slate-50">
+                    <div className="text-xs text-slate-500 mb-1">{s.issue}</div>
+                    <div><span className="font-semibold">Original:</span> {s.original}</div>
+                    <div><span className="font-semibold">Suggestion:</span> {s.suggestion}</div>
                   </div>
-
-                  <div className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
-                    <div>
-                      <div className="font-medium text-slate-800">Retarget using transferable skills</div>
-                      <p className="text-sm text-slate-600">When on, the optimizer reframes titles and bullets to the target role while staying truthful.</p>
-                    </div>
-                    <Switch checked={retargetEnabled} onCheckedChange={setRetargetEnabled} />
-                  </div>
-
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
-                      <div>
-                        <div className="font-medium text-slate-800">Maximize match coverage</div>
-                        <p className="text-sm text-slate-600">Try to cover 95–100% of critical JD keywords without stuffing.</p>
-                      </div>
-                      <Switch checked={aggressiveMatch} onCheckedChange={setAggressiveMatch} />
-                    </div>
-                    <div className="flex items-center justify-between rounded-lg border p-3 bg-green-50 border-green-200">
-                      <div>
-                        <div className="font-medium text-green-800 flex items-center gap-1">
-                          Deep Humanize (De-AI)
-                          <Badge className="bg-green-600 text-white text-xs">Bypass ATS AI Detection</Badge>
-                        </div>
-                        <p className="text-sm text-green-700">Rewrite to sound 100% human-written. Avoids AI red flags.</p>
-                      </div>
-                      <Switch checked={deepHumanize} onCheckedChange={setDeepHumanize} />
-                    </div>
-                  </div>
-
-                  {deepHumanize && (
-                    <Alert className="border-green-200 bg-green-50">
-                      <AlertDescription className="text-green-800 text-sm">
-                        <strong>✨ ATS Bypass Mode Active:</strong> Your resume will be rewritten to pass AI-detection filters used by modern ATS systems. Removes robotic patterns, buzzwords, and AI tells.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="rounded-lg border p-3 bg-slate-50">
-                    <div className="font-medium text-slate-800 mb-2">Output length</div>
-                    <ResumeLengthControls mode={optimizeMode} onChange={setOptimizeMode} disabled={isProcessing} />
-                    <p className="text-xs text-slate-500 mt-2">
-                      ATS 1-Page: concise and keyword-focused • Pro 2-Page: balanced detail • Full CV: comprehensive with polished language
-                    </p>
-                  </div>
-
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <Button 
-                      onClick={getAISuggestions} 
-                      disabled={isLoadingSuggestions || isProcessing || (useJobMatch ? !selectedMatchId : !selectedJobId) || !selectedResumeId} 
-                      variant="outline"
-                      className="h-12 border-2 border-blue-200 hover:bg-blue-50"
-                    >
-                      {isLoadingSuggestions ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Lightbulb className="w-5 h-5 mr-2" />
-                          Get AI Suggestions
-                        </>
-                      )}
-                    </Button>
-
-                    <Button 
-                      onClick={optimizeResume} 
-                      disabled={isProcessing || (useJobMatch ? !selectedMatchId : !selectedJobId) || !selectedResumeId} 
-                      className="bg-blue-600 hover:bg-blue-700 h-12"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Optimizing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-5 h-5 mr-2" />
-                          {useJobMatch ? "Optimize with Match Data" : "Optimize Resume"}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {suggestions && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-6"
-                >
-                  <AISuggestions suggestions={suggestions} />
-                </motion.div>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <OptimizationResults results={optimizationResults} onReset={resetOptimization} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+                ))}
+              </div>
+            )}
+            {grammarSuggestions && grammarSuggestions.length === 0 && (
+              <div className="text-green-700">No major grammar or style issues found!</div>
+            )}
+          </CardContent>
+        </Card>
+        {/* ...existing code... */}
       </div>
     </div>
   );

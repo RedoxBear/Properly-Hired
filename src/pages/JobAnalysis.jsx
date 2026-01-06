@@ -32,6 +32,7 @@ import { tailorByJD } from "@/components/utils/tailorByJD";
 import { extractATSKeywords, diffRoleVsCV, idealCandidateFromJD, prioritizeResponsibilities, buildCandidateMatches, interviewerTips } from "@/components/utils/summary";
 import { fetchOrgResearch } from "@/components/utils/orgResearch";
 import { logEvent } from "@/components/utils/telemetry"; // Updated import path
+import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 const createPageUrl = (path) => {
     return path.startsWith('/') ? path : `/${path}`;
@@ -702,6 +703,20 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                     {/* Required Qualifications */}
                                     <div>
                                         <h3 className="font-semibold text-slate-800 mb-3">Required Qualifications</h3>
+                                        {/* Company Research Card */}
+                                        {savedApp?.summary?.research_snapshot && (
+                                            <CompanyResearchCard 
+                                                company={companyName} 
+                                                orgResearch={{
+                                                    overview: savedApp.summary.company_overview,
+                                                    website: savedApp.summary.research_snapshot.website,
+                                                    founded: savedApp.summary.research_snapshot.founded,
+                                                    size: savedApp.summary.research_snapshot.size,
+                                                    industry: savedApp.summary.research_snapshot.industry,
+                                                    headquarters: savedApp.summary.research_snapshot.headquarters
+                                                }}
+                                            />
+                                        )}
                                         <ul className="space-y-2">
                                             {analysisResult.required_qualifications?.map((qual, index) => (
                                                 <li key={index} className="flex items-start gap-2">

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +16,7 @@ import {
   MessageCircleQuestion,
   ArrowLeft,
 } from "lucide-react";
+import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 const statusConfig = {
   analyzing: { color: "bg-yellow-100 text-yellow-800 border-yellow-300", label: "Analyzing" },
@@ -141,6 +141,20 @@ export default function JobDetails() {
                 <h3 className="font-semibold text-slate-800 mb-2">Company Culture & Insights</h3>
                 <p className="text-slate-700 bg-slate-50 p-4 rounded-lg">{application.company_culture}</p>
               </div>
+            )}
+            {/* CompanyResearchCard integration */}
+            {application.summary?.research_snapshot && (
+              <CompanyResearchCard 
+                company={application.company_name} 
+                orgResearch={{
+                  overview: application.summary.company_overview,
+                  website: application.summary.research_snapshot.website,
+                  founded: application.summary.research_snapshot.founded,
+                  size: application.summary.research_snapshot.size,
+                  industry: application.summary.research_snapshot.industry,
+                  headquarters: application.summary.research_snapshot.headquarters
+                }}
+              />
             )}
 
             {/* Job Description */}
