@@ -157,13 +157,16 @@ export default function ApplicationTracker() {
 
             if (editingApp) {
                 await JobApplication.update(editingApp.id, payload);
+                // Update the application in the local state without reloading
+                setApplications(prev => prev.map(app => app.id === editingApp.id ? { ...app, ...payload } : app));
             } else {
-                await JobApplication.create(payload);
+                const newApp = await JobApplication.create(payload);
+                // Add the new application to the local state without reloading
+                setApplications(prev => [newApp, ...prev]);
             }
 
             setShowAddDialog(false);
             resetForm();
-            await loadData();
         } catch (e) {
             console.error("Error saving application:", e);
             setError("Failed to save application");
@@ -200,9 +203,11 @@ export default function ApplicationTracker() {
     const updateStatus = async (app, field, value) => {
         try {
             await JobApplication.update(app.id, { [field]: value });
-            await loadData();
+            // Update the application status in the local state without reloading
+            setApplications(prev => prev.map(a => a.id === app.id ? { ...a, [field]: value } : a));
         } catch (e) {
-            console.error("Error updating:", e);
+            console.error("Error updating status:", e);
+            setError("Failed to update status");
         }
     };
 

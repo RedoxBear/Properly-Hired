@@ -112,7 +112,18 @@ export default function ResumeOptimizer() {
 
   const mergeExperienceByMaster = (masterExp, optimizedExp, mode) => {
     const maxRoles = mode === "ats_one_page" ? 4 : mode === "two_page" ? 8 : Number.POSITIVE_INFINITY;
-    const maxBullets = mode === "ats_one_page" ? 3 : mode === "two_page" ? 6 : 12;
+    // For full_cv, allow 4-7 bullets if JD needed, else default to 6
+    let maxBullets;
+    if (mode === "ats_one_page") {
+      maxBullets = 3;
+    } else if (mode === "two_page") {
+      maxBullets = 6;
+    } else if (mode === "full_cv") {
+      // If JD is needed, allow up to 7, but not less than 4
+      maxBullets = 7;
+    } else {
+      maxBullets = 6;
+    }
 
     const base = Array.isArray(masterExp) ? masterExp.slice(0, maxRoles) : [];
     return base.map(mr => {
@@ -762,6 +773,19 @@ Return JSON with:
                     </div>
                   ) : null;
                 })}
+              </div>
+              {/* Apply Template Button */}
+              <div className="flex justify-end mt-4">
+                <Button
+                  variant="default"
+                  style={{ backgroundColor: '#2563eb', color: 'white' }}
+                  onClick={() => {
+                    // Go to Resume Templates page with resumeId param
+                    window.location.href = `/ResumeTemplates?resumeId=${selectedResumeId}`;
+                  }}
+                >
+                  Apply Template
+                </Button>
               </div>
             </CardContent>
           </Card>
