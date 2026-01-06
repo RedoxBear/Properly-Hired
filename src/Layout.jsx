@@ -19,6 +19,7 @@ import {
     Crown,
     Target,
     User,
+    Users,
     Gift,
     Settings
 } from "lucide-react";
