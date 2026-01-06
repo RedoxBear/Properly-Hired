@@ -1,46 +1,4 @@
-import { useRef } from "react";
-  // Grammar/Style check state
-  const [grammarSuggestions, setGrammarSuggestions] = useState(null);
-  const [isCheckingGrammar, setIsCheckingGrammar] = useState(false);
-  const grammarCheckTextRef = useRef("");
-
-  // Run grammar/style check using OpenAI GPT-4 via Base44
-  const runGrammarCheck = async () => {
-    setIsCheckingGrammar(true);
-    setGrammarSuggestions(null);
-    let textToCheck = "";
-    // Prefer optimized output, else editable resume
-    if (optimizationResults && optimizationResults.optimized_resume_content) {
-      // Flatten all text fields for grammar check
-      const { summary = "", highlights = [], experience = [], education = [], references = [] } = optimizationResults.optimized_resume_content;
-      textToCheck = [summary, ...highlights, ...experience.flatMap(e => e.achievements || []), ...education.map(e => e.institution || ""), ...references.map(r => r.name || "")].join("\n");
-    } else {
-      textToCheck = editableResume;
-    }
-    grammarCheckTextRef.current = textToCheck;
-    try {
-      const prompt = `You are a world-class resume editor and proofreader. Carefully review the following resume text for grammar, clarity, conciseness, and professional tone. Suggest corrections and improvements, but do NOT rewrite the entire text—only point out specific issues and provide improved versions for each.\n\nResume Text:\n${textToCheck}\n\nReturn ONLY a JSON array of objects: [{\n  "issue": string, // short description of the problem\n  "original": string, // the problematic sentence or phrase\n  "suggestion": string // improved version\n}]`;
-      const response = await retryWithBackoff(() => InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              issue: { type: "string" },
-              original: { type: "string" },
-              suggestion: { type: "string" }
-            }
-          }
-        }
-      }), { retries: 2, baseDelay: 1200 });
-      setGrammarSuggestions(response);
-    } catch (e) {
-      setGrammarSuggestions([{ issue: "Error running grammar check", original: "", suggestion: "Try again later." }]);
-    }
-    setIsCheckingGrammar(false);
-  };
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { Resume } from "@/entities/Resume";
 import { JobApplication } from "@/entities/JobApplication";
 import { JobMatch } from "@/entities/JobMatch";
@@ -61,26 +19,31 @@ import AISuggestions from "@/components/resume/AISuggestions";
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 export default function ResumeOptimizer() {
-  const [jobApplications, setJobApplications] = useState([]);
-  const [jobMatches, setJobMatches] = useState([]);
-  const [masterResumes, setMasterResumes] = useState([]);
-  const [selectedJobId, setSelectedJobId] = useState("");
-  const [selectedMatchId, setSelectedMatchId] = useState("");
-  const [selectedResumeId, setSelectedResumeId] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [optimizationResults, setOptimizationResults] = useState(null);
-  const [error, setError] = useState("");
-  const [retargetEnabled, setRetargetEnabled] = useState(true);
-  const [optimizeMode, setOptimizeMode] = useState("two_page"); // "ats_one_page" | "two_page" | "full_cv"
-  const [useJobMatch, setUseJobMatch] = useState(false);
+  // Grammar/Style check state
+  const [grammarSuggestions, setGrammarSuggestions] = React.React.useState(null);
+  const [isCheckingGrammar, setIsCheckingGrammar] = React.React.useState(false);
+  const grammarCheckTextRef = React.useRef("");
+
+  const [jobApplications, setJobApplications] = React.React.useState([]);
+  const [jobMatches, setJobMatches] = React.useState([]);
+  const [masterResumes, setMasterResumes] = React.useState([]);
+  const [selectedJobId, setSelectedJobId] = React.useState("");
+  const [selectedMatchId, setSelectedMatchId] = React.useState("");
+  const [selectedResumeId, setSelectedResumeId] = React.useState("");
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [optimizationResults, setOptimizationResults] = React.useState(null);
+  const [error, setError] = React.useState("");
+  const [retargetEnabled, setRetargetEnabled] = React.useState(true);
+  const [optimizeMode, setOptimizeMode] = React.useState("two_page"); // "ats_one_page" | "two_page" | "full_cv"
+  const [useJobMatch, setUseJobMatch] = React.useState(false);
 
   // NEW: Controls for coverage and humanization
-  const [aggressiveMatch, setAggressiveMatch] = useState(true);
-  const [deepHumanize, setDeepHumanize] = useState(true);
+  const [aggressiveMatch, setAggressiveMatch] = React.useState(true);
+  const [deepHumanize, setDeepHumanize] = React.useState(true);
   
   // NEW: AI Suggestions state
-  const [suggestions, setSuggestions] = useState(null);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = React.useState(null);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
 
   // Helper: trim summary to 2 sentences or 300 chars for ATS mode
   const shortenSummary = (text, maxSentences = 2, maxChars = 300) => {
@@ -170,7 +133,7 @@ export default function ResumeOptimizer() {
     };
   };
 
-  const loadInitialData = useCallback(async () => {
+  const loadInitialData = React.useCallback(async () => {
     setIsProcessing(true);
     setError("");
     try {
@@ -192,12 +155,12 @@ export default function ResumeOptimizer() {
     setIsProcessing(false);
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
 
   // Auto-select job from URL param (?id=...) when data is loaded
-  useEffect(() => {
+  React.useEffect(() => {
     const qp = new URLSearchParams(window.location.search);
     const id = qp.get("id");
     if (id && jobApplications.length > 0) {
@@ -556,6 +519,43 @@ Output JSON:
     setIsProcessing(false);
   };
 
+  // Run grammar/style check using OpenAI GPT-4 via Base44
+  const runGrammarCheck = async () => {
+    setIsCheckingGrammar(true);
+    setGrammarSuggestions(null);
+    let textToCheck = "";
+    // Prefer optimized output, else editable resume
+    if (optimizationResults && optimizationResults.optimized_resume_content) {
+      // Flatten all text fields for grammar check
+      const { summary = "", highlights = [], experience = [], education = [], references = [] } = optimizationResults.optimized_resume_content;
+      textToCheck = [summary, ...highlights, ...experience.flatMap(e => e.achievements || []), ...education.map(e => e.institution || ""), ...references.map(r => r.name || "")].join("\n");
+    } else {
+      textToCheck = editableResume;
+    }
+    grammarCheckTextRef.current = textToCheck;
+    try {
+      const prompt = `You are a world-class resume editor and proofreader. Carefully review the following resume text for grammar, clarity, conciseness, and professional tone. Suggest corrections and improvements, but do NOT rewrite the entire text—only point out specific issues and provide improved versions for each.\n\nResume Text:\n${textToCheck}\n\nReturn ONLY a JSON array of objects: [{\n  "issue": string, // short description of the problem\n  "original": string, // the problematic sentence or phrase\n  "suggestion": string // improved version\n}]`;
+      const response = await retryWithBackoff(() => InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              issue: { type: "string" },
+              original: { type: "string" },
+              suggestion: { type: "string" }
+            }
+          }
+        }
+      }), { retries: 2, baseDelay: 1200 });
+      setGrammarSuggestions(response);
+    } catch (e) {
+      setGrammarSuggestions([{ issue: "Error running grammar check", original: "", suggestion: "Try again later." }]);
+    }
+    setIsCheckingGrammar(false);
+  };
+
   const resetOptimization = () => {
     setOptimizationResults(null);
     setSelectedJobId("");
@@ -699,10 +699,10 @@ Return JSON with:
 
   // ...existing code...
   // New: Show and allow editing of original resume and full_cv
-  const [editableResume, setEditableResume] = useState("");
-  const [editableFullCV, setEditableFullCV] = useState("");
+  const [editableResume, setEditableResume] = React.useState("");
+  const [editableFullCV, setEditableFullCV] = React.useState("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (selectedResumeId) {
       const selectedResume = masterResumes.find(r => r.id === selectedResumeId);
       setEditableResume(selectedResume?.parsed_content || "");
