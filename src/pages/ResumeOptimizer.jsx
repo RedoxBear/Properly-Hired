@@ -24,7 +24,7 @@ export default function ResumeOptimizer() {
   const [isCheckingGrammar, setIsCheckingGrammar] = React.useState(false);
   const grammarCheckTextRef = React.useRef("");
 
-  const [jobApplications, setJobApplications] = React.React.useState([]);
+  const [jobApplications, setJobApplications] = React.useState([]);
   const [jobMatches, setJobMatches] = React.useState([]);
   const [masterResumes, setMasterResumes] = React.useState([]);
   const [selectedJobId, setSelectedJobId] = React.useState("");
