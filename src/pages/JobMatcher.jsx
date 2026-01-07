@@ -1351,7 +1351,11 @@ IMPORTANT:
                                                     </>
                                                 )}
                                                 {match.job_url && (
-                                                    <a href={match.job_url} target="_blank" rel="noopener noreferrer">
+                                                    <a 
+                                                        href={match.job_url.startsWith('http') ? match.job_url : `https://${match.job_url}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                    >
                                                         <Button size="sm" variant="outline">
                                                             <ExternalLink className="w-4 h-4 mr-1" />
                                                             View Job
