@@ -850,7 +850,7 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                             
                             <div className="flex gap-3">
                                 <Input
-                                    placeholder="Optional: Specify role (leave blank to use your CV's latest role)"
+                                    placeholder="Search by Job Title, Field, or Keywords..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     disabled={isAutoSearching || !selectedResume}
