@@ -197,7 +197,51 @@ export default function ResumeOptimizer() {
                   properties: {
                     optimization_score: { type: "number" },
                     recommendations: { type: "array", items: { type: "string" } },
-                    optimized_resume_content: { type: "object" }
+                    optimized_resume_content: {
+                      type: "object",
+                      properties: {
+                        personal_info: {
+                          type: "object",
+                          properties: {
+                            name: { type: "string" },
+                            email: { type: "string" },
+                            phone: { type: "string" },
+                            location: { type: "string" },
+                            linkedin: { type: "string" },
+                            portfolio: { type: "string" }
+                          }
+                        },
+                        executive_summary: { type: "string" },
+                        skills: { type: "array", items: { type: "string" } },
+                        experience: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              position: { type: "string" },
+                              company: { type: "string" },
+                              location: { type: "string" },
+                              duration: { type: "string" },
+                              achievements: { type: "array", items: { type: "string" } }
+                            }
+                          }
+                        },
+                        education: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              degree: { type: "string" },
+                              institution: { type: "string" },
+                              location: { type: "string" },
+                              year: { type: "string" },
+                              gpa: { type: "string" }
+                            }
+                          }
+                        }
+                      },
+                      required: ["personal_info", "skills", "experience"]
+                    }
                   }
                 }
               }),
