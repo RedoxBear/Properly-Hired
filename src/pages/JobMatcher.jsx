@@ -594,17 +594,23 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                 { retries: 2, baseDelay: 1500 }
             );
 
-            const jobs = searchResults?.jobs || [];
+            // Filter for valid, specific links only
+            const validJobs = (searchResults?.jobs || []).filter(job => {
+                const url = job.job_url?.toLowerCase() || "";
+                const isValidUrl = url.startsWith('http://') || url.startsWith('https://');
+                const isGenericSearch = url.includes('/search') || url.includes('/jobs?q=') || url.includes('search_id');
+                return isValidUrl && !isGenericSearch;
+            });
             
-            if (jobs.length === 0) {
-                setError("No jobs found. Try a different search term or check back later.");
+            if (validJobs.length === 0) {
+                setError("No jobs with verified, specific links found. Please try a different title or field.");
                 setIsAutoSearching(false);
                 return;
             }
 
             // Analyze each job against the resume
             let processedCount = 0;
-            for (const job of jobs) {
+            for (const job of validJobs) {
                 try {
                     // Check if job already exists (by URL or title+company)
                     const existing = matches.find(m => 
