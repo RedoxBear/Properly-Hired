@@ -191,7 +191,17 @@ export default function JobMatcher() {
         const resume = resumes.find(r => r.id === resumeId);
         if (!resume) throw new Error("Resume not found");
 
-        const analysisPrompt = `You are an expert career advisor and ATS specialist. Analyze how well this candidate's resume matches the job posting.
+        const analysisPrompt = `You are an expert career advisor and ATS specialist. Analyze how well this candidate's resume matches the job posting using a **FUZZY MATCHING** approach.
+
+**SCORING CALIBRATION:**
+- **50-60%**: Fair match / Transferable skills. Candidate has core potential but lacks some specific requirements. Worth applying if they can learn on the job.
+- **60-75%**: Good match. Has most core skills.
+- **75%+**: Excellent match.
+
+**CRITICAL RULE: RECOGNIZE TRANSFERABLE SKILLS**
+- Do NOT penalize heavily for missing exact keywords if the underlying skill is present.
+- Look for *equivalent* experience (e.g., "Client Management" can match "Account Executive").
+- If the candidate has 50-60% of the requirements, consider it a viable "stretch" role.
 
 **CRITICAL RULE: STAY GROUNDED IN ACTUAL EXPERIENCE**
 - Only suggest improvements based on what the candidate has ACTUALLY done
@@ -522,7 +532,8 @@ ${locationContext}
 
 **SEARCH TARGET:** "${query}"
 
-Find jobs that match this candidate's profile and skill set.
+Find jobs that match this candidate's profile, **including "fuzzy" matches where transferable skills apply**. 
+Do not restrict results to exact keyword matches. Look for roles where the candidate's core skills (e.g., ${cvContext.skills.split(',').slice(0,3).join(', ')}) would be valuable, even if the title differs slightly.
 
 Return the top 10-15 UNIQUE job postings (no duplicates) in JSON format. For each job, provide:
 - job_title: exact title
