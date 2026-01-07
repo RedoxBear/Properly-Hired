@@ -498,10 +498,17 @@ Return JSON with:
             const experience = resumeData.experience || [];
             const latestRole = experience[0]?.position || "";
             const yearsExp = experience.length;
+
+            // Extract last 10 roles or up to 10 years of history
+            const roleHistory = experience
+                .slice(0, 10)
+                .map(e => `${e.position} at ${e.company}`)
+                .join("; ");
             
             // Build rich context from CV
             const cvContext = {
                 current_title: latestRole,
+                role_history: roleHistory,
                 skills: skills.slice(0, 8).join(", "),
                 experience_level: yearsExp > 7 ? "Senior" : yearsExp > 3 ? "Mid-level" : "Entry-level",
                 industries: [...new Set(experience.map(e => e.company).slice(0, 3))].join(", "),
@@ -523,9 +530,10 @@ Return JSON with:
             const searchPrompt = `Perform a real-time web search for ACTUAL, ACTIVE job postings on LinkedIn, Indeed, Glassdoor, and company career pages.
 
 **CANDIDATE PROFILE:**
-- Role: ${cvContext.current_title}
+- Current Role: ${cvContext.current_title}
+- Work History (Last 10 roles/years): ${cvContext.role_history}
 - Top Skills: ${cvContext.skills}
-- Experience: ${cvContext.experience_level}
+- Experience Level: ${cvContext.experience_level}
 ${locationContext}
 
 **SEARCH QUERY:** "${query} jobs"
