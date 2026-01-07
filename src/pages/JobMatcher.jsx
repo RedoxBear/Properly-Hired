@@ -520,37 +520,42 @@ Return JSON with:
                 : "";
 
             // Enhanced search using full CV context
-            const searchPrompt = `Search for job postings from Indeed.com, LinkedIn Jobs, Glassdoor.com, and ZipRecruiter.com.
+            const searchPrompt = `Perform a real-time web search for ACTUAL, ACTIVE job postings on LinkedIn, Indeed, Glassdoor, and company career pages.
 
-**CANDIDATE PROFILE (from their CV):**
-- Current/Latest Role: ${cvContext.current_title}
-- Experience Level: ${cvContext.experience_level}
+**CANDIDATE PROFILE:**
+- Role: ${cvContext.current_title}
 - Top Skills: ${cvContext.skills}
-- Industries: ${cvContext.industries}
-- Key Achievements: ${cvContext.key_achievements}
+- Experience: ${cvContext.experience_level}
 ${locationContext}
 
-**SEARCH TARGET:** "${query}"
+**SEARCH QUERY:** "${query} jobs"
 
-Find jobs that match this candidate's profile, **including "fuzzy" matches where transferable skills apply**. 
-Do not restrict results to exact keyword matches. Look for roles where the candidate's core skills (e.g., ${cvContext.skills.split(',').slice(0,3).join(', ')}) would be valuable, even if the title differs slightly.
+**CRITICAL: REAL LINKS ONLY**
+- You MUST return **REAL, CLICKABLE URLs** found in the search results.
+- **DO NOT** construct or guess URLs (e.g., do not make up "company.com/careers/role").
+- **DO NOT** return generic search pages (e.g., "linkedin.com/jobs/search?keywords=...").
+- Valid URL examples: 
+  - linkedin.com/jobs/view/...
+  - indeed.com/viewjob?...
+  - greenhouse.io/...
+  - lever.co/...
+  - myworkdayjobs.com/...
 
-Return the top 10-15 UNIQUE job postings (no duplicates) in JSON format. For each job, provide:
-- job_title: exact title
-- company_name: company name
-- job_url: direct link to posting
-- job_description: full description (at least 200 words)
-- location: job location (be specific with city, state)
-- salary_range: if available
-- source: which site (Indeed, LinkedIn, Glassdoor, or ZipRecruiter)
-- posted_days_ago: approximate days since posting (number)
+**Task:**
+Find 10-12 matching jobs. Include "fuzzy" matches where skills transfer.
 
-IMPORTANT:
-- Include jobs posted within the last 90 days (not just 30 days) to ensure sufficient results
-- Minimize redundancy - if the same job appears on multiple sites, include it ONCE with the best source
-- Include both remote jobs AND jobs within the specified radius
-- Only include legitimate job postings, not ads or expired listings
-- Ensure job descriptions are complete and detailed`;
+Return JSON format with:
+- job_title: Exact title from the listing
+- company_name: Company name
+- job_url: THE SPECIFIC, WORKING URL
+- job_description: A detailed summary of requirements and responsibilities (extract as much as possible from the snippet/page)
+- location: Specific city/state
+- salary_range: If mentioned
+- source: Site name
+- posted_days_ago: Estimate from "Posted X days ago"
+
+**Constraint:**
+If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Quality over quantity. Real links are the highest priority.`;
 
             const searchResults = await retryWithBackoff(() =>
                 base44.integrations.Core.InvokeLLM({
