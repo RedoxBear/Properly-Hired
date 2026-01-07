@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, RefreshCw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, isSameMonth, subMonths, parseISO } from "date-fns";
 
 const EncouragementQuote = base44.entities.EncouragementQuote;
 
@@ -27,19 +27,43 @@ export default function DailyEncouragement() {
     (async () => {
       try {
         let list = await EncouragementQuote.list("-created_date", 200);
+        const now = new Date();
         
-        // Check if we need to fetch new quotes (if latest is older than 7 days or we have very few)
+        // 1. Cleanup: Remove quotes older than 6 months (no need to keep repository)
+        const sixMonthsAgo = subMonths(now, 6);
+        const oldQuotes = list.filter(q => new Date(q.created_date) < sixMonthsAgo);
+        
+        if (oldQuotes.length > 0) {
+            // Delete old quotes in background to not block UI
+            Promise.all(oldQuotes.map(q => EncouragementQuote.delete(q.id))).catch(console.error);
+            list = list.filter(q => new Date(q.created_date) >= sixMonthsAgo);
+        }
+
+        // 2. Monthly Fetch Cycle
         const latest = list[0];
-        const shouldFetch = !latest || differenceInDays(new Date(), new Date(latest.created_date)) >= 7 || list.length < 5;
+        const hasQuotesForThisMonth = latest && isSameMonth(new Date(latest.created_date), now);
+        
+        // Fetch if we don't have quotes for this month OR we have very few active quotes
+        const shouldFetch = !hasQuotesForThisMonth || list.length < 10;
 
         if (shouldFetch) {
            try {
+             // We want a fresh batch for the month
              const existingTexts = new Set(list.map(q => q.text));
+             const prompt = `It is currently ${now.toLocaleString('default', { month: 'long', year: 'numeric' })}.
+             Find 20 distinct, fresh, and non-repetitive encouragement quotes for job seekers and career builders.
+             
+             Guidelines:
+             - Focus on resilience, growth, and modern career challenges.
+             - diverse mix of authors (tech leaders, stoics, modern thinkers).
+             - Avoid generic clichés.
+             - Ensure they are NOT in this list: ${Array.from(existingTexts).slice(0, 20).join(" | ")}.
+             
+             Return a JSON object with a "quotes" array.`;
+
              const response = await base44.integrations.Core.InvokeLLM({
-                prompt: `Find 5 distinct, powerful, and non-cliché encouragement quotes specifically for someone job hunting or building their career. 
-                Avoid these if possible: ${Array.from(existingTexts).slice(0, 10).join(", ")}.
-                Return a JSON object with a "quotes" array.`,
-                add_context_from_internet: true, // Use web to get fresh/varied content
+                prompt,
+                add_context_from_internet: true,
                 response_json_schema: {
                   type: "object",
                   properties: {
@@ -59,20 +83,22 @@ export default function DailyEncouragement() {
              });
 
              if (response?.quotes && Array.isArray(response.quotes)) {
+                // Filter duplicates
                 const newQuotes = response.quotes.filter(q => !existingTexts.has(q.text));
+                
                 if (newQuotes.length > 0) {
-                   // Add new quotes to DB
                    await Promise.all(newQuotes.map(q => EncouragementQuote.create({
                      ...q,
                      approved: true,
-                     tags: ["fresh_web_content"]
+                     tags: [`monthly_batch_${now.getMonth()}_${now.getFullYear()}`]
                    })));
-                   // Refresh list
+                   
+                   // Refresh list after update
                    list = await EncouragementQuote.list("-created_date", 200);
                 }
              }
            } catch (err) {
-             console.error("Failed to fetch new quotes:", err);
+             console.error("Failed to fetch monthly quotes:", err);
            }
         }
 
