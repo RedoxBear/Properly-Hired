@@ -61,6 +61,9 @@ export default function JobMatcher() {
     const [sortBy, setSortBy] = React.useState("score_desc");
     const [aiSuggestions, setAiSuggestions] = React.useState(null);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
+    const [userLocation, setUserLocation] = React.useState(null);
+    const [searchRadius, setSearchRadius] = React.useState(30);
+    const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
     
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
@@ -73,7 +76,89 @@ export default function JobMatcher() {
 
     React.useEffect(() => {
         loadData();
+        detectUserLocation();
     }, []);
+
+    const detectUserLocation = async () => {
+        setIsDetectingLocation(true);
+        try {
+            // Try browser geolocation first
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        
+                        // Reverse geocode to get city/state
+                        const locationPrompt = `Given coordinates ${latitude}, ${longitude}, return the city and state in JSON format:
+                        { "city": "string", "state": "string", "country": "string" }`;
+                        
+                        try {
+                            const locationData = await base44.integrations.Core.InvokeLLM({
+                                prompt: locationPrompt,
+                                add_context_from_internet: true,
+                                response_json_schema: {
+                                    type: "object",
+                                    properties: {
+                                        city: { type: "string" },
+                                        state: { type: "string" },
+                                        country: { type: "string" }
+                                    }
+                                }
+                            });
+                            
+                            setUserLocation({
+                                lat: latitude,
+                                lon: longitude,
+                                city: locationData.city,
+                                state: locationData.state,
+                                country: locationData.country
+                            });
+                        } catch (e) {
+                            console.error("Reverse geocoding failed:", e);
+                            setUserLocation({ lat: latitude, lon: longitude });
+                        }
+                        setIsDetectingLocation(false);
+                    },
+                    async (error) => {
+                        console.warn("Geolocation denied, using IP-based location:", error);
+                        await fallbackToIPLocation();
+                    }
+                );
+            } else {
+                await fallbackToIPLocation();
+            }
+        } catch (e) {
+            console.error("Location detection failed:", e);
+            setIsDetectingLocation(false);
+        }
+    };
+
+    const fallbackToIPLocation = async () => {
+        try {
+            const ipLocationPrompt = `Detect my approximate location based on my IP address. Return JSON:
+            { "city": "string", "state": "string", "country": "string", "lat": number, "lon": number }`;
+            
+            const ipLocation = await base44.integrations.Core.InvokeLLM({
+                prompt: ipLocationPrompt,
+                add_context_from_internet: true,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        city: { type: "string" },
+                        state: { type: "string" },
+                        country: { type: "string" },
+                        lat: { type: "number" },
+                        lon: { type: "number" }
+                    }
+                }
+            });
+            
+            setUserLocation(ipLocation);
+        } catch (e) {
+            console.error("IP location detection failed:", e);
+        }
+        setIsDetectingLocation(false);
+    };
 
     const loadData = async () => {
         setIsLoading(true);
@@ -415,6 +500,15 @@ Return JSON with:
             
             const query = searchQuery || latestRole || skills.slice(0, 3).join(", ");
 
+            // Build location context
+            const locationContext = userLocation 
+                ? `\n**LOCATION PREFERENCE:**
+- User Location: ${userLocation.city}, ${userLocation.state}
+- Search Radius: ${searchRadius} miles
+- Prioritize jobs within this radius, but include remote opportunities
+- For in-person jobs, prefer locations within ${searchRadius} miles of ${userLocation.city}, ${userLocation.state}`
+                : "";
+
             // Enhanced search using full CV context
             const searchPrompt = `Search for job postings from Indeed.com, LinkedIn Jobs, Glassdoor.com, and ZipRecruiter.com.
 
@@ -424,6 +518,7 @@ Return JSON with:
 - Top Skills: ${cvContext.skills}
 - Industries: ${cvContext.industries}
 - Key Achievements: ${cvContext.key_achievements}
+${locationContext}
 
 **SEARCH TARGET:** "${query}"
 
@@ -434,13 +529,15 @@ Return the top 10-15 UNIQUE job postings (no duplicates) in JSON format. For eac
 - company_name: company name
 - job_url: direct link to posting
 - job_description: full description (at least 200 words)
-- location: job location
+- location: job location (be specific with city, state)
 - salary_range: if available
 - source: which site (Indeed, LinkedIn, Glassdoor, or ZipRecruiter)
+- posted_days_ago: approximate days since posting (number)
 
 IMPORTANT:
+- Include jobs posted within the last 90 days (not just 30 days) to ensure sufficient results
 - Minimize redundancy - if the same job appears on multiple sites, include it ONCE with the best source
-- Prioritize recently posted jobs (within last 30 days)
+- Include both remote jobs AND jobs within the specified radius
 - Only include legitimate job postings, not ads or expired listings
 - Ensure job descriptions are complete and detailed`;
 
@@ -462,7 +559,8 @@ IMPORTANT:
                                         job_description: { type: "string" },
                                         location: { type: "string" },
                                         salary_range: { type: "string" },
-                                        source: { type: "string" }
+                                        source: { type: "string" },
+                                        posted_days_ago: { type: "number" }
                                     }
                                 }
                             }
@@ -691,6 +789,41 @@ IMPORTANT:
                                     </SelectContent>
                                 </Select>
                             </div>
+                            
+                            {/* Location Settings */}
+                            <div className="flex gap-3 items-end">
+                                <div className="flex-1">
+                                    <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                        Your Location {isDetectingLocation && "(Detecting...)"}
+                                    </label>
+                                    <Input
+                                        value={userLocation ? `${userLocation.city}, ${userLocation.state}` : "Detecting..."}
+                                        readOnly
+                                        className="bg-slate-50"
+                                    />
+                                </div>
+                                <div className="w-32">
+                                    <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                        Radius (mi)
+                                    </label>
+                                    <Input
+                                        type="number"
+                                        min="5"
+                                        max="200"
+                                        value={searchRadius}
+                                        onChange={(e) => setSearchRadius(Number(e.target.value))}
+                                    />
+                                </div>
+                                <Button 
+                                    onClick={detectUserLocation} 
+                                    disabled={isDetectingLocation}
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    {isDetectingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                                </Button>
+                            </div>
+                            
                             <div className="flex gap-3">
                                 <Input
                                     placeholder="Optional: Specify role (leave blank to use your CV's latest role)"
