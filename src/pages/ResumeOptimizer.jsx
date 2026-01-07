@@ -183,6 +183,13 @@ export default function ResumeOptimizer() {
     };
 
     const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
+    
+    // Define constraints based on mode
+    const constraints = optimizeMode === "full_cv" 
+        ? "For Full CV mode, provide comprehensive details. You MUST provide between 4 to 7 bullet points per experience role, prioritising relevance to the JD. Do not exceed 7 bullets." 
+        : optimizeMode === "ats_one_page"
+        ? "Keep it concise for a 1-page limit. Use maximum 3-4 highly relevant bullet points per role."
+        : "Balance detail for a 2-page limit. Use 4-5 relevant bullet points per role.";
 
     try {
         const numVersions = generateMultiple ? 3 : 1;
@@ -191,7 +198,7 @@ export default function ResumeOptimizer() {
         for (let i = 0; i < numVersions; i++) {
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
-                prompt: `Optimize this resume for the job posting. Mode: ${modeLabel}. Resume: ${selectedResume.parsed_content}. Job: ${jobData.job_description}. ${generateMultiple ? `Create variation ${i + 1} with slightly different emphasis.` : ''}`,
+                prompt: `Optimize this resume for the job posting. Mode: ${modeLabel}. Instructions: ${constraints}. Resume: ${selectedResume.parsed_content}. Job: ${jobData.job_description}. ${generateMultiple ? `Create variation ${i + 1} with slightly different emphasis.` : ''}`,
                 response_json_schema: {
                   type: "object",
                   properties: {
