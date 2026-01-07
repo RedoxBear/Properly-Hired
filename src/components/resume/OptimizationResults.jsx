@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,9 +11,12 @@ import {
     Download,
     RefreshCw,
     TrendingUp,
-    FileText
+    FileText,
+    Palette
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function OptimizationResults({ results, onReset }) {
     const getScoreColor = (score) => {
@@ -421,6 +423,12 @@ export default function OptimizationResults({ results, onReset }) {
                     <Download className="w-4 h-4" />
                     Download as JSON
                 </Button>
+                <Link to={createPageUrl("ResumeTemplates")}>
+                    <Button variant="outline" className="gap-2 border-purple-200 text-purple-700 hover:bg-purple-50">
+                        <Palette className="w-4 h-4" />
+                        View Templates
+                    </Button>
+                </Link>
             </div>
         </div>
     );
