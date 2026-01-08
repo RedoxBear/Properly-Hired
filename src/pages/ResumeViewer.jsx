@@ -185,6 +185,10 @@ export default function ResumeViewer() {
                             <Download className="w-4 h-4" />
                             Download JSON
                         </Button>
+                        <Button onClick={() => download("repo")} variant="outline" className="gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300">
+                            <Download className="w-4 h-4" />
+                            Repository Backup
+                        </Button>
                     </div>
                 </div>
 
