@@ -74,6 +74,8 @@ function AppShell({ children, currentPageName }) {
         <SidebarProvider>
             <style>
                 {`
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
                     :root {
                         --background: #fefefe;
                         --foreground: #1f2937;
@@ -88,13 +90,13 @@ function AppShell({ children, currentPageName }) {
                         --border: #e2e8f0;
                         --success: #059669;
                     }
-                    
+
                     * {
                         margin: 0;
                         padding: 0;
                         box-sizing: border-box;
                     }
-                    
+
                     html, body, #root {
                         width: 100%;
                         height: 100%;
@@ -102,9 +104,12 @@ function AppShell({ children, currentPageName }) {
                         padding: 0;
                         overflow-x: hidden;
                     }
-                    
-                    body {
+
+                    body, button, input, textarea, select {
                         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    }
+
+                    body {
                         color: var(--foreground);
                         background-color: var(--background);
                         -webkit-font-smoothing: antialiased;
