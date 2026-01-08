@@ -392,7 +392,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
             const responsibilities = prioritizeResponsibilities(jobDescription || "", masterPlain || "", 8);
             const candidateMatches = buildCandidateMatches(ideal, masterPlain || "", 8);
             const tips = interviewerTips(jobDescription || "", companyName || "");
-            const research = companyName ? await fetchOrgResearch(companyName) : null;
+            const research = companyName ? await fetchOrgResearch(companyName, jobTitle) : null;
 
             await JobApplication.update(savedApplication.id, {
                 analysis_summary_md: summaryMD || null,
@@ -414,7 +414,11 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                         founded: research.founded,
                         size: research.size,
                         industry: research.industry,
-                        headquarters: research.headquarters
+                        headquarters: research.headquarters,
+                        viability: research.viability,
+                        trigger: research.trigger,
+                        dna: research.dna,
+                        hook: research.hook
                     } : undefined
                 }
             });

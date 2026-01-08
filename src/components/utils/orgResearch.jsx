@@ -1,28 +1,34 @@
 import { InvokeLLM } from "@/integrations/Core";
 
-export async function fetchOrgResearch(company) {
+export async function fetchOrgResearch(company, jobTitle = "") {
   if (!company || !company.trim()) {
-    return { overview: "", website: "", founded: "", size: "", industry: "", headquarters: "" };
+    return { overview: "", website: "", founded: "", size: "", industry: "", headquarters: "", viability: "", trigger: "", dna: "", hook: "" };
   }
 
   try {
     const result = await InvokeLLM({
       prompt: `
-Research the company "${company}" and return concise, factual, up-to-date details.
-- Use reputable public sources (official website, Wikipedia, news, Crunchbase-like profiles).
-- Prefer the company's canonical homepage for website.
-- Summarize in 2–4 sentences for overview (no marketing fluff, no quotes, no links).
-- If a field is unknown, return an empty string.
+  Research the company "${company}" ${jobTitle ? `and the specific role "${jobTitle}"` : ""} like a Headhunter. 
+  Follow the "Deep Dive" Protocol:
 
-Return ONLY JSON that matches the schema:
-{
-  "overview": "2–4 sentence summary",
-  "website": "https://...",
-  "founded": "YYYY or 'YYYY (city/state/country)'",
-  "size": "approximate employees or revenue range if available",
-  "industry": "primary industry/sector",
-  "headquarters": "City, State/Region, Country"
-}
+  1. **Viability Check (Ghost Job):** Is this role real? Look for "posting history", "recruiter activity", "evergreen" signs, or recent layoffs.
+  2. **Follow the Money (The Trigger):** Find the financial trigger opening this headcount (Series X funding, Revenue growth, IPO, Turnaround). Why now?
+  3. **Leadership DNA (Culture):** Look at executive backgrounds (ex-Google, ex-Amazon, ex-Defense). What does that say about the culture?
+  4. **Operational Signals (The Hook):** What specific physical/digital project are they building NOW (New Office, Factory, Product Launch)? Connect it to the role.
+
+  Return ONLY JSON that matches the schema:
+  {
+    "overview": "2–4 sentence general summary of the company",
+    "website": "Canonical homepage URL",
+    "founded": "YYYY",
+    "size": "Employee/Revenue range",
+    "industry": "Primary sector",
+    "headquarters": "City, Country",
+    "viability": "Is it real? (Yes/No/Maybe) + Brief reason",
+    "trigger": "Why is this open today? (Money/Growth/Pain)",
+    "dna": "Who are we impressing? (e.g., 'ex-Amazon ops culture')",
+    "hook": "Specific project/initiative to reference"
+  }
       `.trim(),
       add_context_from_internet: true,
       response_json_schema: {
@@ -33,7 +39,11 @@ Return ONLY JSON that matches the schema:
           founded: { type: "string" },
           size: { type: "string" },
           industry: { type: "string" },
-          headquarters: { type: "string" }
+          headquarters: { type: "string" },
+          viability: { type: "string" },
+          trigger: { type: "string" },
+          dna: { type: "string" },
+          hook: { type: "string" }
         }
       }
     });
@@ -51,10 +61,14 @@ Return ONLY JSON that matches the schema:
       founded: String(result?.founded || ""),
       size: String(result?.size || ""),
       industry: String(result?.industry || ""),
-      headquarters: String(result?.headquarters || "")
+      headquarters: String(result?.headquarters || ""),
+      viability: String(result?.viability || ""),
+      trigger: String(result?.trigger || ""),
+      dna: String(result?.dna || ""),
+      hook: String(result?.hook || "")
     };
   } catch {
     // Fallback: return empty fields (no placeholder text)
-    return { overview: "", website: "", founded: "", size: "", industry: "", headquarters: "" };
+    return { overview: "", website: "", founded: "", size: "", industry: "", headquarters: "", viability: "", trigger: "", dna: "", hook: "" };
   }
 }

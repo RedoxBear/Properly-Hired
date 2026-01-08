@@ -11,12 +11,43 @@ export default function CompanyResearchCard({ company, orgResearch }) {
             <CardHeader className="pb-3">
                 <CardTitle className="text-base font-medium flex items-center gap-2 text-slate-700">
                     <Building2 className="w-4 h-4 text-blue-600" />
-                    Company Snapshot: {company}
+                    Company Strategy Brief: {company}
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+                {/* Deep Dive Sections */}
+                {(orgResearch.viability || orgResearch.trigger || orgResearch.dna || orgResearch.hook) && (
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                        {orgResearch.viability && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-slate-500 uppercase mb-1">👻 Viability Check</div>
+                                <div className="text-sm text-slate-800">{orgResearch.viability}</div>
+                            </div>
+                        )}
+                        {orgResearch.trigger && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-green-600 uppercase mb-1">💰 The Trigger (Why Now?)</div>
+                                <div className="text-sm text-slate-800">{orgResearch.trigger}</div>
+                            </div>
+                        )}
+                        {orgResearch.dna && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-purple-600 uppercase mb-1">🧬 Leadership DNA</div>
+                                <div className="text-sm text-slate-800">{orgResearch.dna}</div>
+                            </div>
+                        )}
+                        {orgResearch.hook && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-blue-600 uppercase mb-1">⚓ The Hook (Active Project)</div>
+                                <div className="text-sm text-slate-800">{orgResearch.hook}</div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {orgResearch.overview && (
-                    <p className="text-sm text-slate-600 leading-relaxed">
+                    <p className="text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                        <span className="font-semibold text-slate-700">Overview: </span>
                         {orgResearch.overview}
                     </p>
                 )}
