@@ -99,10 +99,10 @@ export default function ResumeOptimizer() {
 
   Current Resume Summary: ${currentSummary}
 
-  Current Experience Bullets (first 3 roles):
-  ${experiences.slice(0, 3).map((exp, idx) => `
+  Current Experience History:
+  ${experiences.map((exp, idx) => `
   Role ${idx + 1}: ${exp.position} at ${exp.company}
-  Bullets: ${(exp.achievements || []).slice(0, 3).join("; ")}
+  Bullets: ${(exp.achievements || []).join("; ")}
   `).join("\n")}
 
   Provide:
@@ -225,6 +225,15 @@ export default function ResumeOptimizer() {
 
             5. **SUMMARY REWRITE STRATEGY:** Use this formula: "[Adjective] [Target Role Title] + [Years Exp] + [Specialty 1] + [Specialty 2]".
                - Example: "Business-Minded Head of People & Global Ops Builder... Specialized in 0-to-1 scaling and cross-border compliance."
+
+            **PART 3: CHRONOLOGY & 10-YEAR+ RULE (CRITICAL)**
+            1. **Strict Chronology:** You MUST maintain reverse chronological order for ALL roles.
+            2. **The 10-Year Handling:** 
+               - For roles within the last 10 years: Detail them fully.
+               - For roles OLDER than 10 years:
+                 - If **HIGHLY RELEVANT** to the target JD: Keep detailed bullets to show depth of expertise.
+                 - If **LESS RELEVANT**: Do NOT delete. Summarize them in a "Previous Experience" or "Early Career" section/grouping with just Company, Title, Dates, and a 1-line summary.
+               - **GOAL:** Provide a complete history (no gaps) while focusing attention on recent/relevant work. Do NOT truncate the career history.
 
             **OPTIMIZATION INSTRUCTIONS:**
             - **Mode:** ${modeLabel}
