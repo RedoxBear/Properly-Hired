@@ -198,7 +198,24 @@ export default function ResumeOptimizer() {
         for (let i = 0; i < numVersions; i++) {
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
-                prompt: `Optimize this resume for the job posting. Mode: ${modeLabel}. Instructions: ${constraints}. Resume: ${selectedResume.parsed_content}. Job: ${jobData.job_description}. ${generateMultiple ? `Create variation ${i + 1} with slightly different emphasis.` : ''}`,
+                prompt: `You are a strict, objective Resume Auditor and Career Coach. Your goal is to optimize this resume for the specific Job Description (JD) provided, but you must adhere to a strict code of TRUTHFULNESS.
+
+            **CRITICAL RULES:**
+            1. **NO FABRICATION:** You must NOT invent roles, companies, titles, skills, or achievements that are not present in the original resume.
+            2. **REALITY CHECK:** If the candidate lacks a specific skill required by the JD, DO NOT add it. Do not lie to "please" the ATS.
+            3. **REFRAMING OVER INVENTING:** You may rephrase, reorder, and emphasize *existing* experience to better align with the JD keywords, but the underlying facts must remain true to the original input.
+            4. **NON-PLEASING TONE:** Do not write fluff. Be direct, factual, and impact-oriented.
+            5. **IRRELEVANT DATA:** If the original resume contains experience that is completely irrelevant to this JD and wastes space, you may summarize or omit it to make room for relevant details (unless it causes a gap).
+
+            **OPTIMIZATION INSTRUCTIONS:**
+            - **Mode:** ${modeLabel}
+            - **Constraints:** ${constraints}
+            - **Task:** Rewrite the resume content to maximize relevance to the JD *strictly* using the candidate's actual history.
+
+            **INPUT DATA:**
+            - **Job Description:** ${jobData.job_description}
+            - **Original Resume:** ${selectedResume.parsed_content}
+            ${generateMultiple ? `- **Variation:** Create variation ${i + 1} with a slightly different truthful angle.` : ''}`,
                 response_json_schema: {
                   type: "object",
                   properties: {
