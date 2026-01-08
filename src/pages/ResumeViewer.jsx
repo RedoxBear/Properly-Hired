@@ -89,6 +89,7 @@ export default function ResumeViewer() {
 
     const download = (type) => {
         const safeName = (resume?.version_name || "Resume").replace(/[\\/:*?"<>|]/g, "_");
+        
         if (type === "txt") {
             const content = buildText(resume);
             const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
@@ -101,6 +102,7 @@ export default function ResumeViewer() {
             a.remove();
             URL.revokeObjectURL(url);
         } else if (type === "json") {
+            // Standard JSON export (content only)
             const payload = {
                 version_name: resume?.version_name,
                 optimized_content: resume?.optimized_content ? JSON.parse(resume.optimized_content) : null,
@@ -111,6 +113,27 @@ export default function ResumeViewer() {
             const a = document.createElement("a");
             a.href = url;
             a.download = `${safeName}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } else if (type === "repo") {
+            // Full Repository Backup (includes all metadata, scores, flags, etc.)
+            const payload = {
+                ...resume,
+                optimized_content: resume?.optimized_content ? JSON.parse(resume.optimized_content) : null,
+                parsed_content: resume?.parsed_content ? JSON.parse(resume.parsed_content) : null,
+                exported_at: new Date().toISOString(),
+                _meta: {
+                    description: "Full Resume Repository Backup",
+                    app: "Prague Day"
+                }
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${safeName}_repository_backup.json`;
             document.body.appendChild(a);
             a.click();
             a.remove();
