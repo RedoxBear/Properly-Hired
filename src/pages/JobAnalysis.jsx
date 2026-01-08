@@ -808,9 +808,9 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                         {savedApp.analysis_summary_html ? (
                                             <div dangerouslySetInnerHTML={{ __html: savedApp.analysis_summary_html }} />
                                         ) : (
-                                            <pre className="whitespace-pre-wrap text-sm">
+                                            <div className="whitespace-pre-wrap text-sm font-sans text-slate-700 leading-relaxed">
                                                 {savedApp.analysis_summary_md || "No summary available."}
-                                            </pre>
+                                            </div>
                                         )}
                                         {savedApp.summary && (
                                             <div className="mt-4 space-y-4">

@@ -35,7 +35,7 @@ export default function JobSummary() {
           {app.analysis_summary_html ? (
             <div dangerouslySetInnerHTML={{ __html: app.analysis_summary_html }} />
           ) : (
-            <pre className="whitespace-pre-wrap text-sm">{app.analysis_summary_md || "No summary available."}</pre>
+            <div className="whitespace-pre-wrap text-sm font-sans text-slate-700 leading-relaxed">{app.analysis_summary_md || "No summary available."}</div>
           )}
         </CardContent>
       </Card>
