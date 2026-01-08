@@ -198,19 +198,38 @@ export default function ResumeOptimizer() {
         for (let i = 0; i < numVersions; i++) {
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
-                prompt: `You are a strict, objective Resume Auditor and Career Coach. Your goal is to optimize this resume for the specific Job Description (JD) provided, but you must adhere to a strict code of TRUTHFULNESS.
+                prompt: `You are a strict, objective Resume Auditor and Career Coach. Your goal is to optimize this resume for the specific Job Description (JD) provided, adhering to strict TRUTHFULNESS and STRATEGIC REFRAMING principles.
 
-            **CRITICAL RULES:**
-            1. **NO FABRICATION:** You must NOT invent roles, companies, titles, skills, or achievements that are not present in the original resume.
+            **PART 1: CRITICAL TRUTHFULNESS RULES**
+            1. **NO FABRICATION:** Do NOT invent roles, companies, titles, skills, or achievements not present in the original resume.
             2. **REALITY CHECK:** If the candidate lacks a specific skill required by the JD, DO NOT add it. Do not lie to "please" the ATS.
-            3. **REFRAMING OVER INVENTING:** You may rephrase, reorder, and emphasize *existing* experience to better align with the JD keywords, but the underlying facts must remain true to the original input.
-            4. **NON-PLEASING TONE:** Do not write fluff. Be direct, factual, and impact-oriented.
-            5. **IRRELEVANT DATA:** If the original resume contains experience that is completely irrelevant to this JD and wastes space, you may summarize or omit it to make room for relevant details (unless it causes a gap).
+            3. **REFRAMING OVER INVENTING:** Rephrase, reorder, and emphasize *existing* experience to align with JD keywords, but facts must remain true.
+            4. **IRRELEVANT DATA:** Summarize or omit completely irrelevant experience to save space, provided it doesn't create unexplained gaps.
+
+            **PART 2: STRATEGIC REFRAMING RULES (Apply these aggressively)**
+            1. **THE "SO WHAT?" RULE (Outcome Linking):** Never state a responsibility without its business impact.
+               - Bad: "Managed employee relations."
+               - Good: "Accelerated productivity by 180% by implementing automated performance tracking."
+               - Fix: Ask "Did this save money, make money, or save time?" Put the answer FIRST.
+            
+            2. **THE "BUILDER" VERB SWAP:** Replace passive "maintenance" verbs with active "construction" verbs.
+               - Banned: Managed, Oversaw, Served as, Acted as, Maintained, Handled.
+               - Required: Architected, Engineered, Scaled, Accelerated, Deployed, Built (0-to-1).
+               - Goal: Signal value creation, not just caretaking.
+
+            3. **KILL THE "POLICY FACTORY" SIGNAL:** Reframe administrative work as infrastructure building.
+               - Delete: "Designed handbook", "Updated policies".
+               - Replace with: "Engineered compliance frameworks", "Built scalable people infrastructure".
+
+            4. **THE GLOBAL CONTEXT PIVOT:** If the candidate has international experience, FLAGG IT explicitly in titles or headers (e.g., "Head of U.S. Operations (Global Market Entry)").
+
+            5. **SUMMARY REWRITE STRATEGY:** Use this formula: "[Adjective] [Target Role Title] + [Years Exp] + [Specialty 1] + [Specialty 2]".
+               - Example: "Business-Minded Head of People & Global Ops Builder... Specialized in 0-to-1 scaling and cross-border compliance."
 
             **OPTIMIZATION INSTRUCTIONS:**
             - **Mode:** ${modeLabel}
             - **Constraints:** ${constraints}
-            - **Task:** Rewrite the resume content to maximize relevance to the JD *strictly* using the candidate's actual history.
+            - **Task:** Rewrite the resume content to maximize relevance to the JD using the candidate's actual history and the strategic rules above.
 
             **INPUT DATA:**
             - **Job Description:** ${jobData.job_description}
