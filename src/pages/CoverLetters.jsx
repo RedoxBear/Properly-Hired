@@ -7,6 +7,7 @@ import { Mail, Building, ArrowRight, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function CoverLetters() {
     const [jobApplications, setJobApplications] = React.useState([]);
@@ -134,6 +135,17 @@ export default function CoverLetters() {
                     </Card>
                 </div>
             </div>
+
+            {/* Kyle AI Agent Chat */}
+            <AgentChat
+                agentName="kyle"
+                agentTitle="Kyle - CV Expert"
+                context={{
+                    page: "Cover Letters",
+                    applicationsCount: jobApplications.length,
+                    hasApplications: jobApplications.length > 0
+                }}
+            />
         </div>
     );
 }

@@ -10,6 +10,7 @@ import { Lightbulb, Sparkles, Target, Loader2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function TransferableSkills() {
   const [resumes, setResumes] = React.useState([]);
@@ -178,6 +179,18 @@ Output JSON:
           </>
         )}
       </div>
+
+      {/* Kyle AI Agent Chat */}
+      <AgentChat
+        agentName="kyle"
+        agentTitle="Kyle - CV Expert"
+        context={{
+          selectedResume: selectedId ? resumes.find(r => r.id === selectedId)?.version_name : "",
+          targetRole: targetRole || "Not specified",
+          targetIndustry: targetIndustry || "Not specified",
+          hasResults: !!result
+        }}
+      />
     </div>
   );
 }

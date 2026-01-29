@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { retryWithBackoff } from "@/components/utils/retry";
 import { logEvent } from "@/components/utils/telemetry";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function QAAssistant() {
     const [jobApplications, setJobApplications] = React.useState([]);
@@ -457,6 +458,18 @@ Return one focused answer per question grounded in their actual resume.
                     </Card>
                 </div>
             </div>
+
+            {/* Kyle AI Agent Chat */}
+            <AgentChat
+                agentName="kyle"
+                agentTitle="Kyle - CV Expert"
+                context={{
+                    selectedJob: selectedJobId ? jobApplications.find(job => job.id === selectedJobId)?.job_title : "",
+                    answerStyle: answerStyle,
+                    questionsCount: questions.length,
+                    hasAnswers: questions.some(q => q.answer)
+                }}
+            />
         </div>
     );
 }
