@@ -1,0 +1,2350 @@
+Full Stack Recruiter
+
+New Secrets Revealed
+
+
+
+By
+
+Jan Tegze
+
+OceanofPDF.com
+
+
+
+
+
+First Published in 2018 by Jan Tegze. © Copyright 2018 Jan Tegze
+
+Book design by Tomáš Zeman
+
+ISBN 978-80-270-4819-9
+
+All rights reserved. No part of this publication may be reproduced, stored in or introduced into a retrieval system, or transmitted, in any form, or by any means (electronic, mechanical, recording, photocopying recording or otherwise) without the prior written permission of the author, except in the case of brief quotations embodied in critical reviews and certain other noncommercial uses permitted by copyright law.
+
+The book is sold subject to the condition that it shall not, by way of trade or otherwise, be lent, resold, hired out, or otherwise circulated without the publisher's prior consent in any form of binding or cover other than that in which it is published and without a similar condition including this condition being imposed on the subsequent purchaser.
+
+OceanofPDF.com
+
+
+
+
+
+DISCLAIMER AND TERMS OF USE AGREEMENT
+
+This book is published for informational purposes only. The publisher and or the author make no representations or warranties with respect to the accuracy or completeness of the contents of this work and specifically disclaim all warranties, including without limitation warranties of fitness for a particular purpose. No warranty may be created or extended by sales or promotional materials. The advice and strategies contained herein may not be suitable for every situation. The information contained in this book is not and is not intended to be advice of any kind. Publication of this book does not create a consultant-client relationship.
+
+When you access this book or eBook, you agree that the author and or publisher of this book, shall not be liable to you for any loss or injury caused by procuring, compiling or delivering the information gained from the book. In no event will the author and or publisher of the book, be liable to anyone for any action taken on the basis of such information or for any incidental, consequential, special or similar damages.
+
+The author and or publisher of this book expressly disclaims any and all liability for any direct, indirect, incidental, consequential or special damages arising out of any and or buying and reading of this book and/or any information contained on this book. The author and or publisher of the book disclaims all responsibility for any loss, injury, claim, liability or damage of any kind resulting from, arising out of, or any way related to any information and content of this book. The information contained in this eBook is strictly for educational purposes. Therefore, if you wish to apply the ideas in this book or eBook, you are taking full responsibility for your actions.
+
+Every attempt has been made by the author to provide acknowledgment of the sources used for the material in this book. While the author has made every effort to provide accurate internet addresses and authors of sourcing methods at the time of publication, neither the publisher nor the author assumes any responsibility for errors and omissions, or for changes that occur after publication. Technology and services are continually changing and therefore might contain errors and/or information that, while accurate when it was written, may be no longer accurate by the time you read it. Your use of or reliance on the information in this book is at your own risk, and the author and or publisher are not liable or responsible for any resulting damage or expense.
+
+Every possible effort has been made to ensure that the information contained in this book is accurate at the time of going to press, and the publishers and the author cannot accept responsibility for any errors or omissions.
+
+OceanofPDF.com
+
+
+
+
+
+Contents
+
+Acknowledgment
+
+01 Intro
+
+02 What Changed After GDPR
+
+03 Sourcing
+
+03.1 How to Source Candidates on Airbnb
+
+03.2 How to Source Candidates on Flickr
+
+03.3 How to Source Candidates on Medium
+
+03.4 How to Source Candidates on WordPress
+
+03.5 LinkedIn Search Tricks
+
+03.6 More Sourcing Tricks
+
+04 Recruitment
+
+04.1 Recruitment Is Not a 9 to 5 Job
+
+04.2 A Recruiter’s Worst Enemy
+
+04.3 Growth Hacking
+
+04.4 The Psychology of Texts in Recruitment
+
+04.5 Influence People Through Different Content Formats
+
+04.6 The Psychology of Color in Recruitment
+
+04.7 The Power and Importance of Storytelling
+
+04.8 Not giving a Feedback is Expensive
+
+04.9 Ask Why, Not Only Where
+
+04.10 Perfect Hires Don’t Exist
+
+04.11 It’s Not About Years of Experience
+
+04.12 How to Assess a Sourcer
+
+04.13 Share Your Knowledge to Gain Knowledge
+
+04.14 Stop Looking for Excuses
+
+05 Epilogue
+
+Endnotes
+
+OceanofPDF.com
+
+
+
+
+
+Acknowledgment
+
+
+Writing this book would not have been possible without the support of my friends: Maisha L. Cannon, Mark Tortorici, Justin Clem, Balazs Paroczay, Tris Revill, Jiří Kuchta, and many others. Thank you for believing in me and being my everyday inspiration for being better sourcer and better human being.
+
+I also want to thank those who inspired this book, even though they probably will not read it. Also, special thanks to everyone in the sourcing and recruitment community for sharing your knowledge with others and for making our lives much less painful than they could be.
+
+Thank you for sharing!
+
+OceanofPDF.com
+
+
+
+
+
+01 Intro
+
+
+The recruitment industry is a fantastic field that is continuously evolving. Even after all these years, I am still amazed at how many talented people are in our field and how they are actively trying to make the lives of other recruiters and sourcers easier.
+
+I know that there are no shortcuts that will turn you into a great recruiter or sourcer, so I am not going to promise or offer you some silver-bullet solution that will turn you into a super recruiter. I hope you will find inspiration in this book, and I hope that you will see that even though you don't always see an easy solution for some of your sourcing/recruitment problems, there is always a way!
+
+It is my hope that you will appreciate how great being a recruiter/sourcer can be, even though our profession is a constant battle with the time and frequently goes beyond the expected nine-to-five hassle of corporate life. The productivity and overall success of a company are dependent on us, the recruiters and the sourcers. Night and day, we labor to take the talent burden off the shoulders of our companies and find the right people who will help the company grow.
+
+That why we need to tirelessly seek out new knowledge that ensures the provision of the right candidates and simultaneously saves time and costs in the hiring process.
+
+Enjoy this book!
+
+Jan Tegze
+
+OceanofPDF.com
+
+
+
+
+
+02 What Changed After GDPR
+
+
+I published my first Full Stack Recruiter: The Modern Recruiter's Guide at the end of 2017, which means it was published before the GDPR came into effect, and before controversial events, like the one with Cambridge Analytica[1].
+
+All of these events can have a minor or major impact on sourcing techniques and methods. Additionally, due to other decisions that Google, Twitter, and other companies have made, I have decided to share what has changed and how these things have had an impact on sourcing.
+
+GDPR and Cambridge Analytica
+
+Both of these have had an impact on sourcing and affected a number of things that I mentioned in my original book, such as:
+
+Facebook
+
+• The page www.facebook.com/directory/ was disabled.
+
+• I used the company Tesla in examples. However, Elon Musk has since decided to close the Tesla FB page after the world found out about the Cambridge Analytica case. This has affected the examples that I used. However, the method described in the book is still working, just not for Tesla.
+
+WHOIS Domain Trick
+
+On May 25, 2018, the General Data Protection Regulation (GDPR) took effect. This means the WHOIS "disappeared." In the new public record system, personal data are no longer visible either to individuals or companies. The method I described for revealing the contact details of companies is no longer working and getting information from domains is not so easy anymore.
+
+Google+
+
+Because of the GDPR, the trick about how to check the email address is not working anymore, and it was blocked by Google.
+
+Google - Range operator
+
+It appears that Google is slowly removing the range operator (..) from their search engine. In some parts of the world, this operator is no longer working, but when you are using a VPN, you can find locations that are still working. You can try some other search engines or metasearch engines that still support this operator. I expect that this range operator will completely disappear from Google in the near future.
+
+Because of that decision, some parts of the strings that I mentioned in the book were affected. In particular, the strings where you are searching for phone numbers. Luckily, there is still an option for how to target the numbers (dates) in your string.
+
+Instead of "2011..2015", you will need to use longer strings like this one: "(2011 OR 2012 OR 2013 OR 2014 OR 2015)".
+
+Example: site:meetup.com "member since" (94102..94106) (Developer OR Programmer) Java
+
+It will now need to look like this:
+
+site:meetup.com "member since" (94102|94103|94104|94105|94106) (Developer OR Programmer) Java
+
+Even if the range operator completely disappears from Google, it’s still good to know how this operator works because you can continue to use it in some search engines or databases where is still working.
+
+Stack Overflow
+
+The section of the book on how to search by reputation on Stack Overflow was also affected and is no longer working properly.
+
+Google - NCR
+
+During 2018, Google killed google.com/ncr (NCR - No Country Redirect), and because of that, you can't access the local Google site for a location without a VPN or without physically being there.
+
+Shortener - Goo.gl
+
+From time to time, Google made the decision to discontinue particular services, and one service that was affected by that decision was the shortening service Goo.gl. Starting from March 30, 2018, Google stopped providing support for the goo.gl URL shortener. From April 13, 2018, only existing users had the ability to create short links on the Goo.gl console.
+
+Additionally, from March 30, 2019, Google discontinued Goo.gl completely; however, previously created links will continue to redirect to their intended destination. So, the trick with shorteners is still going to work, but we will see fewer and fewer of these short Google links.
+
+Twitter
+
+Twitter changed the number of characters from 140 to 280 characters. That in itself is a not a big deal, but in my book, I mention that there are 140 characters—not 280 characters.
+
+Twitter also killed the page with a search option that could show you the first tweet for a Twitter account. You still have the option to look for it when you check the Twitter profile and see the date when the person first joined. For example, you see "Joined January 2013", so you can then use the Twitter advanced search to target that specific month and year.
+
+Airbnb
+
+Airbnb changed the location for the profiles of their users and also added <meta name="robots" content="noindex"> into these pages. However, I have found a small workaround, and it’s in one of the chapters that describe how to target candidates on this site.
+
+Boolean Query Limitations
+
+LinkedIn added a limit on the number of Boolean search operators used in a single query. They limit the amount of AND or OR Boolean operators but they don’t limit the amount of NOT Boolean operators.
+
+Their premium accounts have no limit on the number of Boolean operators you can use in a single search query.
+
+Note: Things are always changing and evolving, and if you would like to get new content from me, you can follow me on LinkedIn (www.linkedin.com/in/jantegze/), Twitter (www.twitter.com/jantegze) or you can read more articles from me on my blog www.tegze.eu.
+
+OceanofPDF.com
+
+
+
+
+
+03 Sourcing
+
+
+03.1 How to Source Candidates on Airbnb
+
+
+Wikipedia describes Airbnb as a company that operates an online marketplace and hospitality service for people to lease or rent short-term lodging, including holiday cottages, apartments, home-stays, hostel beds, or hotel rooms, to participate in or facilitate experiences related to tourism, such as walking tours and making reservations at restaurants. In short, you can let complete strangers into your home and get money from it or be that stranger.
+
+Is There a Way to Source a Candidate on Airbnb?
+
+At the beginning of 2018, all users were under the /users folder, so the string was quite easy—you simply had to focus on site:airbnb.com/users and add a few more keywords into the search string.
+
+During the year 2018, Airbnb moved the profiles to a new folder: /users/show/.
+
+Every profile is now under https://www.airbnb.com/users/show/00000000 with a unique number for every user.
+
+And that’s not the only change Airbnb has made. They have also added <meta name="robots" content="noindex, follow"> to every profile page.
+
+This noindex means that crawling robots from Google and other search engines can’t index these profiles. Because these pages aren’t indexed by Google, we can’t find them through Google.
+
+However, there is still a way to target profiles.
+
+There is still a way to target these profiles—or at least some of them. Part of the host’s description is located on the room page, which means that you can target the profiles that have this profile information filled out, and those are on Google.
+
+You will need to target site:airbnb.com/rooms/, and because you want to target only pages that have some profile information, you will need to add "Joined in" to that.
+
+Example: site:airbnb.com/rooms/ "Joined in"
+
+After that, you can add more keywords. However, if you add, for example, "Designer," you will get results for things like designer furniture, so you need to be more specific when you are targeting the keywords.
+
+The same is true for locations. When you add London as a location, you will find all the pages with this keyword.
+
+Example: site:airbnb.com/rooms/ "Joined in" London
+
+One option to solve this is to use intitle: operator.
+
+Example: site:airbnb.com/rooms/ "Joined in" intitle:London
+
+Alternatively, you can expand the search and target the United Kingdom.
+
+Example: site:airbnb.com/rooms/ "Joined in" intitle:"United Kingdom"
+
+If you would like to target specific job titles, you can add the job title into the string. For example, let’s say you need to see the profiles of accountants.
+
+Example: site:airbnb.com/rooms/ "Joined in" intitle:"United Kingdom" "Accountant"
+
+If you would like to find people who speak a specific language, you can also add "Languages:" into the string.
+
+Example: site:airbnb.com/rooms/ "Joined in" "Accountant" "Languages:"
+
+Do you know how many people on Airbnb know Hindi? 7300!
+
+Example: site:airbnb.com/rooms/ "Joined in" "Languages: * Hindi"
+
+Also, 71,400 people understand French.
+
+Example: site:airbnb.com/rooms/ "Joined in" "Languages: * Français"
+
+You can combine these strings together, but if you use this string without intitle:, you will get all the profiles with the keyword London on their profile.
+
+Example: site:airbnb.com/rooms/ "Joined in" intitle:"London" "Accountant" "Languages:"
+
+You can also target people who are Superhosts. According to Airbnb, the Superhost program "recognizes hosts who go above and beyond for every guest."
+
+Also, if you would like to find that person or rent a flat/room/house from Superhost users only, just use the string below.
+
+Example: site:airbnb.com/rooms/ "Joined in" intitle:"United Kingdom" "is a Superhost"
+
+There are many ways to source candidates on Airbnb, and these strings are not the only way. Try to be creative and find your own ways!
+
+Target Things-To-Do List
+
+Under www.airbnb.com/things-to-do, you can find guidebooks for all the best places in every city, all selected by Airbnb hosts. Because these guidebooks also show a short bio of the person who is sharing this tip, you can also target the guidebook.
+
+Example: site:airbnb.com/things-to-do "San Francisco" "Developer"
+
+Still Not Convinced that Airbnb Is a Source of Candidates?
+
+That is all right. You can try being creative. Maybe create a similar string, like this one:
+
+Example: site:airbnb.com/rooms/ "Joined in" ("Looking for a job" OR "looking for new opportunities" OR "Available for New Opportunities" OR "Open to new opportunities")
+
+How Do You Contact These People?
+
+1. You know their name and have a profile picture, so you should be able to find that person on LinkedIn and contact them directly there.
+
+2. You can rent their flat and meet them in person—plus, you will see some new places!
+
+3. You can contact the person through the "Contact host" option on the page. However, use this as a last resort. Try to find some other way to contact them first.
+
+Conclusion
+
+I know that Airbnb is not an amazingly good source of candidates, but I have tried to show you that it is possible. You can now also find a Superhost; so next time you are going to book a flat for your vacation, maybe you’ll choose one that is owned by that accountant who is perfect for your new role. Because you never know.
+
+OceanofPDF.com
+
+
+
+
+
+03.2 How to Source Candidates on Flickr
+
+
+Wikipedia describes Flickr.com (pronounced "flicker") as an image-hosting service and video-hosting service. Ludicorp created Flickr in 2004. It has changed ownership several times and has been owned by SmugMug since April 2018.
+
+In addition to being a popular website for users to share and embed personal photographs and an online community, the service is widely used by photo researchers and bloggers to host images that they embed in blogs and social media.
+
+It is also an interesting source of candidates—one that is not widely used by sourcers. Also, because you are reading this chapter, you are among the few people who will learn how to source on this site.
+
+Sourcing on Flickr is not as hard as you might think, and, in this chapter, you will learn a few basic ways to source using this website.
+
+How to Source on Flickr
+
+There are many ways to source on this site, and these two methods are the primary strategies that will help you with your sourcing.
+
+First Method - Flickr search
+
+You can try using a keyword search on Flickr. For this example, we will try to find "Designer".
+
+
+
+When you type in "Designer," you will get all the profiles that mention "Designer" somewhere in their profile. However, if you add more keywords, like a specific location, into your string, you will narrow your results. In this case, your string "Designer" and "London" will only show you a few people.
+
+Boolean logic works on Flickr.com for simple strings, but if you want to try longer strings with more keywords, or more advanced strings with a few more operators, you will need to use some other option.
+
+Second Method - X-Ray Search
+
+For this X-Ray search, you will need operators like site:, inurl: and intext:. You can use more operators; however, these three will be the ones that you are going to be using for most of your searches.
+
+Before you start creating your strings, there are a few folders that you are going to be targeting with your search.
+
+https://www.flickr.com/groups/ - Flickr groups - To see members in a group, you need to have an account on Flickr and you need to be a member of the group.
+
+https://www.flickr.com/people/ - Profiles of registered users, and this is the page you will be targeting the most.
+
+Using a string for targeting people is a combination of site:flickr.com and inurl:people with a few keywords.
+
+For example: site:flickr.com inurl:people Designer
+
+Alternatively, you can simplify this search with this string: site:flickr.com/people Designer
+
+If you want to find people who have "Designer" on their profile and are living in London, just add the location into the string: site:flickr.com/people Designer London
+
+X-Ray search will show you 16,900 results. Your string "Designer" AND "London" (first method) will only show you around ten people on flickr.com, and that’s why X-Ray search is much more effective.
+
+Targeting profiles with a website
+
+Targeting a profile with a website URL on their Flickr profiles could be done with this simple trick: just add "website" into your string.
+
+Example: site:flickr.com/people Designer Website London
+
+However, this string will get you all profiles with the keyword "website," so you might want to create a more advanced string.
+
+Example: site:flickr.com/people Designer Website London (intext:www OR intext:http OR intext:https)
+
+Alternatively, you can use more complex strings, like this one:
+
+Example: site:flickr.com/people ("Graphic Design" OR "Designer") (country*UK OR country*"United Kingdom" OR city*London) website
+
+You can also target the emails of these people by searching:
+
+Example: site:flickr.com/people Designer London ("e-mail" OR email")
+
+Alternatively, you can use more complex strings where you can use intext: operator.
+
+Example: site:flickr.com/people ("Graphic Design" OR "Designer") (country*UK OR country*"United Kingdom" OR city*London) (intext:www OR intext:http OR intext:https OR "website")
+
+Targeting profiles based on when they joined
+
+You can also target accounts that were just created by simply adding: "Joined * 2018". The asterisks operator will replace any month before the year; this allows you to target the whole year, not just a specific month. If you like, you can choose a specific month by replacing * with the name of the month.
+
+Example: site:flickr.com/people "Joined * 2018" Designer London
+
+Alternatively, you can use a more complex string: site:flickr.com/people "Joined * 2018″ Designer (country*UK OR country*"United Kingdom" OR city*London)
+
+Image search
+
+You can also create your string, add it into your image search and select "Face" as one of the options. This will help you to filter in all the images that have a face in them, and this could help you to find people (users) who could be tagged in these photos or mentioned in the comments.
+
+Example: site:flickr.com Designer London "User Experience"
+
+
+
+intitle: operator
+
+Don’t worry; I didn’t forget the intitle: operator. (The query intitle:term restricts results to documents containing the term in the title.)
+
+You can use it when you are targeting specific keywords, as in the following case of a finance conference in London. Just add inurl:albums to your string so you can target their photo albums.
+
+Example: site:flickr.com inurl:albums intitle:conference intitle:finance London
+
+You can also target more events by adding more keywords to your string.
+
+Example: site:flickr.com inurl:albums (intitle:conference OR intitle:event) intitle:finance
+
+This string will help you find albums on Flickr from conferences or events that are connected with finance.
+
+Even if you don’t see the list of names, the people in these images are usually wearing badges, so you can often check out their names and job titles on any visible badges.
+
+Sourcing on Flickr
+
+Flickr is a place where you can not only find amazing photos, but you can also find other talented people.
+
+OceanofPDF.com
+
+
+
+
+
+03.3 How to Source Candidates on Medium
+
+
+Medium is an online publishing platform developed by Evan Williams and launched in August 2012. The platform is an example of social journalism, hosting a hybrid collection of amateur and professional individuals and publications, or private blogs or publishers, on Medium. It is commonly regarded as a blog host.
+
+Medium.com is one of my favorite sources for some of the best articles on the internet. I’ve already shared in my book that I read articles on Medium daily, and nothing has changed in the last year. It's still one of my best sources of inspiration.
+
+Sourcing - Basic String
+
+When you create the string only with site: operator, you will target the whole site. That means that you will see all the articles and all pages that have the keywords you are trying to reach.
+
+Example: site:medium.com ("User Experience Designer" OR "Interaction designer")
+
+You can use the basic string using site: operator and inurl: operator together with keywords.
+
+Example: site:medium.com inurl:highlights ("User Experience Designer" OR "Interaction designer")
+
+The inurl:highlights will target only people who highlight some part of the text on Medium. However, it will not show you the profiles of those who didn’t highlight anything, but there is still a way to target those people.
+
+Because most people are following people within their same field, the best way is to find people is to target their followers.
+
+If you are a UX designer, there is a high chance that the other people following you working within the same or a related field. It is likely that they are also UX designers or they are at least interested in that field.
+
+Before you start to target the followers, you should understand how the URL on medium.com is created.
+
+Every username has a list of followers under /followers. The whole URL looks like this: https://medium.com/@username/followers. In my case, my username is @jantegze, so the domain will look like this one: https://medium.com/@jantegze/followers.
+
+However, you are not going to target followers of just one person. That’s why you will need to use inurl: operator once again.
+
+The search string will look like this: site:medium.com inurl:followers ("User Experience Designer" OR "Interaction designer")
+
+If you target keywords or job titles with site:medium.com inurl:followers, then you might find information for the followers and not your target profile. But you can try this string below to get Medium bio info and not mix it up with the followers.
+
+Example: site:medium.com "followers" "following" "(graphic OR ui) (design OR designer)" (london OR uk OR "united kingdom") -inurl:followers -inurl:following -inurl:recommended
+
+Targeting by Joining Date
+
+If you would like to target people based on when they created their account on Medium, you can do that with the string "Medium member since *year."
+
+Example: site:medium.com "Medium member since * 2017"
+
+Example: site:medium.com "Medium member since * (2016 OR 2017)"
+
+Advanced trick
+
+There is also another trick that I discovered some time ago. It is not a perfect solution and it doesn’t always work, but you can still try to use it for some other sites.
+
+View Code - Step by Step Instructions
+
+1. Open the Google Chrome web browser
+
+2. Navigate to the web page element you would like to examine.
+
+3. Right-click the page element and look at the menu that appears. From that menu, click View page source.
+
+4. The source code for that page will now appear as a new tab in the browser.
+
+Step 1:
+
+Find the URL where the profile photo is stored. In my case, it’s https://miro.medium.com/ or add only miro.medium.com
+
+
+
+Step 2:
+
+Add the URL into https://images.google.com/ and then, for the type of picture, select "Face." This will show you all the photos stored there.
+
+
+
+Step 3:
+
+Add more keywords into search field.
+
+Example: https://miro.medium.com/ "Developer"
+
+Or
+
+Example: miro.medium.com "Developer"
+
+And then, for the type of picture, select "Face." You will see additional photos connected with that keyword. This method does not work perfectly every time, but it could also be used for other sites.
+
+Targeting Based on Claps
+
+You can also find people based on what they have recommended—in this case, if they clapped on an article.
+
+Example: site:medium.com inurl:has-recommended ("User Experience Designer" OR "Interaction Designer")
+
+If you would like to find out more about the person you are targeting, just click on their claps to see what else they like: https://medium.com/@jantegze/has-recommended
+
+Using this method, you can discover who clapped on a certain article. Perhaps you’re asking yourself, "Why do I need that?" The answer is simple. When you find an article that is about some topic that is connected with your role—for example, accounting—there is a high chance that the people who clapped are also working in the same field, so this is a great way to discover new people.
+
+Example: site:medium.com inurl:has-recommended
+
+Example: site:medium.com inurl:has-recommended "Name of the article"
+
+Targeting Based on Groups
+
+If you would like to find the articles from a specific group, you can target these groups by simply adding: "Also tagged NAME OF THE GROUP."
+
+Example: site:medium.com "Also tagged Career Advice"
+
+Example: site:medium.com "Also tagged Data Science"
+
+Example: site:medium.com "Also tagged Recruiting"
+
+You can also use the URL that you find on medium.com. For example, https://medium.com/tag/recruiting will show you the top articles in that area. If you would like to see the latest articles, just click on "Latest" https://medium.com/tag/recruiting/latest.
+
+Conclusion
+
+Medium.com is a great source of new information and ideas from people across the globe. It is not only a great source of information about your potential candidates, but it’s a great site where you can be inspired by others.
+
+You can find interesting candidates on Medium. If a user is active on that site and actively adding claps to articles, it will show you what that person is like and what his/her interests are. Also, thanks to these tricks, you will learn about what they like and what they read before you approach them with your message.
+
+This strategy will help you to create more personal messages and raise your chance of receiving answers. Other recruiters are not going to go the extra mile, but if you do, you will find out that the extra mile is never crowded.
+
+And, of course, if you are on Medium, you can follow me: https://medium.com/@jantegze
+
+OceanofPDF.com
+
+
+
+
+
+03.4 How to Source Candidates on WordPress
+
+
+Did you know that 30% of the top 10 million websites are powered by WordPress? This information comes from recent data collected by W3Techs[2].
+
+WordPress is a free and open-source content management system based on PHP and MySQL. Because WordPress is free and easy to use, a lot of people are using it.
+
+Considering that the total number of active websites is estimated at over 172 million— according to a survey published by Netcraft[3]—that means that around 75,000,000 websites are using WordPress right now. In addition, around half of those sites (37,500,000) are hosted on the WordPress.com shared hosting installation. This means that around 20% of all self-hosted websites use WordPress, which is a huge percentage of the market.
+
+I am a big fan of WordPress, and most of the websites I have developed for my projects or my clients have been built on WordPress. Moreover, because this system is very popular, it also comes with some flaws. The main flaw is that many people and companies are not regularly updating their sites.
+
+If they are using an older version of the site or if they are not familiar with administration, it leaves them vulnerable to mistakes and security breaches. One of the primary mistakes is that they are not protecting their folders with .htaccess[4] or any other methods.
+
+Before you learn a few sourcing tricks connected with WordPress, you first need to learn a little bit more about WordPress itself. In particular, you need to understand the kinds of URLs and folders that are used on the WordPress platform.
+
+There are three main folders under every WordPress: /wp-admin/, /wp-content/, /wp-includes/.
+
+We need to target only one folder, which is /wp-content/ because we are interested in one specific subfolder in this folder. The /wp-content/ folder has three subfolders: plugins, themes, and uploads. Also, as you have probably already guessed, we are going to be targeting the /uploads/ subfolder.
+
+The reason is simple: this is where all the files are stored there.
+
+Folder uploads
+
+There are many sites you can target, but the easiest way is to do this is to use inurl: operator in combination with the right keywords.
+
+You already know that you need to target /wp-content/uploads/, so the string will look like this:
+
+Example: inurl:/wp-content/uploads/
+
+This string will target all of the folder’s uploads that are not protected, where they are also using WordPress.
+
+However, we need to find files that are related to the person’s resume, and the best way to do that is to add a keyword.
+
+Example: inurl:/wp-content/uploads/ resume
+
+However, this string will show us lots of results, but it will not find all of the resumes that are out there in these folders. That’s why you need to cast a wider net by adding more keywords.
+
+Example: inurl:/wp-content/uploads/ (CV OR resume OR "curriculum vitae")
+
+Targeting file types
+
+You can also use filetype: to target only PDF files, for example. Also, don’t forget to remove some keywords from your searches with the minus sign.
+
+Example: inurl:/wp-content/uploads/ (CV OR resume OR "curriculum vitae") filetype:pdf -sample -example
+
+This string will target all PDF files, but it will remove those that have "sample" or "example" in the name.
+
+In the same way, you can target other file extensions and target a list of attendees or also things that others consider as confidential.
+
+Example: inurl:/wp-content/uploads/ filetype:xlsx "attendees"
+
+Example: inurl:/wp-content/uploads/ filetype:doc "Confidential"
+
+Targeting Email Addresses
+
+You can also try to target files that have an email address in them, like @gmail.com.
+
+Example: inurl:/wp-content/uploads/ (CV OR resume OR "curriculum vitae") (* @gmail.com) -sample -example
+
+Conclusion
+
+When you learn more about WordPress and about the directory structure, you can target folders that will show you how many people are visiting current sites, like when you target folders for Webalizer. (Webalizer is web log analysis software; it generates web pages of analysis from access and usage logs.)
+
+Example: site:.com /webalizer intitle:"Usage Statistics"
+
+This will find you all the sites that are using this statistic software but are not protecting that information.
+
+As you can see, sites that are using WordPress could reveal interesting information and new candidates. Even though some of those who are not updating their WordPress systems might prevent you from accessing some information, WordPress is still one of the best open-source content management systems you can find.
+
+Sometimes you will find a folder that shouldn't be shared with the world, so it's up to you if you are going to contact the owners of the site and let them now. I have already done that a few times.
+
+OceanofPDF.com
+
+
+
+
+
+03.5 LinkedIn Search Tricks
+
+
+
+03.5.1 Finding candidates by the length of their probation period
+
+You can target almost any part of any site through X-Ray search. This is something I didn’t include in my first book, but I hope it will provide a little inspiration for you to come up with some new sourcing tricks for yourself that you can share with the world.
+
+As a recruiter, you know that not all employees who enter a new job are happy during their probationary period. Their expectations may diverge from the promises of their new boss, and in many cases, candidates are so disappointed that they are open to changing their job one more time.
+
+Finding those people is easy if you have a premium LinkedIn account. However, if you don’t have one, the best way to find such potential candidates is to use X-Ray search. You can do this by using the site: operator in combination with a few other keywords.
+
+Keep in mind that LinkedIn is primarily in the English language. However, you need to consider that some profiles use a different language version, and also remember that LinkedIn is showing some profiles in English even though the person is using their native language.
+
+Luckily for us, there is a way to target profiles that are in a different language.
+
+After one month
+
+You will need to use site: operator, and you are going to target the part of LinkedIn where the profiles are stored—but you probably already knew that from my book.
+
+So you will use site:linkedin.com/in and add "present (1 month)" as this will target people who have stated in their current profile that they have been working in that specific role for one month.
+
+Example: site:linkedin.com/in "present (1 month)"
+
+If you are targeting different language versions—like the Czech language, for example—you will need to change the part that is in bold.
+
+Example: site:linkedin.com/in "do současnosti (1 měsíc)"
+
+Alternatively, in the German language, it will look like this:
+
+Example: site:linkedin.com/in "Heute (1 Monat)"
+
+You can also add more keywords into your string.
+
+Example: site:linkedin.com/in "present (1 month)" Developer London Java
+
+Targeting other months is also easy—you just change the keywords. So, instead of "present (1 month)", you will just use "present (2 months)".
+
+Example: site:linkedin.com/in "present (2 months)"
+
+For three or more months, you will just replace numbers.
+
+Example: site:linkedin.com/in "present (3 months)"
+
+Don’t forget that in some countries the probation period is different. Some positions, like managerial roles, could have a longer probationary period than the standard three months.
+
+There is an old saying that people should change their job every five years, so this simple string will help you to find people who have been working for a company for five years.
+
+Example: site:linkedin.com/in "present (5 years)"
+
+This string will also target not only profiles with five years at one company, but it also profiles that have any number of months after the "5 years", so you will see profiles with dates like: Present (5 years 10 months).
+
+Additionally, you can, of course, target people who have been working in one role for any number of years. The only thing you need to do is to replace the year.
+
+
+03.5.2 Content Search on LinkedIn
+
+Not many LinkedIn users are aware of this functionality, but this is a great way to discover if anyone has mentioned your name, your project, has shared your articles and any related comments they are adding on LinkedIn.
+
+I have used this search option for some time, particularly when I want to find out who is sharing my articles. My primary use of that tool is not to track whether somebody is sharing the things I have created, but to track when they are shared, who is sharing them, and what others are saying in response. This tool also helps me to find out when someone is posting my articles under their own name.
+
+Content Search
+
+When you publish an article, some people will share it. The people in their network will usually add comments or questions underneath the article. On LinkedIn, you will only be notified of comments that are posted directly under your article or your post—not the comments on these shared versions. This isn’t great because the comments under those posts and articles are often a great source of feedback and inspiration.
+
+I am aware that this search method is not perfect, but it’s still great for finding information on LinkedIn, especially since you can’t use Google to find the information that people are sharing on their LinkedIn timeline because their wall is not accessible by Google.
+
+It is also a great tool for tracking posts where someone has mentioned your name. From time to time, I use the content search to see who has mentioned me, my book or my projects.
+
+How to Use Content Search
+
+Using the content search on LinkedIn is easy. You just need to type the keyword or phrase into the search field and choose the "Content" tab to filter the results.
+
+
+
+Additionally, you then have two options for how to further sort these posts: by relevance or by the latest. This will show you all posts where the keyword is mentioned. If I am going to search for my surname, I need to consider more options to narrow down the results.
+
+People can add me to their posts by adding @ in front of my name and then typing my name, so my name in that post will be linked directly to my LinkedIn profile. However, most people don't do that; they just type the name as plain text.
+
+To find cases where someone has not tagged you in the post, but has mentioned your name in the text, you need to use a few more variants of your name when you are searching for it.
+
+So, if your name is John Doe, you should consider these searches:
+
+- "Doe"
+
+- "John Doe"
+
+- "JohnDoe"
+
+- @johndoe
+
+People are not always going to use only your surname or first name. If they are creating the post on their phones, they could add your first name and surname together. Alternatively, they could use a tool that will tag you in the same way as a Twitter account.
+
+OceanofPDF.com
+
+
+
+
+
+03.6 More Sourcing Tricks
+
+
+
+03.6.1 Google Search and Google Play
+
+Google Search
+
+Google is still one of the best sourcing tools for sourcers. However, it is a tool that is evolving and, in 2018, they made the decision to kill google.com/ncr (NCR - No Country Redirect). This site gave you the ability to use Google without any local redirection. However, Google has now removed that option.
+
+You can still use a VPN[5] service to access local versions of Google for the location you need.
+
+Alternatively, you can also use this small trick: https://www.google.com/?gfe_rd=cr&gws_rd=cr
+
+or the shorter version: https://www.google.com/?gws_rd=cr
+
+GFE- Google Front-End
+
+RD - Redirect
+
+CR - Country
+
+EI - Engine ID
+
+GWS - Google Web Server
+
+It means the Google web server (GWS) is getting redirected (RD) by a country other than the U.S. (CR). Also, if you are using one of the links, this will take you directly to Google.com without any local redirection. This method is working for now, but it could also be removed by Google, or it might not work for you and your location. I wasn’t able to test it from all countries, but it did work for those I tested.
+
+Also, if you would like to use the local version of Google, my recommendation is to use a VPN service. So, when you change your IP in Germany, you will get google.de instead of your local Google site.
+
+Google Play
+
+Google Play (previously Android Market) is a digital distribution service operated and developed by Google. It serves as the official app store for the Android operating system, allowing users to browse and download applications developed with the Android software development kit (SDK) and published through Google.
+
+Also, because Google Play is the place where you can download apps for your Android, it is also the best place to find Android developers. Not only you will find information about them, but you can also find their email addresses to make contact.
+
+X-Ray Search
+
+When you are planning to use X-Ray search through Google, you will need to target the URL: play.google.com/store/apps/details with the site: operator.
+
+Example: site:play.google.com/store/apps/details
+
+The only thing is that you need to add is more keywords, but you can also target email addresses.
+
+Example: site:play.google.com/store/apps/details "@gmail.com" London
+
+This string will show you every person on Google Play who matches your keywords. However, you will still need to check the person’s LinkedIn to see if have the experience that you need.
+
+Find Android Developers on LinkedIn
+
+The best way to find an Android developer on LinkedIn is by using X-Ray search and targeting LinkedIn and the Google Play URL.
+
+Example: site:linkedin.com/in https://play.google.com/store/apps/details London -dir -jobs
+
+In the URL, there is https://, but if you remove it from that string, it will expand your search. The reason why you should remove that from every string is simple. Some people are adding the links on their profiles (in this case, on their app) without https—they are using only http.
+
+Removing the https:// from the string will show you even more profiles. Even though https:// is going to become the norm in the future, you need to keep in mind that people are not great at keeping their profiles updated.
+
+Example: site:linkedin.com/in play.google.com/store/apps/details London -dir -jobs
+
+Where can you find a developer’s email address?
+
+Just check the profile page of the app and scroll down until you find information about the developer. You can often find their email address and their website on this page.
+
+This is a quick way to find and reach Android developers. However, don’t forget that you should ALWAYS take the time to learn about your candidates before you reach out to them.
+
+
+03.6.2 Metasearch Engines
+
+If I asked you which search engine you use every day or which search engine you use when you are sourcing, I am quite positive that your answer would be Google. Am I right?
+
+Google is a great search engine, but, as I mentioned in my book, in the chapter titled "Google: Candidates and Different Locations," when you search on Google, different results are shown based on your current location. For example, if you want to see the same results as a person in London but you are located in Berlin, you will need to physically be in London or use a VPN service to change your IP address. This is the only way to see the same results as a person searching Google from London.
+
+Google and other search engines are delivering results based on what they know about you rather than giving you equal access to the internet. You, essentially, become trapped in a "filter bubble." Some people call this filter bubble "personalization," but some call it censorship.
+
+Filter Bubble
+
+Eli Pariser brought the term "filter bubble" into public awareness with his 2011 TED talk[6]. He is also the author of The Filter Bubble, which is all about how the spread of personalized search might narrow our worldview. He described how companies are using personalization to shape our online world, and how they are influencing and controlling what we see and pay attention to.
+
+Even when we are searching for something completely different, algorithms continue to give us more and more of the things we have engaged with in the past. They operate under the assumption that we have engaged with these things in the past because we enjoyed them or agreed with them. This assumption is the foundation of every filter bubble. Additionally, search engines are showing us the things they think we would like to see instead of all data that could be relevant for us so that we can make our own decisions.
+
+When you are sourcing a candidate, the more searches on Google you are doing, the more personalized your next set of results will be. Unfortunately, the results you need or are looking for are often on buried on a Google page that has been pushed down to page 10, meaning you’ll likely never see them. And the only reason they are on that distant page is because Google decided to show the personalized results first, pushing the truly relevant results further down the list.
+
+With every search you make, you are slowly building your own personal sourcing filter bubble.
+
+Burst the Filter Bubble
+
+You have two options for bursting your filter bubble.
+
+First option: You can use other search engines, like Bing, but if you would like to access Google results, you could try a search engine like Startpage.com. It’s an internet search engine that emphasizes protecting searchers' privacy and avoiding the filter bubble of personalized search results. You can also use DuckDuckGo (duckduckgo.com) but you will mainly get Yahoo search results.
+
+Note: Startpage.com delivers Google search results in privacy. It also offers a free proxy for visiting web pages anonymously, too.
+
+Second option: You could try another of the various metasearch engines that can be found on the internet.
+
+A metasearch engine (or aggregator) is a search tool that uses another search engine’s data to produce its own results. This will help you to burst the filter bubble and get results that were hidden from you because of the personalization.
+
+My two favorite metasearch engines are www.startpage.com and www.etools.ch. Both of these are great for their privacy options, but I prefer etools.ch because it shows results from 16 search engines and allows you to target results from various countries with one simple click.
+
+You can also check any of the other metasearch search engines that are available.
+
+Here are few examples:
+
+http://www.dogpile.com/ , http://www.metacrawler.com/ , http://yippy.com/.
+
+You can find more of these through Google, but keep in mind that some of them are not going to work. This is often because their funding has run out, but new ones always appear and take their place.
+
+Conclusion
+
+I am not saying that Google is bad, and I’m not saying that the personalization is bad either. For me, Google is still the best free sourcing tool at our disposal. However, I strongly believe that it is important to understand and keep in mind that the new personalized web is changing what we read, how we think, and even how we see the world.
+
+When Google began customizing its search results for all users in December 2009, we all entered a new era of personalization. It brought some great benefits but also some drawbacks. If you are ready to burst your filter bubble, try startpage.com or duckduckgo.com.
+
+I know that old habits die hard. From time to time, try to use one of these metasearch engines to expand your search and discover new sources that are hidden from you because of your personalized results. Only you can decide whether to burst your filter bubble or stay inside of it.
+
+
+03.6.3 Searching for Confidential Information
+
+Sssshhhh, I have a secret, but you can’t tell anyone, deal?
+
+As Thomas Powers[7] said: "The first rule in keeping secrets is nothing on paper: paper can be lost or stolen or simply inherited by the wrong people; if you really want to keep something secret, don't write it down."
+
+We can customize that quote a little bit by replacing "paper" with "computer." Every company is working hard to protect their data, and they are training their people on how to do this adequately. Companies are also using many tools to prevent data leaks that could potentially hurt their business or reveal their plans and strategies to their competitors or investors.
+
+There are many ways for this information to be leaked on the internet. Sometimes confidential information is leaked intentionally, sometimes it is leaked because of human error, and sometimes it is leaked because of a technical error. However, as you know, "Everything posted online is there forever, even after it has been deleted." So, when you combine the possibility of technical and human error, the result is that confidential information could easily appear on Google.
+
+And we sourcers love secrets!
+
+Confidential Information
+
+As a sourcers, we always depend on our carefully selected search keywords, and targeting confidential information is going to be no exception. We will need to target the keywords that are most relevant to our search.
+
+There are many keywords that you can target like: confidential; internal use only; not for distribution; not for public distribution; classified; document is private, etc. Don’t forget that these words are only applicable to a search of English documents. If you are living in France, Germany or another country, you should use these words and phrases in the relevant language.
+
+Creating the string when you are searching for confidential data is very easy; just generate the best list of the keywords for that search.
+
+Example: ("confidential" OR "internal use only" OR "not for distribution" OR "not for public distribution" OR "classified")
+
+You can add more operators like intitle: with the current year, which should find all the pages with 2018 in the title of the page.
+
+Example: ("confidential" OR "internal use only" OR "not for distribution" OR "not for public distribution" OR "classified") intitle:2018
+
+If you would like to target more years, you can just add more intitle: operators.
+
+Example: ("confidential" OR "internal use only" OR "not for distribution" OR "not for public distribution" OR "classified") (intitle:2017 OR intitle:2018)
+
+You can also combine inurl: operator with intitle: operator.
+
+Example: ("confidential" OR "internal use only" OR "not for distribution" OR "not for public distribution" OR "classified") (intitle:2018 OR inurl:2018)
+
+You can also try to target file types. That’s where the filetype: operator comes in handy.
+
+Example: filetype:pdf ("confidential" OR "internal use only" OR "not for distribution" OR "not for public distribution" OR "classified")
+
+When you are using a more general keyword like "confidential," you are going to get lots of results with that keyword in it. Oftentimes, you are going to get lots of results that are not relevant, and that’s why I choose not to use it in my strings.
+
+Example: filetype:pdf ("internal use only" OR "not for distribution" OR "not for public distribution" OR "classified")
+
+If you would like to use some advanced strings, just add more operators or keywords.
+
+Example: filetype:pdf ("internal use only" OR "not for distribution" OR "not for public distribution" OR "classified") (sourcing AND recruitment)
+
+You can also use the site:operator to target specific sites.
+
+Example: site:com ("internal use only" OR "not for distribution" OR "not for public distribution" OR "classified")
+
+This string is targeting .com domains. If you would like to target, for example, domains only from Germany, you will just replace site:com with site:de.
+
+Advanced Strings
+
+You can expand the string and target more documents and phrases in the text with the intext: operator, as shown in the example string below. However, my personal recommendation is to simplify and not target so many filetypes.
+
+Example: ext:(doc | rtf | odt | pdf | xls | txt | ps | sxw | psw | ppt | pps | xml)
+
+(intext:"internal use only" OR intext:"not for distribution" OR intext:"not for public distribution" OR intext:"classified")
+
+You can also use that advanced string and target, for example, to find salary information.
+
+Example: ext:(doc | rtf | odt | pdf | xls | txt | ps | sxw | psw | ppt | pps | xml) (intext:"confidential salary"| intext:"budget approved")
+
+You can also target sites with the inurl: operator together with intext: operator.
+
+Example: ext:(doc | rtf | odt | pdf | xls | txt | ps | sxw | psw | ppt | pps | xml) inurl:confidential (intext:"confidential salary"| intext:"budget approved")
+
+Conclusion
+
+The best way to keep a secret is to pretend there isn't one. Don’t add keywords like: confidential; internal use only; not for distribution; not for public distribution, etc. If you need to use these words or phrases in your own documents or presentations, there is a simple trick that you can use to protect these documents. Replace the text "internal use only" and similar warnings with an image of that text.
+
+Search engine robots that are indexing your domain are not able to run an OCR (optical character recognition) on images that are included in the file. And because they can't read that text in the photo, people searching for accidentally leaked confidential information are not going to find it online.
+
+Your material will still have the "Internal use only" warning on it, but you will make it a little bit harder for others to find those files through search engines, if the search engines are going to index them.
+
+
+03.6.4 The Most Powerful Strings are the Simplest Ones
+
+You know that feeling when you discover something that you think is really cool and you want to share it with the world, but you don’t want to share it because you want to be the one who knows?
+
+I know that feeling quite well, but the "sharing is caring" part of my personality always wins. Sometimes it takes me a few months, but in the end, I just share it.
+
+What is the most powerful string I am using?
+
+I like simple things. Creating an advanced string is something anyone can do, but there is hidden beauty in the simple things.
+
+My favorite one is this string: intitle:index.of
+
+This string will reveal all the folders that are not protected and that were indexed by Google. And, so far, it will show you around 22,400,000 results.
+
+But the power of the string lies with the additional keywords you are going to add.
+
+Example: intitle:index.of resume
+
+You can also use inurl: operator
+
+Example: intitle:index.of inurl:resume
+
+Or you can include more keywords.
+
+Example: intitle:index.of (inurl:Resume OR inurl:CV OR inurl:"curriculum vitae")
+
+You can also target keywords in files and specific email addresses.
+
+Example: intitle:index.of (Resume OR CV OR "curriculum vitae") "@gmail.com"
+
+You can also combine this string with the previous strings.
+
+Example: intitle:index.of ("internal use only" OR "not for distribution" "not for public distribution" OR "classified")
+
+There are many other ways that you can use the index. Or, you can use it with intext: operator to get more results, it's up to you.
+
+Example: intext:index.of
+
+This will give you more results because it's targeting anything where the "index.of" is mentioned.
+
+You can also target companies or domains and check what folders they have open. Adding the site: operator will do the trick.
+
+If you would like to target specific domains, just add site: and the domain name.
+
+Example: site:de intitle:index.of
+
+This will target all German domains.
+
+You can also use "[To Parent Directory]" phrase to target similar sites, just like when you are using index.of.
+
+Example: site:de "[To Parent Directory]"
+
+And if you would like to target specific sites or companies, just add their domain after site: operator.
+
+Example: site:ibm.com intitle:index.of
+
+Conclusion
+
+This will reveal folders that are not protected by the company. Sometimes you can find interesting information about companies, but keep in mind that just because you’ve found it doesn’t mean you have permission to use it! Some data are just badly protected, and you shouldn’t even download them because you could be breaking the laws of your country, GDPR, etc. It’s up to you how far you are willing to go, but you need to consider the consequences connected with this decision.
+
+
+03.6.5 One More Trick with Google Images
+
+Many companies add information about their employees to their website. Sometimes these images are so small that you can’t use the reverse image search.
+
+There is a small trick that I am successfully using.
+
+
+
+Because GDPR I am not showing photos and names.
+
+Use the right click on your mouse to inspect the element of that image.
+
+
+
+Copy the part of the URL into Google Image search and select "Face." This will very often show you the profile of all the people that are working for that company, and their photos are usually posted on that website. Now you can take the time to go through the whole website.
+
+
+
+Note: You can also try to use the URL without https://.
+
+End of Sourcing Part
+
+I hope you have learned something new and the knowledge that you have gained from Full Stack Recruiter: The Modern Recruiter's Guide and Full Stack Recruiter: New Secrets Revealed is helping you every day.
+
+OceanofPDF.com
+
+
+
+
+
+04 Recruitment
+
+
+04.1 Recruitment Is Not a 9 to 5 Job
+
+
+When I published my book (Full Stack Recruiter: The Modern Recruiter's Guide), I got many messages from readers that all of my advice was great, but they didn’t know where to find the time during the day. Where can you find the time for learning new things and getting new training? My answer is always the same: The work of a recruiter goes beyond the expected nine-to-five hassle of corporate life.
+
+Most recruiters put their sweat and toil into getting the right candidate, so it’s no surprise that many recruiters begin each day with great intentions only to find themselves in complete disarray by the end of the day. Unexpected activities, requests and diversions spring up throughout the day and nearly drive them insane. Unfortunately, many job seekers see recruiters as annoying or unnecessary intermediaries for their next job.
+
+The reality, however, is entirely different. Although the recruiting process looks like merely matching people with available job openings, a lot of strategic, personal and analytic skills go into managing thousands of resumes and correctly fitting candidates with a prospective employer. To understand a job seeker, recruiters need a good amount of emotional intelligence too.
+
+Being a recruiter is great, but if you want to succeed, you need to understand that recruitment is not a 9 to 5 job.
+
+Here are nine reasons why recruiters aren’t sleeping on the job:
+
+1) They are struggling to keep up with the trends
+
+Recruiters who do not at least try to follow the latest trends will fall behind. We live in a fast-paced world that can’t seem to stop changing. Every new year brings new opportunities but also new tools, methods, and processes. From dusk to dawn, recruiters strive to understand their clients’ business and candidate trends.
+
+Apart from endless meetings and calls with candidates and clients, the recruiting process requires a continuous drive to carry out and analyze research. It involves pooling knowledge to understand growing industry trends. All this research takes a lot of time and dedication if recruiters want to remain updated on new technology trends, local and international government regulations, and market trends.
+
+2) Growing domain and sourcing experience
+
+Acquiring domain experience means understanding, to the smallest detail, the industry and the specific areas of business. On the other hand, getting sourcing experience means knowing exactly where to find the best candidates.
+
+Recruiters strive to grow their domain and sourcing experience. The desire to gain industry insight, broaden reach, and find a new source of candidates is not just necessary but compulsory to survive in the battle for talents.
+
+3) Always being empathic
+
+An arrogant or cold fish recruiter will be out of a job in no time. Empathy is a valuable aspect that many people in the corporate line fail to harness. Candidates are people too, and they want to be treated accordingly. However, the hard part for most recruiters is getting into the candidate’s head.
+
+These are people with different emotional and educational backgrounds, different ambitions, fears, social responses, and behavior. Recruiters have long realized that to make a successful hire, half the battle is won when you understand the candidate’s mindset.
+
+4) Beating the competition
+
+Recruiters with a better reputation and personal brand can attract and secure top talent. Top-tier recruiters can put a company leagues ahead of its competitors. The war for talent is real. In fact, keeping up with the current fast-paced labor market is hard. Therefore, recruiters work around the clock to track their client’s competition.
+
+Knowing how to beat the perks and benefits a competitor is offering to talents might be what separates a successful recruiter from an incompetent one. However, staying on top of all these elements requires a great deal of time.
+
+5) Managing an overwhelming database/network
+
+Delivering that right candidate requires a continuous effort of meeting the requirements of companies whose expectations sometimes vary from understandable to staggeringly absurd.
+
+Therefore, when companies outsource their staffing responsibilities to freelance recruiters, a useful database or good network of contacts is needed, especially if the company is expecting quick results.
+
+Moreover, building a vast database of contacts takes time and goes beyond simply running the best recruitment software. Recruiters are continually extending their database by pursuing candidates through effective offline strategies, excellent candidate experience, and building their network in the online and offline worlds. They also need to be sure that their databases are in compliance with GDPR and any relevant laws in their country.
+
+6) The pressure to churn out results
+
+Companies want the very "best" person for the job—no employer wants anything less. However, in the real world, the best talents aren’t actively seeking jobs. What we have are the "scarce best" in the market. However, all the same, a recruiter’s top motivation is to snap up that "best" against all the odds and never let go.
+
+A primary target for every recruiter is to provide job seekers and companies with just what they are looking for: that perfect culture fit, work ethics, skillsets, employee experience, etc. That’s why most recruiters are always on the lookout for the mythical candidates that we call "unicorns."
+
+7) Working with clear focus
+
+For any recruiter, nothing is as important as the end goal: bringing in that sought-after talent as quickly as possible. A great amount of information needs to be processed in the hiring process. Focus is needed when meeting new people, forming lasting alliances and networking with other recruiters.
+
+To hold their own against the competitive market, recruiters work with a tremendous amount of focus whenever they meet people and attend trade fairs, job fairs, expositions or industry exhibitions.
+
+8) Never-ending communication
+
+Candidates want reassurance about their applications. Who doesn’t? The psyche of a job seeker is quite a delicate one, and recruiters understand this very well. To be successful, a recruiter needs to be an outstanding speaker and a greater listener.
+
+Explicit communication involves the timely distribution of information, which is key to everything in recruiting. Even when handling unpicked candidates, communication should never stop between the candidate and the recruiter. Ensuring tailored messages and delivering timely feedback are always the bedrock of a target-driven seeker of talents.
+
+9) Mixing speed and patience for a better outcome
+
+Deadlines and angry candidates can destabilize any recruiter at any time. An open position is a deficit for any company. Moreover, some job seekers are desperate to land a job fast. This is where speed and patience come into the recruiting process. Of course, they seem like unlikely traits, but speed and patience are two qualities that work together to grease a creaky hiring process.
+
+Good recruiters know that having the utmost patience and flexibility is necessary for survival. There will always be last-minute rescheduled meetings, interviews, and new demands from candidates and clients.
+
+Overcoming the shortage of time is very important. Job recruiting involves being hard at work to provide fast and expected results as soon as possible.
+
+Final Point
+
+Even if recruitment is not rocket science, it requires dedication and lot of time that goes beyond a standard 9 to 5 job, especially when candidates tell you that they are open to discussing a new opportunity with you after their 9 to 5 job. That’s why some recruiters’ jobs start after 5 pm.
+
+The productivity and overall success of a company are primarily dependent on the recruiters. Night and day, they labor to take the talent burden off the shoulders of companies and find the right people who will help their company grow.
+
+Any recruiter worth his or her salt must work tirelessly to provide end-to-end recruitment success that ensures the provision of the right candidates and simultaneously saves hiring costs and time.
+
+If you want to succeed, you need to realize that it’s not a 9 to 5 job!
+
+OceanofPDF.com
+
+
+
+
+
+04.2 A Recruiter’s Worst Enemy
+
+
+The worst enemy of any recruiter or sourcer is not the candidate, and it's not a hiring manager or competitor. Not even time is our biggest enemy—even though we say that quite often. The worst enemy of every recruiter is a habit. Habits are far worse than any mistakes we make and far worse than any other competitor we have.
+
+Our work habits determine how productive we are, and they affect how successful we are in finding and acquiring candidates. They also shape the type of strategies we use every time we get to work. Unfortunately, the habits we utilize often become old and useless in the ever-changing and progressive world of recruitment. It’s usually at this point that recruiters become their own worst enemy, staying stuck in a never-ending loop of trying to catch up the latest trends.
+
+As professionals, we sometimes find ourselves repeatedly doing things in a way that reaps us no rewards or that frustrates us over and over again. Because these things have worked before, we expect them to keep working in the future.
+
+Recruitment Habits
+
+For better or worse, we are creatures of habit. We all have habits that help us in our lives. However, research from Duke University[8] shows that 40% of what you do each day isn’t a decision—it’s a habit. So, about 40% of what we do every day feels like our own decision, but it’s actually a habit, and we’re only making decisions about 60% of the time.
+
+It’s easy to fall into a pattern of bad habits, but there are a few habits that we should try to remove from our work day because they are having an effect on how well we work.
+
+1) Only using email to contact prospects
+
+When you saw the article "Cold calls are dead," you were probably the happiest person in the world, especially if you don’t like to make them. Call cold calling is hard and, in many cases, uncomfortable. It is still very effective and yields a higher response than email. When you stop calling, or you are trying to find out why the cold calling is not working, you are only supporting your habit not to call. After a while, it won’t be easy to come back. Speaking with the person over the phone is more effective than any LinkedIn InMail or email you will send.
+
+2) Focusing on the same metrics
+
+Consistency is the key if you run recruitment reports; however, focusing on the same metrics over five years in a row and not adding any new ones or trying to update them so they can reflect the current market will hurt your recruitment activities.
+
+If you are focusing only on WHERE your candidates are applying from and not on WHY they are applying, you could easily miss crucial information that could help you to be more efficient. I believe that asking WHY is more crucial than asking WHERE, and that is why I have dedicated a chapter of this book to this topic.
+
+3) Working without passion
+
+After five consecutive interviews with candidates, it is easy for a routine to kick in. You find yourself repeatedly asking the same questions, but you have stopped listening. The last interview of the day eventually becomes less exciting than the first interviews you had.
+
+Over time, the primary functions of your job—like phone screening, scheduling, and conducting intake meetings—can become just a habit. You go to work, do your job and go back home. Our habits go on autopilot, and we are just repeating the same thing over and over again. Without being present in the moment, we are not focusing on what we are doing.
+
+One of the habits that is taking the passion out of work is checking the company emails 24/7, even when you are on vacation.
+
+4) Generalizing candidates
+
+It is essential for any candidate to have a successful work history, but it may not be the most important thing. Some recruiters are in the habit of basing their judgment of a candidate on their previous work history. In turn, they soon find out that even the most successful applicants on paper may not be the correct fit for their unique positions. Instead, a recruiter should focus on uncovering the skills and characteristics that will transfer well to their client’s company.
+
+Recruiters should make it a habit to focus on potential and not perfection. Just because someone says they are an expert and work for a company that has a good reputation doesn’t mean they are good at what they do., In some cases, you won’t know until they are already hired and you are working with them that they cannot deliver on what they promised.
+
+5) Sourcing the same way
+
+Most recruiters are using the same Boolean search strings that they created years ago, or they use the same string for every country where they are trying to search for candidates. Sometimes we continue with these same strings and methods just because it is the only "tried and trusted" way we know and understand. In cases like this, we suddenly discover that these work habits are stunting our sourcing activities, and thus our ability to learn and evolve diminishes day by day.
+
+You can break your sourcing habits with the help of gamification or try sites like www.sourcing.games.
+
+6) Subjective selection procedures
+
+Never rely solely on "gut feeling" as a recruiter; utilize testing and assessment information to increase your confidence and predictive accuracy that a candidate can successfully perform the job. These methods can be used to identify individuals that possess true leadership talent.
+
+An individual with a high level of talent but a slightly non-traditional background (e.g., comes from a different industry) could well make a much higher contribution than an individual that has performed the same job in the same industry but possesses modest leadership talent.
+
+7) Delivering a poor candidate experience
+
+A habit of offering a poor interview experience can contribute to a negative recruitment brand. The question is: In a time of scarce talent, why would you want to irritate quality candidates? Recruiters need to adopt a structured behavioral interview that is professional and job relevant.
+
+8) Jumping to conclusions
+
+Personal attitudes could affect our decisions and recruiters should not let their personal attitudes get in the way. It is important to treat every candidate the same way, give the applicant the time they deserve, and try not to allow personal bias to hurt the hiring process.
+
+9) Deciding too quickly
+
+The goal of every recruiter is to fill the role with the right candidate but also fill the role as quickly as possible. If the recruiters’ KPIs (key performance indicators) are the most important metric for the company or the manager, recruiters will tend to rush the process. Instead of jumping at the first qualified applicant that comes through the door, a recruiter should also check other applications they received and not make a decision based on how quickly the candidate could start.
+
+10) Resist change
+
+"We’ve always done it this way," is a dangerous mentality that appears after a few years at work. Recruiters refuse to change anything or bring new ideas to the table if his/her manager is not open-minded and not open to new things. At that moment, the recruiter adopts the "we’ve always done it this way" mentality and prefers process over giving a candidate a unique, human-centered experience. Just because a hiring manager previously rejected this candidate, recruiters assume it’s going to happen again.
+
+Conclusion
+
+Behavioral economist Howard Rachlin[9] proposes an interesting trick for overcoming this problem. When you want to change a behavior, aim to reduce the variability in your behavior, not the behavior itself.
+
+For example, try to check your Twitter or Facebook feed only twice during an hour and not twice per minute. This effort toward self-control can lead to an unconscious decrease in bad habits over time.
+
+Making any conscious change takes up physical and mental resources. Trying to change everything all at once is only going to spread your resources, and you will not reach your goal. Try to start with the small things and focus on only one significant change at a time.
+
+Searching for the best candidates for your clients is a challenging responsibility. One or more of these old recruitment habits have been unknowingly made by even the most experienced recruiters.
+
+Although the list of unproductive and repetitive recruiting habits is long, there is always a chance to break the mold. The risk of falling behind will always exist but being aware of bad habits and being willing to correct them should significantly improve your ability to recruit the right talent. Remember that continuous improvement is the key to success. And that’s why I hope the next chapters will be exactly the thing to help you to break your habits.
+
+OceanofPDF.com
+
+
+
+
+
+04.3 Growth Hacking
+
+
+At the beginning of 2018, I wrote this:
+
+"Prediction is challenging, especially if it’s about the future. Many of us are trying to predict what the future in recruitment is going to look like, because knowing what the future will bring us also gives us the advantage that we all are looking for. Many predictions from last year were about A.I. (artificial intelligence) and chatbots. A.I. was quite a topic during the last year, and I am sure that it will still be a hot topic throughout this year. However, I don’t think A.I. will dominate as many are predicting.
+
+Bear with me here, before you write a comment that I am wrong, crazy, or I have seen the future coming and don’t have a clue about A.I. All of these things could be true; I am not going to argue with you here, but these are my arguments for why A.I. will be a hotter topic in 2019 than 2018."
+
+Today, with many months of 2018 already behind us, I am still convinced that my statement and prediction was right. I strongly believe that growth hacking methods and tricks will be playing a bigger part in recruitment than ever before. Here are the reasons why I believe that and why I made that kind of statement.
+
+A.I. is a new technology
+
+A.I. is still a new and unexplored technology for many recruiters. I am sure that almost every recruiter has heard about A.I., but many of them haven’t had the opportunity to work with A.I. tools or have even tried them. For some, A.I. technology is still a mystery. They don’t understand it yet, or they think it’s just a tool that will source candidates for them based on the job description that they will provide.
+
+The pricing
+
+The pricing for many tools is outside of the range of many small companies and agencies. Smaller companies and talent and acquisition departments can’t afford to purchase most A.I. products, and their leaders aren’t prepared to invest financing in this new technology.
+
+Because recruiters don’t have the real experience with the tools, it's hard for them to convince the budget holder to invest the money into tools that might not bring in the ROI they are expecting.
+
+Current technology still sucks
+
+Yes, this is my personal opinion, and I am aware that this is a strong statement and many of you are going to point out that I am wrong. However, most chatbots that I have seen are not working correctly. Even though there are many interesting tools and apps on the market that could boost the recruitment process, most of these tools are not bringing much value. They could have a great A.I. engine, but most of them still need improvement and enough data that can be used for learning in order to be the powerful tools that the ads from these companies are promising.
+
+Companies don’t know how to use A.I. to its full potential
+
+Many of my friends who are working at companies where they implement tools with A.I. share with me that they are only using a few of the functionalities that these tools provide.
+
+This is mainly because of two reasons: first, they implement a tool that is not solving their real problem and, second, recruiters are creatures of habit. They stick with things that they already know, and not everybody is open or has the time for new tests and experimentation.
+
+Since many recruiters have read articles about how A.I. is going to replace them, they may not be so eager to start using these tools. If recruiters and sourcers aren’t taking full advantage of these new A.I. products, then they aren’t getting any functional results. If results continue to lag, budget holders are not going to reinvest in this technology or perhaps any new tools in the near future.
+
+What will be the "main" topic in the near future? My money is on growth hacking[10].
+
+What is Growth Hacking?
+
+Growth hacking is a word with strong roots in the world of start-ups. The origin of the word can be traced to the year 2010 when Sean Ellis coined the phrase ‘growth hacker’ to explain his frustration with getting replacements for himself as he sought to retire from his job.
+
+To put a definition to the phrase, growth hacking is a marketing technique developed by start-ups that utilizes the combination of creativity, analytical thinking, and social metrics to sell products and gain exposure.
+
+In layman’s terms, we can say it is merely the act of experimenting with different methods to make a company more successful and bigger, i.e., a growth hacker undertakes the initiative of birthing and nurturing the consistent growth of an organization.
+
+Often times, growth hackers are thought of as marketers but, in many ways, being a growth hacker is much more than just having a marketing degree; a growth hacker can combine marketing creativity and innovation with the ability to code marketing hacks.
+
+For example, in a start-up, the process of charting the path for growth and the establishment of the organization might be much more than just establishing a strategic marketing plan or just building a marketing team. Growth hacking encapsulates every available strategy to grow and expand the organization’s operations base and capitalization.
+
+Who are Growth Hackers?
+
+The term growth hacker is used to describe a professional who uses elements of marketing and market research, along with technology and technical strategies, to provide marketing solutions to clients or employers.
+
+Examples of Growth Hacks
+
+Dropbox
+
+Dropbox’s referral program is possibly one of the most famous cases of referral marketing done right. They had a simple but great idea to allow its users to earn free additional space by inviting friends and encouraging them to sign up for the service. However, they didn’t invite only their friends; they invited more people in their network through referral links just to get more free space.
+
+In growth hacking, the wording is important. Instead of using "Invite your friends," they cleverly used "Get more space" for their referral program.
+
+People could use a simple URL or one of the many other options, like sending the invitation email to their friends or sharing the post on their Facebook, to get free space with just one click.
+
+This simple but very effective growth hack earned Dropbox 3900% user growth in just fifteen months. Their referral program turned into one of their most effective marketing tools and brought them millions of new users.
+
+Airbnb
+
+There are many other examples, like Airbnb, that use Craigslist (a classified advertisement website) to automatically re-post every listing a user would make on its website to a Craigslist. This growth hack helped Airbnb to grow faster because they used the popularity of Craigslist to get more customers and spread the word about their new service.
+
+Gmail
+
+When Gmail started promising unlimited space, people didn’t believe it first, but everyone was curious about this new service. When it began, you could only get access to this service via an invitation. The invite-only growth hack worked so well that Gmail invites were auctioned on eBay and people were asking their friends about the invites. This also helped Gmail reach a bigger audience and grow their service.
+
+Benefits of Growth Hacking
+
+There are three main benefits to growth hacking: provable ROI, low resources and low cost.
+
+Provable ROI
+
+Data are everything for growth hackers. By using data to inform every decision you make, and by tracking the performance of a hack accurately, you can easily see which hacks are performing as you expected, and which are not and need to be changed.
+
+Based on the data, you can customize your strategy and get the most from your growth hacks.
+
+Low resources
+
+You don’t need to build a team of ten people to implement growth hacks. Most growth hacks could be implemented by one or two people.
+
+Low cost
+
+Most growth hacks do not require a big budget and could be implemented without lots of money for tools and advertainment. However, before you find the right hack that will work for you, some investment in testing hacks out will be necessary.
+
+Growth Hacking in Recruitment
+
+Recruiters are already using many growth hacking tricks to get their message to their audience, especially when growth hacking involves thinking outside of the box, which is a necessary thing to do in the current market.
+
+Recruiters are consistently under pressure from managers to find the best possible fit within the shortest possible time. This recruitment growth hacking involves the use of technology, shortcuts and new ideas to save time by eradicating/automating low-value activities. This frees you up to focus on the high-value activities that help you find and hire the right people for your business.
+
+Experimenting with new methods is one of the fundamental principles of the growth-hacking process. Although growth hackers share the same aim with marketers, their approach is not as conservative. They use an empirical process in getting to the projected outcome. One aid to the efficiency of growth hackers is the freedom to invent and operate their own self-propagating growth machine that can take the organization to greater heights.
+
+As I mentioned before, recruiters are already using various types of growth hacks, but this year, I am expecting that many of them will start learning more about growth hacking and how to use data to target more people at a lower cost.
+
+LinkedIn Growth Hacks
+
+There are many growth hacks that you can use on LinkedIn. However, LinkedIn is customizing their algorithms because these hacks are losing their effect from so many people using them. Mention them here in this book is probably pointless because they might stop working after a month or two. There are many interesting Facebook Groups about these tricks, like "Growth Hacking Recruiters"[11] or others, where you can find the latest tricks and inspiration.
+
+There are a few things that will work every time—and not only on LinkedIn. These include formatting, selecting the right headline or start for your posts, etc. I mentioned a few things in other chapters to show you how our brains react to visual triggers, like fonts, colors, formatting and other factors.
+
+When it comes to writing the right headline for an article, using numbers always works like a charm. This is because numbers are a proven trigger that will get your readers to pay attention to your content. There were many studies that proved that numbers reach directly into readers unconscious and say, "this message is important you should pay attention."
+
+That’s why tabloid newspapers and websites are adding numbers into headlines of their article. Using numbers is getting more visibility for those articles, and the same goes for any post or article that has a numbered list. When you organize content into a numbered list, it guarantees to your readers that the post they’re reading will have structure. Our brains prefer a text that is structured more than a seemingly unstructured block of text.
+
+Why Growth Hacking Will Dominate in the Near Future and Beat A.I.
+
+These are a few points that explain why growth hacking will be more popular in recruitment than A.I.
+
+* Everybody could learn some fundamental growth hacking tips within a short period.
+
+* It is cheaper, and growth hacking won’t cost companies more than implementing an A.I. tool.
+
+* Recruiters don’t need to ask for extra budget or approvals to learn about it.
+
+* Growth hacking is not only excellent for attracting new customers, it’s also a great way to attract candidates.
+
+* Growth hacking will improve the writing skills of recruiters, and this will lead to more compelling job ads. This, in turn, will help generate more potential candidates.
+
+Growth hacking is a useful tool for organizational advancement as it creates innovative ways of propagating and promoting both the products of the company as well as the company’s image. It also provides actual tractable data from which recruiters can draw statistical conclusions and base their subsequent actions upon.
+
+Slowly, all the compelling images, videos, etc. that recruiters and other people are posting on LinkedIn won’t matter anymore. The clickbait titles will lose their power, and the only thing that will matter will be the right content and the right message.
+
+Recruiters that can write meaningful content and have the growth hacking skills will be the hidden gem for any organization because they can bring a recruitment team more than just candidates. They also help to spread the news about the company, company culture, and company products.
+
+A.I. will undoubtedly bring great things to recruitment in the future. Those who implemented the right tools will gain a significant advantage, so learning growth hacking tricks will bring you more results then A.I., at least during the next few years.
+
+Note: Growth hacks have an expiration date, so visit the Facebook Growth hacking groups and find out what is working!
+
+OceanofPDF.com
+
+
+
+
+
+04.4 The Psychology of Texts in Recruitment
+
+
+In the era of videos, emojis, and gifs, the written word is still a powerful way to share our thoughts, stories or how we learn. We have used stories for generations to pass on knowledge to others. It is still the best way for us to remember and learn new things.
+
+That’s why images and videos can never truly replace text; in recruitment, we use words to describe our companies in bright colors or try to present our job offers more temptingly and get more attention for our posts on LinkedIn or our articles. The words we choose to use have the power to influence our candidates to apply. And even though text is still a static medium, it is still everywhere, and it is a vital part of shaping a candidate’s experience.
+
+Did you ever consider that the type of font you use, the size of the font and even the formatting could help you to increase your number of applications, likes, shares, etc.?
+
+Understanding the psychology behind the text and how to use it will not only keep your candidates and visitors on your site much longer, but it will also raise that number, and it could affect the number of candidates you get from your adverts.
+
+Reading in the 21st Century
+
+People today are overloaded with information. With this overload comes a decrease in our attention spans (the amount of concentrated time a person can spend on a task without becoming distracted). In the digital world, the less text you write, the more of it people will read. Long articles, posts, and paragraphs drive people away, and the same goes for your job advertisements.
+
+The eyes naturally scan content for things that stand out as important, so a shorter text keeps them more engaged than one that spans two pages. Keep your content short or find a way to split it into smaller parts. No matter what you are writing, if you want it to be read, do your best to avoid having one long block of text.
+
+As was mentioned in the "Reading Behavior in the Digital Environment"[12] study, we now spend more time reading electronic documents. So much so, in fact, that specific screen-based reading behavior is emerging. Screen-based reading behavior is characterized by more time spent on browsing and scanning, keyword spotting, one-time reading, non-linear reading, and reading more selectively, while less time is spent on in-depth reading and concentrated reading.
+
+That’s why it is essential to understand the psychology behind effectively presenting text. In particular, how formatting, spacing, fonts, and other aspects of the text are working. Many marketing books advise writers to use short sentences, simple words and be concrete; don’t create long paragraphs with complex sentences.
+
+All this advice is still accurate, but it’s important to take all these things together and create some context. Words in a sentence influence one another and are influenced by their surrounding context.
+
+Focusing on both context and content is the best solution; however, it’s also important to focus on other things that are equally important, such as legibility, readability, and comprehension.
+
+Legibility
+
+Legibility is the ease with which a reader can recognize individual characters in the text. "The legibility of a typeface is related to the characteristics inherent in its design which relate to the ability to distinguish one letter from the other."[13]
+
+Fonts
+
+The right fonts make a big difference to legibility, and I have to admit that I am personally a big fan of fonts. In fact, my first website project was a font site with 15K+ fonts.
+
+If you think selecting the right font to use in your material doesn’t matter, you should take some time to learn more about fonts. It’s quite important to choose the right one, or at least avoid using the wrong one. The font type you choose for your text, presentation or logo will say something about you and your business because every font evokes different emotions[14]. Keep in mind that some typefaces, like display fonts, were designed to be used at a large size, which makes them less readable on smaller screens or in smaller sizes.
+
+If you don’t know anything about fonts, there are sans-serif fonts and serif fonts. Popular sans-serif fonts include Arial, Geneva, Helvetica, and Avant-Garde. Serif fonts include fonts like Times Roman, Courier, Palatino, and New Century Schoolbook.
+
+But which is more legible: serif or sans-serif typefaces?
+
+Alex Poole, as part of his 2003 master’s degree, reviewed over 50 empirical studies in typography and found a definitive answer to the legibility question.[15] You can also learn about many other typographical features like serif/sans serif, point size, counters, and so on in his study. I won’t get into these things here because it would take a whole book to cover it.
+
+According to most of the studies I have read, sans-serif fonts have proven to be more difficult to read.
+
+Font size also affects readability, so it’s better to use a reasonably large default font size. High school materials are usually printed in 10-point or 12-point fonts. Where possible, allow your users to change the font to a size that is comfortable for them, as a 12.5-point or 13-point font makes the text more comfortable to read for some.
+
+Another thing to consider is that background also plays an important role in the legibility of your text. It is best practice to use a plain background instead of a textured one, which can be distracting or even render your text unreadable.
+
+Another point to keep in mind is that more than 10% of the population has dyslexia, a specific learning disability with a neurobiological origin. This paper presents a user study (Good Background Colors for Readers[16]) that measures the effect of using background colors on screen readability.
+
+Legibility is a component of readability!
+
+Readability
+
+Readability is the ease with which a reader can understand written text. In natural language, the readability of text depends on its content (the complexity of its vocabulary and syntax) and its presentation (such as typographic aspects like font size, line height and line length).[17]
+
+Many experts, through much research, have compiled golden rules of documentation writing. A list of these regulations is mentioned in The Principles of Readability[18] published by William H. DuBay.
+
+One of these rules states that people like to read plain-spoken words—and the shorter, the better. Using technical terms, company jargon or fancy words has been shown to reduce readability. These rules apply regardless of medium.
+
+Readable text also affects how users process the information from that text. If your post, job advert or article is hard to read, people could miss relevant information or be scared away from your content. The goal is to present the text in a way that is easy to absorb by visitors/readers.
+
+There are many tools that you can use to test the readability of your content, for example, a tool like Readable.io.
+
+Formatting
+
+How many times has some great article title caught your attention only for you to give up reading after a few lines?
+
+We all want to keep our visitors on our site for as long as possible and encourage them to take some action. It’s also important to present the information in the right format. Text is useless unless it is readable, that’s why you need to use proper formatting.
+
+I read quite a lot of blogs and content. I am always disappointed when I see a blog post from a specialist on branding only to find it is one huge block of text with a minimal number of spaces, full of text in bold, italic and various sizes, not to mention multiple types of fonts. The information in that article is incredibly useful, but it’s impossible to read it. And the same could happen to your candidate when reading your job postings.
+
+Jakob Nielsen’s[19] web usability study from 1997 showed that 79 percent of web users scan rather than read; only 16 percent read word-by-word. People scan content for things that stand out to them. If they do not find anything that interests them, they will go somewhere else. That’s why it’s important to make sure your readers get a good overview of your content within a few seconds by using the right keywords, spacing, and formatting.
+
+Line Length
+
+The study on "The influence of reading speed and line length on the effectiveness of reading from the screen"[20] revealed two important things that you need to consider when you are writing content. People who are read slowly will prefer text that has about 55 characters per line; on the other hand, people who read faster will prefer lines with 100 characters per line.
+
+Most readers of your content are skimmers; they will read only a small part of your content. During an average visit, they will read just 20-28% of the words[21] in your post. Consider that statistic, and ask yourself: How many words will my candidates read from my job posting?
+
+Comprehension
+
+Reading comprehension is the ability to read the text, process it, and understand its meaning.[22]
+
+All the content you are preparing should be targeted to the audience that you are trying to approach. One method you can use for creating content is an inverted-pyramid writing style.
+
+
+
+The inverted pyramid is a metaphor used by journalists and other writers to illustrate how information should be prioritized and structured in a text.
+
+This will help you to reduce the user’s need to remember things from one part of the text to another. Additionally, sometimes inserting images into the text can explain things far better than reams of words.
+
+Conclusion
+
+Most people are constantly multi-tasking, so only a small percentage will read the entirety of the content that you are presenting. It’s important to keep this in mind as you write and try to keep your content short and straightforward. Always put yourself in the position of your readers; if you or your team has a problem reading the text you have created, make some improvements before you post it!
+
+There are many tricks for pointing the candidate toward the part of your posting or content that you most want them to read. For example, the right font, size, and formatting could positively influence your recruitment activities and have a positive impact on your visitors and readers. The length of your post, advert or article also plays a significant role in determining whether people are going to finish reading your content or give up after a few lines. Keep in mind that most people will check your posting, advert or article on their mobile, so the length of the message you are sharing is crucial. Nobody wants to scroll for five minutes just to get to the end of the page.
+
+Always focus on information that is of interest to users, not on the things you want to promote. Even the best copywriting work is for nothing if people don’t read it!
+
+OceanofPDF.com
+
+
+
+
+
+04.5 Influence People Through Different Content Formats
+
+
+You have already learned how typography influences readers and how the text, format, and font could help you to improve candidates’ responses or encourage people to take some action. But did you know that the human brain reacts according to the type of content format it has to process?
+
+You want to give your potential candidates and clients relevant details about your brand in a way that is appealing and attractive, and you also want to create effective marketing campaigns.
+
+To do this, it is worth knowing how the brain responds to the various types of content available out there. It’s important to first identify what your goal is and then figure out how to present your information to your audience.
+
+Having said all this, let’s take a closer look at how different content can impact the human brain and how can we use this to benefit our business.
+
+Different Content Formats
+
+Written content
+
+Written content is undoubtedly one of the oldest types of material out there. In spite of the fact that technology advances at an exceptional pace, we cannot overlook the importance and impact of written content.
+
+How can you deliver written content these days? It can take a variety of forms, starting with blog posts and content on your website, to eBooks, white papers, published articles, and case studies.
+
+While it is said that most people don’t have time to read written content, this is a false assumption, as we need this kind of content when we want to be well-informed. Providing written content will help you establish a good relationship, one based on trust and reliability, with your customers.
+
+Not only will people end up identifying themselves with the content they read—especially if you personalize it according to your customer niche—but they will also see your brand as a trustworthy one because it provides useful and interesting information, not just advertising.
+
+Also, with the help of written content, you will be able to build an excellent reputation. This is done by demonstrating your expertise in your field while using this content to talk about the values your brand offers and share the experiences that clients have had with your products or services.
+
+Written content is also exceptional for SEO, as any text material could help you to drive traffic to your site. All the articles I have written are still regularly read and shared by people, and they are still generating new visitors to my LinkedIn profile. And because you have read my book, you know how to easily and efficiently turn these visitors into new contacts.
+
+Graphic content
+
+There is also graphic or visual content, which is one of the most important types of content at the moment. Our brain is capable of remembering images far better than text, which is why it is highly recommended for graphic content to be used as a way to complement other content formats. With the help of images, people manage to better understand and retain pieces of information, even those that are more complex. Why is this happening?
+
+Well, the human brain activates 50% of its capacity when processing visual content because our neural tissue is directly or indirectly related to vision, which assists in visual learning.[23]
+
+And a team of neuroscientists from MIT found that the human brain can process entire images in as little as 13 milliseconds—the first evidence of such rapid processing speed.[24]
+
+When we add in the fact that images are stored better in our memory, it means we are far more likely to be able to remember an image many years from now. Graphic content can be an image, symbol, infographic, slideshow, pictures in an eBook, and so on. If you want to transmit information in a quick, fun, and easy-to-remember manner, then an infographic will help you do so.
+
+Slideshows are also helpful, although they may take more time to digest because they are capable of transmitting more information than an infographic. What you need to remember is that visual content is a must when sharing complicated ideas, when you want people to remember your message, and when you want to grab their attention quickly and easily.
+
+Interactive content
+
+We all know that static content is not sufficient these days. We need to improve the engagement levels we get from our customer niche. This is where interactive content comes into the scene. This kind of content is somewhat complicated. It combines storytelling with visual content and stirs the desire of the user to participate.
+
+Because of this, interactive content is capable of stimulating several sections of the human brain, which turns the experience into a pleasant and memorable one. Quizzes and interactive infographics are just some examples of the types you can use with success to increase engagement for your brand. Considering that this type of content is highly shared by users on social media, this is the best place to use interactive content.
+
+If your brand or company does not have a social media profile just yet, it would be recommended that you take the time to create one. Social media provides the ideal environment for you to get closer to your customers. Identifying their needs and interests will help you create better products and services to serve them, while interactive content will attract their attention to your brand and help them remember it.
+
+Quizzes are also one of the ways in which companies like Cambridge Analytica and others quickly get personal information from Facebook users and their profiles. They used quizzes in particular because they are very popular among people on social media. These could be quizzes like "Test yourself to see which Harry Potter character you are," for example. When you try to join the quiz, the app asked to access your personal information on your profile. And when you hit "Yes," they accessed your personal data.
+
+Video content
+
+In today’s digital marketing scene, video content is a must. People love video content, and that’s a fact. The reason we prefer this type of content so much is because we can process videos much faster than we can handle text. More precisely, videos can be processed faster than written content, which means that we are capable of processing video content much more quickly and efficiently.
+
+However, this is not the only reason why you should harness the power of video content. Videos allow you to establish an emotional connection with the viewer, or your potential client because videos don’t just contain plain information. They often include facial expressions, voice tones, body language, and other details that trigger human emotions, not just awareness of the received data. It is recommended to use video content to tell the story of your brand and business, precisely because it helps with the formation of that emotional connection we talked about earlier.
+
+However, it can also be used with success in showing how things work and for demonstrating certain aspects of your product or service. So, if you want to show your customer niche how your products work and how they can be used, for example, this is a powerful way to do it.
+
+Don’t forget live video, which is a great way to drive people to your site, make them part of your webinars through Q&A, etc. Both Facebook and YouTube offer live video options that you can use.
+
+Conclusion
+
+There are many ways to influence people through the different content arrangements. But don’t forget that to get the best results from your content, you need to match the right format with the right place to share it. For example, images are better received on visual sites like Instagram or Pinterest, quizzes and interactive content are great for Facebook, and information-filled blog posts will do better on Medium or your own blog.
+
+Summary:
+
+• Content is the best way to build relationships
+
+• If you want to have highly shareable content, try a quiz or something interactive
+
+• If you want to target emotions, use video
+
+• If you want to share your message quickly, use an image or infographic
+
+Now that you know how each type of content format influences human perception and brain processes, you will most certainly be able to come up with more effective strategies for attracting the attention and interest of your target audience and retaining more clients.
+
+Every type of content is essential, but even more important is how it is used to improve the relationship between your brand and its niche of customers.
+
+OceanofPDF.com
+
+
+
+
+
+04.6 The Psychology of Color in Recruitment
+
+
+You have already learned how typography impacts readers and how they could be influenced through different content formats. But did it ever occur to you that there is a connection between colors and the reactions you can obtain from your reader, candidates or customer niche?
+
+If this isn’t an aspect you have considered so far, you have to start taking it into account when it comes to your marketing and branding strategies. You no should longer choose certain colors for a marketing campaign, for example, simply because you think they look nice. You also have to keep in mind the emotions they will trigger in the mind of your audience.
+
+Thus, the following information will prove to be more than useful if you want to create a stronger brand and marketing campaigns that will reach their target as planned.
+
+So, let us take a closer look at human behavior, perception, and the interpretation of colors, as well as how to use these to help your business thrive.
+
+Colors
+
+Conventional psychologists often dismiss the role of color in influencing human personality, yet psychiatrists use color tests in conjunction with other tests to determine personality. While physiological responses to colors are part of the human experience, the evidence linking specific colors to specific responses is inconclusive (Kaiser, 1984[25] )
+
+The purpose of color psychology is to observe the reactions and behaviors triggered by the visual impact of a certain color. Thus, researchers noticed that human emotions and feelings could be influenced, more or less, by the colors that surround them.
+
+Of course, the results differ according to personal beliefs and traditions, so the psychology of the local audience must be known to best interpret these results. As an example, white is seen as a sign of innocence and purity in Western countries while in the East, it is a color used for funerals and mourning. In Inuit communities, white is so important that it has more words to describe it, each with a different meaning[26].
+
+In a cross-cultural study, Wiegersma and Van der Elst (1988) found that, in general, blue was the most preferred color across cultures. This study also revealed that in some countries outside the USA, it was not blue but red or black that was the predominant color choice.[27]
+
+Colors can have various meanings in different cultures, but some colors, like black, always have a negative connotation associated with it. This negative association can be traced as far back as 2300 BC. It would be highly useful to take these details into account when creating a color theme for your company’s marketing strategy or if you are choosing the color for your next job advert.
+
+Colors and Human Psychology
+
+But do colors affect human psychology? If so, how are our mood and state of mind, for instance, affected by colors? Let’s take the most common colors to see what kind of emotions they can evoke, and which brands have chosen to use them.
+
+* Yellow - inspires warmth, optimism, brightness, happiness, and can be found in the logos of Nikon, McDonald’s, IKEA, and Shell;
+
+* Blue - makes people think about strength, reliability, trust, and dependability, and it can be seen in the logos of Dell, HP, Oral-B, Vimeo, Pfizer, Lowe’s, and NASA.
+
+* Green - inspires peace, health, liveliness, and natural growth, and it is the chosen color of Animal Planet, Tropicana, Spotify, and Range Rover;
+
+* Orange - is a color that screams out confidence, freshness, friendliness, and joy, and it is used by brands like Amazon, Fanta, Harley-Davidson, and Mozilla Firefox;
+
+* Red - represents boldness, excitement, and a youthful spirit, and can be seen in logos like Coca-Cola, Virgin, Nintendo, Kmart, CNN, and Lego;
+
+* Purple - is the color of creativity, wisdom, and imagination, being used by brands like Yahoo!, Cadbury, Barbie, Taco Bell, and Hallmark;
+
+* Grey - because it is a neutral color, it inspires calm, tolerance, and equilibrium, and it is the color preferred in the logos of Apple, Honda, Wikipedia, Puma, and Nike.
+
+There are many studies about colors and their effect on the human mind, but there is one interesting piece of information that caught my attention. The University of Melbourne did a study that revealed that seeing the color green boosts your concentration.
+
+Glancing at a grassy green roof for only 40 seconds markedly boosts the concentration of test subjects. The study, published in the Journal of Environmental Psychology[28], showed that looking at an image of nature for less than a minute was all it took to help people perform better on their task. Dr. Lee and her team also conducted a study of how a greener workplace improves mood and performance.
+
+Also, Dr. Chris Knight from Exeter University found employees were 15 percent more productive[29] when even just a couple of house plants were brought into the office.
+
+Effect of Colors
+
+While the colors we choose won’t trigger miracles, as the reactions they trigger also rely on the personal experiences of each person, they can help a company increase its sales. So, it won’t be in vain to pay a bit of attention to this aspect and choose the right color for the marketing of a product and brand.
+
+According to the Kissmetric, 85% of shoppers place color as a primary reason for why they buy a particular product. Yes, when facing a new product or a variety of products in an aisle, people guide themselves with the help of colors to make the choice that appears to be most suitable for them. Of course, each client will pick the color that appeals most in their case, but the point is that the chosen color will do its job right. Additionally, 93% of shoppers place visual appeal above sound, smell, and texture when buying a product.
+
+Colors and Company Brand
+
+It is also estimated that brand recognition increases by 80% with color (University of Loyola[30]).
+
+You have to keep in mind that people have a preference for brands that they can recognize with ease, which makes the chosen color even more important. When you create a new job ad or banner, you need to use a color that will help your brand stand out from the crowd while delivering the message you want to convey and attracting customers to your product.
+
+Thus, you will have to see which colors your competitors are using and opt for an entirely different one, but you should consistently and repeatedly use your company color, so people will easily connect it with your brand. You want people to know, at a glance, which brand is yours and which is your competitor’s.
+
+Afterall, it would be a shame if people applied for a job advertised by your competitor thinking that they were applying to your ad or the other way around. Yes, choosing the right color can be a challenge, but it needs to be done so that people will buy your product or apply for your job.
+
+When choosing brand colors, it’s important to consider the brand personality based on what color suits the characteristics of your product or company.
+
+That’s why is important to know that the personality of a brand consists of several traits, as pointed out by Professor Jennifer Aaker[31], a psychologist who teaches at Stanford University. These traits include sincerity, excitement, competence, sophistication, and ruggedness. Of course, a brand can reflect a combination of these traits, but, as a general rule, they are usually governed by one main trait.
+
+When creating the personality of your brand, it is always best to convey what you think it transmits, rather than just going with the flow and doing what others do. Just like the traits, which can be multiple, colors can also have a variety of meanings. For example, green is considered suitable for products that are natural, promote good health or are related to the outdoors, but it can also represent money and financial services, for example.
+
+The main point is that you shouldn’t be limited to going in one single direction when it comes to choosing the right color for your brand and products. As long as you have a color that is different from the ones used by your competitors, manages to stir the reactions you want it to stir, at least to a large percentage of your customers, and fits your brand’s profile and personality, then the color you chose is right, even if it doesn’t fit with the stereotypes.
+
+But Do Colors Really Have That Type of Effect?
+
+There have been many discussions about how colors can have an effect on us. For example, there is research like "Color psychology: a critical review[32]," which tells us that factors like our personal preference, cultural differences, context, experiences, and other things are influencing the effect individual colors have on us. That’s why when you are planning to use some specific colors for your activities, you need to consider a few other things like the location and gender that you are trying to approach, etc. Different groups see colors in different ways.
+
+In the study Colour Assignments[33] by Joe Hallock, he described that color preferences differ by the age of the participant and their gender. Other research in studies, like Role of Color in the Perception of Attractiveness[34] and A Critical and Experimental Study of Colour Preferences[35] reveal that when it comes to shades and hues, men seem to prefer bold colors and woman prefers softer colors.
+
+It’s also important to consider the cultural perception because colors don’t have the same meaning everywhere. Yellow, for example, is used to express happiness and warmth in most parts of North America and many countries in the world. However, in Latin America, yellow is seen as a sign of death, sorrow, and mourning.
+
+Color Impact
+
+Even though the impact of colors is sometimes affected by our personal preference, they still have an impact on us. Researchers found that up to 90% of snap judgments made about products can be based on color alone, depending on the product. (Source: Impact of Color in Marketing[36])
+
+Other studies (MRI Shows Brains Respond Better to Name Brands[37] ) have revealed that our brains prefer recognizable brands, which makes color incredibly important when creating a brand identity.
+
+Conclusion
+
+Even if color psychology still needs more research and studies, we cannot disregard the importance of colors in our lives. We see colors, and we love them, each one of them giving us a particular feeling and state of mind. If you use this knowledge in your marketing strategies and the presentation of your brand and products, you will significantly increase your rate of success.
+
+If you thought that choosing colors for your business was just a random decision, you now have something more to think about.
+
+Use the way people perceive and react to colors to benefit your company—you won’t regret it. The numbers are already showing us that we are more likely to buy products that appear most appealing to us. Thus, if you know the customer niche your brand addresses, you can then find the color that is most attractive in their eyes. The right color will also help you to raise the number of applicants for your jobs or number of readers of your posts and articles.
+
+Don’t forget that not everybody sees colors in the same way. That’s why different colors can have a different impact on people. But there is one thing that has a strong impact on everybody, and that is storytelling.
+
+OceanofPDF.com
+
+
+
+
+
+04.7 The Power and Importance of Storytelling
+
+
+Since the beginning of time, we’ve told stories to share our ideas, events, and knowledge. Storytelling is one of the oldest ways to bring people together. Back in the days when there was no TV, internet or other perks specific to our modern society, people used to gather to tell stories of what they saw, heard or experienced. Every culture has used stories as a means to connect, to inform and entertain.
+
+Things haven’t changed much; we still enjoy listening to a good story, and this fact helps when looking to retain talents and hire the people you want in your company. For any company brand, storytelling is the most authentic and relevant way to communicate who you are and what you offer.
+
+Storytelling skills also give recruiters the ability to effectively capture the attention of candidates and sell the opportunity they are offering to them. The best storytellers have an unfair competitive advantage because they are going to recruit much better than others.
+
+Storytelling
+
+Who doesn’t enjoy a good story? We all enjoy most of the stories we hear. That’s why you should focus on improving your storytelling skills.
+
+Stories help people remember things more naturally. So, if you want to make an impact and make sure that a person retains as much as possible of the information you are providing, then a story is the best way to do it. Statistics show that a story helps people to remember more.
+
+In 1969, Stanford professors carried out a series of tests. Students were asked to memorize and recall ten sets of unrelated words. One group retrieved the words in any order they wanted, while the second group constructed a story that contained all the words. When both groups were asked to recall the words, the students that created stories were able to remember six to seven times more words than the first group. (Source: Narrative Stories[38])
+
+Besides this, people tend to make a connection between the person and what they hear in the story, which can turn the content into a more personal experience. It is easy to understand that graphs and numbers won’t trigger the same results.
+
+A good story, on the other hand, will provoke their thinking process, will stir their interest, and, above all, it will make them care about what they are hearing. Thus, storytelling can be an easy and powerful way to create new connections with people and attract them toward your company.
+
+How Can You Create a Good Story?
+
+Good stories can’t be found just anywhere. You need to keep particular aspects in mind if you want to ensure that your audience will be captivated.
+
+After all, you want to transmit information but not in a dull and uninteresting manner. Believe it or not, even if you mix statistics with a story, most people will manage to remember those numbers.
+
+Another thing you need to remember about storytelling is the importance of having a clear structure for the story in your mind. Forget about ambiguous and foggy beginnings as they will turn off the interest of whoever may be listening to your story. Instead, try to find that one thing that will make the story exciting and reach for it right from the start. If you do so, you will certainly notice that the attention of the person in front of you will shift immediately.
+
+Every time I speak about storytelling, I like to use the example of SpaceX and Tesla. They are both successful companies, and one of the reasons for that is the compelling story behind them. We have all heard how Tesla and SpaceX sent a Tesla Roadster car and mannequin called Starman into space, and we’ve all heard stories about Elon and his plans. A good story will connect and emotionally engage people with any brand. Moreover, it also has the power to continue to be responsive to their changing awareness, interests, and needs over time.
+
+Let do a small test here: Which company would you prefer to join?
+
+A) "We are an international company focusing on Space with offices across the globe, and our goal is to send people to other planets."
+
+B) "Our company was founded under the belief that a future where humanity is out exploring the stars is fundamentally more exciting than one where we are not. Today we are actively developing the technologies to make this possible with the ultimate goal of enabling human life on Mars."
+
+Something tells me you just chose the company from the example B, right? I need to be honest with you; both companies in this example are SpaceX. However, the first example is one that I wrote in a similar way to how many companies are writing their ads; text that is lacking in storytelling and has minimal potential to excite their potential candidates.
+
+The right story has the power to turn a passive candidate into an active candidate, yet so few companies are using storytelling techniques in their recruitment.
+
+Storytelling and Recruitment
+
+While it is hard to tell a long story in a short amount of time during an interview, you can still use more concise examples as stories, which is an excellent way to make candidates interested. It’s the same as when you are sharing stories with your friends. For instance, if you are telling a story about a one-time company event that was incredibly surprising, don’t stick to this aspect alone.
+
+Of course, you don’t have to talk about all the significant events you experienced, but make sure to mention something interesting that will also describe the team or company and create excitement. What may seem to be an ordinary story about a company event could turn into something great if it is connected to a more significant and essential aspect. Don’t forget to use elements that will help the listener relate to your story.
+
+Use a proper setting, characters, and even language so that it sounds familiar to the people who listen to it. This way, they will make a connection with the story more efficiently, and that helps a lot when it comes to remembering it. Try to avoid any internal jargon in your story.
+
+You should not wait to have interviews with candidates to use the storytelling technique. The first place where you can use your storytelling techniques is your advertisements when you are recruiting a new position.
+
+Many companies release static, dull, and unattractive ads for the jobs they offer. You know those "We are an international company looking for…" types of ads. While these ads will attract the attention of people who are actively looking for a job in that specific company, they may not draw the attention of the talents you are looking to find.
+
+It is somewhat challenging to find the right people for the job, so make sure that the ad promoting the position within your company tells a great story. You want people to be intrigued and motivated to apply. Moreover, people want to work for a company with a compelling story, so it naturally attracts more potential candidates and puts you ahead of the competition.
+
+Getting back to the candidates; when interacting with them, you should always share stories, regardless of whether you are communicating over the phone, via e-mail or in face-to-face meetups. If you just looked over their resume and asked them a bunch of questions like a robot filling in a checklist, then don’t be surprised if the people you selected lost their desire to work for your company along the way.
+
+This happens because you did nothing to make them care about the company and the job. You did not manage to establish a connection with them, but this can be changed with the power of storytelling. You can share stories that involve your employees and your company or even personal stories that reflect meaningful things connected to your actions and experiences.
+
+Just put yourself in their shoes. Wouldn’t you like to hear a good story about the company or team during a job interview rather than just being asked the same old monotonous questions, like "Where do you see yourself in the next five years?" or "Can you draw a tree?"
+
+Use storytelling techniques to connect with people and make them want to join your company; you should aim to excite them, not scare them with the tedious recruitment process.
+
+Conclusion
+
+Storytelling is the basis for almost every aspect of our society. Even small details about how your company got its name or your company’s mission will create a story that could catch the attention of a great candidate. Not only will you get their attention, but you will also establish a connection with your candidate, and this could be the reason why he/she accepts your offer over your competitor’s offer.
+
+The reason why I tell stories is because I hope they will inspire others, and this will lead to more action and new ideas. Stories carry the ideas that will change the world, and they are the lifeblood of the human race.
+
+OceanofPDF.com
+
+
+
+
+
+04.8 Not giving a Feedback is Expensive
+
+
+You can create a perfect story about your company, about all the cool things you are doing, and how you are turning the world into a better place with your inventions or products. However, all of the benefits of that could be lost in a matter of minutes if you do not give feedback to your candidates.
+
+The recruiting process is essential for every business because it helps companies find the right talents that are going to help them grow and be more successful. Moreover, as all business owners know, finding these talents is not an easy task.
+
+In fact, it is incredibly difficult, and it takes a lot of time and resources to do well. If you are not a large and well-known company, it is quite difficult to attract and retain talent because you need to prove that you can offer an excellent working culture and opportunities for the future, in addition to providing a decent paycheck. So, the recruiting process can be quite expensive, even for companies with good reputations and well-established credibility.
+
+How you treat your candidates is crucial, not just for them, but also for the success of your business.
+
+Candidate Experience Impacts Your Business
+
+As you already know, when searching for new talent, some will fit the job description better than others. However, what will happen to those who are not a right for the job or don’t have the relevant experience? Well, believe it or not, these candidates, in particular, can impact the development of your business.
+
+How can an unhappy candidate have so much power over your company, even if they don’t end up getting work? It is all connected to the way this person sees your company based on the experiences he or she had during the recruiting process. During the interview process, you present your company and your brand to candidates.
+
+If a candidate has been disappointed by the manner in which he or she was approached or treated, they will be less likely to purchase products or services provided by your company. The North American CandE Awards research[39] conclusively found that 46% of candidates who believe they have had a "negative" overall experience say they will take their alliance, product purchases and relationship somewhere else.
+
+An unhappy candidate could also make negative remarks about your company, chasing away potential talent and clients. In fact, following a bad experience, 27% of candidates would "actively discourage others to apply."[40]
+
+This is not a mere assumption; there are companies out there that felt their sales figures reflected the unhappiness of some recruits. A good example would be Virgin Media, where they calculate how much the bad candidate experience costs them.
+
+They came to this calculation: if there were 123,000 rejected candidates each year, and 6% canceled their monthly Virgin Media subscription, they would experience about 7,500 cancellations per year. Multiply that by the £50 ($60) monthly subscription fee and, within just 12 months, Virgin Media could be losing £4.4 million per year, the equivalent of $5.4 million as a direct result of rejected candidates.[41]
+
+Thus, if you didn’t consider candidate experience relevant to your business, you need to think twice and do your best to provide an excellent experience to all of your candidates.
+
+Candidate Experience
+
+You need to understand that not only do your employees act as ambassadors for your company, but your candidates do as well! The experience they had during your recruiting process will make them talk and share on social media, so it would be highly recommended that you work to make this experience a positive one.
+
+Candidates will talk about their experience with their friends and family, and, believe it or not, they are more likely to share negative experiences than positive ones. If a candidate had a bad experience, there is a high chance that he or she will not apply for another job in your company in the future and won’t recommend it to others either.
+
+Considering the effect that can be created by sharing an opinion or experience on social media, you can tell that things could get very ugly for your company if one of your candidates had a bad experience.
+
+What Leads to a Bad Candidate Experience?
+
+Communication is a factor that has high important amongst candidates, and many complain about the quality of communication during the recruiting process. You need to make sure that this doesn’t happen by striving to communicate with your candidates as best you can.
+
+Even if a candidate is ultimately not recruited, most certainly he or she will appreciate your communication efforts. Also, providing follow-up at the end of the recruitment process counts a great deal when it comes to candidate experience. Approximately 65% of candidates say they never or rarely receive notice from employers. (Workplace Trends, Candidate Experience Study[42])
+
+How Expensive Is It Not to Follow Up?
+
+I couldn’t find any mathematical equation that would help me to calculate how much not giving feedback and bad experience costs companies, so I created my own.[43]
+
+Math equation:
+
+(NCWF * CPA) + (NCWF * TA * PP * ARPC) = Your Potential Loss Per Year
+
+All the costs and numbers are an example based on surveys and public data.
+
+Case study: You have 10,000 candidates per year. You review 7,000 and you ultimately hire 70 candidates. You never checked in with or gave feedback to 3,000 of these candidates.
+
+Legend:
+
+* NCWF = Number of Candidates Without Feedback (3,000 candidates).
+
+* CPA = Cost Per Application ($ 15 USD per application - avg. number from Appcast[44])
+
+* TA = Target Audience - How many of the candidates who applied that could also be potential customers that buy your product or service? If you are Coca-Cola, your TA will be almost 100% because most of your candidates are prospective customers of your soft drinks. However, if you are selling industrial machinery, your target audience of potential customers amongst the candidates that applied to your roles will be much lower. In a highly specialized niche, the percentage of people who might buy your product or service and are also your candidates will be 0,01% or lower.
+
+* PP = Purchasing Power —the percentage of people who will choose your competitor instead of you)[45]
+
+* ARPC = Average Revenue Per Customer - Average revenue per customer is information that you can get from your sales team. For this example, I am going to use: $2,000 USD per customer.
+
+Example:
+
+(NCWF * CPA) - How much money you have invested to get those 3000 candidates.
+
+(NCWF * TA * PP * ARPC) - Effect on your brand because of the bad experience.
+
+(NCWF * CPA) + (NCWF * TA * PP * ARPC) = Your potential loss per year.
+
+(3000 * 15) + (3000 * 0,10 * 0,46 * 2000) = $321,000 USD per year.
+
+Note: The "0,10" is only included as an example of the number of candidates that are also potential customers (check the TA above).
+
+As you can see from the equation, not giving feedback and not informing candidates of the outcome of an interview could cost your company $321,000 USD per year.
+
+If you have 10,000 candidates and you process 7,000 of them just to hire 70 people, amongst the unprocessed 3,000 candidates that you didn’t contact, you could have another 30 potential hires.
+
+However, if you plan to hire these 30 new people, in many cases, your recruiters will open new requisitions and wait for new candidates. They will also approach new candidates on LinkedIn, etc. and not utilize the candidates from the previous roles.
+
+Based on their experience, candidates from their ATS (applicant tracking system) won’t be interested or available when they reach them. Think about it. If you have a terrible experience with a company and, after three months, one of their recruiters contacts you, how excited about the job opportunity will you be?
+
+Moreover, acquiring 3,000 new candidates will cost you even more money: (CPA * Number of candidates).
+
+In this case, that’s going to be $45,000 USD.
+
+I am aware that this math equation has many variables, but, as I said before, I didn’t find any existing equations that I could use, so that is why I created one.
+
+Statistics About Candidates
+
+Keep in mind that not giving feedback to candidates will not only hurt your brand and cost you money, but it will also lower your talent pool. 27% of the candidates whose experience was negative would "definitely not" apply to the firm again (although 6% still would); 27% would "actively discourage others to apply." (Source: LinkedIn[46])
+
+Thanks to this 27% of candidates, your talent pool will be significantly smaller next time, and your CPA will increase because it will be harder for you to attract more people into the process, especially when you are hiring for similar roles.
+
+Another study shows that 80% of job seekers say they would be discouraged to consider other relevant job openings at a company that failed to notify them of their application status. They would be 3.5 times more likely to reapply to a company if they were informed about being unsuccessful previously. (Source: Candidate Experience Study[47])
+
+Conclusion
+
+With all this in mind, make a habit of following up with your candidates after the recruiting process ends. Every applicant tracking system has rejection templates that can be sent to all unsuccessful applicants—it will take you only a few minutes to set this up and send out the e-mails. Don’t worry; most people will understand that they weren’t accepted for a particular position if they diplomatically receive the news together with an explanation of why they weren’t accepted.
+
+Honesty is highly valuable in such cases. Honest feedback gives the person valuable insight into what they need to work on, as well as his or her personal development. And it’s a valuable practice for recruiters too because, who knows, maybe he or she will develop into the perfect candidate you’re looking for in a year or two from now.
+
+Sending follow-ups is not complicated or time-consuming. You can set up special templates for this kind of e-mail, just make sure that each candidate receives an e-mail that is personalized for them and not a general message. You need to create the e-mail in such a way that will make the person feel the message was written just for him or her.
+
+As you can see, providing positive experiences even to the candidates that won’t get hired is not difficult at all, especially if you are careful not to make the mistakes made by most company managers.
+
+Next time you think you don’t have time to give feedback to all of your candidates, try to consider the amount of resources you will need to invest for your next search and how much it will cost you not to give feedback to them.
+
+Treat every candidate as you would your employee or your best customer, because even if they don’t get hired, every one of them could refer a strong candidate in the future! Remember, it costs $0.00 to respect your candidates and give them feedback.
+
+While the impact on the employer’s brand can be difficult to measure, one thing is for certain: if you give candidates a bad experience, word will spread very quickly.
+
+How you treat your candidates matters!
+
+OceanofPDF.com
+
+
+
+
+
+04.9 Ask Why, Not Only Where
+
+
+Every talent acquisition team tracks various types of information about their applicants, which website the candidate came from, how long the registration process took, how long the candidate has been in the process for this particular role, time to fill, cost per hire, etc.
+
+All these statistics and data are helping recruiters to identify weak points in their process and recruitment strategy. They are also able to quickly understand which sources are working the best and if they are spending their budget efficiently and effectively in the right places.
+
+But, is WHERE candidates are applying from still essential information that recruiters need to track? Admittedly, it’s always important to track the source, but it should not be more important than tracking the reason WHY people apply.
+
+WHERE
+
+When people are actively seeking a job, the various ways they search for opportunities could lead them to your job advertisement. When you post your job ads on your career page, LinkedIn, different social sites (Twitter, Facebook, etc.), your jobs also are often shared by your employees and others (company fans or random people) who then share it with their friends through their social sites.
+
+Candidates can come to your ads from a multitude of places, and sometimes they come from sources that you cannot influence, like from the Facebook profile of a random person. If somebody you do not know shares your job posting on their Facebook profile and you get three candidates from it, that’s something you can’t influence. The source in your system will be noted as Facebook, not John Doe’s Facebook profile.
+
+Ultimately, if you got the right candidates and the right hires from it, it doesn’t matter if a candidate found out about the job from your site or from some random person. It is much more important that the candidate is interested in your job offer and they take the time to apply. Seeing the job advert is not the only reason candidates apply. That’s why it’s important to start tracking WHY these candidates applied for the job you posted.
+
+WHY
+
+Are they attracted by the company brand? Would they like to be working with talented people from your company or with some specific person? Are they interested in the technology that you are using? Do they wish to work for the money you are paying? Is the job and activity domain of your company suitable for their dream career?
+
+If you ask candidates why they applied for the job, you may hear a lot of interesting and even awkward answers. Some will state that they just tried their luck and never expected to be scheduled for an interview, while others will say and do almost anything to get hired.
+
+Identifying the core values that drive people to apply for a particular open job will help you in many ways. It will help you to craft better ads that reinforce the reasons why people are attracted to your company. It will also help you to understand the difference between those who just want a job and those who want this particular job. You can see who chose you for a specific reason, and it will also help you to create new strategies to attract higher quality people for the role.
+
+Be careful that you don’t disregard the so-called "passive" candidates. These are the ones who may have applied for your job because they considered it interesting enough, or just to see if they stood a chance at getting an interview but are relatively content with their current positions.
+
+These candidates should probably not be ignored because they might be just the talent you are looking to get for your company. Your biggest challenge, as employers and company owners, is to ignite their interest in your company and to convince them that it would be a wise and beneficial decision to leave their current job and take the chance to join your company.
+
+However, we once again go back to the importance of finding out why they decided to apply. Why do they want to work for your company? Why do they consider this job suitable for their career plan? These are just two of the questions you should ask when interviewing a candidate if you want to get to the heart of their application.
+
+The source of your candidate is not relevant because talent can be found in various environments and may come from where you least expect it. Don’t waste time focusing only on this aspect.
+
+While it is true that most people are looking for a job so they can get paid—because without money there isn’t much you can do in this life—try to figure out if they are motivated by anything other than financial benefits. Candidates who come to work every single day just to cash your paycheck at the end of the month will not increase your company’s performance.
+
+Conclusion
+
+Besides money, a candidate should also be motivated by his or her professional advancement and by the opportunities to grow and become better, so that he or she will bring their best to each day at work. This is how a company can achieve results and grow successfully.
+
+Of course, a company’s culture can influence this aspect a great deal, but the reason a person decided to apply and try his or her chances at landing a particular job can also provide many details concerning their future performance and journey in your company.
+
+Advertise an open position on as many websites as you’d like. Then, use as many methods as you can think of to make sure you have a wide variety of talent to select from for your company. However, once you start interviewing, ask questions that will provide some insight into why people applied for the job and why they would like to work for your organization. This will give you a better idea of WHY they are applying and can help you incentivize them to join the team.
+
+The source of candidates is slowly becoming less relevant, but what made a person apply is as relevant as ever!
+
+OceanofPDF.com
+
+
+
+
+
+04.10 Perfect Hires Don’t Exist
+
+
+Most companies are in search of the ‘perfect hire’ for their open roles. It’s understandable because every company requires the ‘best fit’ employees to thrive. Top achievers are the backbone of any business. Therefore, after successfully hiring these stellar candidates, companies can then pat themselves on the back, knowing they have the best hands on deck.
+
+However, the reality is far from that: the perfect hire doesn’t exist!
+
+It’s almost a myth. In reality, a company can only hire the ‘best’ that is available on the market from a pool of currently interested candidates, not necessarily the best available in the industry. Even if that perfect person exists, he or she is, of course, already happily employed. Only a tiny percentage of companies have enough money and interesting projects that would allow them to convince the best people in their field to work for them.
+
+Year after year, organizations toss enormous amounts of cash at finding the perfect candidate. Unfortunately, because they are holding out for this mythical ‘perfect’ hire that never comes, many positions remain unfilled for a long period, which affects the business and business plans. The ‘best hire’ myth becomes a problem for them and ultimately costs the company money.
+
+The Myth Behind the Best Hire
+
+Hiring the right candidates for any organization is a challenge. When it comes to hiring, the first thing to let go of is the notion that a candidate can be perfect. The perfect hire is a dream of anyone who hires, but, as we all know, he/she doesn’t exist. No one is perfect. Not employees and not managers.
+
+Finding that one hire that meets every single criterion in the job description is difficult, especially when hiring managers are looking for somebody with ten years of experience in a technology that has only been on the market for five years, not to mention a candidate who will become an impeccable fit with the company culture.
+
+It’s great to think that the best hire is available and search for him or her in their industry; however, if that person is available—which is a big if—the candidate will typically be content with their present job and unlikely to make a change.
+
+The Problem of Too Many Selection Criteria
+
+Many companies have complex interviews, consisting of many rounds, and a long list of criteria for selection. Candidates will need to meet the multitude of requirements that the company has to be considered for the role. When the company is trying to fill the role to replace a person who has left, the candidate will often be unfairly compared with the person who already worked in that role and who was considered the ‘best hire.’
+
+It is high time that companies shifted from the mindset of ‘best hire’ and focused more on the right hire, at the right time, with the right skills for the job.
+
+Getting the Right Hire out of the Bunch
+
+Given that the idea of a ‘best’ hire is a myth, how do you make decisions that will help you to select the right candidates? How do you hire staff who are strong, engaged performers at work?
+
+To achieve this, understanding the following concepts is essential:
+
+1. Ask the right questions
+
+The job interview is still the best tool employers utilize in hiring. Most job interviews are a huge obstacle for any candidate. Questions like, "Where do you see yourself in five years?" or "If you had to choose one animal, what animal would you be?" should have died out in 1990. Many recruiters are still asking these questions.
+
+Asking the right questions in the job interview is absolutely critical. The questions you ask should help you understand the candidate’s drive and ambition, not what animal he/she prefers.
+
+2. The right work ethic is better than technical skills
+
+Technical skills should be acquired through ongoing learning and training. However, the right work ethic is a quality that can’t easily be taught. Someone with the right work ethic and who is also passionate about the company will be far more successful than someone who shows up to work just to get a paycheck.
+
+The right attitude is a better gauge than the right skillset.
+
+3. Company culture is still important
+
+Every company wants to hire team players who are a positive addition to the company culture; they are not looking for somebody who is going to disrupt it or who are not the right fit. While culture can still be taught through proper onboarding, nothing guarantees a great fit. A great fit with the company culture is difficult to predict before hiring. Even if you have been cautious about finding someone with the right mindset and values, a great fit is not guaranteed. You can only do your best in the recruitment process to mitigate the risk of a bad fit and monitor how the new hire does when they come onboard.
+
+Everyone is different, and no one will be able to integrate perfectly into a company from day one. While you might value about 90% of the same things, there is always that 10% that could ruin all the fun.
+
+This is why it is essential during the onboarding process to remind the new hire of what is expected of them. Communicating the company values and culture is not about pointing fingers at people who do not agree with them. It is about showing employees what they can expect and what is expected of them. This allows them to grow in an environment they understand.
+
+4. Understand that employees might make mistakes
+
+We are all only human; we will make mistakes and, hopefully, we learn from those mistakes. Part of being a leader is allowing your hires to make mistakes and to learn from them. Through this, you will help them unlock their potential and continue to grow both professionally and personally.
+
+You can’t expect your employees to grow within their positions and within the company if they are already perfect. Progress should be the goal of every organization, not perfection.
+
+5. Support and training
+
+Hiring the right employees is possible when you understand what your candidates will need to be successful before you hire them and then support your hire from their very first day on the job.
+
+No individual joins an organization knowing every aspect of that job. However, with proper onboarding and training time, new hires can be polished to become peak performers in their role or department.
+
+Encourage your hires when appropriate along the way and give honest, constructive feedback. Acknowledge the employee for what they have done right and point out what they need to improve. Expose them to people who can mentor and train them.
+
+Work with them on a plan to improve their skills and give them the freedom to grow and progress in their position and the company.
+
+6. Picking progress over perfection
+
+Most employers want ‘perfect’ employees to work for them. They want candidates that will match 100% of their requirements for their open roles. The fact is: perfection is very subjective.
+
+Moreover, when organizations start seeing themselves as perfect, they become stagnant in their growth because they leave no room for improvement. Besides, working around perfectionists can be stressful, irritating, and often drives those around the perfectionist to back away and even quit their job.
+
+Progress is about improvement, innovation and change. Change is inevitable, no matter what industry you work in. To promote change, you must have growth. To make progress, you must give your hires the freedom to do what they are passionate about, even if you don’t agree with it. After all, you might be wrong about whether or not it will work. Without risk and innovation, there will never be change or progress.
+
+Motivate employees to progress in their current skills. Employees must be allowed to think on their own and be pushed beyond their comfort level to experience new things, to become passionate about new things, and to bring new ideas to the table. Even if you are content with most of the people you have hired so far, remember that continuous improvement is key to success.
+
+Conclusion
+
+Finding the best hire for roles in a company is usually defined by a trade-off between cost, time and quality of hire. However, when recruiters follow smart hiring practices and hiring managers do not strictly require candidates that are a 100% match to the job description, it allows recruiters to find good fits in their candidate pool, meaning time won’t be wasted for both parties.
+
+When recruiters and hiring managers start to understand that the ‘best’ hire doesn’t exist, they won’t accidentally pass up a talented candidate who is right for an available position and could turn into a ‘superstar’ candidate within a few months.
+
+OceanofPDF.com
+
+
+
+
+
+04.11 It’s Not About Years of Experience
+
+
+If we take a look at job advertisements from various industries, we will see that, in most of these ads, employers require experience. We see things like "at least five-plus years’ experience," "ten-plus years’ experience in a similar role," and so on. In some cases, it makes sense to inform a candidate about how much experience is needed for the position. One year of experience is not considered sufficient in most cases, while no experience whatsoever makes finding a job a real challenge for young people.
+
+There are highly talented people out there who, due to their particular set of skills, may be just perfect for the job you have within your company, but they are lacking the years of experience you require in that advert.
+
+Many companies claim that they hire people with potential, but, in reality, hiring managers and companies are preselecting candidates based on their years of experience. Talent has nothing to do with experience. Let’s take some time to look at why it is better to focus on hiring people based on their skills and talents rather than on their experience.
+
+The fact that someone does not have previous experience in a particular position does not mean that he or she won’t be successful in that role. In fact, the contrary is proven every single day. Most people love challenges and are more than willing to work hard and strive to prove that they are trustworthy if you, as an employer, give credit to their skills and strengths.
+
+Just think about a scenario in which an employee is promoted to manager. That employee may have several years of experience in his or her former position but no experience at all in the position of a manager. Yet, he or she may be able to do a great job and become a real asset to the company because they are driven by the desire to prove themselves worthy and motivated by the chance to develop from a professional point of view.
+
+Other examples include the creation of a new position due to the advancement of technology or when a company decides to hire college graduates that have no previous experience. If the persons hired for open positions are chosen based on their set of skills and talents, even if they never occupied a similar position in their past or never had a job, the chances of them succeeding and performing exceptionally are very high.
+
+Believe it or not, many successful companies have CEOs who have never dealt with such positions before in their lives and thus cannot rely on past experience to help them out. Famous examples of people with no experience who ended up being successful CEOs, driven by their desire to succeed and talents, are Mark Zuckerberg, Bill Gates, and Steve Jobs. Each of them had brilliant minds and took their companies to the realms of ultimate success, although they had no experience of how to make this work when they started.
+
+However, when you put your entire attention, efforts, dedication, and motivation toward achieving amazing results, success is inevitable. The answer lies in the power to adapt, learn, and persist regardless of what lies ahead. There are many people out there who have amazing skills and talents—people who can make great contributions to the success of your company.
+
+However, if you look for a certain amount of experience, you may pass over these people, denying your business the chance to benefit from truly talented people among its employees. There are many advantages to hiring people with lesser credentials who rely more on their skills instead. One advantage could be the fact that such people, due to their lack of experience, could bring a new, fresh perspective on matters.
+
+Not having their minds clouded by previous experiences, such employees may see things differently and can provide a unique, innovative vision that will help you find the best solution for a particular challenge.
+
+Also, in comparison with experienced employees, those with a lower level of experience are often more willing to take risks because their fear of failing is not well developed yet. And we all know that taking risks sometimes is essential to obtain exceptional results. They will also start questioning the existing methods and practices, wondering if there could be a better way to do things. Thus, as a result of these inquiries, they will come up with innovations, brand-new ideas and approaches, which will help your business develop at a rapid rate.
+
+You should also keep in mind that, because they constantly have to prove themselves to compensate for their lack of experience, they most certainly will demonstrate skills in areas that are highly important, such as relationship building, finding new ways to work more efficiently, and developing proactive approaches when it comes to their job.
+
+When a person who lacks experience is offered the chance to be hired, they will be grateful and are thus more likely to stay with your company for a longer period. He or she is less likely to leave for another position after you have invested time and effort to provide the knowledge required for the job. They will become loyal employees who will work hard, display a high degree of enthusiasm and willingness, which will ensure their presence will have a positive impact on your company.
+
+Also, people with less formal experience may hold great talents, so there is a good chance that you are hiring a potential superstar. In very many cases, people with weak credentials end up surprising everybody else, turning out to be great assets due to their incredible talents. Those who are disregarded due to a lack of formal work experience are usually the ones who deliver the most significant surprises when it comes to performance.
+
+Conclusion
+
+Sometimes hiring managers should trust their experience when they see talent in an interview and give that person a chance to prove their quality. A.I. (artificial intelligence) can find relevant candidates within seconds, candidates that will match your requirements, but if you are limiting yourself with "five-plus years of experience" and similar criteria in your ads, A.I. will be presenting only candidates based on these criteria and you will be missing out.
+
+You will not only miss the many excellent candidates that have ‘only’ four years of experience, you will also miss that special talent that could bring the right ideas to your company, help you make your fortune, or help you to be stronger and more successful than before.
+
+Everyone has the potential to learn, improve, and build their skills; the only thing they need is the opportunity to try.
+
+OceanofPDF.com
+
+
+
+
+
+04.12 How to Assess a Sourcer
+
+
+Recruiters and sourcers are crucial for finding and attracting talented employees. A skilled recruiter/sourcer could fill an open role twice as fast as the average source, and his/her work has an impact on an organization’s overall workforce.
+
+A skilled sourcer also brings the right knowledge into the company and the team, acts as an example for the team, and pushes other team members to be better at their work. They are responsible for staying abreast of industry trends, reaching out to potential employees, and maintaining good working relationships with hiring managers.
+
+However, hiring a sourcer can be quite tricky. When you are hiring a sourcer, you expect them to be good at their job. During the interview, you can ask questions about their sourcing knowledge, like how they create the Boolean string for a particular site, or you can ask things like "How many requisitions do you fill?", "What was your time to fill?", "Are you using some other source than LinkedIn?" and so on.
+
+However, we all know that, sometimes, the answers provided in an interview do not reflect reality. If someone tells us one thing, and the reality is something completely different, we’re not going to know whether that sourcer is the person we need and can to deliver what we are expecting. For example, the question "Are you using a different source than LinkedIn?" is always answered with "Of course," but the reality is usually different.
+
+A few months ago, my friend was trying to hire a few sourcing freelancers. All of those who applied claimed that they had the right experience, their profile stated that they were a sourcer or recruiter, and during the interview, they had all the right answers. However, when they finally started searching for candidates for his open roles (after a lot of preparation and initial training), they simply didn't deliver.
+
+While they were able to provide a long list of people, none of the candidates matched the requirements. After a few weeks, they were still not able to add any people that they provided to the pipeline for his roles. He invested time and money into the process, and they simply didn’t deliver. He hired people who were not good at sourcing, people who can’t deliver candidates for the finance roles he was trying to fill. This "trial" cost him time, money and lots of effort from his side, and he didn’t get any results from it.
+
+How can you find out if a sourcer is as good at his/her job as they claim?
+
+Reputation
+
+You can tell that a sourcer is doing a good job if you’ve heard positive things about him/her on the market. Maybe you were approached by them in person or maybe they are successfully stealing your people from your company. Either way, a good reputation or results let you know that he/she is doing a good job. Also, we all know the people who are doing an exceptional job in our fields. While reputation alone is not a guarantee that the person is a great sourcer, it is a great place to start. However, I wouldn’t solely rely only on reputation because your expectation based on their good PR could be much higher than their real skills.
+
+Pre-screening tests
+
+Pre-screening of these applicants via assessments can filter out unqualified candidates early on, reducing the time required of interview teams and lower the costs of your whole interview process. During my career, I have met with two types of pre-screening tests for sourcers.
+
+The first pre-screening tests were based on real requisition; potential candidates were asked to present three profiles of the candidates that are matching that position. I always consider that type of test to be a scam. If you have ten candidates and they all provide three profiles, you get thirty potential candidates and hire only one sourcer.
+
+So, not only does the company trick other potential candidates, but they also get resumes for free from them. I hope that thanks to GDPR this pre-screening test is history because it was a horrible way to test sourcers.
+
+The second type of pre-screening test is based on gamification. Gamification is an innovative approach to engaging the right talent. I am a big fan of gamification, and that is why one of my chapters in Full Stack Recruiter: The Modern Recruiter's Guide[48] was about how gamification works and how you can use it.
+
+If it is correctly implemented, gamification has huge potential because it works by encouraging talent to engage in game-like behaviors and situations in non-game applications and scenarios. These game elements will keep candidates more engaged and make the whole recruitment process more fun, interesting and creative.
+
+As a big fan and advocate for gamification, I believe that using gamification in recruitment could help improve results when hiring for a role. This type of pre-screening test ensures that you're hiring successfully by preselecting candidates based on their actual skills and knowledge, not just on the answers they give you in the interview or on the three profiles they deliver (the first type of pre-screening test).
+
+For example, companies and recruitment agencies are using Sourcing Games (www.sourcing.games) for testing their potential candidates for sourcers, and they asked them to share with them the answer from level 4 of the first sourcing game or any similar question. And yes, they are breaking the terms on my site, because that they can’t use the site for this. That’s why I created a testing solution and learning platform, that is the right platform for how to evaluate candidates and see the learning progression.
+
+SourcingTest.Online - Test your team
+
+This tool helps companies decide whether their candidates have the right knowledge and if they can meet the requirements for their roles. They can also track their progress and see what levels they can pass, which is an indication that they know what they are doing.
+
+I created SourcingTest.Online (www.sourcingtest.online) as a platform not only for sourcing hackathons but also for testing candidates and as a learning platform for internal teams. This application adds fun to your recruitment process; your candidates will try to overcome the challenges that you prepare for them and, for you, it is an easy way to test their sourcing techniques.
+
+The overall selection process will be less stressful for them, and it also encourages a competitive attitude between applicants. You will save time on interviews with your candidates and see how quickly they are able to solve each task, how many attempts they had and much more. SourcingTest.Online is also designed in that way that will show you when people are trying to cheat to solve your tasks.
+
+Not only can you create your own challenge, but you can also choose to keep it private, share only with those you know, or to publish it to the whole community. This solution is also perfect for your internal and external hackathons. You can easily test your current team through hackathons and see how quickly they are able to solve your tasks. Alternatively, you can prepare external hackathons and attract new candidates.
+
+Adding gamification to training is another aspect that should not be overlooked. Not only does it help people to learn better, it also helps them to learn and retain more because they are encouraged to expand their knowledge. Whether you are training your team in-house or sending them to external training, it is important to test what knowledge they have learned—and the results that recruitment agencies and companies have been getting by using SourcingTest.Online speak for themselves!
+
+Conclusion
+
+Gamification elements are also quite handy when you are working as a sourcing trainer. Especially if you are looking for a way to add gamification elements to your training or to test the knowledge of those who attend your courses. Tests with gamification elements are the best way to test attendees a week after the training or even after some time. It’s also a great way how to find out what people really learned and what they have already forgotten. Not only you can test the knowledge of your course attendees, but you can see when they fail and how long it takes them to overcome the tasks you have set.
+
+Gamification has significant potential, and it could be easily used for testing the knowledge of the sourcers and recruiters but, in my opinion, its real power lies in implementing it into training. Gamification elements should not be overlooked!
+
+OceanofPDF.com
+
+
+
+
+
+04.13 Share Your Knowledge to Gain Knowledge
+
+
+SourceCon Budapest 2018 was a first SourceCon conference in Europe and one amazing event. This conference was built by inspiring people who love to share, and because I also love to share, choosing the topic for my speech was a no-brainer.
+
+My presentation was titled: "Share Your Knowledge to Gain Knowledge." I strongly believe that sharing is still the best way of learning and remembering things and that sharing is a critically fundamental human trait. We have been sharing for longer than we can remember, and this is also the way we have obtained most of our knowledge and skills in our life.
+
+Moreover, I would like to encourage you to share more with others! I know that sharing is not for everybody, but if I even inspire one person to share this, it could cause a ripple effect and inspire more people than I could ever reach by myself.
+
+Top 5 Reasons Why People Share
+
+Maybe the reason you share is because you feel a certain pleasure, happiness or satisfaction when you share your knowledge with others. This is one of the reasons why you and most people share.
+
+We are, by nature, social creatures, which means that we appreciate the companionship of others of our kind. This means we are capable of gestures that will bring others close to us or manifest feelings like compassion and altruism when we feel the need to share something out of the desire to help others.
+
+There are five major reasons why people share their knowledge:
+
+1. We share to look good (Impression Management)
+
+2. We share to feel good (Emotion Regulation)
+
+3. We share to teach and help (Information Acquisition)
+
+4. We share to connect (Social Bonding)
+
+5. We share to convince (Persuading Others)
+
+When I shared my first article, my goal was to look good. It was a foolish goal, but we all have our own reason why we start sharing. I think most of us start with the same goal, the first reason from the list, to look good. "Hey world, I am here and look at this amazing knowledge that I just shared with you!"
+
+Can we say that sharing is embedded in our DNA? Well, not exactly, as there are some people who don’t like to share or don’t do it very often. And that is OK. Some of us have to discover the joy of sharing one step at a time. It feels natural to share with the people we know, like family and friends; the real challenge is to share what you have with strangers, especially when you could get feedback on your work that might not be positive.
+
+I remember how I was, years ago, when somebody approached me and asked me if I could share something. My answer was always, "Hell no, that’s my secret knowledge," yet after just a few years, I am probably oversharing a little bit. It was an interesting journey from "I am not sharing" to "Here is my book with some of my knowledge—enjoy!" Because you are reading this as a book or an eBook, you already know that I like sharing so much that I turned it into a second book.
+
+I have learned a lot during these years, and during my presentation, I also shared what I learned because of sharing, and these are my TOP 5 insights.
+
+The TOP 5 things I learned thanks to sharing
+
+1. People share things that have the right type of emotion and things that give practical value.
+
+2. People share the things others are sharing and things that have a story.
+
+3. People share things that are funny. Laughter is recognized by people of all cultures.
+
+4. Give before you get. You need to share with others to receive more from them.
+
+5. Stay genuine. And if people don’t like the real you, who cares?
+
+I had one goal in mind with my presentation; I wanted to inspire at least one person in the room to share more. Right now, you are probably thinking: Why only one person? Why not more? I didn’t give myself a small goal because I think that one person could change the world, could be the spark that will make a ripple effect. And who knows? One day somebody may tell me, "You were the reason why I started sharing."
+
+Why You Should Start Sharing
+
+1. Sharing and explaining helps you to understand and remember things better.
+
+2. Being challenged by others helps you look at things from new perspectives and allows you to learn even more.
+
+3. The more you practice explaining and sharing information, the more your communication skills improve.
+
+4. Sharing your learnings encourages others to share theirs with you. This will help you to discover new information, build relationships, and learn new skills.
+
+I wrote a few articles for SourceCon about how typography influences readers, how people can be influenced through different content formats, and how the psychology of color plays a role in recruitment and more. All these things together—typography, color, language, visualization, formatting, storytelling, presentation—are connected.
+
+I was able to write these articles and share this knowledge with others because others shared their knowledge with me through surveys, theses, posts, articles, etc., and thanks to those people, I was also able to learn more about new things. The knowledge I gained from them has had a positive impact on me and my work, and I hope the insights and knowledge that I have shared with others have also positively impacted them.
+
+For my presentation, I asked the SourceCon team for some data on a few of my articles and whether I could share that data; I was really surprised with the effect that all these articles have had!
+
+
+
+Maybe there is somebody out there using the information I have shared for something new that they will share with the world and that will also help me.
+
+This is one example of what sharing can do. This particular trait we have can take us a long way as we can change how things work. We can also share to make the communities in which we live a better and safer place, so the applicability of sharing is more than generous.
+
+Conclusion
+
+As mentioned earlier, people mostly share because it makes them feel good. This is probably one of the most popular reasons for sharing. The truth is, no matter what we share, the gesture makes us feel positive emotions every time. You can start sharing because of that, or you may have some other reasons of your own.
+
+The majority of us enjoy sharing because we want others to feel the excitement and joy we felt when we discovered a particular thing. And this helps us create better and stronger social relationships.
+
+And the best part about sharing is that it makes us and the people around us feel better and we learn more, so it will always be a win-win situation.
+
+As the Dalai Lama once said: "Share your knowledge. It’s a way to achieve immortality."
+
+OceanofPDF.com
+
+
+
+
+
+04.14 Stop Looking for Excuses
+
+
+When I published my first book, I got many messages that said something similar: "All that is great but…" and the but was always connected with "but I don't have enough time", "but we are doing that differently", "but my boss is not looking for innovation" and so on.
+
+We all are looking for excuses, some of us just from time to time, and some of us more often than others. Recruitment is full of excuses, even if we are not ready to admit it publicly. And many recruiters in the industry today get a bad rap. Most of the time, these issues, which give them a bad name, are self-inflicted. Instead of finding improvements to overcome these problems, they bring up excuses as an easier escape route.
+
+I know what you’re thinking: So what? Everybody makes excuses. That doesn't make the next guy better than me. I am doing the best I can with the little I have.
+
+Recruiters deal with a lot of data. Every day, they interact with candidates and try to keep all their balls in the air. Average recruiters do their best in the real sense. Unfortunately, the recruitment process—even in today’s digital age—is still weighed down by a myriad of man-made shortcomings.
+
+When recruiters resort to excuses as escape routes, they undermine the need for improvement, thereby letting clients and candidates down and starting on a slippery slope towards mediocrity. This is by no means an indictment on the state of recruitment, but there is always room for innovation and change.
+
+Here are some recruitment tips to overcome the stagnancy of excuses:
+
+Application Process
+
+One of the common excuses is: "We need to know more about candidates; that’s why we need to have five pages of registration." But do we really need to know what grades they got in high school or need a cover letter in which they describe what they did twenty years ago?
+
+A lack of satisfaction, arising from a cumbersome applications process, has made many talented candidates give up midway when applying. Hence, the need for gamification: introduce elements that will make the application process more enjoyable and less of a strain.
+
+Communication
+
+Recruiting is so much more than just matching candidates with job descriptions. This is just part of the job. There is no justifiable reason to hide behind emails and not reach out to candidates and communicate with them. The best recruiters take time to find out what makes their candidates tick; they earn what they are actually looking for. With candidates churning in and out of the system, understanding candidates’ core values is of the utmost necessity.
+
+Communication is also important when a candidate is rejected. You don’t have to become a ghost recruiter when you are trying to avoid or not answer candidates after you reject them. Even after rejection, the candidate is an important source of other potential candidates (referrals).
+
+Don’t make excuses for why you can’t get it done. Focus on all the reasons why you must make it happen!
+
+Give Feedback and Ask for Some
+
+Why don't recruiters always give feedback? Their excuse is always the same: "Ah, I have thousands of candidates. I don't have that much time on the clock," or, "I don’t have time to give feedback to every candidate that applied."
+
+If your ATS is not an Excel spreadsheet, then this is the lamest excuse there is. If this is your favorite excuse, you just don’t care about your company, or you don’t see that you are affecting your future pipeline. Every candidate today is potentially a future customer or future decision maker who will have the power to cooperate with your company.
+
+Recruiters that are not giving feedback to every candidate very quickly start to wonder why their candidate experience keeps dropping. The answer is quite simple: if you've interviewed someone and you think they are not a fit, do them the courtesy of telling them that, even if you need to use an email template.
+
+Even negative news (rejection) is better than no news at all!
+
+If you want to improve the candidate experience, the best way is to ask for feedback from your candidates. They should also be given the opportunity to express and share their experiences with you. What you hear may not be entirely favorable—and perhaps that’s why it's often avoided in the first place, but that's exactly the point. You need feedback to patch your errors and make improvements.
+
+You Don’t Have the Time to Build a Personal and Company Brand Online
+
+Yes, you say social recruiting is too time-consuming. Furthermore, you know that posting regular, high-quality content on your social channels is not child's play. It will require the right ideas, time and persistence. However, recruiters whose social recruiting is poor will count their losses every day.
+
+Being active on social sites might not be recognized as work by your boss, and you may not be excited about it because you are not going to see any quick results. However, building an authentic brand and sharing information about the company culture where you are working will pay dividends in the long run.
+
+Finding some time every day for social sites could bring you inspiration from the leaders in your field and also could create the snowball effect that will bring you a bigger audience, more followers/connections, and more candidates that will know your company and you. If candidates in your market know you and your company, this will significantly raise the chances of you getting an answer on your LinkedIn inmail or email.
+
+Conclusion
+
+Every time I hear, "There is a problem," my answer is always the same: "There are no problems, only opportunities."
+
+Making excuses may cause a great candidate to slip through your fingers and negatively affect your brand and candidate experience; however, making no improvements will let the wrong candidate through—which is even worse.
+
+In recruitment, excuses are the killers of trust and opportunity. Whether you give them or are receiving them, they make it clear that a promise, an agreed obligation—your recruitment credibility—has not been delivered upon.
+
+Rise above excuses today. If a shark stops swimming, it will die. Constant improvement while minimizing excuses is the only way to become the best recruiter or sourcer you can be.
+
+OceanofPDF.com
+
+
+
+
+
+05 Epilogue
+
+
+Recruitment is an incredible field that is constantly evolving. With that said, it still has some issues that we all are trying to resolve, and sometimes we recruiters don't have a good reputation among candidates, but it's still one of the best fields you can work in!
+
+Even after so many years of working in recruitment, I am still amazed by people, the great things they are trying to invent, the methods they have discovered, and every time I think there is nothing that could be improved, somebody proves me wrong. Thank you for that!
+
+We are all constantly trying to find new shortcuts or methods that will quickly and easily solve the sourcing/recruitment problems that we are facing every day. Even though our work is still a constant battle with the time, our candidates, customers and hiring managers, it is still an incredible field that brings new surprises every day.
+
+I hope you found something new in this book, something that opened your mind just a little bit or made you decide to try something different or take a different approach. There are no magical shortcuts in sourcing or recruitment. Just like there is no "perfect" candidate for a job, or there is no sourcing tool or method that will magically solve all the problems you have.
+
+The only "magical" solution I know of is consistency, an open mind, creativity, and a lot of hard work. All these things were necessary on my journey to becoming a published author, and without them, I wouldn’t have been able to finish both books.
+
+Keep in mind that there could be a million and one methods, but the sourcing principles are just a few. The person who understands these principles well can successfully choose and create their own methods. The person who tries new methods but ignores the principles will surely get themselves into trouble.
+
+If you loved my book Full Stack Recruiter: The Modern Recruiter's Guide or this Full Stack Recruiter: New Secrets Revealed and have a minute to spare, I would really appreciate a short review on the Amazon or the site where you bought the book. Reviews from readers like you make a huge difference in helping new readers find my books.
+
+Thank you for being a part of my journey!
+
+Jan Tegze
+
+OceanofPDF.com
+
+
+
+
+
+Endnotes
+
+
+[1] https://en.wikipedia.org/wiki/Cambridge_Analytica
+
+[2] https://w3techs.com
+
+[3] https://news.netcraft.com/archives/category/web-server-survey/
+
+[4] http://www.htaccess-guide.com
+
+[5] https://en.wikipedia.org/wiki/Virtual_private_network
+
+[6] https://www.ted.com/talks/eli_pariser_beware_online_filter_bubbles
+
+[7] https://en.wikipedia.org/wiki/Thomas_Powers
+
+[8] Habits—A Repeat Performance - David T. Neal, Wendy Wood, Jeffrey M. Quinn
+
+[9] https://en.wikipedia.org/wiki/Howard_Rachlin
+
+[10] https://en.wikipedia.org/wiki/Growth_hacking
+
+[11] https://www.facebook.com/groups/GrowthHackingRecruiters/
+
+[12] http://www.emeraldinsight.com/doi/abs/10.1108/00220410510632040
+
+[13] https://en.wikipedia.org/wiki/Legibility
+
+[14] https://ceblog.s3.amazonaws.com/wp-content/uploads/2013/06/Psychology_Behind_Type.jpg
+
+[15] http://alexpoole.info/blog/which-are-more-legible-serif-or-sans-serif-typefaces/
+
+[16] https://www.cs.cmu.edu/~jbigham/pubs/pdfs/2017/colors.pdf
+
+[17] https://en.wikipedia.org/wiki/Readability
+
+[18] http://www.impact-information.com/impactinfo/readability02.pdf
+
+[19] https://www.nngroup.com/articles/author/jakob-nielsen/
+
+[20] http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.4346&rep=rep1&type=pdf
+
+[21] https://www.nngroup.com/reports/how-people-read-web-eyetracking-evidence/
+
+[22] https://en.wikipedia.org/wiki/Reading_comprehension
+
+[23] https://ieeexplore.ieee.org/document/4233000/
+
+[24] http://news.mit.edu/2014/in-the-blink-of-an-eye-0116
+
+[25] http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.476.2928&rep=rep1&type=pdf
+
+[26] https://www.princeton.edu/~browning/snow.html
+
+[27] https://www.researchgate.net/publication/273998743_Blue_phenomenon_Spontaneity_or_preference
+
+[28] https://www.sciencedirect.com/science/article/pii/S0272494415000328
+
+[29] http://psycnet.apa.org/record/2014-30837-001
+
+[30] https://www.tourolaw.edu/lawreview/uploads/pdfs/27_2/9.pdf
+
+[31] http://www.jstor.org/stable/3151897
+
+[32] http://www.ncbi.nlm.nih.gov/pubmed/2289687
+
+[33] http://www.joehallock.com/edu/COM498/preferences.html
+
+[34] http://www.ncbi.nlm.nih.gov/pubmed/2235253
+
+[35] http://www.joehallock.com/edu/COM498/preferences.html
+
+[36] https://www.emeraldinsight.com/doi/abs/10.1108/00251740610673332
+
+[37] https://www.sciencedaily.com/releases/2006/11/061128083022.htm
+
+[38] http://stanford.edu/~gbower/1969/Narrative_stories.pdf
+
+[39] http://www.thetalentboard.org/cande-awards/
+
+[40] https://business.linkedin.com/talent-solutions/blog/2013/12/are-candidates-customers-or-something-more
+
+[41] https://business.linkedin.com/talent-solutions/blog/candidate-experience/2017/bad-candidate-experience-cost-virgin-media-5m-annually-and-how-they-turned-that-around
+
+[42] https://workplacetrends.com/candidate-experience-study/
+
+[43] Of course, if you have better one, feel free to contact me.
+
+[44] https://appcast.io/2020-companies/
+
+[45] 46 % said, "I will take my purchasing power somewhere else." Data from North American CandE Awards research
+
+[46] https://business.linkedin.com/talent-solutions/blog/2013/12/are-candidates-customers-or-something-more
+
+[47] https://workplacetrends.com/candidate-experience-study/
+
+[48] http://a.co/d/d3n7N3t
+
+OceanofPDF.com
+
+
+
+
+
