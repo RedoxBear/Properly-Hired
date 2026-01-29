@@ -392,22 +392,22 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
 
         setOptimizationResults(versions[0]);
 
-      try {
-        await logEvent({
-          type: "resume_rendered",
-          ts: new Date().toISOString(),
-          app_id: jobData.id,
-          mode: optimizeMode
-        });
-      } catch (logError) {
-        console.error("Telemetry failed:", logError);
-      }
+        try {
+          await logEvent({
+            type: "resume_rendered",
+            ts: new Date().toISOString(),
+            app_id: jobData.id,
+            mode: optimizeMode
+          });
+        } catch (logError) {
+          console.error("Telemetry failed:", logError);
+        }
     } catch (e) {
       console.error(e);
       setError("The service is busy right now. Please try again in a minute.");
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false);
   };
 
   const resetOptimization = () => {
