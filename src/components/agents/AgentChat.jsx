@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 export default function AgentChat({ agentName, agentTitle, context = {} }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -91,7 +92,7 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
             >
                 <Button
                     onClick={() => setIsOpen(true)}
-                    className="h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="h-14 w-14 rounded-full shadow-lg bg-orange-600 hover:bg-orange-700"
                     size="icon"
                 >
                     <Bot className="w-6 h-6" />
@@ -108,13 +109,13 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                 className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-6 right-6'} z-50`}
             >
-                <Card className={`shadow-2xl border-2 border-blue-200 ${isMinimized ? 'w-80' : 'w-96 h-[600px]'} flex flex-col`}>
-                    <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-purple-50 py-3 px-4">
+                <Card className={`shadow-2xl border-2 border-orange-200 ${isMinimized ? 'w-80' : 'w-96 h-[600px]'} flex flex-col`}>
+                    <CardHeader className="border-b bg-orange-50 py-3 px-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Bot className="w-5 h-5 text-blue-600" />
+                                <Bot className="w-5 h-5 text-orange-600" />
                                 <CardTitle className="text-base">{agentTitle}</CardTitle>
-                                <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
+                                <Badge variant="outline" className="text-xs bg-orange-100 text-orange-700 border-orange-300">
                                     AI
                                 </Badge>
                             </div>
@@ -145,7 +146,13 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                 {messages.length === 0 && (
                                     <div className="text-center text-slate-500 text-sm mt-8">
                                         <Bot className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                                        <p>Ask me anything about {agentTitle.toLowerCase()}!</p>
+                                        <p>
+                                            {agentName === 'kyle' 
+                                                ? "Ask Kyle, your Resume Expert!" 
+                                                : agentName === 'simon'
+                                                ? "Ask Simon, insider Recruiter for the Company!"
+                                                : `Ask me anything about ${agentTitle.toLowerCase()}!`}
+                                        </p>
                                     </div>
                                 )}
 
@@ -157,11 +164,13 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                         <div
                                             className={`max-w-[85%] rounded-lg px-4 py-2 ${
                                                 msg.role === "user"
-                                                    ? "bg-blue-600 text-white"
+                                                    ? "bg-orange-600 text-white"
                                                     : "bg-slate-100 text-slate-800"
                                             }`}
                                         >
-                                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                            <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                                                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -181,7 +190,13 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         onKeyPress={handleKeyPress}
-                                        placeholder="Type your message..."
+                                        placeholder={
+                                            agentName === 'kyle' 
+                                                ? "Ask Kyle, your Resume Expert!" 
+                                                : agentName === 'simon'
+                                                ? "Ask Simon, insider Recruiter for the Company!"
+                                                : "Type your message..."
+                                        }
                                         className="resize-none h-10 min-h-0"
                                         disabled={isLoading}
                                     />
@@ -189,7 +204,7 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                         onClick={sendMessage}
                                         disabled={!input.trim() || isLoading}
                                         size="icon"
-                                        className="bg-blue-600 hover:bg-blue-700"
+                                        className="bg-orange-600 hover:bg-orange-700"
                                     >
                                         <Send className="w-4 h-4" />
                                     </Button>
