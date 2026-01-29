@@ -1,0 +1,82 @@
+Richard Xiong
+Fullerton, CA | (323) 427-8673 | reedxiong@gmail.com | LinkedIn.com/in/reedxiong
+
+EXECUTIVE PROFILE: GLOBAL HR DIRECTOR & STRATEGIC BUILDER
+Global HR Director with 15+ years of experience architecting People functions for high-growth engineering, e-commerce, and digital organizations. A bilingual (English/Mandarin) executive who combines economic rigor (B.S. Economics) with human capital strategy. Expert in fusing agentic AI systems with workforce planning to drive operational efficiency. Proven track record of leading complex M&A integrations (JTB Americas), scaling R&D teams (DJI), and building "0 to 1" infrastructures for billion-dollar market entries (DHGate).
+
+UNIQUE VALUE PROPOSITION
+I do not just manage HR; I engineer the organizational operating system.
+At Akkodis, you need an HR Director who understands "Smart Industry" natively. I combine the strategic execution of a seasoned executive (managing $120M P&Ls) with the technical capability of a developer (building AI agent ecosystems). I bridge the gap between C-suite strategy and engineering reality.
+
+CORE COMPETENCIES
+•	Strategic M&A Integration (Culture/Systems)	•	AI & Agentic Workflow Design (MCP/LLM)
+•	Global Workforce Scaling (US/APAC/EMEA)	•	Technical Talent Acquisition (R&D/Eng)
+•	HR Infrastructure Architecture (0→1 Builds)	•	Executive Advisory & C-Suite Partnership
+•	Data-Driven People Analytics (SQL/PowerBI)	•	Change Leadership & Transformation
+
+PROFESSIONAL EXPERIENCE
+
+ALIGCUS INC. | San Gabriel, CA						May 2024 – Present
+Executive Vice President (Head of People & Operations)
+Partnered directly with the CEO to professionalize a Design-Build firm during a hypergrowth phase, owning all People, Operations, and Strategic Planning functions.
+•	Digital Transformation: Architected a proprietary AI-driven operational workflow (Prague-day/Brillant-day pilots) using agentic design, automating workforce tracking to increase productivity by 30% and operational efficiency by 180%.
+•	Strategic Roadmap: Crafted a 3-year People & Operations roadmap aligned to Agile Org Design, positioning the company for successful Series A fundraising.
+•	Infrastructure Build (0→1): Built the complete HR tech stack from scratch (iSolved, Monday.com), establishing data governance standards that achieved 98% audit accuracy.
+
+DHGATE | Los Angeles, CA							Dec 2022 – May 2024
+Sr. HR Business Partner / Head of U.S. Operations
+Led the U.S. market entry for a $2B global e-commerce platform, serving as the strategic bridge between U.S. operations and Global HQ (China).
+•	Global Expansion (0→1): Established the U.S. entity in 90 days, successfully navigating complex cross-border compliance, banking, and payroll setup for a distributed workforce.
+•	Talent Engine: Built a high-velocity recruiting machine that delivered 50+ strategic hires across CA, NY, and TX with a <35-day time-to-fill and 92% offer acceptance rate.
+•	Retention Strategy: Achieved a 25% improvement in retention for cross-border teams by designing culturally adaptive development programs and transparent performance metrics.
+•	Data Leadership: Developed SQL-based workforce analytics dashboards that accelerated executive decision-making by 40%.
+
+DOMINO’S PIZZA INC. (Franchise) | Paramount, CA				Apr 2021 – Oct 2022
+Director of Human Resources
+Turnaround leader for an 85-location franchise (1,000+ employees), reporting to the President.
+•	Crisis Stabilization: Reduced turnover by 21 points (saving $1.1M annually) by diagnosing root causes and implementing a comprehensive retention and engagement strategy.
+•	Tech Modernization: Led the full migration to Paycom across 85 sites, unifying payroll, scheduling, and compliance into a single digital ecosystem.
+
+GOOD HOPE GROUP (CreditEase) | Irvine, CA					Jun 2018 – Oct 2020
+Operations & HR Manager
+•	Cross-Border Build: Orchestrated the U.S. infrastructure setup for a major FinTech firm, achieving 25% cost savings through strategic vendor optimization and global alignment.
+•	Automation: Deployed Azure-based compliance workflows that reduced manual HR processing by 60%.
+
+KOSHER ROOTS | Long Beach, CA						Jan 2016 – Jun 2018
+Founder & Principal HR Consultant
+Independent HR consulting practice serving startups in entertainment, hospitality, and tech.
+•	Fractional Leadership: Built HR infrastructure (0→1) for 15+ client companies, handling entity setup, compliance, and workforce planning.
+•	Leadership Coaching: Coached 30+ executives on organizational change and resilience (CPCC-certified).
+
+DJI TECHNOLOGY | Carson, CA						Jan 2015 – Dec 2015
+HR Director / HR Consultant
+Launched the U.S. People function for the world’s leading drone technology company.
+•	Scaling R&D: Scaled the U.S. engineering and regulatory team from 15 to 150+ in 12 months, enabling a successful product launch window.
+•	HRIS Architecture: Partnered with global leadership to implement Workday HCM, ensuring seamless data integration between Silicon Valley and Shenzhen HQ.
+
+VA LONG BEACH HEALTHCARE SYSTEM | Long Beach, CA			Apr 2014 – Dec 2015
+HR Specialist (Healthcare Recruitment)
+Managed complex federal recruitment for Psych, Internal Medicine, and Oncology departments.
+•	Systems Innovation: Engineered a Microsoft Access database to bridge fragmented Excel reports, eliminating redundant data entry cycles for the entire department.
+•	Federal Compliance: Advised Department Chiefs on OPM/CFR policies, ensuring 100% compliance in high-stakes healthcare hiring.
+
+JTB AMERICAS, LTD. | Torrance, CA					Nov 2011 – Nov 2013
+Strategic HR Manager (Corporate Planning)
+•	M&A Integration: Led personnel integration for multiple acquisitions ($1.5M value), ensuring cultural alignment and process standardization.
+•	ERP Architecture: Served as the technical bridge between HRIS and the legacy finance system for a comprehensive ERP migration.
+
+SERCO - NA, INC. (U.S. ARMY) | Camp Zama, Japan				Mar 2007 – Jun 2011
+Supervisory HR Manager / Japan Regional System Chief
+Managed Army HRIS for 14,000+ personnel across Japan and South Korea.
+•	Crisis Logistics (Op. Tomodachi): Orchestrated the relocation of 8,000+ individuals during the 2011 Japan disaster relief mission.
+•	Regional Data Integrity: Managed the regional database for 4,000+ personnel with 100% accuracy for mission-critical deployment reporting.
+
+EDUCATION & CERTIFICATIONS
+•	MBA, Business School Netherlands (2013)
+•	B.S., Economics, Beijing Great Wall University (2007)
+•	Certifications: CPCC (Executive Coach), CompTIA Security+ & Network+, PeopleSoft Administrator.
+•	Languages: English (Native), Mandarin Chinese (Native/Bilingual)
+
+TECHNICAL SKILLS
+•	AI & Agentic Systems: Multi-agent workflow design, LLM orchestration, Model Context Protocol (MCP).
+•	HR Tech Stack: Workday (Expert), ADP, Paycom, iSolved, PeopleSoft, Tableau, Power BI.

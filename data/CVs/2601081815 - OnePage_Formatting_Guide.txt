@@ -1,0 +1,42 @@
+# Formatting Guide: Richard Xiong One-Page Executive CV
+
+**Goal:** Fit the "Harvard Executive" text into a single Microsoft Word page.
+
+## Page Setup
+*   **Margins:** Set Top, Bottom, Left, and Right margins to **0.5 inches**.
+*   **Size:** US Letter (8.5 x 11).
+
+## Font Settings
+*   **Typeface:** Garamond (Traditional) or Calibri (Modern).
+*   **Name:** 18pt, Bold, Centered.
+*   **Contact Info:** 10pt, Centered. (Use "|" to separate items).
+*   **Section Headers:** 12pt, Bold, All Caps. Add a bottom border line for visual separation.
+*   **Body Text:** 10pt.
+
+## Layout Strategy (The "H-Format")
+
+### 1. The Experience Block
+For each role (ALIGCUS, DHGate, Domino's), use this exact structure to save space:
+
+**COMPANY NAME** – Location [Right Align: **Dates**]
+*Job Title*
+*   Bullet Point 1
+*   Bullet Point 2
+
+*(Note: Use "Tab" stops to push the dates to the far right margin so they share the line with the Company Name.)*
+
+### 2. The "Early Career" Block
+Do not give each early job its own header block. List them as tight bullets:
+
+**EARLY CAREER SUCCESS**
+*   **Role**, Company (Dates): One-sentence impact statement.
+*   **Role**, Company (Dates): One-sentence impact statement.
+
+### 3. Education & Certifications
+*   List degrees on one line if possible (e.g., **MBA**, Business School Netherlands | **B.S.**, Beijing Great Wall University).
+*   Group certifications by comma separation to save vertical lines.
+
+## Troubleshooting (If it spills to Page 2)
+1.  **Reduce Bullet Spacing:** Select bullets -> Paragraph -> Indents and Spacing -> Uncheck "Don't add space between paragraphs of the same style."
+2.  **Adjust Name:** Reduce Name font size to 16pt.
+3.  **Summary:** Cut the last sentence of the Executive Summary (The "Fluent in..." line can move to skills).

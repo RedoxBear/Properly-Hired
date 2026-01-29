@@ -1,0 +1,56 @@
+For Kyle Review:
+ROLE: Manager, HR Systems and Integrations (The Wonderful Company)
+POST DATE: 2025-12-19 (from job schema on posting)
+GHOST JOB SCORE: 45% (mixed signals)
+VIABILITY: Uncertain
+---
+
+## HIRING INTENT
+Likely optimizing HRIS integrations and data flows across UKG Pro and UKG WFM to improve automation, data accuracy, and system efficiency. Role appears to bridge HR, IT, and vendors with project leadership for HR tech initiatives and security compliance.
+
+## COMPANY CONTEXT
+- Financial health: Appears stable and large (private company cited as $6B, 10,000 employees on the posting). External verification not performed.
+- Recent activity: Not assessed beyond the posting.
+- Team context: Not specified; no hiring manager listed.
+
+## SUCCESS PROFILE
+Top outcomes in 6-12 months:
+1) Stabilize and document integrations between UKG Pro, UKG WFM, and enterprise systems with measurable improvements in data accuracy and reduced manual effort.
+2) Deliver secure, reliable API and file-based data exchanges with clear monitoring and troubleshooting workflows.
+3) Lead HR tech projects that improve employee experience and ensure compliance with data security standards.
+
+Core competencies (must-have vs. nice-to-have):
+- Must-have: UKG Pro and UKG WFM platform expertise (3+ years).
+- Must-have: Integration engineering (REST/SOAP, file-based, data mapping, SQL, SFTP, SSO).
+- Must-have: Cross-functional project leadership and documentation/testing rigor.
+- Nice-to-have: Workato or similar middleware.
+- Nice-to-have: Relevant certifications (UKG Integration Specialist, HRIP, SHRM, PMP).
+
+## SCREENING LENS
+Likely deal-breakers:
+- No direct UKG Pro/WFM experience.
+- No integration engineering experience (API/file-based).
+- Not local or unwilling to work hybrid in West LA.
+
+Flexibility/preference factors:
+- Middleware tool choice (Workato preferred, may accept similar).
+- Certifications preferred but not mandatory.
+
+## GHOST JOB INDICATORS
+Green flags (real job signals):
+- Salary range listed ($125k-$140k).
+- Specific tech stack and integration scope.
+- Clear onsite/hybrid requirement.
+
+Red flags (ghost job signals):
+- Future-dated post date in job schema (2025-12-19).
+- No named hiring manager or team context.
+
+Risk assessment: Uncertain due to date anomaly; otherwise the posting is detailed and likely real.
+
+## BRIEF TO KYLE
+1) Job Viability: Uncertain, mainly due to future post date; otherwise looks real. Recommend pursue with caution.
+2) Success Profile: UKG Pro/WFM integration ownership, API/data flow reliability, and cross-functional HR tech leadership.
+3) Screening Criteria: UKG experience is the top filter; integration engineering evidence is mandatory.
+4) Competitive Edge: Emphasize HRIS integrations, SQL/data governance, security/compliance, and project leadership.
+5) Strategic Recommendation: If candidate lacks UKG Pro/WFM, label as Medium-Weak fit and consider a short outreach to confirm flexibility.

@@ -1,0 +1,46 @@
+# Master Instruction for Company Research (The "Deep Dive" Protocol)
+
+**Objective:** Teach an AI agent to research a target company like a Headhunter, not a Wikipedia summarizer. The goal is to find the *hidden* reasons a role exists and verify if it's real.
+
+## 1. The "Ghost Job" First-Pass (Viability Check)
+**Instruction:** "Before analyzing the company, prove the job is real."
+*   **The Query:** Search for the specific job title + "posting history" + "recruiter activity."
+*   **The Check:**
+    *   Is it a "Pipeline Req" or "Evergreen"? (Warning sign).
+    *   Are they hiring multiple people for this role? (Growth sign).
+    *   Are there recent layoffs? (Stability risk).
+*   **Why:** Don't waste compute on a fake job. If the role is a ghost, stop.
+
+## 2. Follow the Money (The "Why Now?" Check)
+**Instruction:** "Find the financial trigger that opened this headcount."
+*   **The Query:** Company Name + "Series [X] funding" OR "Revenue 2024" OR "IPO plans."
+*   **The Logic:**
+    *   **Raised Money?** -> They need to burn cash to grow (Hiring for Speed).
+    *   **Public/Stable?** -> They need efficiency/compliance (Hiring for Process).
+    *   **Distressed/Layoffs?** -> They need a turnaround agent (Hiring for Grit).
+*   **Output:** "They just raised $50M Series A; they are hiring to scale operations, not maintain them."
+
+## 3. Leadership DNA (The Culture Check)
+**Instruction:** "Ignore the 'Values' page. Look at where the leaders came from."
+*   **The Query:** Company Executives + "LinkedIn" + "Previous Companies."
+*   **The Logic:**
+    *   **Ex-Google/Meta?** -> They value engineering consensus and perks.
+    *   **Ex-Amazon/Uber?** -> They value operational intensity and "Day 1" thinking.
+    *   **Ex-Palantir/Defense?** -> They value mission, secrecy, and "Forward Deployed" problem solving.
+*   **Output:** "Leadership is ex-Palantir; resume must emphasize 'Mission' and 'Results' over 'Process' and 'Work-Life Balance'."
+
+## 4. Operational Signals (The "Real Work" Check)
+**Instruction:** "Find the physical or digital 'Thing' they are building right now."
+*   **The Query:** Company Name + "New Office" OR "Factory" OR "Product Launch 2025."
+*   **The Logic:**
+    *   Building a factory? -> They need Safety/OSHA skills.
+    *   Opening a UK office? -> They need International/Legal skills.
+    *   Launching a new API? -> They need Developer Relations/Technical skills.
+*   **Why:** Connect the candidate's skills to the *specific project* happening now, not just the general job description.
+
+## 5. The Output Format (The Brief)
+**Instruction:** "Do not give me a biography. Give me a Strategy Brief."
+*   **Section 1: Viability:** Is it real? (Yes/No/Maybe).
+*   **Section 2: The Trigger:** Why is this open *today*? (Money/Growth/Pain).
+*   **Section 3: The DNA:** Who are we impressing? (ex-Amazon/ex-Startup).
+*   **Section 4: The Hook:** What specific project allows the candidate to say 'I've done this before'?

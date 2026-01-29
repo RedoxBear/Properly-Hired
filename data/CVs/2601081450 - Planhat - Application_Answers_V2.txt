@@ -1,0 +1,21 @@
+Title: Planhat Application Answers (Refined V2) - Richard Xiong
+Date: 2026-01-08
+Ref: Protocol 1.5 (Interview/Application Scripts)
+
+---
+
+## 1. What's the most impactful achievement you've had so far in your career?
+
+**Strategy:** Focus on **Global Architecture + Speed**. Show you can build a company that survives executive churn and rapid scaling.
+
+**Answer:**
+"My most impactful achievement was architecting the U.S. market entry for a $2B global platform (DHGate), transforming it from a dependent 'satellite' into a locally-owned, self-sustaining legal entity. I built a leadership continuity plan that maintained 100% operational command-and-control through major C-suite transitions (CEO/COO) while scaling the strategic workforce by 50+ roles in 90 days. This proved that a properly engineered organizational structure can preserve cultural unity and compliance rigor even during high-velocity global expansion."
+
+---
+
+## 2. Share a brief story of implementing a creative solution which improved results (2-5 lines max)
+
+**Strategy:** Focus on the **"Global Standard + Local Amendments"** model. It's a "Creative" way to solve the Planhat Sweden/US friction.
+
+**Answer:**
+"To ensure performance consistency across 85 distributed locations, I implemented a 'Global Mothership + Local Amendments' framework. I anchored all operations to the strictest regulatory baseline while issuing state-specific amendments for local compliance. By calibrating interpretation through monthly structured case reviews with regional leaders, we reduced turnover by 21 points and saved $1.1M in annual recruiting costs."

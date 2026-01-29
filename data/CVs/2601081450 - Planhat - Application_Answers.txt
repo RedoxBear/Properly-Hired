@@ -1,0 +1,21 @@
+Title: Planhat Application Answers - Richard Xiong
+Date: 2026-01-08
+Ref: Protocol 1.5 (Interview/Application Scripts)
+
+---
+
+## 1. What's the most impactful achievement you've had so far in your career?
+
+**Strategy:** Focus on the **ALIGCUS** "0-to-1" build. It demonstrates the ability to build an entire company's operating system, which is exactly what Planhat needs.
+
+**Answer:**
+"As EVP at ALIGCUS, I architected the complete organizational infrastructure for a hyper-growth construction firm, scaling it from a founder-led operation to a structured enterprise ready for Series A. By replacing ad-hoc management with automated performance frameworks and rigorous compliance (OSHA/Labor Law) systems, I accelerated workforce productivity by 180% and reduced administrative overhead by 40%. This wasn't just 'HR'; it was building the engine that allowed the company to execute on its revenue goals without breaking."
+
+---
+
+## 2. Share a brief story of implementing a creative solution which improved results (2-5 lines max)
+
+**Strategy:** Use the **AI Agent / Automation** angle. It proves you are "Tech-Forward" and "Business-Minded."
+
+**Answer:**
+"At DHGate, our manual compliance checks for cross-border hires were slowing down market entry. I built a custom automated workflow using Power Automate and Python scripts to pre-validate candidate eligibility against federal regulations before they even reached the interview stage. This creative 'pre-screening' filter reduced time-to-hire by 35% and completely eliminated legal risk for our $120M expansion."

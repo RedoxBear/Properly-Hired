@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base */
+    --background: 0 0% 100%; /* White */
+    --foreground: 240 10% 3.9%; /* Neutral 900 */
+
+    /* Panels & Cards */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    /* Primary (Orange essence) */
+    --primary: 24.6 95% 53.1%; /* Orange */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    /* Secondary (Used for secondary actions) */
+    --secondary: 240 4.8% 95.9%; /* Neutral 100 */
+    --secondary-foreground: 240 10% 3.9%; /* Neutral 900 */
+
+    /* Muted (Used for less important text) */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%; /* Neutral 500 */
+    
+    /* Accent (Alias for Primary) */
+    --accent: 24.6 95% 53.1%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Other */
+    --border: 240 5.9% 90%; /* Neutral 200 */
+    --input: 240 5.9% 90%;
+    --ring: 24.6 95% 53.1%; /* Orange */
+
+    /* Radius */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Base */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    /* Panels & Cards */
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    /* Popover */
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary (Orange essence) */
+    --primary: 24.6 95% 53.1%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary (Used for secondary actions) */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    /* Muted (Used for less important text) */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* Accent (Alias for Primary) */
+    --accent: 24.6 95% 53.1%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Destructive */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Other */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 24.6 95% 53.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .gradient-bg {
+    @apply bg-gradient-to-r from-blue-600 to-cyan-500;
+  }
+}

@@ -1,0 +1,83 @@
+Richard Xiong
+Fullerton, CA | (323) 427-8673
+reedxiong@gmail.com | LinkedIn.com/in/reedxiong
+U.S. Army Veteran | Security Clearance (Previous)
+
+SUMMARY
+Mission-driven Sr. HR Business Partner with 15+ years of experience supporting Engineering, R&D, and Field Operations teams. Specialized in partnering with technical leadership to resolve complex employee relations issues, execute data-driven talent strategies, and ensure mission readiness in high-pressure, ITAR-compliant environments (DoD/Army, DJI, Manufacturing). Combines deep operational rigor with the agility to support hyper-scaling organizations without administrative friction.
+
+CORE COMPETENCIES
+*   Strategic HR Partnership: Engineering/R&D Coaching, Talent Calibration, Performance Management.
+*   Employee Relations: Complex Investigations, Dispute Resolution, Conflict Mediation, Risk Mitigation.
+*   People Analytics: Compensation Planning, Retention Analysis, Workforce Modeling (SQL, Power BI).
+*   Operational Compliance: ITAR/Export Control, OSHA Safety Standards, Federal/State Labor Law.
+*   Languages: English (Native), Mandarin Chinese (Native/Bilingual).
+
+TECHNICAL PROJECTS & AGENTIC AI (HR ENGINEERING)
+*   Prague-day (AI Workflow Automation): Developed multi-agent AI tools using Python and Model Context Protocol (MCP) to automate HR research and compliance workflows.
+*   HR Process Optimization: Designed agentic scripts to handle temporal data and automated reporting, reducing administrative overhead by 40%.
+
+PROFESSIONAL EXPERIENCE
+
+ALIGCUS Inc. | San Gabriel, CA
+Sr. People Operations Leader (EVP Scope) | May 2024 – Jul 2025
+*   Field Operations Support: Partnered directly with field superintendents to enforce OSHA/Labor Law compliance across multi-site operations, ensuring safety rigor for 60+ staff.
+*   Org Design & Calibration: Facilitated organizational design sessions to prepare the company for Series A scaling, defining role architectures and leveling guides.
+*   Operational Efficiency: Analyzed workforce data to identify bottlenecks, implementing automated tracking systems that improved field engineering productivity by 180%.
+
+DHGate | Los Angeles, CA
+Sr. HR Business Partner (U.S. Ops Lead) | Dec 2022 – May 2024
+*   Employee Relations & Organizational Health: Conducted investigations and resolved complex ER issues for a rapidly expanding U.S. team, advising leadership on risk mitigation and compliance.
+*   People Analytics & Insights: leveraged Power BI and SQL to provide real-time talent insights, enabling data-driven decisions on retention and performance gaps.
+*   Talent Calibration & Compensation: Facilitated quarterly talent reviews and compensation planning cycles for 50+ strategic roles, ensuring pay equity and market competitiveness.
+
+DJI Technology | Carson/Cerritos, CA
+HR Director / Strategic HRBP | Jan 2015 – Dec 2015
+*   R&D Talent Partnership: Partnered with the VP of Product & R&D (Palo Alto) to support a complex hardware/software engineering organization (Drones/Imaging).
+*   Technical Coaching: Coached engineering managers on performance management and team dynamics, achieving 95% retention of critical technical talent during hyper-growth.
+*   HRIS Integration: Facilitated the U.S. rollout of Workday HCM, ensuring seamless data integration for the engineering workforce.
+
+U.S. Army | South Korea (Aviation Unit)
+Personnel Action Center Manager / USR Officer | Sep 2002 – Feb 2007
+*   Mission Readiness Support: Served as the primary reporter for the Unit Status Report (USR), ensuring 100% data integrity on personnel readiness for Aviation operations.
+*   Security & Vetting: Conducted sensitive vetting for personnel requiring Secret-Level Access, ensuring full operational security (OPSEC) for mission-critical roles.
+*   Command Support: Supported Unit Command by providing accurate, real-time personnel data to secure essential resources from Army HQ.
+*   Honors: Awarded Army Commendation Medal and two Army Achievement Medals for "Radical Operational Efficiency."
+
+Domino’s Pizza Inc. (MAR Pizza Franchise) | Paramount, CA
+Director of Human Resources | Apr 2021 – Oct 2022
+*   Complex ER & Investigations: Managed high-volume employee relations, conducting thorough investigations and dispute resolutions across 85 locations with zero legal violations.
+*   Retention Strategy: Partnered with Regional VPs to identify turnover drivers, implementing retention programs that reduced turnover by 21 points.
+*   HR Operations: Optimized payroll and scheduling systems (Paycom/Deputy) to enhance labor efficiency and data visibility.
+
+Good Hope Group | CreditEase | Irvine, CA
+Operations & HR Manager | Jun 2018 – Oct 2020
+*   Operational Setup: Facilitated the end-to-end setup of U.S. operational infrastructure, including banking, insurance, and HR compliance systems.
+*   Process Automation: Implemented cloud-based workflows to automate payroll processing, reducing manual administrative tasks by 60%.
+
+Kosher Roots | Long Beach, CA
+Founder & Principal HR Consultant | Jan 2016 – Jun 2018
+*   HR Advisory: Provided fractional HRBP support for early-stage startups, designing scalable compliance frameworks and people operations.
+
+VA Long Beach Healthcare System | Long Beach, CA
+HR Specialist (Healthcare Recruitment & Systems) | Jan 2014 – Dec 2015
+*   Federal Compliance: Executed recruitment documentation in strict adherence to OPM/CFR policies, supporting hiring for medical staff.
+*   Process Improvement: Engineered a database solution to streamline the hiring process, significantly improving Time-to-Hire metrics.
+
+JTB Americas, Ltd. | Torrance, CA
+Strategic HR Manager | Nov 2011 – Nov 2013
+*   Integration Support: Facilitated personnel integration for a global ERP rollout, ensuring stakeholder alignment and data accuracy.
+
+Serco - NA, Inc. | Camp Zama, Japan
+Supervisory HR Manager / Japan Regional System Chief | Mar 2007 – Jun 2011
+*   Regional Support: Administered Army HRIS for 18,000+ personnel, ensuring data integrity for theater operations.
+*   Crisis Response: Coordinated personnel relocation during Operation Tomodachi (2011 Japan disaster), supporting mission continuity.
+
+EDUCATION
+MBA | Business School Netherlands (2013)
+B.S., Economics | Beijing Great Wall University (2007)
+
+CERTIFICATIONS & TECHNICAL SKILLS
+*   Certifications: CPCC (Certified Professional Co-Active Coach), CompTIA Security+ & Network+, ADU Specialist.
+*   HRIS & Tools: Workday HCM (Expert), ADP WFN, Paycom, iSolved, PeopleSoft.
+*   Data & AI: SQL (Expert), Power BI, Python (Basic), LLM Orchestration, Model Context Protocol (MCP).

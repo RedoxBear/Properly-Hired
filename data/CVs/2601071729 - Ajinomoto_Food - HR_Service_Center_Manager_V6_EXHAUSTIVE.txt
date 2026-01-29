@@ -1,0 +1,100 @@
+________________________________________
+Executive Profile
+Operational HR Leader with more than 15 years building and scaling centralized HR service delivery, HRIS infrastructure, and compliance systems for global healthcare, tech, and construction organizations. Specialized in 0-to-1 People function builds, fractional HR infrastructure design, and HIPAA-compliant process optimization. Proven ability to partner with IT and Legal to standardize multi-site operations and drive efficiency without sacrificing compliance rigor. Delivered 30% productivity gains and $1.1M in annual savings through HRIS optimization and automated service delivery.
+
+Unique Differentiator: Japan Regional System Chief for Army HRIS, managing absolute data integrity across international operations. Combine DoD security standards with native Mandarin fluency and proven ability to standardize processes across complex, distributed organizations while maintaining compliance rigor.
+________________________________________
+Key Impact Metrics
+Service Efficiency: 180% increase via systems integration | Healthcare Compliance: HIPAA & OPM/CFR federal staffing expertise | Turnover Reduction: 21 points | Compliance: 100% HIPAA/DoD readiness | Cost Savings: $1.1M annually | Strategic Hiring: 15 to 150+ team scale (DJI)
+________________________________________
+Professional Experience
+
+Executive Vice President                                May 2024 – Jul 2025
+ALIGCUS Inc. - San Gabriel, CA
+Strategic Impact:
+•	Built complete HR infrastructure from ground up: implemented iSolved HRIS, automated workforce tracking, and increased productivity 180%.
+•	Designed and implemented operational procedures across 60-person organization; established SLAs for HR service requests and performance reporting.
+•	Automated workforce reporting and compliance workflows, achieving 98% data accuracy for audit readiness.
+•	Ensured absolute OSHA and labor law compliance across multi-site construction operations.
+
+Sr. HR Business Partner/Head of U.S. Operation          Dec 2022 – May 2024
+DHGate - Los Angeles, CA
+Strategic Impact:
+•	Built and operationalized U.S. HR function from scratch in 90 days, including entity registration, HRIS implementation (Workday Lite + ADP), and compliance.
+•	Established HR data governance standards achieving 98% data accuracy; created Power BI dashboards for real-time workforce visibility.
+•	Managed $120M revenue enablement through talent acquisition of 50 strategic U.S. hires with 92% offer acceptance.
+•	Navigated cross-border coordination with China HQ, ensuring seamless global integration.
+
+Director of Human Resources                             Apr 2021 – Oct 2022
+Domino’s Pizza Inc. (MAR Pizza Franchise) - Paramount, CA
+Strategic Impact:
+•	Led HR service delivery for 85 franchise locations; standardized service processes and compliance protocols, reducing turnover by 21 points.
+•	Deployed Paycom and Deputy across all locations; improved labor cost variance by 15% through centralized operations and SLA-driven management.
+•	Spearheaded high-volume recruitment and continuous training protocols to stabilize high-turnover environments.
+
+Operations & HR Manager                                 Jun 2018 – Oct 2020
+Good Hope Group | CreditEase - Irvine, CA
+Strategic Impact:
+•	Established end-to-end US operational infrastructure: banking, insurance, accounting, and HR systems integration.
+•	Implemented Azure cloud-based payroll/compliance automation, reducing manual processing by 60%.
+•	Navigated cross-cultural dynamics between U.S. operations and China HQ; achieved 25% cost savings.
+
+Founder & Principal HR Consultant                       Jan 2016 – Jun 2018
+Kosher Roots - Long Beach, CA
+Strategic Impact:
+•	Fractional HR Leadership: Provided entity setup and compliance guidance for startups, building operational service centers from scratch.
+•	Infrastructure Building: Implemented HR frameworks, HRIS systems, and payroll across multiple client organizations in regulated environments.
+•	Executive Coaching: Delivered CPCC-certified coaching for 30+ leaders to drive organizational change and resilience.
+
+HR Director                                             Jan 2015 – Dec 2015
+DJI Technology - Carson/Cerritos, CA
+Strategic Impact:
+•	Technical Implementation: Partnered with C-Suite to implement DJI’s first Workday HCM + ADP platform for U.S. operations.
+•	High-Velocity Scaling: Orchestrated U.S. team expansion from 15 to 150+ employees within 12 months supporting market entry.
+•	Retention Excellence: Achieved 95% retention of critical engineering roles during the aggressive growth phase.
+
+HR Specialist (Healthcare Compliance)                    Jan 2014 – Dec 2015
+VA Long Beach Healthcare System - Long Beach, CA
+Strategic Impact:
+•	Federal Compliance: Led recruitment and retention documentation across healthcare departments in strict adherence to VA/VHA/OPM/CFR policies.
+•	HIPAA Alignment: Advised leadership on healthcare workforce planning and technical interpretations of federal regulations.
+
+Founder & Principal HR Consultant                       Dec 2012 – Dec 2014
+Kosher Roots - Long Beach, CA
+Strategic Impact:
+•	Startup Operations: Provided fractional Head of People support for 15+ client companies, designing compensation and performance programs.
+•	System Deployment: Implemented initial HRIS and payroll infrastructures, improving client retention and operational scalability.
+
+Strategic HR Manager (Corporate Planning)               Nov 2011 – Nov 2013
+JTB Americas, Ltd. - Torrance, CA
+Strategic Impact:
+•	ERP Design: Key contributor to the initial design and supervised the planning of the organization’s ERP system integration.
+•	Global Integration: Delivered satisfactory project management KPIs during a $1.5M global integration process.
+•	Policy Transformation: Implemented updated HR Policy and Employee Manuals to satisfy State/Federal standards.
+
+Supervisory HR Manager / Japan Regional System Chief    Nov 2007 – Jun 2011
+SERCO - NA, Inc. - Camp Zama, Japan
+Strategic Impact:
+•	Japan Regional System Chief: Administered Army HRIS with absolute integrity across the entire Japan region.
+•	Structural Design: Managed Army Regional Reporting system design in compliance with Army Regulations and DoD data standards.
+•	Innovation: Created and implemented proprietary internal record tracking systems for regional deployment.
+
+Personnel Action Center Manager (Aviation Unit)         Sep 2002 – Feb 2007
+U.S. Army - South Korea
+Strategic Impact:
+•	Unit Status Report (USR): Delivered 100% accurate readiness reporting directly to Army HQ at the Pentagon.
+•	Data Sovereignty: Granted Secret-Level Access to manage sensitive DoD personnel, logistics, and mission-readiness databases.
+________________________________________
+Education & Certifications
+MBA | Business School Netherlands | B.S., Economics | Beijing Great Wall University
+CPCC (Executive Coach) | ADU Specialist | CompTIA Security+ | CompTIA Network+ | PeopleSoft HR Admin
+Languages: English (Native) | Mandarin Chinese (Native/Bilingual)
+________________________________________
+Technical Proficiency
+HRIS Platforms (Tier 1): Workday HCM (Expert) | ADP WFN (Expert) | Paycom | iSolved | PeopleSoft | Greenhouse
+Compliance & Data (Tier 1): Data Governance | HIPAA/PHI | Multi-state Compliance | Audit Prep | Regulatory Matrices
+BI & Analytics (Tier 1): SQL (Expert) | Power BI | Tableau | Executive Dashboards | Workforce Modeling
+Cloud & Automation (Tier 2): Azure Cloud | API Integration | Power Automate | Git
+________________________________________
+Additional Skills
+Multi-agent workflow design, LLM orchestration, prompt engineering (applied to HR process optimization)

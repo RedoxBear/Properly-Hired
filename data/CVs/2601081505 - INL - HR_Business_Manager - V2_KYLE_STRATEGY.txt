@@ -1,0 +1,34 @@
+Title: Kyle Calibration Strategy - INL - HR Business Manager
+Date: 2026-01-08
+Ref: 2601071500 - INL - HR_Business_Manager - V1_SIMON_BRIEF.txt
+
+---
+
+## 1. Tone Acknowledgment
+**Target Tone:** **TACTICAL / RELIABILITY (FINANCIAL FOCUS)**
+**Constraint:** Maximize "Quantitative" signals. Minimize "Qualitative" signals.
+**Goal:** Prove Richard is the "Economist in HR Clothing."
+
+## 2. Protected Signals Mapping (Tier 1)
+*   **Budget & P&L:** (Serco, DHGate). *Why:* JD explicitly asks for "Financial Management" and "Budget Monitoring."
+*   **Data Integrity/Reporting:** (Army USR, ALIGCUS Analytics). *Why:* JD asks for "Reporting and Analysis" and "HR Financial Indices."
+*   **Federal/DoD Context:** (Army, Serco, VA). *Why:* INL is a DOE lab; language alignment is critical.
+
+## 3. Verbal Strategy (The Shift)
+
+| Old Verb (HR) | New Verb (Finance/Ops) | Why? |
+| :--- | :--- | :--- |
+| **"Led People"** | **"Optimized Resource Allocation"** | Matches "Portfolio Management" requirement. |
+| **"Managed Culture"** | **"Analyzed Variance"** | Matches "Financial Management" requirement. |
+| **"Resolved Issues"** | **"Mitigated Risk"** | Matches "Process Improvement" requirement. |
+| **"Built Function"** | **"Forecasted FTE Needs"** | Matches "Strategic Planning" requirement. |
+
+## 4. Resume Structural Edits
+1.  **Summary:** Position as **"HR Operations & Financial Manager"**. Highlight **B.S. Economics** immediately.
+2.  **Serco:** This moves to the **TOP Tier of Relevance**. Highlight the **"$500k Budget Management"** and **"Contractor Performance"** explicitly.
+3.  **Army:** Frame "USR Officer" as **"Data Integrity & Readiness Reporting"** (direct parallel to HR Financial Indices).
+4.  **DHGate/ALIGCUS:** Focus purely on the **Revenue/Productivity metrics**. "Enabled $120M," "180% Productivity Gain."
+
+## 5. The "Quant" Hook
+*   **Education:** Move "B.S. Economics" to the Summary line or very top. It is a "Minimum Requirement" preference in the JD.
+*   **Metrics:** Remove "soft" metrics (retention, satisfaction). Keep "hard" metrics (dollars, percentages, time).

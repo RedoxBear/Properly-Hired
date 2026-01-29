@@ -1,0 +1,82 @@
+# Cover Letter - Manager, HR Systems & Integrations (The Wonderful Company)
+
+Dear Hiring Manager,
+
+I am writing to express my enthusiastic interest in the Manager, HR Systems & Integrations role at The Wonderful Company.
+
+Scanning my resume, you will see recent titles like "Executive Vice President" and "Head of Operations." You might rightfully ask: *"Why is an executive applying for a hands-on manager role?"*
+
+The answer is simple: **I miss the build.**
+
+Over the last 15 years, I have naturally progressed into strategic leadership, but my true zone of genius—and my professional joy—has always been in the architecture. I am happiest when I am deep in SQL queries, mapping API endpoints between disparate systems, and designing the logic that makes HR data flow seamlessly. I am looking to pivot away from generalist executive management to focus exclusively on technical HR systems architecture as an Individual Contributor (or hands-on Lead).
+
+While I do not have direct UKG Pro experience, I have architected and implemented major competitor systems (Workday, ADP Workforce Now, Paycom) from scratch. The underlying logic—schema mapping, API calls (REST/SOAP), and data governance—is identical. I bring the "0 to 1" integration mindset you need to bridge your HR and IT teams.
+
+Specifically, I offer:
+*   **Integration Expertise:** I don't just "manage" vendors; I write the specs. I have built API-based integrations for cross-border payroll and leveraged Azure/Power Automate to replace manual workflows.
+*   **Data Command:** I am an advanced SQL user who builds my own analytics dashboards. I understand that a system is only as good as the data integrity behind it.
+*   **Enterprise Scale:** From scaling DJI (15 to 150 headcount) to managing multi-state compliance for 85 franchise locations, I build systems that survive rapid growth.
+
+I am eager to bring this technical depth to The Wonderful Company and let the strategy teams handle the strategy, while I ensure the systems *work*.
+
+Sincerely,
+
+Richard Xiong
+
+***
+
+# TARGETED RESUME: HR SYSTEMS & INTEGRATION LEAD
+
+**Richard Xiong**
+**HR Systems Architect & Technical Lead**
+Fullerton, CA | (323) 427-8673 | reedxiong@gmail.com | LinkedIn.com/in/reedxiong
+
+**PROFESSIONAL SUMMARY**
+**HR Systems Architect** with 15+ years of experience designing and implementing enterprise-grade HR infrastructure. Expert in **SQL, API integration, and full-cycle HRIS architecture** (Workday, ADP, Paycom). Proven ability to translate complex business requirements into automated technical workflows. A hands-on builder who specializes in data integrity, system interoperability, and "0 to 1" implementations. Seeking a technical leadership role to leverage deep systems expertise in a complex environment.
+
+**CORE TECHNICAL COMPETENCIES**
+*   **HRIS Architecture:** Workday HCM, ADP Workforce Now, Paycom, iSolved. *(Architectural knowledge directly transferable to UKG Pro/WFM)*.
+*   **Integration & Automation:** API Development (REST/JSON), Azure Cloud, Power Automate, Zapier, Enterprise Middleware.
+*   **Data & Analytics:** Advanced SQL (Joins, Stored Procedures), Power BI, Tableau, Excel (VBA/Macros).
+*   **Compliance:** Multi-State logic configuration (CA/NY/TX/IL), Data Governance, Audit Readiness.
+
+**RELEVANT TECHNICAL EXPERIENCE**
+
+**ALIGCUS Inc.** | San Gabriel, CA
+**Head of People Operations & Systems Architect** | May 2024 – Jul 2025
+*Lead architect for the company’s digital transformation, moving from manual spreadsheets to a fully integrated tech stack.*
+*   **HRIS Implementation (iSolved):** Led the full-cycle migration and implementation of iSolved, configuring complex payroll logic and benefits administration modules from scratch.
+*   **Integration Architecture:** Designed and built custom API integrations connecting **iSolved** (HRIS), **Monday.com** (Project Ops), and **BuilderTrend** (Construction Mgmt), reducing manual data entry by 70%.
+*   **Data Automation:** Scripted automated workflows using Power Automate to sync workforce data across systems, achieving 98% data accuracy for audit readiness.
+*   **Analytics:** Built real-time SQL-based dashboards to track labor costs and workforce utilization, improving operational efficiency by 180%.
+
+**DHGate** | Los Angeles, CA
+**Head of U.S. Operations & HR Infrastructure** | 2022 – 2024
+*Technical lead for the U.S. market entry of a B global e-commerce platform.*
+*   **Systems Build (0→1):** Architected the U.S. HR technology ecosystem, implementing **Workday Lite** and **ADP Workforce Now** to support a 300+ person scaling entity.
+*   **Cross-Border Integration:** Collaborated with global IT to build secure data pipelines between U.S. systems and Global HQ (China), ensuring GDPR/CCPA compliance.
+*   **Analytics Engineering:** Developed Power BI dashboards backed by SQL queries to monitor hiring velocity and attrition risk, improving executive decision speed by 40%.
+*   **Compliance Logic:** Configured complex multi-state tax and labor law rules (CA, NY, TX) directly into the HRIS, resulting in zero compliance flags.
+
+**Domino’s Pizza Inc. (Franchise)** | Paramount, CA
+**Director of HR Operations & Systems** | Apr 2021 – Oct 2022
+*Managed HR systems for an 85-location distributed workforce.*
+*   **Platform Migration:** Led the deployment of **Paycom** and **Deputy** across 85 locations, unifying payroll, scheduling, and time-tracking into a single source of truth.
+*   **Workforce Management (WFM):** Optimized scheduling algorithms in Deputy to reduce labor cost variance by 15%, saving .1M annually.
+*   **Data Governance:** Established strict data entry protocols and validation rules, ensuring audit-ready data for 1,000+ employees across 3 states.
+
+**Good Hope Group | CreditEase** | Irvine, CA
+**Operations Manager & Systems Lead** | Jun 2018 – Oct 2020
+*   **Cloud Infrastructure:** Implemented Azure-based workflows for payroll and compliance, automating 60% of manual processing tasks.
+*   **API Integrations:** Built and maintained API connections for cross-border benefit management systems.
+
+**DJI Technology** | Carson, CA
+**HR Systems Lead (U.S. Market Entry)** | Jan 2015 – Dec 2015
+*   **Workday HCM:** Partnered with Global IT to implement DJI’s first U.S. instance of Workday, configuring core HCM, Onboarding, and Benefits modules.
+*   **Technical Recruiting:** Built pipelines for R&D engineering talent, utilizing data-driven sourcing strategies.
+
+**EDUCATION & CERTIFICATIONS**
+*   **B.S., Economics**, Beijing Great Wall University
+*   **CompTIA Security+** | **CompTIA Network+**
+*   **PeopleSoft HR Administrator** (Certified)
+*   **AI & Automation:** Proficient in OpenAI/Claude API prototyping and Notion MCP integrations.

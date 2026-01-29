@@ -1,0 +1,43 @@
+Title: Simon Risk Assessment - Anduril - People Business Partner
+Date: 2026-01-08
+Ref: Protocol 1.3 (Viability + Tone Calibration)
+
+---
+
+## 1. Viability Assessment (Ghost Job Score)
+**Score: 10% (REAL OPENING - PIPELINE)**
+*   **Context:** "Pipeline req" means they are hiring multiple HRBPs to support the massive Costa Mesa expansion (1.5M sq ft lease in 2025).
+*   **Location:** Richard lives in **Fullerton, CA**. The Costa Mesa HQ is a 20-minute commute. This is a **Local** role for him.
+*   **Growth:** $1B Manufacturing facility (Arsenal-1) announced. Hiring is critical to fill it.
+
+## 2. Hiring Intent & Context
+*   **The Mission:** Support the engineering teams building Arsenal-1 and the new "Hive" campus.
+*   **The Pain:** Hyper-scale chaos. They are adding hundreds of engineers in Costa Mesa. They need HRBPs who can "stop the bleeding" on retention and org design without slowing down R&D.
+*   **The "Hub" Choice:** Richard should target **Costa Mesa**. It's the HQ, it's local, and it's where the biggest expansion is happening (700k sq ft signed in 2025).
+
+## 3. Tone Calibration: SERVICE / PARTNER (DEFENSE-TECH)
+*   **Primary Signal:** Mission-Driven, "Hacker Speed," "DoD Rigor."
+*   **Anti-Signal:** "Bureaucrat," "Policy Police," "Slow Corporate HR."
+*   **Why:** Anduril engineers (ex-Palantir/Oculus) hate traditional HR. You must sound like an "Engineering Enabler."
+
+## 4. Screening Lens (The Gatekeeper's Filters)
+*   **Must-Haves:**
+    *   **Engineering Client Groups:** Richard's **DJI** experience (supporting R&D) is the key.
+    *   **ITAR/Export Control:** Richard's **Army/Secret Clearance** background is the "Easy Button" for recruiters.
+    *   **Hyper-Growth:** Richard's **ALIGCUS** (180% productivity) and **DHGate** ($120M scale) metrics prove he can handle the pace.
+*   **Deal-Breakers:**
+    *   Candidates who don't "get" the mission.
+    *   Candidates who live too far from Costa Mesa (3 days/week onsite). Richard is perfect.
+
+## 5. Fit Diagnosis (Richard vs. Anduril)
+*   **Rating:** **UNICORN**
+*   **The Match:** A local (Fullerton) HRBP with **Army** discipline and **DJI** (Drone) tech experience. He is literally the prototype for this role.
+*   **The Pivot:** We must position his "EVP" title as "High-Capacity Partnership" (I can handle more volume) rather than "Executive Oversight."
+
+## 6. Brief to Kyle
+*   **Tone Target:** "The Mission Partner."
+*   **Protected Signals:**
+    *   [ ] **Engineering R&D Support:** (DJI - Tier 1).
+    *   [ ] **Defense/ITAR:** (Army/Serco - Tier 1).
+    *   [ ] **Hyper-Growth Scaling:** (DHGate/ALIGCUS - Tier 1).
+*   **Verbal Strategy:** Use verbs like "Enabled," "Scaled," "Partnered," "Deployed."

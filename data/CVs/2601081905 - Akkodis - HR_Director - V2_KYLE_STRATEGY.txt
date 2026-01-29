@@ -1,0 +1,35 @@
+Title: Kyle Calibration Strategy - Akkodis - HR Director
+Date: 2026-01-08
+Ref: 2601081900 - Akkodis - HR_Director - V1_SIMON_BRIEF.txt
+
+---
+
+## 1. Tone Acknowledgment
+**Target Tone:** **TACTICAL / RELIABILITY (EXECUTIVE DEPUTY)**
+**Constraint:** Maximize "Risk Ownership" and "Compliance" signals. Minimize "Generalist" signals.
+**Goal:** Position Richard as the VPHR's "Right Hand" who handles the complexity of a regulated engineering workforce.
+
+## 2. Protected Signals Mapping (Tier 1)
+*   **Regulated Industry (Healthcare/Defense):** (VA Long Beach, Army). *Why:* JD explicitly prefers healthcare or regulated industry experience.
+*   **HR Compliance & Risk Ownership:** (ALIGCUS, VA). *Why:* JD asks for "Full ownership of HR-related legal and regulatory compliance."
+*   **HRIS & Data Integrity:** (DJI, VA, Serco). *Why:* JD requires "Strategic direction, security, and integrity of the HRIS."
+
+## 3. Verbal Strategy (The Shift)
+
+| Old Verb | New Verb (Risk Architect) | Why? |
+| :--- | :--- | :--- |
+| **"Managed"** | **"Governed" / "Safeguarded"** | Signals policy and risk ownership. |
+| **"Built"** | **"Standardized Protocols"** | Signals process reliability. |
+| **"Resolved"** | **"Neutralized Risk"** | Signals enterprise impact. |
+| **"Led Team"** | **"Coached Functional Specialists"** | Signals deputy-level management. |
+
+## 4. Resume Structural Edits
+1.  **Summary:** "Human Resources Director & Executive Deputy | Regulated Industry Specialist."
+2.  **Unique Differentiator:** "I combine **Federal Regulatory Rigor** (VA/Army) with **Digital Engineering Agility** (Akkodis-adjacent Tech)."
+3.  **VA Long Beach:** *Elevate Volume.* Highlight "Federal Compliance," "OPM/CFR Policy," and "Technical Reviewer." This is your "Healthcare/Regulated" proof.
+4.  **Army/Serco:** *Elevate Volume.* Highlight "Regional System Chief" and "Data Integrity." This is your "Deputy" proof.
+5.  **ALIGCUS:** Focus on **"Risk Mitigation"** and **"Legal Liaison."**
+
+## 5. The "Deputy" Hook
+*   **Akkodis Pain:** The VPHR is overwhelmed by growth and risk.
+*   **Your Solution:** "I am the Deputy who handles the 'Zero Failure' compliance work so you can lead the business. I have done this for the 8th Army and for U.S. Federal Healthcare."

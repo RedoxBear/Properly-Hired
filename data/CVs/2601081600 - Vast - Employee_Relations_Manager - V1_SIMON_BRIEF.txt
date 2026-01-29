@@ -1,0 +1,46 @@
+Title: Simon Risk Assessment - Vast - Employee Relations Manager
+Date: 2026-01-08
+Ref: Protocol 1.3 (Viability + Tone Calibration)
+
+---
+
+## 1. Viability Assessment (Ghost Job Score)
+**Score: 5% (CRITICAL REAL OPENING)**
+*   **Green Flags:**
+    *   **Urgency Signal:** Active lawsuit (Christopher Timperio vs. Vast) makes a professional ER function a legal necessity.
+    *   **Financial Stability:** Founder Jed McCaleb backing ($1B); $300M Series A in progress.
+    *   **Mission Milestones:** Haven-1 launch set for 2026; hiring sprees to meet deadlines.
+*   **Recommendation:** **PURSUE WITH HIGHEST PRIORITY.** They need a "cleaner" to professionalize their internal investigations.
+
+## 2. Hiring Intent & Context
+*   **The Pain:** Vast has "Founder Culture" friction. The recent lawsuit alleges leadership pushed engineers to violate FCC regs. This role exists to be the "Adult in the Room" who ensures investigations are objective and legally defensible.
+*   **The Goal:** Move ER from "Ad-Hoc/PBPs" to a "Center of Excellence."
+*   **The Profile:** They need a high-EQ, high-rigor investigator who isn't intimidated by C-level leaders or brilliant, stubborn engineers.
+
+## 3. Tone Calibration: TACTICAL / RELIABILITY (INVESTIGATIVE FOCUS)
+*   **Primary Signal:** Objectivity, Legal Defensibility, Risk Mitigation.
+*   **Anti-Signal:** "Culture Architect," "Employee Experience," "Soft HR."
+*   **Why:** They are in "Defense Mode." They need a forensic investigator who writes bulletproof reports for legal counsel.
+
+## 4. Screening Lens (The Gatekeeper's Filters)
+*   **Must-Haves:**
+    *   **10+ Years ER/Investigations:** (Richard has 15+, easy pass).
+    *   **Complex Investigations:** "Lead and manage sensitive workplace investigations."
+    *   **Legal Collaboration:** "Collaborate with Legal/C-level."
+    *   **Federal/Compliance Context:** ITAR/Export Control (Richard's Army/DoD background is the ultimate win here).
+*   **Deal-Breakers:**
+    *   Inability to work onsite in Long Beach (JD says On-Site Worker).
+    *   Lack of technical empathy (Must understand the pressure engineers are under).
+
+## 5. Fit Diagnosis (Richard vs. Vast)
+*   **Rating:** **EXCEPTIONAL (The Firewall)**
+*   **The "Clean-Up" Proxy:** Richard's experience at **Domino's** (Reducing turnover 21 points during a crisis) and **Army** (Vetting for Special Military Assignments) proves he can handle the high-stakes, high-conflict environment Vast is currently in.
+*   **The Military Edge:** "U.S. Person status" is a requirement. Richard is a Veteran with previous clearance. This is a "Zero friction" hire for ITAR compliance.
+
+## 6. Brief to Kyle
+*   **Tone Target:** "The Objective Arbiter." You are the bridge between the law and the mission.
+*   **Protected Signals:**
+    *   [ ] **Complex Investigations:** (Domino's litigation, Army vetting).
+    *   [ ] **Regulatory Compliance:** (ITAR, DoD, OSHA, Federal Policy).
+    *   [ ] **C-Level Advisory:** (ALIGCUS, DHGate CEO partnership).
+*   **Verbal Strategy:** Use verbs like "Conducted," "Forensically Documented," "Neutralized Risk," "Standardized Protocols."

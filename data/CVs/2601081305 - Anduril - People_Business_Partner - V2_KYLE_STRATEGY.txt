@@ -1,0 +1,35 @@
+Title: Kyle Calibration Strategy - Anduril - People Business Partner
+Date: 2026-01-08
+Ref: 2601081300 - Anduril - People_Business_Partner - V1_SIMON_BRIEF.txt
+
+---
+
+## 1. Tone Acknowledgment
+**Target Tone:** **SERVICE / PARTNER (DEFENSE-TECH)**
+**Constraint:** Maximize "Engineering Support" signals. Minimize "Generalist" signals.
+**Goal:** Prove Richard is the "Local Unicorn" (Fullerton-based, Army-trained, Tech-scaled).
+
+## 2. Protected Signals Mapping (Tier 1)
+*   **Engineering/R&D Support:** (DJI). *Why:* JD explicitly prefers "engineering client groups."
+*   **Defense & ITAR:** (Army/Serco). *Why:* Critical for Anduril's defense contracts.
+*   **Hyper-Scale:** (DHGate/ALIGCUS). *Why:* Costa Mesa is expanding by 1.5M sq ft. They need builders.
+
+## 3. Verbal Strategy (The Shift)
+
+| Old Verb (Executive) | New Verb (Partner) | Why? |
+| :--- | :--- | :--- |
+| **"Directed"** | **"Partnered with Engineering"** | Signals collaboration. |
+| **"Managed"** | **"Enabled R&D"** | Signals support function. |
+| **"Oversaw"** | **"Scaled Operations"** | Signals growth. |
+| **"Enforced"** | **"Ensured Mission Readiness"** | Signals defense alignment. |
+
+## 4. Resume Structural Edits
+1.  **Summary:** "Defense-Tech People Partner | Army Veteran | Fullerton, CA." Highlight the local advantage.
+2.  **Unique Differentiator:** "I combine the **Velocity** of Silicon Valley (DJI) with the **Rigor** of the US Army."
+3.  **DJI:** *Hero Role.* Focus on "Scaling R&D teams" and "Hardware/Software complexity."
+4.  **Army:** *Hero Role.* Focus on "Mission Readiness" and "Security Clearance."
+5.  **Tech Projects:** Highlight "Prague-day" to show he is "One of us" (a builder).
+
+## 5. The "Local" Hook
+*   **Anduril's Pain:** Relocating people is expensive and risky.
+*   **Your Solution:** "I live 20 minutes away. I know the culture. I know the mission."

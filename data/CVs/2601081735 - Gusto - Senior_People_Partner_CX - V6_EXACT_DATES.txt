@@ -1,0 +1,80 @@
+Richard Xiong
+Fullerton, CA | (323) 427-8673
+reedxiong@gmail.com | LinkedIn.com/in/reedxiong
+U.S. Army Veteran | Certified HR Consultant
+
+SUMMARY
+AI-Native Senior People Partner with 15+ years of experience scaling high-volume, operational, and customer-facing organizations. I specialize in the intersection of "Human Insight" and "AI-Driven Analytics," helping leaders optimize performance for distributed, non-exempt workforces. Expert in navigating complex labor laws (Wage & Hour, FLSA) while architecting automated people systems that drive efficiency and engagement. I don't just support CX teams; I engineer the infrastructure that allows them to scale.
+
+UNIQUE DIFFERENTIATOR
+I combine the **Operational Rigor** of managing high-volume hourly workforces (Domino's, 85 locations) with the **AI-Native Innovation** of a technical builder (Python, Agentic Workflows). While most HRBPs are adjusting to the AI era, I am already building my own AI agents (`Prague-day`) to automate compliance and workforce planning.
+
+CORE COMPETENCIES
+*   Strategic HR Partnership: Supporting CX/Ops Leaders, Org Design, Change Management.
+*   AI-Native Operations: Workforce Analytics (SQL/Power BI), Automated Workflows, AI Integration.
+*   High-Volume Workforce: Non-Exempt/Hourly Compliance, Wage & Hour, High-Volume Retention.
+*   Employee Relations: Complex Investigations, Conflict Resolution, Fair Employment Practices.
+*   Languages: English (Native), Mandarin Chinese (Native/Bilingual).
+
+TECHNICAL PROJECTS & AGENTIC AI (AI-NATIVE HR)
+*   Prague-day (AI Agent Ecosystem): Architected a multi-agent AI system to automate complex HR research and compliance tasks, demonstrating fluency in AI-native ways of working.
+*   Automated Compliance: Designed Python-based scripts to pre-validate candidate eligibility and automate routine HR queries, freeing up strategic time for human-centric coaching.
+
+PROFESSIONAL EXPERIENCE
+
+ALIGCUS Inc. | San Gabriel, CA
+Executive Vice President (Strategic HR & Operations Lead) | May 2024 – Jul 2025
+*   Org Design & Scale: Led the organizational design for a high-growth operational workforce, implementing performance frameworks that increased productivity by 180%.
+*   Operational Compliance: Enforced rigorous compliance standards for field operations (similar to CX environments), ensuring safety and regulatory alignment without slowing down execution.
+
+DHGate | Los Angeles, CA
+Sr. HR Business Partner / Head of U.S. Operations | Dec 2022 – May 2024
+*   Automated Workflows: Leveraged AI-driven insights and automation to streamline the onboarding and compliance process for a rapidly scaling team, reducing time-to-productivity by 35%.
+*   Strategic Workforce Planning: Partnered with global leadership to forecast headcount needs using real-time data analytics (Power BI), ensuring optimal staffing levels for market entry.
+
+Domino’s Pizza Inc. (MAR Pizza Franchise) | Paramount, CA
+Director of Human Resources (High-Volume CX Support) | Apr 2021 – Oct 2022
+*   High-Volume CX Ops: Served as the Strategic People Partner for 85 locations and 1,000+ non-exempt employees, directly mirroring the complexity of a large-scale CX organization.
+*   Wage & Hour Compliance: Managed complex payroll and labor law compliance for a distributed hourly workforce, ensuring zero violations across multiple jurisdictions (CA, IL, SC).
+*   Retention Strategy: Analyzed turnover data to design targeted retention interventions, reducing churn by 21% and saving $1.1M annually in recruitment costs.
+
+Good Hope Group | CreditEase | Irvine, CA
+Operations & HR Manager | Jun 2018 – Oct 2020
+*   Process Optimization: Streamlined HR operations for a U.S. expansion, introducing automated tools to handle routine inquiries and benefits administration.
+
+Kosher Roots | Long Beach, CA
+Founder & Principal HR Consultant | Jan 2016 – Jun 2018
+*   Fractional HR Advisory: Advised startup founders on building scalable, compliant people infrastructure from Day 1.
+
+DJI Technology | Carson/Cerritos, CA
+HR Director / Strategic HRBP | Jan 2015 – Dec 2015
+*   Tech Scaling: Partnered with R&D leadership to scale technical teams, balancing the need for speed with the need for rigorous talent density.
+
+VA Long Beach Healthcare System | Long Beach, CA
+HR Specialist (Healthcare Recruitment & Systems) | Apr 2014 – Dec 2015
+*   Systems Innovation: Engineered a Microsoft Access database to bridge data gaps, eliminating redundant processes.
+
+Kosher Roots | Long Beach, CA
+Founder & Professional Coach | Dec 2012 – Apr 2014
+*   Startup Consulting: Provided fractional Head of People support for client companies, designing compensation and performance management programs.
+
+JTB Americas, Ltd. | Torrance, CA
+Strategic HR Manager | Nov 2011 – Nov 2013
+*   ERP Architecture: Led the personnel integration for a global ERP rollout, ensuring data consistency across borders.
+
+Serco - NA, Inc. | Camp Zama, Japan
+Supervisory HR Manager / Japan Regional System Chief | Mar 2007 – Jun 2011
+*   Regional Data Integrity: Administered Army HRIS for 18,000+ personnel, ensuring 100% data integrity for theater operations.
+
+U.S. Army | South Korea (Aviation Unit)
+Personnel Action Center Manager / USR Officer | Sep 2002 – Feb 2007
+*   Operational Discipline: Managed personnel readiness for a high-stakes unit, instilling a culture of precision and accountability.
+
+EDUCATION
+MBA | Business School Netherlands (2013)
+B.S., Economics | Beijing Great Wall University (2007)
+
+CERTIFICATIONS & TECHNICAL SKILLS
+*   Certifications: CPCC (Executive Coaching), CompTIA Security+, ADU Specialist.
+*   HR Tech: Workday, ADP, Paycom, Gusto.
+*   AI & Data: SQL, Power BI, Python, LLM Orchestration.

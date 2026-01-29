@@ -1,0 +1,42 @@
+Title: Simon Risk Assessment - Akkodis - Human Resources Director
+Date: 2026-01-08
+Ref: Protocol 1.3 (Viability + Tone Calibration)
+
+---
+
+## 1. Viability Assessment (Ghost Job Score)
+**Score: 5% (REAL OPENING)**
+*   **Green Flags:** Global digital engineering leader (Adecco Group); specific salary band; detailed reporting line (Deputy to VPHR).
+*   **The Trigger:** High growth in engineering contracts ($100M managed services deal) requires a robust internal HR engine to manage the workforce risk.
+*   **Recommendation:** **PURSUE CONFIDENTLY.** This is a high-value leadership hire for a stable global firm.
+
+## 2. Hiring Intent & Context
+*   **The Mission:** Be the "Tactical Shield" for the VPHR. You own the compliance, the risk, and the systems (HRIS) so the VPHR can stay strategic.
+*   **The Pain:** High-growth tech/engineering workforces are high-risk for labor classification, IR, and compliance. They need an HR Director who speaks "Law" and "System Security."
+*   **The Profile:** They want an experienced senior manager (10+ years) who has handled **Regulated Industries** (Healthcare/Defense). Richard's **VA (Healthcare)** and **Army (Defense)** background is a massive asset.
+
+## 3. Tone Calibration: TACTICAL / RELIABILITY (EXECUTIVE SCOPE)
+*   **Primary Signal:** Risk Mitigation, Governance, System Security, Operational Excellence.
+*   **Anti-Signal:** "Soft HR," "Culture Architect" (this is secondary to compliance in this JD).
+*   **Why:** The JD explicitly uses words like "Deputy," "Risk Ownership," and "Security." You are the Guardian of the HR function.
+
+## 4. Screening Lens (The Gatekeeper's Filters)
+*   **Must-Haves:**
+    *   **10+ Years Experience:** (Richard has 15+, easy pass).
+    *   **Certification (SHRM/PHR):** Richard has this (PHR equivalent experience/certs).
+    *   **Regulated Industry Experience:** (Richard's VA and Army experience).
+    *   **HRIS Mastery:** (Richard's Workday/ADP/iSolved implementation history).
+*   **Deal-Breakers:** Lack of "Deputy" energy. They don't want someone trying to be the #1; they want someone who excels at being the #2 executioner.
+
+## 5. Fit Diagnosis (Richard vs. Akkodis)
+*   **Rating:** **STRONG / IDEAL**
+*   **The "Deputy" Proxy:** Richard's **USR Officer (Army)** and **Regional System Chief (Serco)** roles are the ultimate proofs of "Deputy" performance—managing the integrity of the system for higher command.
+*   **The Tech Proxy:** Akkodis is digital engineering. Richard's **Agentic AI projects** prove he is technically fluent enough to lead an engineering HR function.
+
+## 6. Brief to Kyle
+*   **Tone Target:** "The Trusted Deputy & Risk Architect."
+*   **Protected Signals:**
+    *   [ ] **HR Compliance & Risk:** (ALIGCUS OSHA, VA Regulatory).
+    *   [ ] **HRIS & Data Integrity:** (Workday at DJI, MS Access at VA).
+    *   [ ] **Functional Management:** (Leading teams of specialists).
+*   **Verbal Strategy:** Use verbs like "Governed," "Audited," "Standardized," "Liaised," "Safeguarded."

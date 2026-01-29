@@ -1,0 +1,135 @@
+# Website Pages Overview
+
+This document outlines the main pages of the Prague-Day Jobs application and their functions.
+
+## Main Pages
+
+1.  **`/` or `/Home` (Home Page):**
+    *   **Description:** Public-facing landing page for "Prague-DayJobs." It highlights features, integration with "Prague-Day App," and pricing plans.
+    *   **URL:** `http://localhost:5173/`
+
+2.  **`/Dashboard` (Dashboard):**
+    *   **Description:** The main user dashboard after login. It provides an overview of applications, quick actions, stats, and recent activities.
+    *   **URL:** `http://localhost:5173/Dashboard`
+
+3.  **`/JobAnalysis` (Job Analysis):**
+    *   **Description:** A tool to analyze job postings. Users can paste a job URL or description to get AI-powered insights.
+    *   **URL:** `http://localhost:5173/JobAnalysis`
+
+4.  **`/ResumeOptimizer` (Resume Optimizer):**
+    *   **Description:** Helps tailor a master resume to a specific job posting, optimizing it for ATS and human reviewers.
+    *   **URL:** `http://localhost:5173/ResumeOptimizer`
+
+5.  **`/CoverLetters` (Cover Letters):**
+    *   **Description:** A tool to generate AI-powered cover letters based on job applications and resume data.
+    *   **URL:** `http://localhost:5173/CoverLetters`
+
+6.  **`/QAAssistant` (Q&A Assistant):**
+    *   **Description:** Assists users in preparing answers for application questions, potentially using AI to generate responses.
+    *   **URL:** `http://localhost:5173/QAAssistant`
+
+7.  **`/MyResumes` (My Resumes):**
+    *   **Description:** Manages all user resumes, including master versions and AI-optimized versions. Allows uploading new resumes.
+    *   **URL:** `http://localhost:5173/MyResumes`
+
+8.  **`/JobLibrary` (Job Library):**
+    *   **Description:** Tracks and manages all saved job applications with statuses, search, and filtering.
+    *   **URL:** `http://localhost:5173/JobLibrary`
+
+9.  **`/ResumeViewer` (Resume Viewer):**
+    *   **Description:** Allows viewing and downloading of individual resume versions (TXT, JSON).
+    *   **Note:** Requires a `resumeId` query parameter (e.g., `/ResumeViewer?resumeId=some_id`).
+    *   **URL:** `http://localhost:5173/ResumeViewer`
+
+10. **`/ResumeTemplates` (Resume Templates):**
+    *   **Description:** Renders resume data into various templates for printing or downloading.
+    *   **Note:** Can take a `resumeId` query parameter.
+    *   **URL:** `http://localhost:5173/ResumeTemplates`
+
+11. **`/ResumeBuilder` (Resume Builder):**
+    *   **Description:** Helps build a resume from scratch by answering questions, with an option for voice input.
+    *   **URL:** `http://localhost:5173/ResumeBuilder`
+
+12. **`/JobDetails` (Job Details):**
+    *   **Description:** Displays detailed information for a specific job application.
+    *   **Note:** Requires an `applicationId` query parameter.
+    *   **URL:** `http://localhost:5173/JobDetails`
+
+13. **`/TransferableSkills` (Transferable Skills):**
+    *   **Description:** Identifies and maps a user's skills to different roles and industries.
+    *   **URL:** `http://localhost:5173/TransferableSkills`
+
+14. **`/ApplicationQnA` (Application Q&A):**
+    *   **Description:** Another interface for AI-powered Q&A assistance for applications.
+    *   **URL:** `http://localhost:5173/ApplicationQnA`
+
+15. **`/ExtensionGuide` (Extension Guide):**
+    *   **Description:** Provides information on how to use the browser extension.
+    *   **URL:** `http://localhost:5173/ExtensionGuide`
+
+16. **`/JobSummary` (Job Summary):**
+    *   **Description:** Shows a detailed summary of a job application's analysis.
+    *   **Note:** Requires an `id` query parameter.
+    *   **URL:** `http://localhost:5173/JobSummary`
+
+17. **`/OptimizeResume` (Optimize Resume):**
+    *   **Description:** Another interface for resume optimization, likely a more detailed or older version.
+    *   **Note:** Requires an `id` query parameter.
+    *   **URL:** `http://localhost:5173/OptimizeResume`
+
+18. **`/CoverLetter` (Cover Letter):**
+    *   **Description:** A specific page for generating or viewing a cover letter for an application.
+    *   **Note:** Requires an `id` query parameter.
+    *   **URL:** `http://localhost:5173/CoverLetter`
+
+19. **`/ActivityInsights` (Activity Insights):**
+    *   **Description:** Provides analytics and insights into user activity.
+    *   **URL:** `http://localhost:5173/ActivityInsights`
+
+20. **`/AutofillVault` (Autofill Vault):**
+    *   **Description:** Stores personal and ATS-related information for autofilling applications.
+    *   **URL:** `http://localhost:5173/AutofillVault`
+
+21. **`/ResumeQuality` (Resume Quality):**
+    *   **Description:** Shows a report on the quality analysis of a specific resume.
+    *   **Note:** Requires a `resumeId` query parameter.
+    *   **URL:** `http://localhost:5173/ResumeQuality`
+
+22. **`/ResumeReview` (Resume Review):**
+    *   **Description:** Allows for detailed review and editing of resume content.
+    *   **Note:** Requires a `resumeId` query parameter.
+    *   **URL:** `http://localhost:5173/ResumeReview`
+
+23. **`/Pricing` (Pricing):**
+    *   **Description:** Displays the different subscription plans and their features.
+    *   **URL:** `http://localhost:5173/Pricing`
+
+24. **`/ResumeEditor` (Resume Editor):**
+    *   **Description:** A dedicated editor for modifying resume content.
+    *   **Note:** Requires a `resumeId` query parameter.
+    *   **URL:** `http://localhost:5173/ResumeEditor`
+
+25. **`/ResumeHumanizer` (Resume Humanizer):**
+    *   **Description:** A tool to make AI-generated resumes sound more human to bypass ATS detection.
+    *   **URL:** `http://localhost:5173/ResumeHumanizer`
+
+26. **`/ResumeEditorTest` (Resume Editor Test):**
+    *   **Description:** A test page for the resume editor.
+    *   **Note:** Requires a `resumeId` query parameter.
+    *   **URL:** `http://localhost:5173/ResumeEditorTest`
+
+27. **`/ApplicationTracker` (Application Tracker):**
+    *   **Description:** A detailed interface for tracking job applications.
+    *   **URL:** `http://localhost:5173/ApplicationTracker`
+
+28. **`/JobMatcher` (Job Matcher):**
+    *   **Description:** Provides AI-powered job matching against a resume.
+    *   **URL:** `http://localhost:5173/JobMatcher`
+
+29. **`/UserProfile` (User Profile):**
+    *   **Description:** Allows users to manage their profile and preferences.
+    *   **URL:** `http://localhost:5173/UserProfile`
+
+30. **`/ReferralProgram` (Referral Program):**
+    *   **Description:** Details about the referral program.
+    *   **URL:** `http://localhost:5173/ReferralProgram`

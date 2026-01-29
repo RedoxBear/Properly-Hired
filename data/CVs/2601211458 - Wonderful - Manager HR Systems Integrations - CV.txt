@@ -1,0 +1,173 @@
+Richard Xiong
+HR Systems & Integrations Leader | HRIS Architect | Technical HR Specialist
+Fullerton, CA - (323) 427-8673 - reedxiong@gmail.com - LinkedIn.com/in/reedxiong
+________________________________________
+
+TECHNICAL PROFILE:
+HR Systems & Integration specialist with 15+ years architecting HRIS platforms, API-based integrations, and enterprise data workflows. Expert in implementing and managing multiple HRIS platforms (Workday HCM, ADP, iSolved, Paycom, PeopleSoft) with deep proficiency in SQL, Python, and middleware automation tools. Proven track record designing integrations between HR systems and enterprise platforms, optimizing data flows, and delivering measurable productivity gains through technical innovation.
+
+TECHNICAL COMPETENCIES:
+• HRIS Platforms (Expert): Workday HCM, ADP Workforce Now, iSolved, Paycom, PeopleSoft 8.x, SAP
+• Integration & API Development: REST, SOAP, XML, JSON, CSV file-based integrations; MCP protocol engineering
+• Middleware & Automation: Power Automate (advanced), Azure cloud integration, SFTP automation workflows
+• Data & Analytics: SQL (Expert), Power BI, Tableau, SAS, Python-based data pipelines
+• System Architecture: Multi-platform HRIS integration design, ERP system implementation, distributed data systems
+• Security & Compliance: SSO implementation, EPLI frameworks, multi-state HR compliance architecture
+• Development Tools: Python (agentic systems, API orchestration), Git/GitHub, Microsoft Access (database engineering)
+• Certifications: SPHR, ADU Specialist (2025), PeopleSoft 8.x Administrator, CompTIA Security+ & Network+
+
+CORE VALUE PROPOSITION:
+I bridge the gap between HR operations and technical infrastructure - architecting integrations, automating workflows, and building data systems that enable strategic HR decision-making. Whether implementing Workday HCM for hyper-growth scaling (DJI), engineering database solutions for federal systems (VA), or integrating global collaboration tools across continents (DHGate), I deliver technical solutions that drive business outcomes.
+
+________________________________________
+KEY TECHNICAL ACHIEVEMENTS | MEASURABLE IMPACT
+
+• Integration Architecture: Designed and implemented Lark↔iSolved global HRIS integration enabling seamless China HQ↔U.S. operation data synchronization (DHGate)
+• Productivity Automation: Architected automated workforce tracking system delivering 180% productivity gain and 70% admin overhead reduction (ALIGCUS)
+• HRIS Implementation: Led Workday HCM implementation scaling 15→150+ employees in 12 months with zero system downtime (DJI)
+• Database Engineering: Engineered Microsoft Access database bridging legacy federal systems, significantly improving Time-to-Hire metrics (VA Long Beach)
+• Cloud Integration: Implemented Azure cloud-based payroll and compliance automation reducing manual processing by 60% (CreditEase)
+• Analytics Infrastructure: Built Power BI and SQL-based workforce analytics dashboards improving executive decision speed by 40% (DHGate)
+• ERP Integration: Led personnel data integration for M&A acquisitions ($1.5M value) aligning HR data across U.S. and Asian entities (JTB Americas)
+• Enterprise Systems: Administered Army HRIS for 18,000+ personnel with 100% data integrity during disaster relief operations (SERCO)
+
+________________________________________
+PROFESSIONAL EXPERIENCE
+
+Executive Vice President						May 2024 – Jul 2025
+ALIGCUS Inc. - San Gabriel, CA
+
+Technical Infrastructure & Systems Leadership:
+• Architected complete operational infrastructure implementing automated workforce tracking systems that drove 180% productivity increase and reduced administrative overhead by 70%
+• Established HR data governance standards achieving 98% data accuracy for audit readiness; created real-time analytics dashboards providing executive team with complete workforce visibility
+• Designed and implemented rigorous training management systems serving as automated performance filters, enabling rapid identification and retention of high-potential talent
+• Built structured meeting cadence infrastructure (daily/weekly/monthly) with data-driven reporting mechanisms ensuring operational metrics drove executive decision-making
+
+Sr. HR Business Partner / Head of U.S. Operation				Dec 2022 – May 2024
+DHGate - Los Angeles, CA
+
+HRIS Integration & Enterprise Systems Architecture:
+• Architected U.S.→China HQ HRIS integration: Implemented Lark (global collaboration platform) ↔ iSolved (U.S. HRIS) bidirectional data synchronization enabling seamless cross-continental workforce management
+• Built Power BI and SQL-based workforce analytics infrastructure improving executive decision speed by 40% through automated reporting dashboards and predictive workforce modeling
+• Designed and implemented comprehensive U.S. Compensation & Benefits module within iSolved, integrating with multi-state compliance requirements (CA, TX, NJ, FL) and federal regulations
+• Developed OKR integration within performance management systems, creating data flows between goal-setting platforms and core HRIS
+• Managed API-based integrations for influencer marketing platform ("TikTok Shop" initiative), enabling automated data capture for contractor management
+• Established entity-level HRIS configuration from zero: built complete system architecture including org structures, job codes, compensation tables, and compliance rule engines across four states in 90 days
+
+Technical Environment: iSolved HRIS, Lark API integration, Power BI, SQL Server, multi-state compliance automation
+
+Director of Human Resources						Apr 2021 – Oct 2022
+Domino's Pizza Inc. (MAR Pizza Franchise) - Paramount, CA
+
+Distributed HRIS Management & Compliance Systems:
+• Architected "Global Standard + Local Amendments" HRIS configuration model for 85-location, 1,000+ employee multi-state operation, anchoring to strictest regulatory baseline (CA) while enabling state-specific compliance flexibility
+• Implemented centralized data governance protocols ensuring consistent HRIS data integrity across distributed franchise locations spanning CA, IL, and SC
+• Designed automated compliance reporting systems reducing manual HR audit preparation by 65% while maintaining zero legal violations across three states
+• Developed ADP-based analytics framework enabling data-driven retention interventions that reduced turnover by 21 points ($1.1M annual savings)
+• Created standardized case management workflows within HRIS managing 100+ complex ER cases with full audit trail and documentation integrity
+
+Technical Environment: ADP Workforce Now, multi-state compliance automation, data analytics
+
+Operations & HR Manager						Jun 2018 – Oct 2020
+Good Hope Group | CreditEase - Irvine, CA
+
+Cloud HRIS Implementation & Integration Architecture:
+• Established end-to-end U.S. operational infrastructure integrating banking, insurance, and accounting systems with Azure cloud-based HRIS platform for global FinTech expansion
+• Implemented Azure-based payroll and compliance automation reducing manual processing by 60% while ensuring SOX compliance for financial services industry
+• Designed and executed HRIS-to-ERP data integration enabling automated financial reporting for global parent company (China HQ)
+• Managed IT infrastructure including network security, vendor API integrations, and company-wide authentication systems
+• Coordinated financial product launch systems requiring HR data feeds to customer-facing platforms
+
+Technical Environment: Azure cloud platform, HRIS-ERP integration, API management, network security
+
+Founder & Principal HR Consultant					Jan 2016 – Jun 2018
+Kosher Roots - Long Beach, CA
+
+HRIS Implementation Specialist (Fractional Leadership):
+• Led ADP platform migration projects for 15+ companies: ADP Run → ADP Workforce Now, implementing full data migration, system configuration, and integration testing
+• Designed and implemented HRIS architectures for early-stage startups (Dreameast Studio, Create Advertising) including org structure design, compensation table configuration, and compliance automation
+• Created HRIS procedure guides and processing documentation ensuring consistent system utilization and data integrity across client organizations
+• Conducted comprehensive job analysis and compensation design projects integrated directly into HRIS platforms
+
+Technical Environment: ADP Run, ADP Workforce Now, system migration protocols
+
+HR Director / HR Consultant						Jan 2015 – Dec 2015
+DJI Technology - Carson/Cerritos, CA
+
+Enterprise HRIS Implementation (Hyper-Growth):
+• Orchestrated Workday HCM implementation scaling from 15 to 150+ employees in 12 months across five business units with zero system downtime or data integrity issues
+• Designed complete Workday architecture: org structures, job profiles, compensation structures (Silicon Valley benchmarks), benefits administration, and performance management modules
+• Built integration between Workday HCM and finance systems enabling automated headcount reporting and budget management
+• Configured Workday security model, role-based permissions, and approval workflows for distributed business unit structure
+• Developed Workday-based workforce planning and analytics dashboards supporting aggressive technical hiring requirements
+
+Technical Environment: Workday HCM (full implementation), benefits system integration, workforce analytics
+
+HR Specialist (Healthcare Recruitment & Systems)			Apr 2014 – Dec 2015
+VA Long Beach Healthcare System - Long Beach, CA
+
+Federal HRIS Engineering & Database Architecture:
+• Engineered Microsoft Access database solution bridging legacy federal HR systems (VATAS, PAID, HR Smart) significantly improving Time-to-Hire metrics for critical medical staffing
+• Designed data extraction and transformation workflows integrating multiple federal databases to create unified reporting infrastructure
+• Developed automated compliance reporting systems ensuring adherence to complex VA, VHA, OPM, and CFR regulations
+• Created technical documentation for database architecture enabling knowledge transfer and system maintenance
+• Provided technical advisory to executive medical committees requiring complex HR data analysis and reporting
+
+Technical Environment: Microsoft Access (database engineering), federal HRIS platforms, regulatory compliance automation
+
+Strategic HR Manager (Corporate Planning)				Nov 2011 – Nov 2013
+JTB Americas, Ltd. - Torrance, CA
+
+ERP Integration & M&A Systems Consolidation:
+• Led personnel data integration for multiple M&A acquisitions ($1.5M total value) consolidating HR data across disparate systems and aligning U.S. and Asian entity structures
+• Submitted RFPs for HRIS and ERP system integration projects; conducted vendor evaluation, system testing, and benchmark analysis for enterprise platform selection
+• Designed employee performance KPI framework integrated into HRIS enabling automated performance tracking and talent management analytics
+• Conducted comprehensive HR data analysis across multiple systems to inform organizational structure design for post-merger integration
+• Developed data migration protocols ensuring zero data loss during system transitions and maintaining compliance across jurisdictions
+
+Technical Environment: ERP system evaluation, HRIS integration, data migration protocols
+
+Supervisory HR Manager / Japan Regional System Chief		Mar 2007 – Jun 2011
+SERCO - NA, Inc. - Camp Zama, Japan / S. Korea
+
+Enterprise HRIS Administration (Large-Scale Federal Systems):
+• Administered Army HRIS (PeopleSoft-based) for 18,000+ personnel across Japan and South Korea maintaining 100% data integrity and contractual compliance
+• Managed disaster relief personnel data systems during 2011 Japan earthquake (Operation Tomodachi) coordinating mass personnel relocation logistics requiring real-time HRIS updates
+• Designed structural architecture for Army Regional Reporting system ensuring highest compliance integrity with Army Regulations and federal reporting requirements
+• Developed automated data validation protocols ensuring personnel data accuracy for Pentagon-level mission readiness reporting
+• Implemented payroll system integrations for diverse employment classifications (HCN, TCN, Contractors) requiring complex pay rule configurations
+
+Technical Environment: PeopleSoft HRIS, Army personnel systems, federal payroll integration
+
+________________________________________
+EDUCATION
+
+• MBA, Business School Netherlands (2013)
+• B.S., Economics, Beijing Great Wall University (2007)
+
+________________________________________
+CERTIFICATIONS & PROFESSIONAL DEVELOPMENT
+
+• SPHR (Senior Professional in Human Resources)
+• ADU Specialist (2025)
+• PeopleSoft 8.x Administrator
+• CompTIA Security+ (IT Security Fundamentals)
+• CompTIA Network+ (Network Infrastructure)
+• CPCC (Certified Professional Co-Active Coach)
+
+________________________________________
+TECHNICAL SKILLS SUMMARY
+
+HRIS/ERP Platforms: Workday HCM (Expert), ADP Workforce Now, ADP Run, Paycom, iSolved, PeopleSoft 8.x, SAP, HR Smart (Federal)
+
+Integration & APIs: REST APIs, SOAP, XML/JSON data formats, CSV file-based integration, SFTP automation, MCP (Model Context Protocol), OAuth/SSO integration
+
+Middleware & Automation: Microsoft Power Automate (Advanced), Azure cloud integration, workflow automation design
+
+Programming & Development: Python (API orchestration, data pipelines, automation scripts), SQL (Expert-level queries, stored procedures, data transformation), Git/GitHub, Microsoft Access (database development)
+
+Analytics & BI: Power BI (dashboard development, DAX), Tableau, SQL Server, SAS, advanced Excel (VBA macros)
+
+Infrastructure & Security: Azure cloud platform, network security fundamentals, SSO configuration, data encryption, compliance automation
+
+Languages: English (Native), Mandarin Chinese (Native), Japanese/Korean (Working Knowledge)

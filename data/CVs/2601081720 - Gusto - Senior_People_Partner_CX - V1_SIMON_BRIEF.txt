@@ -1,0 +1,30 @@
+Title: Simon Risk Assessment - Gusto - Senior People Partner (CX)
+Date: 2026-01-08
+Ref: Protocol 1.3 (Viability + Tone Calibration)
+
+---
+
+## 1. Viability Assessment (Ghost Job Score)
+**Score: 5% (REAL OPENING)**
+*   **Green Flags:** Very specific team (CX), distinct "AI-Native" requirement (not generic), detailed salary bands.
+*   **The Trigger:** Gusto is betting big on "AI-Native" operations. They need HRBPs who don't just "support" humans but help humans work with AI.
+
+## 2. Hiring Intent & Context
+*   **The Target:** The CX Org. This is a high-volume, distributed, **non-exempt** (hourly) workforce.
+*   **The Pain:** Managing HR for hourly CS reps is messy (Wage/Hour, Breaks, High Turnover). Managing it *while* introducing AI tools is even messier.
+*   **The Perfect Candidate:** Someone who knows **Labor Law/Compliance** (for the hourly workers) AND **AI/Tech** (for the future state).
+
+## 3. Tone Calibration: STRATEGIC / INNOVATOR (AI-NATIVE)
+*   **Primary Signal:** "Future of Work," "Operational Scale," "Tech-Forward."
+*   **Anti-Signal:** "Traditional HR," "Manual Processes," "Paper Pusher."
+*   **Why:** The JD literally asks for "Fluency in AI-native ways of working."
+
+## 4. Fit Diagnosis (Richard vs. Gusto CX)
+*   **Rating:** **UNBEATABLE**
+*   **The "CX" Match:** **Domino's** (85 locations, hourly staff) is the perfect proxy for Gusto's CX workforce challenges.
+*   **The "AI" Match:** Richard's **Prague-day** and **Python scripting** are not just "nice-to-haves" here; they are the *core requirement*.
+
+## 5. Brief to Kyle
+*   **Hero Role:** **Domino's** (Tier 1). It proves "High-Volume/Non-Exempt" mastery.
+*   **Secret Weapon:** **Technical Projects (AI)**. Move this UP or weave it into the Summary.
+*   **Verbs:** "Automated," "Optimized," "Scaled," "Designed."

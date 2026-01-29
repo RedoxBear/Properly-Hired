@@ -1,0 +1,137 @@
+Richard Xiong		U.S. Veteran – HR Systems & Integrations Leader – HRIS/ERP Implementation & Data Governance
+Fullerton, CA - (323) 427-8673 - reedxiong@gmail.com - LinkedIn.com/in/reedxiong
+________________________________________
+Executive Profile:
+HR systems and operations leader with 15+ years building and scaling HR infrastructure, data governance, and compliance across multi-state and global environments. Proven ability to design HRIS architecture, lead cross-functional implementations, and deliver data integrity for audit-ready operations. Experienced in HRIS/ERP integrations, analytics (SQL/Power BI), and automation to improve workforce visibility and operational efficiency.
+
+Unique Value Proposition:
+I pair deep HR operations expertise with technical systems execution—building HRIS foundations, data governance, and automation that enable accurate, secure workforce decisions. I lead cross-functional HR/IT/vendor initiatives to reduce risk, streamline workflows, and scale people operations without sacrificing compliance.
+________________________________________
+KEY CAREER HIGHLIGHTS | IMPACT
+
+•	Risk Mitigation:	Shielded organization from legal jeopardy via EPLI and legal fail-safes (DHGate)
+•	Crisis Integrity:	Volunteered for redundancy to preserve cash flow during 17% inflation shock (ALIGCUS)
+•	Revenue Enabled:	$120 Million (DHGate U.S. market entry)
+•	Productivity Gains:	180% increase via automated workforce tracking (ALIGCUS)
+•	Cost Savings:	$1.1 Million annually (Domino's retention)
+•	Organizational Scale:	Scaled teams from 15 to 150+ (DJI)
+•	Compliance Record:	Zero audit failures across 5 states, 15 years
+•	Systems Built:	Workday, ADP, Paycom, iSolved, Access & Lark integrations
+________________________________________
+Core Competencies
+ 
+HR Systems & Integrations
+•	HRIS Implementation & Global Integration (Workday, ADP, Paycom, iSolved, PeopleSoft, SAP)
+•	Data Governance & Audit Readiness (Data accuracy, documentation, compliance)
+•	Process Automation & Workflow Design (Power Automate, Python)
+•	Analytics & Reporting (SQL, Power BI, Tableau)
+•	Cross-Functional Project Leadership (HR/IT/Vendor coordination)
+
+People Operations & Risk
+•	Multi-State Compliance & Labor Law (CA, NY, TX, IL, SC, FL, NJ)
+•	Corporate Risk Management (EPLI, Legal Fail-Safes, Investigations)
+•	Policy & Process Standardization (Scalable SOPs, handbook governance)
+•	Compensation & Benefits Design (U.S. compliance and market benchmarking)
+
+Leadership & Delivery
+•	0→1 Function Builds and Operational Scaling
+•	Executive Partnership & Stakeholder Management
+•	Change Management for HR Technology Upgrades
+________________________________________
+Professional Experience
+
+Executive Vice President					May 2024 – Jul 2025
+ALIGCUS Inc. - San Gabriel, CA - 				Design-Build Construction
+Mission: Lead the "0-to-1" build and operational scaling of a design-build construction firm during a period of hyper-growth followed by macro-economic contraction. Senior owner of People and Operations with full decision-making authority over P&L-linked strategy.
+•	Productivity Architecture (0→1): Implemented automated workforce tracking that drove a 180% productivity gain and reduced admin overhead by 70%.
+•	Data Governance: Established HR data governance standards, achieving 98% data accuracy for audit readiness; created real-time analytics dashboards providing executive team with workforce visibility.
+•	Strategic Roadmap: Partnered with the CEO to craft a 3-year People and Operations roadmap aligned to Agile Org Design, positioning the company for Series A fundraising.
+•	Crisis Restructuring: Partnered with CEO to design and execute a radical downsizing plan (72 to 30 personnel) to survive a 17% spike in roofing/concrete material costs; volunteered for strategic redundancy to preserve company runway.
+•	Field Safety & Compliance: Partnered with field superintendents to enforce absolute OSHA compliance across multi-site operations, achieving zero audit violations during peak production.
+•	Team Leadership: Directed the formation of four distinct field teams, appointing project managers and drivers to create a scalable operational hierarchy that supported rapid project deployment.
+
+Sr. HR Business Partner / Head of U.S. Operation			Dec 2022 – May 2024
+DHGate - Los Angeles, CA - 					     B2B Ecommerce Platform
+Mission: Architect the U.S. People function for a $2B global e-commerce platform. Serve as the "Corporate Shield" during market entry, managing entity formation, legal risk, and regional expansion while bridging China HQ with U.S. execution.
+•	Strategic Analytics: Created Power BI and SQL-based workforce analytics dashboards, improving executive decision speed by 40% through data-driven insights.
+•	Tool Integration: Integrated global collaboration tools (Lark/iSolved), bridging communication between U.S. and China HQ.
+•	Entity Formation (0→1): Built the U.S. operation in 90 days: entity registration, multi-state compliance, and lease negotiations.
+•	Corporate Risk Mitigation: Established a legal "fail-safe" mechanism to resolve active litigation; secured the organization's first EPLI policy and managed external counsel to neutralize legal jeopardy.
+•	C&B Design: Designed and implemented U.S. Compensation & Benefits policies, ensuring compliance with federal, state, and local labor regulations.
+
+Director of Human Resources					Apr 2021 – Oct 2022
+Domino’s Pizza Inc. (MAR Pizza Franchise) - Paramount, CA 	  Domino’s Franchise
+Mission: Serve as the Strategic People Partner for an 85-location, 1,000+ employee multi-state franchise. Drive operational excellence through standardized performance infrastructure and crisis-level turnover reduction.
+•	Standardization at Scale: Trained 8 regional managers via monthly structured case reviews to ensure consistent policy interpretation and performance bar across the multi-state footprint.
+•	ROI Transformation: Reduced turnover by 21 points and saved $1.1 million annually by re-engineering the retention feedback loop and stabilizing high-volume labor cycles.
+•	Legal Integrity: Managed 100+ complex ER cases and litigation threats with zero legal violations across CA, IL, and SC.
+•	System Implementation: Developed and implemented HR protocols and systems, including personnel policies, recruitment strategy, and Worker’s Compensation.
+
+Operations & HR Manager				Jun 2018 – Oct 2020
+Good Hope Group | CreditEase - Irvine, CA - 			FinTech Investment
+Mission: Establish the end-to-end U.S. operational and IT infrastructure for a global FinTech leader. Manage total HR lifecycle, office performance standards, and cross-cultural business integration.
+•	Infrastructure Build (0→1): Established U.S. operational infrastructure, including banking, insurance, and accounting system integration for global expansion.
+•	HRIS Automation: Implemented Azure cloud-based payroll and compliance automation, reducing manual processing by 60%.
+•	IT & Vendor Relations: Oversaw company-wide network and IT security; managed vendor relationships and IT projects.
+•	Project Management: Managed IT projects, coordinating internal and external resources for product launches.
+
+Founder & Principal HR Consultant / Executive Coach			Jan 2016 – Jun 2018
+Kosher Roots - Long Beach, CA 				Coaching | Business Consultation
+Mission: Deliver fractional HR leadership and strategic advisory to early-stage startups and creative studios. Specialize in "0-to-1" builds, system migrations, and aligning people practices with rapid business scaling.
+•	HRIS Implementation: Implemented HRIS tools and created procedure guides for system processing to ensure consistency and productivity.
+•	Interim Management: Acted as interim HR Manager for Create Advertising Group, migrated from ADP Run to ADP WorkforceNow.
+•	Special Projects: Led special HR projects including HRIS, Employee Handbook, and Internal Job Analysis.
+
+HR Director / HR Consultant				Jan 2015 – Dec 2015
+DJI Technology - Carson/Cerritos, CA 			Technology | Consumer Electronics
+Mission: Launch the U.S. HR function for a global drone technology leader. Integrate HR administration, operations, and strategic planning across five business units to support aggressive market entry and technical scaling.
+•	Hyper-Growth Scaling: Orchestrated U.S. expansion from 15 to 150+ employees in 12 months; implemented Workday HCM and designed competitive Silicon Valley comp structures.
+•	Job Analysis: Identified essential roles and facilitated job descriptions, evaluation standards, and compensation design.
+•	HR Budgeting: Managed monthly HR budget and cost-effectiveness studies for special projects.
+
+HR Specialist (Healthcare Recruitment & Systems)			Apr 2014 – Dec 2015
+VA Long Beach Healthcare System - Long Beach, CA
+Mission: Provide technical HR advisory and accurate recruitment/retention documentation for a federal healthcare system.
+•	Systems Innovation: Engineered a Microsoft Access database to bridge legacy systems, improving time-to-hire metrics.
+•	Regulatory Interpretation: Interpreted complex VA, VHA, OPM, CFR rules, policies, and directives.
+•	Technical Advisory: Provided HR technical advisory to boards and executive medical committees.
+
+Founder & Professional Coach / Consultant			Dec 2012 – Apr 2014
+Kosher Roots - Long Beach, CA 				Coaching | Business Consultation
+Mission: Provide wellness-focused executive coaching and leadership development for small business owners.
+•	Startup Consulting: Provided entity setup and leadership coaching for early-stage founders.
+•	Leadership Development: Developed leadership programs and facilitated workshops.
+
+Strategic HR Manager (Corporate Planning)			Nov 2011 – Nov 2013
+JTB Americas, Ltd. - Torrance, CA
+Mission: Lead strategic organizational planning and HR milestones within corporate planning.
+•	Global ERP Integration: Led personnel integration for multiple M&A acquisitions, aligning HR data across U.S. and Asian entities.
+•	Systems Benchmark: Submitted RFPs for HRIS and ERP system integration; tested and benchmarked systems from vendors.
+
+Supervisory HR Manager / Japan Regional System Chief		Mar 2007 – Jun 2011
+SERCO - NA, Inc. - Camp Zama, Japan / S. Korea
+Mission: Provide HR management for U.S. Military installations overseas.
+•	Regional Data Integrity: Administered Army HRIS for 18,000+ personnel; managed disaster relief logistics for 2011 Japan earthquake.
+•	Systems Design: Managed structural design of Army regional reporting system in compliance with Army regulations.
+
+Personnel Action Center Manager / USR Officer			Sep 2002 – Feb 2007
+U.S. Army - South Korea (Aviation Unit)
+Mission: Manage personnel operations and mission readiness for a 200-soldier Aviation unit.
+•	Mission Readiness: Managed secret-level personnel vetting and readiness reporting.
+•	Strategic Reporting: Delivered 100% accuracy for human capital requirements reporting.
+________________________________________
+Education
+•	MBA, Business School Netherlands (2013)
+•	B.S., Economics, Beijing Great Wall University (2007)
+________________________________________
+Certifications & Technical Skills
+•	Certifications: CPCC (Certified Professional Co-Active Coach), ADU Specialist (2025), SPHR, PeopleSoft 8.x Administrator, CompTIA Security+ & Network+.
+•	Technical Tools: Advanced Microsoft Office (Expert Excel Macros), Power Automate, Tableau, SAS, SQL (Expert), Power BI, Valkey, Redis, Git/GitHub.
+•	HRIS/ERP: Workday HCM (Expert), ADP Workforce Now, Paycom, iSolved, PeopleSoft, SAP.
+•	Languages: English (Native), Mandarin Chinese (Native), Japanese/Korean (Working Knowledge).
+________________________________________
+AI Capabilities (The Technical Moat)
+•	Agentic AI Design: Architecting multi-agent systems (Simon/Kyle/Researcher) using Python and LLM orchestration (OpenAI, Claude, Gemini); integrated autogen_agentchat for complex tool-calling agents.
+•	Protocol Engineering: Developed custom Model Context Protocol (MCP) servers (ValkeyMCPServer) and client agents (McpAgent) to bridge LLMs with external data sources and tools.
+•	Distributed Systems: Engineered ValkeyConnectionManager for robust, distributed state management and WorkerMeta for scalable worker synchronization in high-performance environments.
+•	Optimization & Alignment: Implemented FixedKLController for managing KL divergence in optimization loops, ensuring stable and efficient model alignment.

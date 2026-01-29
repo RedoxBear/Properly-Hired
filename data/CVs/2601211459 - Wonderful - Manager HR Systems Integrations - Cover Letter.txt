@@ -1,0 +1,85 @@
+Richard Xiong
+Fullerton, CA | (323) 427-8673 | reedxiong@gmail.com | linkedin.com/in/reedxiong
+
+[Date]
+
+Hiring Manager
+The Wonderful Company
+West Los Angeles, CA
+
+RE: Manager, HR Systems & Integrations (REF6575N)
+
+Dear Hiring Team,
+
+I am writing to express my strong interest in the Manager, HR Systems & Integrations role at The Wonderful Company. As an HR systems architect with 15 years of experience designing and implementing HRIS integrations across multiple enterprise platforms, I am excited by the opportunity to focus exclusively on technical integration challenges while leveraging my deep HR domain expertise.
+
+WHY THIS ROLE ALIGNS WITH MY CAREER PIVOT
+
+After building HR infrastructures as an executive leader at companies ranging from high-growth tech firms to multi-state franchise operations, I am making a deliberate pivot toward pure technical systems work. I have spent my career architecting integrations, automating workflows, and solving complex data challenges - and this role represents exactly where I want to focus my next chapter: 100% on integration engineering and technical problem-solving.
+
+ADDRESSING UKG PRO EXPERIENCE PROACTIVELY
+
+I understand that deep UKG Pro expertise is central to this role. While I have not worked directly with UKG Pro, I have successfully implemented and integrated six major HRIS platforms throughout my career - including Workday HCM (Expert), ADP Workforce Now, iSolved, Paycom, PeopleSoft 8.x, and SAP. Each implementation required me to master new platforms rapidly and design complex integrations under tight deadlines.
+
+All enterprise HRIS platforms share the same integration DNA: REST APIs, SFTP automation, middleware orchestration, SQL-based data transformation, and security protocols. The technical patterns I have used to integrate Workday, ADP, and iSolved directly map to UKG Pro's Integration Hub and ProConnect architecture. I have already begun UKG University's integration training modules and am committed to completing UKG Pro Integration Specialist certification within my first 90 days.
+
+TECHNICAL INTEGRATION EXPERTISE
+
+My technical qualifications align strongly with your requirements:
+
+• Integration Architecture: Designed bidirectional Lark ↔ iSolved integration for DHGate, enabling seamless data synchronization between China HQ and U.S. operations. Built Power BI/SQL analytics infrastructure improving executive decision speed by 40%.
+
+• API Development & Automation: Implemented Azure cloud-based payroll and compliance automation reducing manual processing by 60% (CreditEase). Developed REST API integrations, file-based data transfers, and custom database solutions across multiple environments.
+
+• SQL & Data Engineering: Expert-level SQL proficiency demonstrated through complex multi-table joins, stored procedures, and data transformation scripts. Built workforce analytics dashboards processing data from 5+ integrated systems.
+
+• Middleware & Workflow Automation: Advanced proficiency in Microsoft Power Automate, designing automation workflows that drove 180% productivity gains and 70% administrative overhead reduction (ALIGCUS). Power Automate's low-code orchestration model directly translates to Workato's platform.
+
+• Enterprise HRIS Implementation: Led Workday HCM implementation from zero to 150+ employees in 12 months with zero downtime (DJI). Managed ADP platform migrations for 15+ companies, designed complete system architectures including org structures, security models, and integration points.
+
+• Large-Scale Systems Administration: Administered Army HRIS (PeopleSoft-based) for 18,000+ personnel, maintaining 100% data integrity during disaster relief operations requiring real-time system updates (SERCO).
+
+PROVEN MEASURABLE IMPACT
+
+My integration and automation work has delivered quantifiable business results:
+• 180% productivity increase through automated workforce tracking systems (ALIGCUS)
+• 40% improvement in executive decision speed via integrated analytics (DHGate)
+• 60% reduction in manual payroll processing through cloud integration (CreditEase)
+• $1.1M annual savings through data-driven retention analytics (Domino's)
+• Zero compliance violations across 85-location, multi-state HRIS management (Domino's)
+
+TECHNICAL CREDENTIALS
+
+• Certifications: SPHR, ADU Specialist (2025), PeopleSoft 8.x Administrator, CompTIA Security+, CompTIA Network+
+• Development: Python (API orchestration, automation scripts), SQL (Expert), Git/GitHub
+• HRIS/ERP: Workday HCM (Expert), ADP Workforce Now, iSolved, Paycom, PeopleSoft, SAP
+• Integration Tools: Power Automate (Advanced), Azure cloud integration, REST/SOAP APIs, SFTP
+• Analytics: Power BI, Tableau, SQL Server, advanced Excel (VBA macros)
+
+WHY THE WONDERFUL COMPANY
+
+The Wonderful Company's scale and complexity - managing a diverse portfolio across agriculture, manufacturing, and distribution with seasonal workforce fluctuations - presents exactly the kind of technical integration challenges I thrive on. Your need for robust UKG Pro integrations supporting 10,000+ employees across multiple business units aligns perfectly with my experience managing distributed HRIS environments at scale.
+
+I am particularly drawn to the hybrid work structure and the opportunity to serve as the technical integration lead, partnering with both HR and IT stakeholders to solve complex data flow challenges. This role represents the perfect intersection of my technical skills, HR domain expertise, and passion for systems architecture.
+
+IMMEDIATE VALUE PROPOSITION
+
+If selected, I commit to:
+1. Completing UKG Pro Integration Specialist certification within 90 days
+2. Becoming productive on existing integrations within 30 days by leveraging my multi-platform HRIS expertise
+3. Bringing fresh perspectives from other enterprise platforms that can enhance your UKG Pro integration strategy
+4. Documenting integration architectures and establishing best practices based on 15 years of systems implementation experience
+
+I am confident that my technical depth, proven track record of mastering complex HRIS platforms rapidly, and commitment to integration excellence make me a strong candidate for this role despite not having UKG Pro-specific experience. My ability to architect integrations, troubleshoot complex data flows, and deliver measurable productivity gains will translate directly to success in this position.
+
+I would welcome the opportunity to discuss how my technical expertise can support The Wonderful Company's HR systems integration roadmap. Thank you for considering my application.
+
+Sincerely,
+
+Richard Xiong
+
+---
+
+ENCLOSURE: Resume
+
+P.S. - I am available for a technical conversation at your convenience and would be happy to walk through specific integration projects from my portfolio, including architecture diagrams and technical implementation details.

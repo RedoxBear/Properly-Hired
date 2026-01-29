@@ -1,0 +1,62 @@
+What I'm optimizing for
+- Pass the technical screen for UKG Pro/WFM integrations and secure the first-round interview.
+- Position you as an operational HRIS integration leader, not a broad Head of People.
+
+JD Analysis and Role Classification
+- Role level: Manager (Operational/Management).
+- Clusters (estimated weight):
+  1) HRIS integrations and data flows (30%)
+  2) UKG Pro and UKG WFM platform expertise (25%)
+  3) Integration engineering (APIs, file-based, SQL, SSO/SFTP) (25%)
+  4) Project leadership and cross-functional coordination (10%)
+  5) Security, compliance, and documentation rigor (10%)
+- Protected signals for this role: integration engineering evidence, UKG platform expertise, data mapping/validation, and documentation/testing.
+
+What's working
+- Strong HRIS background: Workday, ADP, iSolved, PeopleSoft, SAP implementations and integrations.
+- Data and analytics depth: SQL, Power BI, data governance, and dashboards.
+- Operational leadership in complex, regulated environments with multi-state compliance.
+- Technical credibility: Security+ and Network+ certifications, plus automation experience.
+
+What's hurting
+- No explicit UKG Pro or UKG WFM experience listed (3+ years is a hard filter).
+- No clear API integration, SFTP, SSO, or Workato experience stated.
+- Title and positioning skew to Head of People/strategic leadership; this is a hands-on HRIS integration manager role.
+- Hybrid requirement: West LA onsite Mon-Wed must be a clear yes.
+
+Fit verdict
+- Overall fit: Medium-Weak due to missing UKG Pro/WFM and integration engineering specifics.
+
+Fixes with highest ROI (ordered)
+1) Confirm and add any UKG Pro/WFM exposure, even if indirect (vendor coordination, integration projects, or admin work).
+2) Surface specific integration engineering examples (APIs, file-based feeds, data mapping, SSO/SFTP) if you have them.
+3) Reposition summary and core competencies toward HRIS integrations, data integrity, and systems delivery.
+4) Add middleware experience if true (Workato or equivalent), and call out change management for HR tech upgrades.
+5) Make LA hybrid availability explicit.
+
+Deliverables
+- Evidence check (please confirm if true):
+  - Any UKG Pro or UKG WFM implementation, integration, or admin experience.
+  - API integration work (REST or SOAP) and file-based feeds (CSV, XML, JSON).
+  - SFTP/SSO or security model configuration.
+  - Workato or similar middleware platform usage.
+
+- If true, here are bullet templates to insert into a targeted resume (not the Master file):
+  - Led HRIS integrations between [UKG/HRIS] and [payroll/benefits/finance] systems using [REST/SOAP, SFTP], improving data accuracy by [X%].
+  - Built and documented data mapping and validation rules across HR systems, reducing reconciliation errors by [X%].
+  - Managed HR technology upgrades and UAT cycles, coordinating HR, IT, and vendors to deliver on time.
+
+Pre-Submission Audit Checklist
+- UKG Pro/WFM experience stated clearly.
+- API/file-based integration experience visible in recent roles.
+- SQL and data validation included in skills or bullets.
+- SSO/SFTP and security model awareness mentioned.
+- Workato or similar middleware noted if applicable.
+- Hybrid onsite in West LA confirmed.
+- Manager-level operational positioning, not executive strategy focus.
+
+Weekly action plan + metrics to track
+- 3 targeted outreach messages to HRIS leaders at Wonderful or adjacent brands; target 1 response.
+- 2 applications to similar UKG-focused roles to test conversion rate.
+- 1 internal referral attempt per week.
+- Track: screens scheduled, UKG-related objections, and conversion rate to first interview.

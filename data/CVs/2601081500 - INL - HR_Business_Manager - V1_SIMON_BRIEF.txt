@@ -1,0 +1,47 @@
+Title: Simon Risk Assessment - INL - HR Business Manager
+Date: 2026-01-08
+Ref: Protocol 1.3 (Viability + Tone Calibration)
+
+---
+
+## 1. Viability Assessment (Ghost Job Score)
+**Score: 15% (REAL OPENING)**
+*   **Green Flags:**
+    *   **Stable Funding:** DOE funded through 2025 ($1.4B for Nuclear Energy).
+    *   **Growth:** 6.4% workforce increase in 2024.
+    *   **Specific Context:** "Reports to Financial Planning & Analysis Director" (Very specific reporting line).
+*   **Risk Factor:** "Return to Office" mandate means this is 100% onsite in Idaho Falls.
+
+## 2. Hiring Intent & Context
+*   **The Trap:** This is **NOT** a standard HRBP role.
+    *   **The Evidence:** It reports to *Finance*, not HR.
+    *   **The Job:** You are the "CFO of HR." You manage the budget, FTE projections, and "HR Financial Indices."
+*   **The Pain:** HR usually sucks at math. They need someone who speaks "Finance" (Variance Analysis, Carryover Projections) to control the HR budget.
+*   **The Profile:** They want a "Quant" HR leader, not a "People" HR leader.
+
+## 3. Tone Calibration: TACTICAL / RELIABILITY (FINANCIAL FOCUS)
+*   **Primary Signal:** Precision, Data Integrity, Fiscal Responsibility.
+*   **Anti-Signal:** "Culture," "Engagement," "Soft Skills." (These are secondary).
+*   **Why:** The JD is 80% financial management. You must sound like an accountant who understands people, not a people person who hates math.
+
+## 4. Screening Lens (The Gatekeeper's Filters)
+*   **Must-Haves:**
+    *   **Financial Acumen:** "Bachelor's in Finance/Accounting" is preferred. Richard has an **Economics degree** (Critical Win).
+    *   **Budget Management:** "Manage budgets," "Forecast out-year funding."
+    *   **Federal/DOE Context:** INL is a DOE lab. Richard's **Army/DoD** experience (USR Reporting, Federal Staffing) is the perfect proxy.
+*   **Deal-Breakers:**
+    *   Resumes that lack numbers/financials.
+    *   Candidates who focus on "Employee Relations" instead of "Resource Allocation."
+
+## 5. Fit Diagnosis (Richard vs. INL)
+*   **Rating:** **STRONG (With Pivot)**
+*   **The Pivot:** We must suppress the "ER/Investigations" signal (Planhat/Anduril focus) and amplify the **"Economics Degree + Serco Budgeting"** signal.
+*   **The Hook:** "I am an HR leader with an Economics degree who managed a $500k budget for Serco and reported readiness data to the Pentagon."
+
+## 6. Brief to Kyle
+*   **Tone Target:** "Financial Controller of HR."
+*   **Protected Signals:**
+    *   [ ] **Budget/P&L Management:** (Serco $500k, DHGate $120M Revenue Support).
+    *   [ ] **Data/Reporting:** (Army USR Officer - strict reporting).
+    *   [ ] **Federal Compliance:** (DOE/DoD alignment).
+*   **Verbal Strategy:** Use verbs like "Forecasted," "Allocated," "Audited," "Analyzed Variance."

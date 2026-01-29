@@ -1,0 +1,83 @@
+Richard Xiong
+Fullerton, CA | (323) 427-8673
+reedxiong@gmail.com | LinkedIn.com/in/reedxiong
+U.S. Army Veteran | Security Clearance (Previous)
+
+SUMMARY
+Defense-Tech People Partner with 15+ years of experience bridging the gap between Silicon Valley velocity and DoD operational rigor. Based in Fullerton (20 mins from Costa Mesa HQ), I specialize in supporting high-growth Engineering and R&D organizations. I combine the discipline of a U.S. Army Veteran with the agility of a tech builder (DJI, DHGate), helping leaders scale technical teams without sacrificing mission readiness or compliance.
+
+UNIQUE DIFFERENTIATOR
+I possess the rare duality of **Hardware Tech Velocity** (DJI) and **Defense Logistics Rigor** (U.S. Army). While most HRBPs struggle to speak "Engineering," I build my own AI agents (`Prague-day`) and script automations in Python. I don't just support the mission; I have the technical and operational fluency to enable it.
+
+CORE COMPETENCIES
+*   Strategic HR Partnership: Engineering/R&D Support, Org Design for Hyper-Scale.
+*   Defense-Tech Hybrid: ITAR/Export Control, DoD Security Protocols, Hardware/Software scaling.
+*   Technical HR Ops: Workforce Analytics (SQL/Power BI), Automated Workflows, AI Integration.
+*   Employee Relations: Complex Investigations, Conflict Resolution, High-Performance Culture.
+*   Languages: English (Native), Mandarin Chinese (Native/Bilingual).
+
+TECHNICAL PROJECTS & AGENTIC AI (THE "FORGE" MINDSET)
+*   Prague-day (AI Agent Ecosystem): Architected a multi-agent AI system to automate complex research and compliance workflows, demonstrating "Founder Mode" agency.
+*   HR Engineering: Designed Python-based scripts to pre-validate candidate eligibility and automate routine HR queries, reducing administrative friction for engineering teams.
+
+PROFESSIONAL EXPERIENCE
+
+ALIGCUS Inc. | San Gabriel, CA
+Executive Vice President (Strategic HR & Operations Lead) | May 2024 – Jul 2025
+*   Scaling Operations: Led the "0-to-1" organizational build for a hyper-growth firm, establishing the org design for Series A readiness.
+*   Operational Velocity: Accelerated workforce productivity by 180% by replacing manual admin with automated performance frameworks.
+*   Compliance Rigor: Enforced absolute safety and regulatory standards across field operations, mirroring the "Zero Defect" culture required for defense manufacturing.
+
+DHGate | Los Angeles, CA
+Sr. HR Business Partner / Head of U.S. Operations | Dec 2022 – May 2024
+*   Hyper-Growth Scaling: Architected the U.S. market entry for a global platform, scaling the team by 50+ roles in 90 days to support a $120M revenue target.
+*   Cross-Border Alignment: Navigated complex international compliance between Global HQ and U.S. entities, ensuring a unified culture during rapid expansion.
+
+Domino’s Pizza Inc. (MAR Pizza Franchise) | Paramount, CA
+Director of Human Resources (Operational Partner) | Apr 2021 – Oct 2022
+*   Operational Stability: Partnered with field leaders to stabilize a high-volume workforce (1,000+ staff), reducing turnover by 21% through targeted retention strategies.
+*   Complex Investigations: Managed 100+ sensitive employee relations cases, ensuring fair and defensible outcomes in a high-pressure environment.
+
+Good Hope Group | CreditEase | Irvine, CA
+Operations & HR Manager | Jun 2018 – Oct 2020
+*   Tech Expansion: Facilitated the U.S. launch of a FinTech unicorn, managing the delicate balance between high-velocity growth and regulatory compliance.
+
+Kosher Roots | Long Beach, CA
+Founder & Principal HR Consultant | Jan 2016 – Jun 2018
+*   Startup Advisory: Provided fractional HR support to early-stage founders, building scalable people infrastructure from Day 1.
+
+DJI Technology | Carson/Cerritos, CA
+HR Director / Strategic HRBP | Jan 2015 – Dec 2015
+*   R&D Partnership: Partnered with the VP of Product & R&D (Palo Alto) to scale the U.S. Engineering team from 15 to 150+ in 12 months.
+*   Technical Retention: Achieved 95% retention of critical computer vision and hardware engineers by designing competitive compensation structures tailored to the tech market.
+*   Hardware/Software Context: Managed HR for a complex hardware ecosystem (Drones/Imaging), aligning talent strategies with rapid product release cycles.
+
+VA Long Beach Healthcare System | Long Beach, CA
+HR Specialist (Healthcare Recruitment & Systems) | Apr 2014 – Dec 2015
+*   Federal Compliance: Executed recruitment documentation in strict adherence to OPM/CFR federal policies.
+
+Kosher Roots | Long Beach, CA
+Founder & Professional Coach | Dec 2012 – Apr 2014
+*   Consulting: Provided performance management guidance to client companies.
+
+JTB Americas, Ltd. | Torrance, CA
+Strategic HR Manager | Nov 2011 – Nov 2013
+*   Integration Support: Led personnel integration for a global ERP rollout.
+
+Serco - NA, Inc. | Camp Zama, Japan
+Supervisory HR Manager / Japan Regional System Chief | Mar 2007 – Jun 2011
+*   Defense Logistics: Administered Army HRIS for 18,000+ personnel, ensuring 100% data integrity for theater operations.
+
+U.S. Army | South Korea (Aviation Unit)
+Personnel Action Center Manager / USR Officer | Sep 2002 – Feb 2007
+*   Mission Readiness: Served as Unit Status Report (USR) Officer, ensuring 100% accurate readiness reporting to Army HQ (Pentagon).
+*   Operational Security (OPSEC): Managed Secret-Level vetting for personnel assigned to covert aviation missions, ensuring absolute integrity in the human chain of command.
+
+EDUCATION
+MBA | Business School Netherlands (2013)
+B.S., Economics | Beijing Great Wall University (2007)
+
+CERTIFICATIONS & TECHNICAL SKILLS
+*   Certifications: CPCC (Executive Coaching), CompTIA Security+, ADU Specialist.
+*   HR Tech: Workday, ADP, Paycom, Gusto.
+*   AI & Data: SQL, Power BI, Python, LLM Orchestration.
