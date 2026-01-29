@@ -1,4 +1,5 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { Resume } from "@/entities/Resume";
 import { InvokeLLM } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
@@ -6,11 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Sparkles, Target, Loader2, ArrowRight } from "lucide-react";
+import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Database } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
 import AgentChat from "@/components/agents/AgentChat";
+import ONetAttribution from "@/components/onet/ONetAttribution";
+import ONetContentModel from "@/components/onet/ONetContentModel";
 
 export default function TransferableSkills() {
   const [resumes, setResumes] = React.useState([]);
@@ -43,30 +46,58 @@ export default function TransferableSkills() {
       const resume = await Resume.get(selectedId);
       const payload = resume.optimized_content || resume.parsed_content;
 
-      const prompt = `Extract transferable skills from the following resume JSON and map them to other roles/industries.
-Return concise, human-usable bullets.
+      // Query Kyle's KnowledgeBase for transferable skills methodology
+      const kyleKnowledge = await base44.entities.KnowledgeBase.filter({
+        agent_access: "kyle",
+        category: "H01_CV_CoverLetters",
+        is_active: true
+      });
 
-RESUME_JSON:
-${payload}
+      const knowledgeContext = kyleKnowledge
+        .map(k => `[${k.subcategory}]\n${k.content}`)
+        .join("\n\n");
+
+      // Query O*NET local database for occupation matches
+      const onetSkills = await base44.entities.ONetSkill.list("-importance", 100);
+
+      const prompt = `You are Kyle, a CV Expert with deep knowledge of career transitions and transferable skills.
+
+KNOWLEDGE BASE (Your Expert Methodology):
+${knowledgeContext}
+
+O*NET OCCUPATION DATABASE (for reference):
+${JSON.stringify(onetSkills.slice(0, 20))}
+
+CANDIDATE'S RESUME:
+${JSON.stringify(payload)}
 
 TARGET_ROLE: ${targetRole || "None specified"}
 TARGET_INDUSTRY: ${targetIndustry || "None specified"}
 
+TASK: Extract transferable skills and map them to O*NET occupations and target roles.
+- Use your knowledge base methodology for identifying transferable skills
+- Cross-reference with O*NET occupation data for accuracy
+- Provide O*NET occupation codes where applicable
+- Use web search if needed for current market trends
+
 Output JSON:
 {
   "top_transferable_skills": string[],
-  "role_mappings": [ { "role": string, "alignment_score": number, "why": string } ],
-  "suggested_bullets": string[]
+  "role_mappings": [ { "role": string, "onet_code": string, "alignment_score": number, "why": string } ],
+  "suggested_bullets": string[],
+  "onet_occupations": [ { "code": string, "title": string, "match_score": number } ]
 }`;
 
       const response = await retryWithBackoff(() => InvokeLLM({
         prompt,
+        add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
             top_transferable_skills: { type: "array", items: { type: "string" } },
             role_mappings: { type: "array", items: { type: "object" } },
-            suggested_bullets: { type: "array", items: { type: "string" } }
+            suggested_bullets: { type: "array", items: { type: "string" } },
+            onet_occupations: { type: "array", items: { type: "object" } }
           }
         }
       }), { retries: 3, baseDelay: 1200 });
@@ -143,41 +174,73 @@ Output JSON:
             </Card>
 
             {result && (
-              <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle>Results</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold text-slate-800 mb-2">Top Transferable Skills</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {result.top_transferable_skills?.map((s, i) => (
-                        <Badge key={i} className="bg-blue-50 text-blue-800 border-blue-200">{s}</Badge>
-                      ))}
+              <>
+                <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle>Results</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-slate-800 mb-2">Top Transferable Skills</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {result.top_transferable_skills?.map((s, i) => (
+                          <Badge key={i} className="bg-blue-50 text-blue-800 border-blue-200">{s}</Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-800 mb-2">Role Mappings</h3>
-                    <div className="space-y-3">
-                      {result.role_mappings?.map((m, i) => (
-                        <div key={i} className="p-3 rounded-lg border bg-slate-50">
-                          <div className="font-medium">{m.role} — <span className="text-emerald-600">{m.alignment_score}%</span></div>
-                          <p className="text-sm text-slate-700 mt-1">{m.why}</p>
+
+                    {result.onet_occupations && result.onet_occupations.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
+                          <Database className="w-4 h-4 text-blue-600" />
+                          O*NET Occupation Matches
+                        </h3>
+                        <div className="space-y-2">
+                          {result.onet_occupations.map((occ, i) => (
+                            <div key={i} className="p-3 rounded-lg border bg-blue-50 border-blue-200">
+                              <div className="font-medium text-slate-800">
+                                {occ.title}
+                                <Badge className="ml-2 bg-blue-600">{occ.code}</Badge>
+                                <span className="ml-2 text-blue-600">{occ.match_score}% match</span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
+                    )}
+
+                    <div>
+                      <h3 className="font-semibold text-slate-800 mb-2">Role Mappings</h3>
+                      <div className="space-y-3">
+                        {result.role_mappings?.map((m, i) => (
+                          <div key={i} className="p-3 rounded-lg border bg-slate-50">
+                            <div className="font-medium">
+                              {m.role}
+                              {m.onet_code && <Badge variant="outline" className="ml-2">{m.onet_code}</Badge>}
+                              {" — "}
+                              <span className="text-emerald-600">{m.alignment_score}%</span>
+                            </div>
+                            <p className="text-sm text-slate-700 mt-1">{m.why}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-800 mb-2">Suggested Bullets</h3>
-                    <ul className="list-disc list-inside space-y-1">
-                      {result.suggested_bullets?.map((b, i) => <li key={i} className="text-slate-700">{b}</li>)}
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div>
+                      <h3 className="font-semibold text-slate-800 mb-2">Suggested Bullets</h3>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.suggested_bullets?.map((b, i) => <li key={i} className="text-slate-700">{b}</li>)}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <ONetAttribution />
+              </>
             )}
           </>
         )}
+
+        <ONetContentModel />
       </div>
 
       {/* Kyle AI Agent Chat */}
