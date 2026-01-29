@@ -19,6 +19,7 @@ import { logEvent } from "@/components/utils/telemetry";
 import { Badge } from "@/components/ui/badge";
 import AISuggestions from "@/components/resume/AISuggestions";
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function ResumeOptimizer() {
   const [jobApplications, setJobApplications] = React.useState([]);
@@ -543,6 +544,18 @@ export default function ResumeOptimizer() {
               )}
         </AnimatePresence>
       </div>
+
+      {/* Kyle AI Agent Chat */}
+      <AgentChat
+        agentName="kyle"
+        agentTitle="Kyle - CV Expert"
+        context={{
+          selectedJob: selectedJobId ? jobApplications.find(j => j.id === selectedJobId)?.job_title : "",
+          selectedResume: selectedResumeId ? masterResumes.find(r => r.id === selectedResumeId)?.version_name : "",
+          optimizationMode: optimizeMode,
+          hasResults: !!optimizationResults
+        }}
+      />
     </div>
   );
 }

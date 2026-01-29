@@ -33,6 +33,7 @@ import { extractATSKeywords, diffRoleVsCV, idealCandidateFromJD, prioritizeRespo
 import { fetchOrgResearch } from "@/components/utils/orgResearch";
 import { logEvent } from "@/components/utils/telemetry"; // Updated import path
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
+import AgentChat from "@/components/agents/AgentChat";
 
 const createPageUrl = (path) => {
     return path.startsWith('/') ? path : `/${path}`;
@@ -943,6 +944,18 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                     )}
                 </AnimatePresence>
             </div>
+
+            {/* Simon AI Agent Chat */}
+            <AgentChat
+                agentName="simon"
+                agentTitle="Simon - Recruiting Expert"
+                context={{
+                    jobTitle: jobTitle || "",
+                    companyName: companyName || "",
+                    jobDescription: jobDescription ? jobDescription.substring(0, 500) : "",
+                    analysisComplete: !!analysisResult
+                }}
+            />
         </div>
     );
 }
