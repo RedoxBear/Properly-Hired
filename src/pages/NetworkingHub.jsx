@@ -5,6 +5,7 @@ import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles } from "
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function NetworkingHub() {
   const features = [
@@ -127,6 +128,16 @@ export default function NetworkingHub() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Simon AI Agent Chat */}
+      <AgentChat
+        agentName="simon"
+        agentTitle="Simon - Recruiting Expert"
+        context={{
+          page: "Networking Hub",
+          features: ["People Search", "AI Messages", "Recruiter Connect", "My Network"]
+        }}
+      />
     </div>
   );
 }

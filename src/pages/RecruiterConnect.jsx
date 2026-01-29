@@ -10,6 +10,7 @@ import { Calendar, Plus, Video, Phone, MapPin, Loader2, Trash2 } from "lucide-re
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function RecruiterConnect() {
   const [meetings, setMeetings] = React.useState([]);
@@ -330,6 +331,17 @@ export default function RecruiterConnect() {
           </div>
         )}
       </div>
+
+      {/* Simon AI Agent Chat */}
+      <AgentChat
+        agentName="simon"
+        agentTitle="Simon - Recruiting Expert"
+        context={{
+          page: "Recruiter Connect",
+          meetingsCount: meetings.length,
+          upcomingMeetings: meetings.filter(m => m.status === "scheduled").length
+        }}
+      />
     </div>
   );
 }

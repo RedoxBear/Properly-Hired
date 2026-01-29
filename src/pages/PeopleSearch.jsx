@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Loader2, Plus, ExternalLink, Linkedin, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function PeopleSearch() {
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -230,6 +231,18 @@ Return JSON:
           </div>
         )}
       </div>
+
+      {/* Simon AI Agent Chat */}
+      <AgentChat
+        agentName="simon"
+        agentTitle="Simon - Recruiting Expert"
+        context={{
+          page: "People Search",
+          hasResults: results.length > 0,
+          resultsCount: results.length,
+          searchQuery: searchQuery
+        }}
+      />
     </div>
   );
 }

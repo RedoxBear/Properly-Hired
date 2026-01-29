@@ -8,6 +8,7 @@ import { Users, Linkedin, Mail, Phone, Loader2, Trash2, Edit } from "lucide-reac
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { format } from "date-fns";
+import AgentChat from "@/components/agents/AgentChat";
 
 export default function MyNetwork() {
   const [contacts, setContacts] = React.useState([]);
@@ -250,6 +251,19 @@ export default function MyNetwork() {
           </div>
         )}
       </div>
+
+      {/* Simon AI Agent Chat */}
+      <AgentChat
+        agentName="simon"
+        agentTitle="Simon - Recruiting Expert"
+        context={{
+          page: "My Network",
+          totalContacts: contacts.length,
+          connectedCount: contacts.filter(c => c.connection_status === "connected").length,
+          pendingCount: contacts.filter(c => c.connection_status === "pending").length,
+          filterStatus: filterStatus
+        }}
+      />
     </div>
   );
 }
