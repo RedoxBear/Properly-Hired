@@ -314,6 +314,57 @@ URL: ${jobUrl}
         setIsAnalyzing(true);
         setError("");
 
+        // SIMON'S GHOST-JOB DETECTION
+        let simonGhostScore = 0;
+        let simonRiskLevel = "UNKNOWN";
+        let simonRoleClassification = {};
+        try {
+            const ghostAnalysisPrompt = `You are Simon, a recruiting expert. Analyze this job posting for ghost-job indicators using a 100-point scoring system.
+
+Job Title: ${jobTitle}
+Company: ${companyName}
+Job Description: ${jobDescription}
+
+Score breakdown (0-100):
+- JD Quality (30 pts): Structure, completeness, professionalism
+- Vagueness (20 pts): Generic language, missing specifics
+- Missing Info (30 pts): Compensation, team info, reporting structure
+- Generic Language (10 pts): Template indicators
+- Company Stability (10 pts): Online presence
+
+Also classify the role level:
+- IC, Senior IC, Manager, Senior Manager, Director, Senior Director, VP, C-Suite
+
+Return JSON with ghost_job_score (0-100), risk_level (LOW/MONITOR/MEDIUM/HIGH/VERY_HIGH), role_type, tier, indicators[], positive_signals[]`;
+
+            const simonAnalysis = await retryWithBackoff(() => InvokeLLM({
+                prompt: ghostAnalysisPrompt,
+                add_context_from_internet: true,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        ghost_job_score: { type: "number" },
+                        risk_level: { type: "string" },
+                        role_type: { type: "string" },
+                        tier: { type: "string" },
+                        indicators: { type: "array", items: { type: "string" } },
+                        positive_signals: { type: "array", items: { type: "string" } }
+                    }
+                }
+            }), { retries: 2, baseDelay: 1000 });
+
+            simonGhostScore = simonAnalysis.ghost_job_score || 0;
+            simonRiskLevel = simonAnalysis.risk_level || "UNKNOWN";
+            simonRoleClassification = {
+                role_type: simonAnalysis.role_type,
+                tier: simonAnalysis.tier,
+                indicators: simonAnalysis.indicators || [],
+                positive_signals: simonAnalysis.positive_signals || []
+            };
+        } catch (e) {
+            console.error("Simon analysis failed:", e);
+        }
+
         try {
             const analysisPrompt = `
 Analyze this job posting and extract key insights. Additionally, detect if the post is likely AI-generated (templated language, unrealistic requirements, vague company signals) and provide humanization tips for the applicant to make their response more authentic if the job posting seems AI-generated.
@@ -360,7 +411,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                 }
             }), { retries: 3, baseDelay: 1200 });
 
-            // Save to database, including the full LLM analysis result for future reference
+            // Save to database, including the full LLM analysis result AND Simon's analysis
             const savedApplication = await JobApplication.create({
                 job_title: jobTitle,
                 company_name: companyName,
@@ -372,7 +423,12 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                 optimization_score: response.optimization_score || 0,
                 ai_generated_likelihood: response.ai_generated_likelihood || 0,
                 ai_detection_notes: (response.ai_signals || []).join("; "),
-                llm_analysis_result: response // Persist the full LLM analysis result for later use
+                llm_analysis_result: {
+                    ...response,
+                    simon_ghost_score: simonGhostScore,
+                    simon_risk_level: simonRiskLevel,
+                    simon_role_classification: simonRoleClassification
+                }
             });
 
             // Persist a concise analysis summary to show in Job Library
@@ -672,10 +728,38 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                         </Button>
                                     </div>
                                     {analysisResult.ai_generated_likelihood > 50 && (
-                                        <Badge variant="outline" className="mt-2 text-sm text-yellow-700 bg-yellow-50 border-yellow-200">
-                                            <Bot className="w-3 h-3 mr-1" />
-                                            AI-Generated Likelihood: {analysisResult.ai_generated_likelihood}%
-                                        </Badge>
+                                       <Badge variant="outline" className="mt-2 text-sm text-yellow-700 bg-yellow-50 border-yellow-200">
+                                           <Bot className="w-3 h-3 mr-1" />
+                                           AI-Generated Likelihood: {analysisResult.ai_generated_likelihood}%
+                                       </Badge>
+                                    )}
+                                    {savedApp?.llm_analysis_result?.simon_ghost_score !== undefined && (
+                                       <div className="mt-3 space-y-2">
+                                           <h4 className="text-sm font-semibold text-slate-700">Simon's Ghost-Job Analysis:</h4>
+                                           <div className="flex items-center gap-3">
+                                               <Badge variant="outline" className={`text-sm ${
+                                                   savedApp.llm_analysis_result.simon_ghost_score < 21 ? 'bg-green-50 text-green-700 border-green-200' :
+                                                   savedApp.llm_analysis_result.simon_ghost_score < 41 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                                   savedApp.llm_analysis_result.simon_ghost_score < 61 ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                                                   'bg-red-50 text-red-700 border-red-200'
+                                               }`}>
+                                                   Ghost Score: {savedApp.llm_analysis_result.simon_ghost_score}/100
+                                               </Badge>
+                                               <Badge variant="outline" className="text-xs">
+                                                   Risk: {savedApp.llm_analysis_result.simon_risk_level}
+                                               </Badge>
+                                               {savedApp.llm_analysis_result.simon_role_classification?.role_type && (
+                                                   <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                                                       {savedApp.llm_analysis_result.simon_role_classification.tier || savedApp.llm_analysis_result.simon_role_classification.role_type}
+                                                   </Badge>
+                                               )}
+                                           </div>
+                                           {savedApp.llm_analysis_result.simon_role_classification?.positive_signals?.length > 0 && (
+                                               <div className="text-xs text-green-700 mt-1">
+                                                   ✓ {savedApp.llm_analysis_result.simon_role_classification.positive_signals.slice(0, 2).join(", ")}
+                                               </div>
+                                           )}
+                                       </div>
                                     )}
                                 </CardHeader>
                                 <CardContent className="space-y-6">

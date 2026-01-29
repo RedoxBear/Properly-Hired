@@ -42,6 +42,8 @@ export default function ResumeOptimizer() {
   const [isLoadingTailoring, setIsLoadingTailoring] = React.useState(false);
   const [optimizedVersions, setOptimizedVersions] = React.useState([]);
   const [selectedVersion, setSelectedVersion] = React.useState(0);
+  const [kyleArcGuidance, setKyleArcGuidance] = React.useState(null);
+  const [isLoadingArc, setIsLoadingArc] = React.useState(false);
 
   const loadInitialData = React.useCallback(async () => {
     setIsProcessing(true);
@@ -77,6 +79,61 @@ export default function ResumeOptimizer() {
       if (exists) setSelectedJobId(id);
     }
   }, [jobApplications]);
+
+  const getKyleArcGuidance = async () => {
+      if (!selectedResumeId) {
+          setError("Please select a resume");
+          return;
+      }
+
+      setIsLoadingArc(true);
+      try {
+          const resume = masterResumes.find(r => r.id === selectedResumeId);
+          const resumeContent = JSON.parse(resume.parsed_content || resume.optimized_content);
+          const experiences = resumeContent.experience || [];
+
+          const prompt = `You are Kyle, a CV expert specializing in the ARC formula (Action + Result + Context).
+
+Analyze these resume bullets and score them using the ARC formula. For each bullet, provide:
+1. ARC Score (0-10): How well it follows Action + Result + Context
+2. What's missing (weak action verb, no quantified result, lacks context)
+3. Improved version using ARC formula
+
+Current Experience Bullets:
+${experiences.map((exp, idx) => `
+${exp.position} at ${exp.company}:
+${(exp.achievements || []).map((b, bidx) => `${idx + 1}.${bidx + 1} ${b}`).join("\n")}
+`).join("\n")}
+
+Return JSON with bullet_analysis array of {original, arc_score, missing, improved}`;
+
+          const kyleResponse = await base44.integrations.Core.InvokeLLM({
+              prompt,
+              response_json_schema: {
+                  type: "object",
+                  properties: {
+                      bullet_analysis: {
+                          type: "array",
+                          items: {
+                              type: "object",
+                              properties: {
+                                  original: { type: "string" },
+                                  arc_score: { type: "number" },
+                                  missing: { type: "string" },
+                                  improved: { type: "string" }
+                              }
+                          }
+                      }
+                  }
+              }
+          });
+
+          setKyleArcGuidance(kyleResponse);
+      } catch (e) {
+          console.error("Kyle ARC analysis failed:", e);
+      }
+      setIsLoadingArc(false);
+  };
 
   const generateTailoringSuggestions = async () => {
       if (!selectedJobId || !selectedResumeId) {
@@ -468,9 +525,14 @@ export default function ResumeOptimizer() {
                         Generate 3 Versions
                       </Button>
                   </div>
-                  <Button onClick={generateTailoringSuggestions} disabled={isLoadingTailoring || !selectedJobId || !selectedResumeId} variant="outline" className="w-full">
-                    {isLoadingTailoring ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Get AI Tailoring Suggestions</>}
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button onClick={generateTailoringSuggestions} disabled={isLoadingTailoring || !selectedJobId || !selectedResumeId} variant="outline" className="flex-1">
+                      {isLoadingTailoring ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Tailoring Suggestions</>}
+                    </Button>
+                    <Button onClick={getKyleArcGuidance} disabled={isLoadingArc || !selectedResumeId} variant="outline" className="flex-1 border-purple-600 text-purple-700">
+                      {isLoadingArc ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Zap className="w-4 h-4 mr-2" />Kyle's ARC Review</>}
+                    </Button>
+                  </div>
                   </CardContent>
                   </Card>
 
@@ -509,6 +571,43 @@ export default function ResumeOptimizer() {
                         </div>
                       </div>
                     )}
+                  </CardContent>
+                  </Card>
+                  )}
+
+                  {kyleArcGuidance && (
+                  <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+                  <CardHeader>
+                    <CardTitle className="text-purple-900 flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-purple-500" />
+                      Kyle's ARC Formula Analysis
+                    </CardTitle>
+                    <p className="text-sm text-purple-700">Action + Result + Context scoring for your bullets</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {kyleArcGuidance.bullet_analysis?.map((item, idx) => (
+                      <div key={idx} className="bg-white/70 p-4 rounded-lg border border-purple-200 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-purple-700">Bullet {idx + 1}</span>
+                          <Badge className={`${
+                            item.arc_score >= 8 ? 'bg-green-100 text-green-800' :
+                            item.arc_score >= 6 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            ARC Score: {item.arc_score}/10
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-slate-700 italic">{item.original}</div>
+                        {item.missing && (
+                          <div className="text-xs text-orange-700 bg-orange-50 p-2 rounded border border-orange-200">
+                            ⚠️ Missing: {item.missing}
+                          </div>
+                        )}
+                        <div className="text-sm text-green-700 bg-green-50 p-2 rounded border border-green-200">
+                          ✓ Improved: {item.improved}
+                        </div>
+                      </div>
+                    ))}
                   </CardContent>
                   </Card>
                   )}
