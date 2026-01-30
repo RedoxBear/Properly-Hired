@@ -468,11 +468,19 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
             **INPUT DATA:**
             - **Job Description:** ${jobData.job_description}
             - **Original Resume (Full Context):** ${selectedResume.parsed_content}
-            ${generateMultiple ? `- **Variation:** Create variation ${i + 1} with a slightly different truthful angle.` : ''}`,
+            ${generateMultiple ? `- **Variation:** Create variation ${i + 1} with a slightly different truthful angle.` : ''}
+
+            **CRITICAL OUTPUT REQUIREMENT:**
+            - optimization_score MUST be a numeric value (0-100), NOT a string or percentage symbol
+            - Example: "optimization_score": 85 (CORRECT)
+            - Example: "optimization_score": "85%" (WRONG)`,
                 response_json_schema: {
                   type: "object",
                   properties: {
-                    optimization_score: { type: "number" },
+                    optimization_score: { 
+                      type: "number",
+                      description: "Match score 0-100 as a NUMBER not string"
+                    },
                     recommendations: { type: "array", items: { type: "string" } },
                     optimized_resume_content: {
                       type: "object",
