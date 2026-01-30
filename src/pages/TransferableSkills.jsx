@@ -107,13 +107,28 @@ TASK: Extract transferable skills and map them to O*NET occupations and target r
 - Provide O*NET occupation codes where applicable
 - Use web search if needed for current market trends
 
-Output JSON:
+Output JSON with complete data:
 {
-  "top_transferable_skills": string[],
-  "role_mappings": [ { "role": string, "onet_code": string, "alignment_score": number, "why": string } ],
-  "suggested_bullets": string[],
-  "onet_occupations": [ { "code": string, "title": string, "match_score": number } ]
-}`;
+  "top_transferable_skills": ["skill1", "skill2", ...],
+  "role_mappings": [ 
+    { 
+      "role": "Specific Job Title", 
+      "onet_code": "15-1252.00", 
+      "alignment_score": 85, 
+      "why": "Detailed explanation of fit" 
+    } 
+  ],
+  "suggested_bullets": ["Complete bullet point 1", "Complete bullet point 2", ...],
+  "onet_occupations": [ 
+    { 
+      "code": "15-1252.00", 
+      "title": "Software Developers, Applications", 
+      "match_score": 92 
+    } 
+  ]
+}
+
+IMPORTANT: All match_score and alignment_score values must be numbers between 0-100, not strings or placeholders.`;
 
       const response = await retryWithBackoff(() => InvokeLLM({
         prompt,
@@ -244,13 +259,15 @@ Output JSON:
                         </h3>
                         <div className="space-y-2">
                           {result.onet_occupations.map((occ, i) => (
-                            <div key={i} className="p-3 rounded-lg border bg-blue-50 border-blue-200">
-                              <div className="font-medium text-slate-800">
-                                {occ.title}
-                                <Badge className="ml-2 bg-blue-600">{occ.code}</Badge>
-                                <span className="ml-2 text-blue-600">{occ.match_score}% match</span>
-                              </div>
-                            </div>
+                           <div key={i} className="p-3 rounded-lg border bg-blue-50 border-blue-200">
+                             <div className="font-medium text-slate-800">
+                               {occ.title || "Occupation Title"}
+                               {occ.code && <Badge className="ml-2 bg-blue-600">{occ.code}</Badge>}
+                               <span className="ml-2 text-blue-600">
+                                 {typeof occ.match_score === 'number' ? `${occ.match_score}%` : 'N/A'} match
+                               </span>
+                             </div>
+                           </div>
                           ))}
                         </div>
                       </div>
@@ -262,12 +279,14 @@ Output JSON:
                         {result.role_mappings?.map((m, i) => (
                           <div key={i} className="p-3 rounded-lg border bg-slate-50">
                             <div className="font-medium">
-                              {m.role}
+                              {m.role || "Role"}
                               {m.onet_code && <Badge variant="outline" className="ml-2">{m.onet_code}</Badge>}
                               {" — "}
-                              <span className="text-emerald-600">{m.alignment_score}%</span>
+                              <span className="text-emerald-600">
+                                {typeof m.alignment_score === 'number' ? `${m.alignment_score}%` : 'N/A'}
+                              </span>
                             </div>
-                            <p className="text-sm text-slate-700 mt-1">{m.why}</p>
+                            <p className="text-sm text-slate-700 mt-1">{m.why || "Alignment explanation"}</p>
                           </div>
                         ))}
                       </div>
