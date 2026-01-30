@@ -396,6 +396,20 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
         const numVersions = generateMultiple ? 3 : 1;
         const versions = [];
 
+        // Parse resume to extract all job history items
+        const resumeData = JSON.parse(selectedResume.parsed_content);
+        const allJobHistory = resumeData.experience || [];
+
+        // Create detailed job history breakdown for analysis
+        const jobHistoryBreakdown = allJobHistory.map((job, idx) => `
+**JOB ${idx + 1}:**
+- Position: ${job.position}
+- Company: ${job.company}
+- Duration: ${job.duration || 'N/A'}
+- Location: ${job.location || 'N/A'}
+- Current Bullets: ${(job.achievements || []).map((b, i) => `\n  ${i + 1}. ${b}`).join('')}
+`).join('\n');
+
         for (let i = 0; i < numVersions; i++) {
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
@@ -436,14 +450,24 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
                  - If **LESS RELEVANT**: Do NOT delete. Summarize them in a "Previous Experience" or "Early Career" section/grouping with just Company, Title, Dates, and a 1-line summary.
                - **GOAL:** Provide a complete history (no gaps) while focusing attention on recent/relevant work. Do NOT truncate the career history.
 
+            **PART 4: INDIVIDUAL JOB EVALUATION (CRITICAL - NEW REQUIREMENT)**
+            You MUST evaluate EACH job history item individually against the JD:
+            1. **Analyze each role's relevance:** For every single position listed below, assess how its responsibilities and achievements align with the target JD requirements.
+            2. **Provide tailored context:** For each role, extract and reframe achievements that match JD keywords, skills, and desired outcomes.
+            3. **Include ALL positions:** Do not skip any job in your output. Every position from the original resume must appear in the optimized version, even if summarized.
+            4. **Match to JD requirements:** Explicitly identify which JD requirements each role addresses, and optimize bullets accordingly.
+
+            **COMPLETE JOB HISTORY BREAKDOWN (${allJobHistory.length} positions total):**
+            ${jobHistoryBreakdown}
+
             **OPTIMIZATION INSTRUCTIONS:**
             - **Mode:** ${modeLabel}
             - **Constraints:** ${constraints}
-            - **Task:** Rewrite the resume content to maximize relevance to the JD using the candidate's actual history and the strategic rules above.
+            - **Task:** Rewrite the resume content to maximize relevance to the JD. You MUST process and include ALL ${allJobHistory.length} job history items listed above. Evaluate each one individually for JD alignment.
 
             **INPUT DATA:**
             - **Job Description:** ${jobData.job_description}
-            - **Original Resume:** ${selectedResume.parsed_content}
+            - **Original Resume (Full Context):** ${selectedResume.parsed_content}
             ${generateMultiple ? `- **Variation:** Create variation ${i + 1} with a slightly different truthful angle.` : ''}`,
                 response_json_schema: {
                   type: "object",
