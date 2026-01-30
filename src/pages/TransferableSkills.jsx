@@ -84,51 +84,58 @@ export default function TransferableSkills() {
         console.log("O*NET API unavailable, using local data only", e);
       }
 
-      const prompt = `You are Kyle, a CV Expert with deep knowledge of career transitions and transferable skills.
+      const prompt = `You are Kyle, a Career Transition Expert specializing in identifying transferable skills for career pivots.
 
-KNOWLEDGE BASE (Your Expert Methodology):
+CAREER TRANSITION METHODOLOGY:
 ${knowledgeContext}
 
-O*NET LOCAL DATABASE (for reference):
-${JSON.stringify(onetSkills.slice(0, 20))}
-
-${liveOnetData ? `LIVE O*NET API DATA (current real-time data):
-${JSON.stringify(liveOnetData)}` : ''}
-
-CANDIDATE'S RESUME:
+CANDIDATE'S CURRENT EXPERIENCE:
 ${JSON.stringify(payload)}
 
-TARGET_ROLE: ${targetRole || "None specified"}
-TARGET_INDUSTRY: ${targetIndustry || "None specified"}
+TARGET CAREER DIRECTION:
+- Target Role: ${targetRole || "Open to exploration"}
+- Target Industry: ${targetIndustry || "Open to exploration"}
 
-TASK: Extract transferable skills and map them to O*NET occupations and target roles.
-- Use your knowledge base methodology for identifying transferable skills
-- Cross-reference with both local O*NET database AND live API data for accuracy
-- Provide O*NET occupation codes where applicable
-- Use web search if needed for current market trends
+YOUR TASK - Career Change Analysis:
+1. Extract ALL transferable skills from the candidate's experience
+2. Identify 3-5 realistic career paths based on their skills
+3. For each career path, provide O*NET occupation codes and match scores
+4. Calculate realistic alignment scores (0-100) based on skill overlap
+5. Suggest how to reframe their experience for each target role
 
-Output JSON with complete data:
+SCORING METHODOLOGY:
+- 90-100: Direct skill match, minimal retraining needed
+- 75-89: Strong transferable skills, some upskilling required
+- 60-74: Moderate overlap, significant retraining needed
+- Below 60: Major pivot, extensive retraining required
+
+OUTPUT REQUIREMENTS:
+Return JSON with ACTUAL NUMERIC SCORES (not placeholders):
+
 {
-  "top_transferable_skills": ["skill1", "skill2", ...],
-  "role_mappings": [ 
-    { 
-      "role": "Specific Job Title", 
-      "onet_code": "15-1252.00", 
-      "alignment_score": 85, 
-      "why": "Detailed explanation of fit" 
-    } 
+  "top_transferable_skills": ["Project Management", "Data Analysis", "Team Leadership"],
+  "role_mappings": [
+    {
+      "role": "Product Manager",
+      "onet_code": "11-2021.00",
+      "alignment_score": 82,
+      "why": "Your program management and stakeholder coordination directly transfer. Need to develop product strategy skills."
+    }
   ],
-  "suggested_bullets": ["Complete bullet point 1", "Complete bullet point 2", ...],
-  "onet_occupations": [ 
-    { 
-      "code": "15-1252.00", 
-      "title": "Software Developers, Applications", 
-      "match_score": 92 
-    } 
+  "suggested_bullets": [
+    "Led cross-functional teams of 12 to deliver $2M projects, demonstrating product lifecycle management",
+    "Analyzed user requirements and market trends to inform strategic decisions"
+  ],
+  "onet_occupations": [
+    {
+      "code": "11-2021.00",
+      "title": "Marketing Managers",
+      "match_score": 78
+    }
   ]
 }
 
-IMPORTANT: All match_score and alignment_score values must be numbers between 0-100, not strings or placeholders.`;
+CRITICAL: Every alignment_score and match_score MUST be a number 0-100, never a string or "%"`;
 
       const response = await retryWithBackoff(() => InvokeLLM({
         prompt,
@@ -159,8 +166,23 @@ IMPORTANT: All match_score and alignment_score values must be numbers between 0-
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium mb-4">
             <Sparkles className="w-4 h-4" /> AI Transferable Skills
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Transferable Skills</h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">Discover how your experience maps to other roles and industries.</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Career Change Explorer</h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">Discover transferable skills and explore new career paths using O*NET occupation data</p>
+          
+          <Card className="mt-6 bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4" />
+                How to Use This Tool
+              </h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• <strong>Leave Target Role/Industry blank</strong> to explore all possible career paths based on your skills</li>
+                <li>• <strong>Specify a Target Role</strong> (e.g., "Data Analyst") to see how well your skills match that specific career</li>
+                <li>• <strong>Use O*NET codes</strong> from results to research detailed job requirements at onetcenter.org</li>
+                <li>• <strong>Review alignment scores</strong> to understand retraining needs: 90+ = ready now, 75-89 = minor upskilling, 60-74 = significant training</li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Kyle's Expertise Display */}
@@ -225,13 +247,24 @@ IMPORTANT: All match_score and alignment_score values must be numbers between 0-
                       </SelectContent>
                     </Select>
                   </div>
-                  <Input placeholder="Target role (optional)" value={targetRole} onChange={e => setTargetRole(e.target.value)} />
-                  <Input placeholder="Target industry (optional)" value={targetIndustry} onChange={e => setTargetIndustry(e.target.value)} />
+                  <Input 
+                   placeholder="Target role (e.g., 'Product Manager' or leave blank to explore)" 
+                   value={targetRole} 
+                   onChange={e => setTargetRole(e.target.value)} 
+                  />
+                  <Input 
+                   placeholder="Target industry (e.g., 'Technology' or leave blank)" 
+                   value={targetIndustry} 
+                   onChange={e => setTargetIndustry(e.target.value)} 
+                  />
                 </div>
 
-                <Button onClick={analyze} disabled={loading || !selectedId} className="w-full md:w-auto">
-                  {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Analyzing...</> : <><Target className="w-4 h-4 mr-2" />Extract Transferable Skills</>}
+                <Button onClick={analyze} disabled={loading || !selectedId} className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700">
+                  {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Analyzing Career Options...</> : <><Target className="w-4 h-4 mr-2" />Analyze Career Transition Potential</>}
                 </Button>
+                <p className="text-xs text-slate-500 mt-2">
+                  {targetRole ? `Analyzing fit for: ${targetRole}` : "Exploring all career options based on your skills"}
+                </p>
               </CardContent>
             </Card>
 
