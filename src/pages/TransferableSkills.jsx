@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Award } from "lucide-react";
+import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Award, Database } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
@@ -70,13 +70,30 @@ export default function TransferableSkills() {
       // Query O*NET local database for occupation matches
       const onetSkills = await base44.entities.ONetSkill.list("-importance", 100);
 
+      // Query live O*NET API for real-time occupation data
+      let liveOnetData = null;
+      try {
+        if (targetRole) {
+          const onetSearchResponse = await base44.functions.invoke('queryONetAPI', {
+            endpoint: '/online/search',
+            params: { keyword: targetRole }
+          });
+          liveOnetData = onetSearchResponse;
+        }
+      } catch (e) {
+        console.log("O*NET API unavailable, using local data only", e);
+      }
+
       const prompt = `You are Kyle, a CV Expert with deep knowledge of career transitions and transferable skills.
 
 KNOWLEDGE BASE (Your Expert Methodology):
 ${knowledgeContext}
 
-O*NET OCCUPATION DATABASE (for reference):
+O*NET LOCAL DATABASE (for reference):
 ${JSON.stringify(onetSkills.slice(0, 20))}
+
+${liveOnetData ? `LIVE O*NET API DATA (current real-time data):
+${JSON.stringify(liveOnetData)}` : ''}
 
 CANDIDATE'S RESUME:
 ${JSON.stringify(payload)}
@@ -86,7 +103,7 @@ TARGET_INDUSTRY: ${targetIndustry || "None specified"}
 
 TASK: Extract transferable skills and map them to O*NET occupations and target roles.
 - Use your knowledge base methodology for identifying transferable skills
-- Cross-reference with O*NET occupation data for accuracy
+- Cross-reference with both local O*NET database AND live API data for accuracy
 - Provide O*NET occupation codes where applicable
 - Use web search if needed for current market trends
 
