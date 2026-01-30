@@ -4,6 +4,14 @@ Uses Kyle v2.1.0 for positioning analysis and interview preparation
 
 Integration Name: ResumeOptimizer
 Description: Optimizes resumes, creates positioning strategies, and prepares interview materials
+
+Kyle's Best Qualities Integrated:
+- Domain-focused expertise (CV, Cover Letters, Interview Prep, Positioning)
+- RAG-powered knowledge base access
+- Quality frameworks and checklists
+- Integrated workflows (complete application packages)
+- Strategic positioning and personal branding
+- Framework-based guidance (STAR method, ARC formula, etc.)
 """
 import sys
 import os
@@ -25,11 +33,40 @@ class ResumeOptimizer:
     - get_cv_best_practices
     - get_cover_letter_best_practices
     - optimize_complete_package
+    - create_application_package_strategy
+    - get_quality_framework
+    - get_positioning_analysis
+
+    Kyle's Expertise Domains:
+    - CV & Resume Optimization
+    - Cover Letter Strategies
+    - Bullet Point & Achievement Framing
+    - Interview Preparation & STAR Method
+    - Career Positioning & Personal Branding
+    - Application Materials Integration
     """
+
+    # Kyle's specialized expertise domains
+    EXPERTISE_DOMAINS = [
+        "CV best practices",
+        "Cover letter strategies",
+        "Resume optimization",
+        "Application materials",
+        "Career branding",
+        "Interview preparation",
+        "STAR method coaching",
+        "Bullet point strategies",
+        "Positioning analysis",
+        "Achievement framing"
+    ]
 
     def __init__(self):
         """Initialize Kyle agent"""
         self.kyle = Kyle()
+        self.name = "Kyle (CV & Cover Letter Expert)"
+        print(f"✓ {self.name} initialized")
+        print(f"  → Expert access to {len(self.EXPERTISE_DOMAINS)} knowledge domains")
+        print(f"  → Domains: {', '.join(self.EXPERTISE_DOMAINS[:5])}+")
 
     def analyze_target_role(self,
                            role_title: str = None,
@@ -251,6 +288,398 @@ class ResumeOptimizer:
                 "error": str(e)
             }
 
+    def get_positioning_analysis(self,
+                                 role_title: str,
+                                 role_type: str,
+                                 seniority_level: str = "mid") -> Dict[str, Any]:
+        """
+        Get strategic positioning analysis for target role
+
+        Args:
+            role_title: Target role title
+            role_type: Role type
+            seniority_level: Career level
+
+        Returns:
+            Dict with positioning strategies and personal branding guidance
+        """
+        print(f"[Base44 - ResumeOptimizer] Analyzing positioning for {role_title}")
+
+        try:
+            # Get positioning guidance from Kyle
+            result = self.kyle.analyze_target_role(
+                role_title=role_title
+            )
+
+            return {
+                "success": True,
+                "data": {
+                    "positioning_statement": result.get('positioning_statement', ''),
+                    "key_themes": result.get('key_themes', []),
+                    "focus_areas": result.get('recommended_focus_areas', []),
+                    "positioning_guidance": result.get('positioning_guidance', ''),
+                    "application_approach": result.get('application_approach', '')
+                }
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_quality_framework(self,
+                            framework_type: str = "cv_quality",
+                            role_type: str = "Professional") -> Dict[str, Any]:
+        """
+        Get quality framework for evaluating documents
+
+        Framework types:
+        - cv_quality: CV/Resume quality checklist
+        - cover_letter_quality: Cover letter evaluation framework
+        - positioning_quality: Positioning statement framework
+        - interview_readiness: Interview preparation checklist
+
+        Args:
+            framework_type: Type of quality framework
+            role_type: Role type for context
+
+        Returns:
+            Dict with framework items and criteria
+        """
+        print(f"[Base44 - ResumeOptimizer] Getting quality framework: {framework_type}")
+
+        frameworks = {
+            "cv_quality": {
+                "framework_name": "CV Quality Evaluation",
+                "categories": [
+                    {
+                        "category": "Professional Summary",
+                        "criteria": [
+                            "Clearly positions candidate for target role",
+                            "Highlights key value propositions",
+                            "Includes relevant metrics/achievements",
+                            "Uses strong action verbs",
+                            "Customized for role/industry"
+                        ]
+                    },
+                    {
+                        "category": "Experience Section",
+                        "criteria": [
+                            "Reverse chronological order maintained",
+                            "4-7 bullet points per role",
+                            "Action-Result format applied",
+                            "Achievements quantified with metrics",
+                            "JD keywords strategically included",
+                            "Impact statements lead each bullet"
+                        ]
+                    },
+                    {
+                        "category": "Skills Section",
+                        "criteria": [
+                            "Prioritized by relevance to JD",
+                            "Mix of technical and soft skills",
+                            "Keywords match job description",
+                            "Proficiency levels indicated if applicable",
+                            "Skills demonstrated in experience section"
+                        ]
+                    },
+                    {
+                        "category": "Formatting & Design",
+                        "criteria": [
+                            "ATS-friendly formatting",
+                            "Clear visual hierarchy",
+                            "Consistent font and spacing",
+                            "Professional design elements",
+                            "Mobile-responsive for online viewing"
+                        ]
+                    }
+                ]
+            },
+            "cover_letter_quality": {
+                "framework_name": "Cover Letter Quality Evaluation",
+                "categories": [
+                    {
+                        "category": "Opening Hook",
+                        "criteria": [
+                            "Captures attention immediately",
+                            "Avoids clichés and overused phrases",
+                            "Demonstrates company research",
+                            "Establishes value proposition upfront",
+                            "Creates connection with reader"
+                        ]
+                    },
+                    {
+                        "category": "Body Paragraphs",
+                        "criteria": [
+                            "Each paragraph has single focus",
+                            "Storytelling elements included",
+                            "Achievements linked to role requirements",
+                            "Company-specific references included",
+                            "Evidence supports claims made"
+                        ]
+                    },
+                    {
+                        "category": "Closing & Call-to-Action",
+                        "criteria": [
+                            "Strong closing statement",
+                            "Clear call-to-action included",
+                            "Professional sign-off",
+                            "Contact information provided",
+                            "Follow-up timeline suggested"
+                        ]
+                    },
+                    {
+                        "category": "Tone & Voice",
+                        "criteria": [
+                            "Professional yet personable tone",
+                            "Authentic voice evident",
+                            "Enthusiasm shown for opportunity",
+                            "Confidence balanced with humility",
+                            "No grammatical or spelling errors"
+                        ]
+                    }
+                ]
+            },
+            "positioning_quality": {
+                "framework_name": "Positioning Quality Evaluation",
+                "categories": [
+                    {
+                        "category": "Positioning Statement",
+                        "criteria": [
+                            "Clearly identifies target role",
+                            "Specifies years of experience",
+                            "Highlights unique specialties",
+                            "Differentiates from competition",
+                            "Memorable and compelling"
+                        ]
+                    },
+                    {
+                        "category": "Value Proposition",
+                        "criteria": [
+                            "Articulates core value delivered",
+                            "Aligned with target role needs",
+                            "Specific and quantifiable where possible",
+                            "Demonstrates market understanding",
+                            "Addresses employer pain points"
+                        ]
+                    },
+                    {
+                        "category": "Brand Consistency",
+                        "criteria": [
+                            "Consistent across all materials",
+                            "Reflected in CV, cover letter, interview",
+                            "Authentic to candidate's background",
+                            "Future-focused career narrative",
+                            "Cohesive professional story"
+                        ]
+                    }
+                ]
+            },
+            "interview_readiness": {
+                "framework_name": "Interview Readiness Checklist",
+                "categories": [
+                    {
+                        "category": "STAR Method Preparation",
+                        "criteria": [
+                            "5+ STAR stories prepared",
+                            "Stories cover key competencies",
+                            "Clear Situation-Task-Action-Result structure",
+                            "Quantifiable results included",
+                            "Delivery practiced and timed"
+                        ]
+                    },
+                    {
+                        "category": "Company Research",
+                        "criteria": [
+                            "Company mission/values researched",
+                            "Recent news and announcements reviewed",
+                            "Industry position understood",
+                            "Leadership team identified",
+                            "Specific role research completed"
+                        ]
+                    },
+                    {
+                        "category": "Question Preparation",
+                        "criteria": [
+                            "Common questions prepared",
+                            "Behavioral questions practiced",
+                            "Role-specific questions researched",
+                            "Difficult questions anticipated",
+                            "30-second elevator pitch ready"
+                        ]
+                    },
+                    {
+                        "category": "Interview Logistics",
+                        "criteria": [
+                            "Interview format confirmed",
+                            "Dress code researched",
+                            "Travel/timing planned",
+                            "Technical setup tested (if virtual)",
+                            "Materials prepared (references, portfolio)"
+                        ]
+                    }
+                ]
+            }
+        }
+
+        selected_framework = frameworks.get(framework_type, frameworks["cv_quality"])
+
+        return {
+            "success": True,
+            "data": {
+                "framework": selected_framework,
+                "role_context": role_type,
+                "total_criteria": sum(len(cat["criteria"]) for cat in selected_framework["categories"])
+            }
+        }
+
+    def create_application_package_strategy(self,
+                                           role_title: str,
+                                           company_name: str,
+                                           role_type: str = "Professional",
+                                           jd_text: str = None,
+                                           simon_brief: Dict = None) -> Dict[str, Any]:
+        """
+        Create complete application package strategy (CV + Cover Letter + Interview)
+
+        This implements Kyle's integrated workflow approach
+
+        Args:
+            role_title: Target role title
+            company_name: Company name
+            role_type: Role type
+            jd_text: Job description text (optional)
+            simon_brief: Simon's brief with company/role analysis (optional)
+
+        Returns:
+            Complete strategy combining CV, cover letter, and interview prep
+        """
+        print(f"[Base44 - ResumeOptimizer] Creating application package strategy for {role_title}")
+
+        try:
+            # Step 1: Positioning Analysis
+            positioning = self.analyze_target_role(
+                role_title=role_title,
+                jd_text=jd_text,
+                simon_brief=simon_brief
+            )
+
+            if not positioning.get('success'):
+                return positioning
+
+            positioning_data = positioning['data']
+            role_data = positioning_data.get('role', {})
+
+            # Step 2: CV Best Practices
+            cv_strategy = self.get_cv_best_practices(
+                role_type=role_data.get('type', role_type),
+                experience_level=role_data.get('seniority', 'mid')
+            )
+
+            # Step 3: Bullet Point Strategies
+            bullet_strategies = self.get_bullet_point_strategies(
+                role_type=role_data.get('type', role_type)
+            )
+
+            # Step 4: Cover Letter Best Practices
+            cl_strategy = self.get_cover_letter_best_practices(
+                role_type=role_data.get('type', role_type),
+                company_name=company_name
+            )
+
+            # Step 5: Interview Strategy
+            interview_prep = self.prepare_interview_strategy(
+                role_title=role_title,
+                company_name=company_name,
+                role_type=role_data.get('type', role_type),
+                simon_brief=simon_brief,
+                save_to_file=False
+            )
+
+            # Step 6: Quality Frameworks
+            cv_framework = self.get_quality_framework("cv_quality", role_data.get('type', role_type))
+            cl_framework = self.get_quality_framework("cover_letter_quality", role_data.get('type', role_type))
+
+            return {
+                "success": True,
+                "data": {
+                    "application_package": {
+                        "role": role_data,
+                        "positioning": positioning_data.get('positioning', {}),
+                        "company": company_name
+                    },
+                    "cv_strategy": cv_strategy.get('data', {}),
+                    "bullet_strategies": bullet_strategies.get('data', {}),
+                    "cover_letter_strategy": cl_strategy.get('data', {}),
+                    "interview_prep": interview_prep.get('data', {}),
+                    "quality_frameworks": {
+                        "cv_quality": cv_framework.get('data', {}),
+                        "cover_letter_quality": cl_framework.get('data', {})
+                    },
+                    "timeline_and_checklist": {
+                        "preparation_steps": [
+                            "Research company and role",
+                            "Tailor CV using positioning statement",
+                            "Apply bullet point strategies",
+                            "Write compelling cover letter",
+                            "Prepare STAR stories",
+                            "Practice interview responses",
+                            "Review quality frameworks",
+                            "Final proofing and polish"
+                        ],
+                        "estimated_time_hours": 8
+                    }
+                },
+                "version": "2.1.0-Enhanced",
+                "workflow": "Kyle Enhanced - Complete Application Package",
+                "expertise_domains_used": [
+                    "Positioning Analysis",
+                    "CV Optimization",
+                    "Bullet Point Strategies",
+                    "Cover Letter Development",
+                    "Interview Preparation"
+                ]
+            }
+
+        except Exception as e:
+            print(f"[Base44 - ResumeOptimizer] Error: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "message": "Application package strategy creation failed"
+            }
+
+    def get_bullet_point_strategies(self, role_type: str) -> Dict[str, Any]:
+        """
+        Get bullet point writing strategies (ARC formula)
+
+        Args:
+            role_type: Role type
+
+        Returns:
+            Dict with strategies, formulas, and examples
+        """
+        print(f"[Base44 - ResumeOptimizer] Getting bullet point strategies")
+
+        try:
+            result = self.kyle.get_bullet_point_strategies(role_type=role_type)
+
+            return {
+                "success": True,
+                "data": {
+                    "strategies": result.get('strategies', ''),
+                    "formulas": result.get('key_formulas', []),
+                    "sources": result.get('sources', [])
+                }
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
     def optimize_complete_package(self,
                                   simon_brief: Dict,
                                   resume_data: Dict = None) -> Dict[str, Any]:
@@ -337,7 +766,9 @@ def handler(event, context):
 
     event should contain:
     {
-        "action": "analyze_target_role" | "prepare_interview_strategy" | "optimize_complete_package" | etc.,
+        "action": "analyze_target_role" | "prepare_interview_strategy" | 
+                  "optimize_complete_package" | "create_application_package_strategy" |
+                  "get_quality_framework" | "get_positioning_analysis" | etc.,
         "params": { ... method parameters ... }
     }
     """
@@ -356,12 +787,29 @@ def handler(event, context):
         return integration.get_cover_letter_best_practices(**params)
     elif action == 'get_bullet_point_strategies':
         return integration.get_bullet_point_strategies(**params)
+    elif action == 'get_positioning_analysis':
+        return integration.get_positioning_analysis(**params)
+    elif action == 'get_quality_framework':
+        return integration.get_quality_framework(**params)
+    elif action == 'create_application_package_strategy':
+        return integration.create_application_package_strategy(**params)
     elif action == 'optimize_complete_package':
         return integration.optimize_complete_package(**params)
     else:
         return {
             "success": False,
-            "error": f"Unknown action: {action}"
+            "error": f"Unknown action: {action}",
+            "available_actions": [
+                "analyze_target_role",
+                "prepare_interview_strategy",
+                "get_cv_best_practices",
+                "get_cover_letter_best_practices",
+                "get_bullet_point_strategies",
+                "get_positioning_analysis",
+                "get_quality_framework",
+                "create_application_package_strategy",
+                "optimize_complete_package"
+            ]
         }
 
 

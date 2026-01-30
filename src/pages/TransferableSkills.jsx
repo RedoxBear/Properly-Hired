@@ -7,13 +7,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Database } from "lucide-react";
+import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
 import AgentChat from "@/components/agents/AgentChat";
 import ONetAttribution from "@/components/onet/ONetAttribution";
 import ONetContentModel from "@/components/onet/ONetContentModel";
+
+// Kyle's Transferable Skills Expertise
+const KYLE_SKILLS_EXPERTISE = [
+  { name: "Skill Mapping Framework", icon: "🗺️", color: "blue" },
+  { name: "Achievement Extraction", icon: "🏆", color: "gold" },
+  { name: "Industry Crossover", icon: "🔄", color: "green" },
+  { name: "Quantification Strategies", icon: "📊", color: "purple" },
+  { name: "Impact Framing", icon: "⚡", color: "orange" },
+  { name: "Career Narrative", icon: "📖", color: "red" }
+];
 
 export default function TransferableSkills() {
   const [resumes, setResumes] = React.useState([]);
@@ -120,6 +130,26 @@ Output JSON:
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Transferable Skills</h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">Discover how your experience maps to other roles and industries.</p>
         </div>
+
+        {/* Kyle's Expertise Display */}
+        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-emerald-900">
+              <Award className="w-5 h-5 text-emerald-600" />
+              Kyle's Transferable Skills Expertise
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {KYLE_SKILLS_EXPERTISE.map((domain, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-emerald-100 hover:bg-white transition-colors">
+                  <span className="text-2xl">{domain.icon}</span>
+                  <span className="text-sm font-medium text-emerald-900">{domain.name}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {error && (
           <Card className="border-red-200 bg-red-50">

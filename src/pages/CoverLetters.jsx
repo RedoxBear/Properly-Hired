@@ -3,11 +3,21 @@ import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Building, ArrowRight, FileText } from "lucide-react";
+import { Mail, Building, ArrowRight, FileText, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import AgentChat from "@/components/agents/AgentChat";
+
+// Kyle's Cover Letter Expertise
+const KYLE_CL_EXPERTISE = [
+  { name: "Opening Strategies", icon: "🎣", color: "blue" },
+  { name: "Storytelling Framework", icon: "📖", color: "purple" },
+  { name: "Company Research", icon: "🔍", color: "green" },
+  { name: "Value Proposition", icon: "💎", color: "red" },
+  { name: "Call-to-Action", icon: "🎯", color: "orange" },
+  { name: "De-AI Humanization", icon: "👤", color: "pink" }
+];
 
 export default function CoverLetters() {
     const [jobApplications, setJobApplications] = React.useState([]);
@@ -48,6 +58,26 @@ export default function CoverLetters() {
                         Select a job application to generate a personalized cover letter with organization research and De-AI humanization.
                     </p>
                 </motion.div>
+
+                {/* Kyle's Cover Letter Expertise */}
+                <Card className="mb-6 border-pink-200 bg-gradient-to-br from-pink-50 to-purple-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-purple-900">
+                      <Award className="w-5 h-5 text-pink-600" />
+                      Kyle's Cover Letter Expertise
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {KYLE_CL_EXPERTISE.map((domain, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-pink-100 hover:bg-white transition-colors">
+                          <span className="text-2xl">{domain.icon}</span>
+                          <span className="text-sm font-medium text-purple-900">{domain.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Applications List */}
                 <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">

@@ -17,12 +17,23 @@ import {
     CheckCircle2,
     Loader2,
     Copy,
-    Save
+    Save,
+    Award
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { retryWithBackoff } from "@/components/utils/retry";
 import { logEvent } from "@/components/utils/telemetry"; // NEW IMPORT
+
+// Kyle's Interview Expertise
+const KYLE_INTERVIEW_EXPERTISE = [
+  { name: "STAR Method", icon: "⭐", color: "yellow" },
+  { name: "Behavioral Questions", icon: "🎯", color: "blue" },
+  { name: "Achievement Framing", icon: "🏆", color: "gold" },
+  { name: "Storytelling", icon: "📖", color: "purple" },
+  { name: "Quantification", icon: "📊", color: "green" },
+  { name: "Authenticity", icon: "👤", color: "red" }
+];
 
 export default function QAAssistant() {
     const [jobApplications, setJobApplications] = useState([]);
@@ -196,6 +207,26 @@ Provide answers that will make the candidate stand out while staying truthful an
                         Get AI-powered help with job application questions, tailored responses within character limits, and optimization tips
                     </p>
                 </motion.div>
+
+                {/* Kyle's Interview Expertise */}
+                <Card className="mb-6 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-orange-900">
+                      <Award className="w-5 h-5 text-orange-600" />
+                      Kyle's Interview Question Expertise
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {KYLE_INTERVIEW_EXPERTISE.map((domain, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-orange-100 hover:bg-white transition-colors">
+                          <span className="text-2xl">{domain.icon}</span>
+                          <span className="text-sm font-medium text-orange-900">{domain.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {error && (
                     <Alert variant="destructive" className="mb-6">

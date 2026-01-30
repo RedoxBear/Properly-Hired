@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Sparkles, Briefcase, Star, Loader2, Lightbulb, Target, Zap, FileText } from "lucide-react";
+import { Sparkles, Briefcase, Star, Loader2, Lightbulb, Target, Zap, FileText, CheckCircle2, Award, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OptimizationResults from "@/components/resume/OptimizationResults";
 import { retryWithBackoff } from "@/components/utils/retry";
@@ -20,6 +20,42 @@ import { Badge } from "@/components/ui/badge";
 import AISuggestions from "@/components/resume/AISuggestions";
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
+
+// Kyle's Expertise Domains
+const KYLE_EXPERTISE_DOMAINS = [
+  { name: "CV Best Practices", icon: "📄", color: "blue" },
+  { name: "Cover Letter Strategies", icon: "💌", color: "purple" },
+  { name: "Bullet Point Formula (ARC)", icon: "✏️", color: "green" },
+  { name: "Interview Prep (STAR)", icon: "⭐", color: "yellow" },
+  { name: "Career Positioning", icon: "🎯", color: "red" },
+  { name: "Achievement Framing", icon: "🏆", color: "orange" }
+];
+
+const QualityFrameworkCard = ({ framework, isExpanded, onToggle }) => (
+  <Card className="mb-3 hover:shadow-md transition-shadow">
+    <CardHeader className="pb-2 cursor-pointer" onClick={onToggle}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 size={18} className="text-green-600" />
+          <CardTitle className="text-sm font-semibold">{framework.category}</CardTitle>
+        </div>
+        <span className="text-xs text-gray-500">{framework.criteria.length} items</span>
+      </div>
+    </CardHeader>
+    {isExpanded && (
+      <CardContent className="pt-0">
+        <ul className="space-y-1">
+          {framework.criteria.map((criterion, idx) => (
+            <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+              <span className="text-green-600 mt-1">✓</span>
+              <span>{criterion}</span>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    )}
+  </Card>
+);
 
 export default function ResumeOptimizer() {
   const [jobApplications, setJobApplications] = React.useState([]);
@@ -42,6 +78,13 @@ export default function ResumeOptimizer() {
   const [isLoadingTailoring, setIsLoadingTailoring] = React.useState(false);
   const [optimizedVersions, setOptimizedVersions] = React.useState([]);
   const [selectedVersion, setSelectedVersion] = React.useState(0);
+  
+  // Kyle's enhancements
+  const [positioningAnalysis, setPositioningAnalysis] = React.useState(null);
+  const [qualityFramework, setQualityFramework] = React.useState(null);
+  const [applicationPackageStrategy, setApplicationPackageStrategy] = React.useState(null);
+  const [expandedFrameworks, setExpandedFrameworks] = React.useState({});
+  const [isLoadingKyleAnalysis, setIsLoadingKyleAnalysis] = React.useState(false);
   const [kyleArcGuidance, setKyleArcGuidance] = React.useState(null);
   const [isLoadingArc, setIsLoadingArc] = React.useState(false);
 
@@ -79,6 +122,106 @@ export default function ResumeOptimizer() {
       if (exists) setSelectedJobId(id);
     }
   }, [jobApplications]);
+
+  // Load Kyle's Positioning Analysis
+  const loadPositioningAnalysis = async () => {
+    if (!selectedJobId || !selectedResumeId) {
+      setError("Please select both a job and resume");
+      return;
+    }
+
+    setIsLoadingKyleAnalysis(true);
+    try {
+      const job = jobApplications.find(j => j.id === selectedJobId);
+      
+      const response = await retryWithBackoff(() =>
+        base44.integrations.Core.InvokeLLM({
+          prompt: `Analyze this role and provide strategic positioning guidance.
+          
+Role: ${job.job_title}
+Company: ${job.company_name}
+Job Description: ${job.job_description}
+
+Provide:
+1. Positioning statement (2-3 sentences)
+2. Key themes to emphasize
+3. Focus areas for application
+4. Application approach strategy
+
+Return as JSON with keys: positioning_statement, key_themes, focus_areas, application_approach`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              positioning_statement: { type: "string" },
+              key_themes: { type: "array", items: { type: "string" } },
+              focus_areas: { type: "array", items: { type: "string" } },
+              application_approach: { type: "string" }
+            }
+          }
+        })
+      );
+
+      setPositioningAnalysis(response);
+    } catch (e) {
+      console.error("Failed to load positioning analysis:", e);
+      setError("Could not generate positioning analysis");
+    }
+    setIsLoadingKyleAnalysis(false);
+  };
+
+  // Load Quality Framework
+  const loadQualityFramework = async () => {
+    if (!selectedJobId) {
+      setError("Please select a job");
+      return;
+    }
+
+    setIsLoadingKyleAnalysis(true);
+    try {
+      const job = jobApplications.find(j => j.id === selectedJobId);
+      
+      const response = await retryWithBackoff(() =>
+        base44.integrations.Core.InvokeLLM({
+          prompt: `Create a quality checklist for CV optimization for this role:
+
+Role: ${job.job_title}
+Company: ${job.company_name}
+
+Provide evaluation criteria in these categories:
+- Professional Summary
+- Experience Section  
+- Skills Section
+- Formatting & Design
+
+For each category, list 4-5 specific quality criteria.
+
+Return as JSON with structure: { categories: [{ category: string, criteria: string[] }] }`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              categories: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    category: { type: "string" },
+                    criteria: { type: "array", items: { type: "string" } }
+                  }
+                }
+              }
+            }
+          }
+        })
+      );
+
+      setQualityFramework(response);
+      setExpandedFrameworks({});
+    } catch (e) {
+      console.error("Failed to load quality framework:", e);
+      setError("Could not generate quality framework");
+    }
+    setIsLoadingKyleAnalysis(false);
+  };
 
   const getKyleArcGuidance = async () => {
       if (!selectedResumeId) {
@@ -437,6 +580,26 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
           </p>
         </motion.div>
 
+        {/* Kyle's Expertise Domains Display */}
+        <Card className="mb-6 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-900">
+              <Award className="w-5 h-5 text-orange-600" />
+              Kyle's Career Coaching Expertise
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {KYLE_EXPERTISE_DOMAINS.map((domain, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-amber-100 hover:bg-white transition-colors">
+                  <span className="text-2xl">{domain.icon}</span>
+                  <span className="text-sm font-medium text-amber-900">{domain.name}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {error && <Alert variant="destructive" className="mb-6"><AlertDescription>{error}</AlertDescription></Alert>}
 
         <AnimatePresence mode="wait">
@@ -525,7 +688,34 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
                         Generate 3 Versions
                       </Button>
                   </div>
-                  <div className="flex gap-3">
+
+                  {/* Kyle's Enhanced Analysis Section */}
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-amber-600" />
+                      Kyle's Career Coaching Analysis
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Button 
+                        onClick={loadPositioningAnalysis} 
+                        disabled={isLoadingKyleAnalysis || !selectedJobId}
+                        variant="outline"
+                        className="border-amber-600 text-amber-700 hover:bg-amber-50"
+                      >
+                        {isLoadingKyleAnalysis ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Positioning Analysis</>}
+                      </Button>
+                      <Button 
+                        onClick={loadQualityFramework}
+                        disabled={isLoadingKyleAnalysis || !selectedJobId}
+                        variant="outline"
+                        className="border-green-600 text-green-700 hover:bg-green-50"
+                      >
+                        {isLoadingKyleAnalysis ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><CheckCircle2 className="w-4 h-4 mr-2" />Quality Framework</>}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 mt-3">
                     <Button onClick={generateTailoringSuggestions} disabled={isLoadingTailoring || !selectedJobId || !selectedResumeId} variant="outline" className="flex-1">
                       {isLoadingTailoring ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Tailoring Suggestions</>}
                     </Button>
@@ -573,6 +763,92 @@ Return JSON with bullet_analysis array of {original, arc_score, missing, improve
                     )}
                   </CardContent>
                   </Card>
+                  )}
+
+                  {/* Kyle's Positioning Analysis */}
+                  {positioningAnalysis && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                  <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-blue-900 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-blue-600" />
+                      Kyle's Positioning Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {positioningAnalysis.positioning_statement && (
+                      <div className="bg-white/70 p-4 rounded-lg border border-blue-200">
+                        <h4 className="font-semibold text-sm text-blue-900 mb-2">Your Positioning Statement:</h4>
+                        <p className="text-sm text-blue-800 italic">"{positioningAnalysis.positioning_statement}"</p>
+                      </div>
+                    )}
+                    
+                    {positioningAnalysis.key_themes?.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-sm text-blue-900 mb-2">Key Themes to Emphasize:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {positioningAnalysis.key_themes.map((theme, idx) => (
+                            <Badge key={idx} className="bg-blue-100 text-blue-800 border-blue-200">{theme}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {positioningAnalysis.focus_areas?.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-sm text-blue-900 mb-2">Focus Areas for Application:</h4>
+                        <ul className="space-y-1">
+                          {positioningAnalysis.focus_areas.map((area, idx) => (
+                            <li key={idx} className="text-sm text-blue-800 flex items-start gap-2">
+                              <span className="text-blue-600 mt-0.5">→</span>
+                              <span>{area}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {positioningAnalysis.application_approach && (
+                      <div className="bg-blue-100/50 p-3 rounded-lg border border-blue-200">
+                        <h4 className="font-semibold text-sm text-blue-900 mb-1">Application Approach:</h4>
+                        <p className="text-sm text-blue-800">{positioningAnalysis.application_approach}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                  </Card>
+                  </motion.div>
+                  )}
+
+                  {/* Kyle's Quality Framework */}
+                  {qualityFramework && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                  <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-green-900 flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      CV Quality Framework & Checklist
+                    </CardTitle>
+                    <p className="text-sm text-green-700 font-normal mt-2">Evaluate your resume against these quality criteria:</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {qualityFramework.categories?.map((category, idx) => (
+                        <QualityFrameworkCard
+                          key={idx}
+                          framework={category}
+                          isExpanded={expandedFrameworks[idx]}
+                          onToggle={() => {
+                            setExpandedFrameworks(prev => ({
+                              ...prev,
+                              [idx]: !prev[idx]
+                            }));
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </CardContent>
+                  </Card>
+                  </motion.div>
                   )}
 
                   {kyleArcGuidance && (
