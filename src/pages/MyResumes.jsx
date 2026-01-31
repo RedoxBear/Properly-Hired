@@ -34,6 +34,7 @@ export default function MyResumes() {
     const fileInputRef = React.useRef(null);
     const [sortBy, setSortBy] = React.useState("date_desc");
     const [selectedIds, setSelectedIds] = React.useState([]);
+    const [isDragging, setIsDragging] = React.useState(false);
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -53,8 +54,19 @@ export default function MyResumes() {
         setIsLoading(false);
     };
 
+    const validateFileType = (file) => {
+        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.txt', '.md', '.rtf'];
+        const fileName = file.name.toLowerCase();
+        return allowedTypes.some(type => fileName.endsWith(type));
+    };
+
     const handleFileUpload = async (file) => {
         if (!file) return;
+
+        if (!validateFileType(file)) {
+            setError("Invalid file type. Please upload PDF, DOC, DOCX, TXT, MD, RTF, PNG, or JPG files.");
+            return;
+        }
 
         setIsUploading(true);
         setError("");
@@ -112,6 +124,29 @@ export default function MyResumes() {
         }
 
         setIsUploading(false);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleFileUpload(files[0]);
+        }
     };
 
     const deleteResume = async (resumeId) => {
@@ -264,12 +299,32 @@ export default function MyResumes() {
                                     accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.md,.rtf"
                                     className="hidden"
                                 />
-                                <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full bg-blue-600 hover:bg-blue-700">
-                                    {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-                                    {isUploading ? 'Processing...' : 'Upload Resume'}
-                                </Button>
-                                <p className="text-xs text-slate-500 mt-2 text-center">Supported: PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG</p>
-                                <p className="text-xs text-blue-600 mt-2 text-center">Will be set as Master Resume - you can improve it in the editor</p>
+                                <div
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
+                                        isDragging 
+                                            ? 'border-blue-500 bg-blue-50' 
+                                            : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
+                                    }`}
+                                    onClick={() => !isUploading && fileInputRef.current?.click()}
+                                >
+                                    {isUploading ? (
+                                        <div className="flex flex-col items-center gap-2">
+                                            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                                            <p className="text-sm text-slate-600">Processing...</p>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-2">
+                                            <Upload className="w-8 h-8 text-blue-600" />
+                                            <p className="font-medium text-slate-700">Drop your resume here</p>
+                                            <p className="text-xs text-slate-500">or click to browse</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG</p>
+                                <p className="text-xs text-blue-600 mt-1 text-center">Will be set as Master Resume - you can improve it in the editor</p>
                             </CardContent>
                         </Card>
 
