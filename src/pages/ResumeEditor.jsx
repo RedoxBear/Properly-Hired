@@ -205,7 +205,7 @@ export default function ResumeEditor() {
       const payload = {
         parsed_content: JSON.stringify(draft),
         personal_info: draft.personal_info || {},
-        skills: (draft.skills || []).slice(0, 8),
+        skills: draft.skills || [], // No limit on skills
         experience: draft.experience || [],
         education: draft.education || [],
         quality_scores: analysis?.scores || null,
@@ -302,36 +302,46 @@ export default function ResumeEditor() {
           </CardHeader>
           <CardContent className="space-y-6">
             <section>
-              <Label className="text-base font-semibold mb-2 block">Career Summary</Label>
+              <Label className="text-base font-semibold mb-2 block">Career Summary {draft?.summary && <span className="text-xs text-green-600 ml-2">✓ Filled</span>}</Label>
               <Textarea
                 className="w-full min-h-[120px]"
                 value={Array.isArray(draft?.summary) ? draft.summary.join("\n") : (draft?.summary || "")}
                 onChange={(e) => updateField("summary", e.target.value)}
-                placeholder="3-5 lines that frame your value. ATS-friendly keywords encouraged."
+                placeholder="Professional summary or objective from your CV - your elevator pitch with key qualifications."
               />
-              <p className="text-xs text-slate-500 mt-1">Keep it concise and impactful. This is your elevator pitch.</p>
+              <p className="text-xs text-slate-500 mt-1">Extracted from CV. Edit to make it concise and impactful with ATS-friendly keywords.</p>
             </section>
 
             <section>
-              <Label className="text-base font-semibold mb-2 block">Core Competencies (max 8)</Label>
-              <Input
-                className="w-full"
-                value={(draft?.skills || []).join(", ")}
-                onChange={(e) => updateField("skills", e.target.value.split(",").map(s => s.trim()).filter(Boolean).slice(0, 8))}
-                placeholder="e.g. Talent Strategy, Workforce Planning, OKRs, ATS"
-              />
-              <p className="text-xs text-slate-500 mt-1">Cap to 8 keywords to keep it tight and ATS-friendly.</p>
-            </section>
-
-            <section>
-              <Label className="text-base font-semibold mb-2 block">Career Highlights</Label>
+              <div className="flex justify-between items-center mb-2">
+                <Label className="text-base font-semibold">Core Competencies</Label>
+                <span className="text-xs text-slate-500">{(draft?.skills || []).length} skills</span>
+              </div>
               <Textarea
-                className="w-full min-h-[120px]"
+                className="w-full min-h-[80px]"
+                value={(draft?.skills || []).join(", ")}
+                onChange={(e) => updateField("skills", e.target.value.split(",").map(s => s.trim()).filter(Boolean))}
+                placeholder="e.g. Talent Strategy, Workforce Planning, OKRs, ATS, Data Analytics, Change Management, etc."
+              />
+              <div className="flex flex-wrap gap-2 mt-3">
+                {(draft?.skills || []).map((skill, idx) => (
+                  <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-2">No limit - add all relevant skills. Each appears as a filled box.</p>
+            </section>
+
+            <section>
+              <Label className="text-base font-semibold mb-2 block">Career Highlights {draft?.highlights && <span className="text-xs text-green-600 ml-2">✓ Filled</span>}</Label>
+              <Textarea
+                className="w-full min-h-[150px]"
                 value={draft?.highlights || ""}
                 onChange={(e) => updateField("highlights", e.target.value)}
-                placeholder="Bulleted achievements from recent and past roles. Avoid repeating bullets used in work history."
+                placeholder="Key career accomplishments and notable achievements across your entire career. Include as much as possible - this is your highlight reel."
               />
-              <p className="text-xs text-slate-500 mt-1">Older achievements can appear here; keep work history lean.</p>
+              <p className="text-xs text-slate-500 mt-1">Extract all career highlights from CV. Showcase your biggest wins and most impressive accomplishments.</p>
             </section>
 
             <section>
@@ -382,8 +392,9 @@ export default function ResumeEditor() {
                           <Input
                             value={exp.location || ""}
                             onChange={(e) => updateExperienceField(index, "location", e.target.value)}
-                            placeholder="e.g. San Francisco, CA"
+                            placeholder="e.g. San Gabriel, CA or Remote"
                           />
+                          <p className="text-xs text-slate-500 mt-1">City, State format</p>
                         </div>
                       </div>
                       <div>
