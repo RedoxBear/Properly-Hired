@@ -55,7 +55,7 @@ export default function MyResumes() {
     };
 
     const validateFileType = (file) => {
-        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.txt', '.md', '.rtf'];
+        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg'];
         const fileName = file.name.toLowerCase();
         return allowedTypes.some(type => fileName.endsWith(type));
     };
@@ -64,7 +64,7 @@ export default function MyResumes() {
         if (!file) return;
 
         if (!validateFileType(file)) {
-            setError("Invalid file type. Please upload PDF, DOC, DOCX, TXT, MD, RTF, PNG, or JPG files.");
+            setError("Invalid file type. Please upload PDF, PNG, JPG, or JPEG files only.");
             return;
         }
 
@@ -296,7 +296,7 @@ export default function MyResumes() {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={(e) => handleFileUpload(e.target.files[0])}
-                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.md,.rtf"
+                                    accept=".pdf,.png,.jpg,.jpeg"
                                     className="hidden"
                                 />
                                 <div
@@ -323,7 +323,7 @@ export default function MyResumes() {
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG</p>
+                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, PNG, JPG, JPEG only</p>
                                 <p className="text-xs text-blue-600 mt-1 text-center">Will be set as Master Resume - you can improve it in the editor</p>
                             </CardContent>
                         </Card>
