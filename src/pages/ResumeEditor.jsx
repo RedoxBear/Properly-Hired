@@ -166,6 +166,22 @@ export default function ResumeEditor() {
     updateEducation(current);
   };
 
+  const addSkill = () => {
+    const current = draft?.skills || [];
+    updateField("skills", [...current, ""]);
+  };
+
+  const removeSkill = (index) => {
+    const current = draft?.skills || [];
+    updateField("skills", current.filter((_, i) => i !== index));
+  };
+
+  const updateSkill = (index, value) => {
+    const current = [...(draft?.skills || [])];
+    current[index] = value;
+    updateField("skills", current);
+  };
+
   const rescore = async () => {
     const resumeId = searchParams.get("resumeId");
     if (!resumeId) return;
@@ -468,6 +484,34 @@ export default function ResumeEditor() {
               </div>
             </section>
 
+            <section>
+              <div className="flex justify-between items-center mb-3">
+                <Label className="text-base font-semibold">Skills</Label>
+                <Button onClick={addSkill} size="sm" variant="outline" className="gap-1">
+                  <Plus className="w-4 h-4" />
+                  Add Skill
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {(draft?.skills || []).map((skill, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={skill || ""}
+                      onChange={(e) => updateSkill(index, e.target.value)}
+                      placeholder="e.g. Project Management"
+                      className="flex-1"
+                    />
+                    <Button onClick={() => removeSkill(index)} size="icon" variant="ghost" className="text-red-600 hover:text-red-800 hover:bg-red-50 shrink-0">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                {(draft?.skills || []).length === 0 && (
+                  <p className="text-sm text-slate-500 text-center py-4 col-span-full">No skills added yet. Click "Add Skill" to start.</p>
+                )}
+              </div>
+            </section>
+
             <div className="flex flex-wrap gap-3 pt-4 border-t">
               <Button onClick={rescore} disabled={scoring} variant="outline" className="gap-2">
                 {scoring ? (
@@ -522,12 +566,12 @@ export default function ResumeEditor() {
 
         {/* Floating Save Button */}
         {hasUnsavedChanges && (
-          <div className="fixed bottom-6 right-6 z-50">
+          <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4">
             <Button
               onClick={saveEdits}
               disabled={saving}
               size="lg"
-              className="bg-blue-600 hover:bg-blue-700 shadow-2xl gap-2 px-6"
+              className="bg-blue-600 hover:bg-blue-700 shadow-2xl gap-2 px-8 py-6 text-base rounded-xl"
             >
               {saving ? (
                 <>
