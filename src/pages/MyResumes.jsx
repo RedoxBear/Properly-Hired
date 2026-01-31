@@ -151,7 +151,9 @@ export default function MyResumes() {
             const created = await Resume.create(resumeData);
             
             // Redirect to editor with "new" flag so user can improve it
-            navigate(createPageUrl(`ResumeEditor?resumeId=${created.id}&new=1`));
+            const editorUrl = `${createPageUrl('ResumeEditor')}?resumeId=${created.id}&new=1`;
+            console.log("Navigating to:", editorUrl);
+            navigate(editorUrl);
 
         } catch (err) {
             setError(err.message || "The service is busy. Please try again shortly.");
