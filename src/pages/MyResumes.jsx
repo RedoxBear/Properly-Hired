@@ -211,11 +211,32 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                     output: parsedData
                 };
             } else {
-                // Handle PDF/images with existing extraction
-                extractResult = await retryWithBackoff(
-                    () => base44.integrations.Core.ExtractDataFromUploadedFile({ file_url, json_schema: resumeSchema }),
-                    { retries: 3, baseDelay: 1500 }
-                );
+                // Handle PDF/images - use InvokeLLM with file_urls for more control
+                const parsedData = await base44.integrations.Core.InvokeLLM({
+                    prompt: `Extract ALL information from this resume with ZERO LIMITS. Capture EVERY SINGLE detail exactly as written.
+
+CRITICAL REQUIREMENTS:
+- Extract Career Summary/Professional Summary from the top of the resume (if present)
+- Extract Career Highlights section if it exists - all key accomplishments listed
+- Extract Core Competencies/Skills with NO LIMIT - capture every single skill mentioned
+- Extract EVERY job/position ever held (not just 2-3, but ALL of them - 5, 10, 15+ if they exist)
+- For EACH job, extract the location (City, State format like "San Gabriel, CA") and ALL bullet points
+- For EACH job, extract ALL achievements (not just a few, but EVERY SINGLE ONE)
+- Extract ALL education entries, certifications, projects, awards, languages, publications, volunteer work
+- Do NOT summarize, truncate, or limit ANY section
+- If the resume has 10 jobs, extract all 10 jobs
+- If a job has 8 bullet points, extract all 8 bullet points
+- Preserve the exact wording and all details
+
+Return a COMPLETE structured resume object with EVERYTHING preserved - no limits, no truncation.`,
+                    response_json_schema: resumeSchema,
+                    file_urls: [file_url]
+                });
+
+                extractResult = {
+                    status: 'success',
+                    output: parsedData
+                };
             }
 
             if (extractResult.status !== "success" || !extractResult.output) {
