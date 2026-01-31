@@ -29,7 +29,8 @@ Deno.serve(async (req) => {
         if (fileExtension === 'docx' || fileExtension === 'doc') {
             // Handle DOCX files with mammoth
             const arrayBuffer = await fileResponse.arrayBuffer();
-            const result = await mammoth.extractRawText({ arrayBuffer });
+            const buffer = new Uint8Array(arrayBuffer);
+            const result = await mammoth.extractRawText({ buffer });
             text = result.value;
         } else if (fileExtension === 'txt' || fileExtension === 'md') {
             // Handle plain text files
