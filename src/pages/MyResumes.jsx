@@ -95,11 +95,12 @@ export default function MyResumes() {
                             github: { type: "string" }
                         } 
                     },
-                    summary: { type: "string", description: "Professional summary or objective statement" },
+                    summary: { type: "string", description: "Career Summary or Professional Summary or Objective - the opening paragraph(s) of the resume" },
+                    highlights: { type: "string", description: "Career Highlights section if present - key accomplishments, notable achievements across career" },
                     skills: { 
                         type: "array", 
                         items: { type: "string" },
-                        description: "ALL skills mentioned - technical, soft skills, tools, technologies, certifications"
+                        description: "Core Competencies - ALL skills mentioned with NO LIMIT - technical, soft skills, tools, technologies, certifications"
                     },
                     experience: { 
                         type: "array", 
@@ -109,7 +110,7 @@ export default function MyResumes() {
                                 company: { type: "string" }, 
                                 position: { type: "string" }, 
                                 duration: { type: "string" },
-                                location: { type: "string" },
+                                location: { type: "string", description: "Job location - City, State format like 'San Gabriel, CA' or 'Remote'" },
                                 achievements: { 
                                     type: "array", 
                                     items: { type: "string" },
@@ -186,9 +187,12 @@ export default function MyResumes() {
                     prompt: `Extract ALL information from this resume with ZERO LIMITS. Capture EVERY SINGLE detail exactly as written.
 
 CRITICAL REQUIREMENTS:
+- Extract Career Summary/Professional Summary from the top of the resume (if present)
+- Extract Career Highlights section if it exists - all key accomplishments listed
+- Extract Core Competencies/Skills with NO LIMIT - capture every single skill mentioned
 - Extract EVERY job/position ever held (not just 2-3, but ALL of them - 5, 10, 15+ if they exist)
-- For EACH job, extract ALL bullet points and achievements (not just a few, but EVERY SINGLE ONE)
-- Extract ALL skills mentioned throughout the entire document
+- For EACH job, extract the location (City, State format like "San Gabriel, CA") and ALL bullet points
+- For EACH job, extract ALL achievements (not just a few, but EVERY SINGLE ONE)
 - Extract ALL education entries, certifications, projects, awards, languages, publications, volunteer work
 - Do NOT summarize, truncate, or limit ANY section
 - If the resume has 10 jobs, extract all 10 jobs
