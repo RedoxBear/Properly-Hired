@@ -1,6 +1,6 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { Resume } from "@/entities/Resume";
-import { UploadFile, ExtractDataFromUploadedFile } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -73,7 +73,7 @@ export default function MyResumes() {
         setError("");
 
         try {
-            const { file_url } = await retryWithBackoff(() => UploadFile({ file }), { retries: 3, baseDelay: 1200 });
+            const { file_url } = await retryWithBackoff(() => base44.integrations.Core.UploadFile({ file }), { retries: 3, baseDelay: 1200 });
 
             const fileExtension = file.name.split('.').pop().toLowerCase();
             let extractResult;
@@ -87,7 +87,6 @@ export default function MyResumes() {
                 }
 
                 // Use AI to parse the extracted text into structured resume data
-                const { InvokeLLM } = await import("@/integrations/Core");
                 const resumeSchema = {
                     type: "object",
                     properties: {
@@ -98,7 +97,7 @@ export default function MyResumes() {
                     }
                 };
 
-                const parsedData = await InvokeLLM({
+                const parsedData = await base44.integrations.Core.InvokeLLM({
                     prompt: `Extract structured resume data from this text:\n\n${docResult.text}\n\nReturn a properly structured resume object.`,
                     response_json_schema: resumeSchema
                 });
@@ -119,7 +118,7 @@ export default function MyResumes() {
                     }
                 };
                 extractResult = await retryWithBackoff(
-                    () => ExtractDataFromUploadedFile({ file_url, json_schema: resumeSchema }),
+                    () => base44.integrations.Core.ExtractDataFromUploadedFile({ file_url, json_schema: resumeSchema }),
                     { retries: 3, baseDelay: 1500 }
                 );
             }
