@@ -170,6 +170,7 @@ export default function AutofillVaultPage() {
       next.updated_at = new Date().toISOString();
       return next;
     });
+    setShowRemapPrompt(false);
   };
 
   // Helpers for ATS Profile custom fields and CSV inputs
