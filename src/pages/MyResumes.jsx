@@ -253,7 +253,7 @@ export default function MyResumes() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-slate-800">
                                     <Upload className="w-5 h-5 text-blue-600" />
-                                    Upload New Resume (PDF, PNG, JPG)
+                                    Upload New Resume
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -261,14 +261,14 @@ export default function MyResumes() {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={(e) => handleFileUpload(e.target.files[0])}
-                                    accept=".pdf,.png,.jpg,.jpeg"
+                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.md,.rtf"
                                     className="hidden"
                                 />
                                 <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full bg-blue-600 hover:bg-blue-700">
                                     {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
                                     {isUploading ? 'Processing...' : 'Upload Resume'}
                                 </Button>
-                                <p className="text-xs text-slate-500 mt-2 text-center">Supported types: PDF, PNG, JPG, JPEG</p>
+                                <p className="text-xs text-slate-500 mt-2 text-center">Supported: PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG</p>
                                 <p className="text-xs text-blue-600 mt-2 text-center">Will be set as Master Resume - you can improve it in the editor</p>
                             </CardContent>
                         </Card>
