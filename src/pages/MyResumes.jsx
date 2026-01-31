@@ -78,6 +78,102 @@ export default function MyResumes() {
             const fileExtension = file.name.split('.').pop().toLowerCase();
             let extractResult;
 
+            // Comprehensive resume schema - captures ALL details
+            const resumeSchema = {
+                type: "object",
+                properties: {
+                    personal_info: { 
+                        type: "object", 
+                        properties: { 
+                            name: { type: "string" }, 
+                            email: { type: "string" }, 
+                            phone: { type: "string" }, 
+                            location: { type: "string" }, 
+                            linkedin: { type: "string" }, 
+                            portfolio: { type: "string" },
+                            website: { type: "string" },
+                            github: { type: "string" }
+                        } 
+                    },
+                    summary: { type: "string", description: "Professional summary or objective statement" },
+                    skills: { 
+                        type: "array", 
+                        items: { type: "string" },
+                        description: "ALL skills mentioned - technical, soft skills, tools, technologies, certifications"
+                    },
+                    experience: { 
+                        type: "array", 
+                        items: { 
+                            type: "object", 
+                            properties: { 
+                                company: { type: "string" }, 
+                                position: { type: "string" }, 
+                                duration: { type: "string" },
+                                location: { type: "string" },
+                                achievements: { 
+                                    type: "array", 
+                                    items: { type: "string" },
+                                    description: "ALL responsibilities, achievements, and accomplishments - do not limit"
+                                }
+                            }
+                        },
+                        description: "ALL work experience entries - extract every job listed"
+                    },
+                    education: { 
+                        type: "array", 
+                        items: { 
+                            type: "object", 
+                            properties: { 
+                                institution: { type: "string" }, 
+                                degree: { type: "string" }, 
+                                year: { type: "string" },
+                                location: { type: "string" },
+                                gpa: { type: "string" },
+                                honors: { type: "string" }
+                            }
+                        },
+                        description: "ALL education entries - extract every degree, certification, or training listed"
+                    },
+                    certifications: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "ALL certifications, licenses, and credentials"
+                    },
+                    projects: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                name: { type: "string" },
+                                description: { type: "string" },
+                                technologies: { type: "array", items: { type: "string" } }
+                            }
+                        },
+                        description: "ALL projects mentioned"
+                    },
+                    languages: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "ALL languages and proficiency levels"
+                    },
+                    volunteer: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "ALL volunteer work and community involvement"
+                    },
+                    publications: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "ALL publications, papers, or articles"
+                    },
+                    awards: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "ALL awards, honors, and recognitions"
+                    }
+                }
+            };
+
             // Handle DOC/DOCX/TXT/MD/RTF files differently
             if (['doc', 'docx', 'txt', 'md', 'rtf'].includes(fileExtension)) {
                 const { data: docResult } = await extractDocumentText({ file_url });
@@ -86,19 +182,15 @@ export default function MyResumes() {
                     throw new Error("Failed to extract text from document.");
                 }
 
-                // Use AI to parse the extracted text into structured resume data
-                const resumeSchema = {
-                    type: "object",
-                    properties: {
-                        personal_info: { type: "object", properties: { name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, location: { type: "string" }, linkedin: { type: "string" }, portfolio: { type: "string" } } },
-                        skills: { type: "array", items: { type: "string" } },
-                        experience: { type: "array", items: { type: "object", properties: { company: { type: "string" }, position: { type: "string" }, duration: { type: "string" }, achievements: { type: "array", items: { type: "string" } } } } },
-                        education: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, degree: { type: "string" }, year: { type: "string" } } } }
-                    }
-                };
-
                 const parsedData = await base44.integrations.Core.InvokeLLM({
-                    prompt: `Extract structured resume data from this text:\n\n${docResult.text}\n\nReturn a properly structured resume object.`,
+                    prompt: `Extract ALL information from this resume comprehensively. Do not limit or summarize - capture every detail, every job, every skill, every achievement, every bullet point exactly as written.
+
+CRITICAL: Extract ALL experience entries, ALL skills, ALL achievements per job, ALL education, ALL certifications. Do not truncate or limit the data.
+
+Resume Text:
+${docResult.text}
+
+Return a complete structured resume object with all information preserved.`,
                     response_json_schema: resumeSchema
                 });
 
@@ -108,15 +200,6 @@ export default function MyResumes() {
                 };
             } else {
                 // Handle PDF/images with existing extraction
-                const resumeSchema = {
-                    type: "object",
-                    properties: {
-                        personal_info: { type: "object", properties: { name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, location: { type: "string" }, linkedin: { type: "string" }, portfolio: { type: "string" } } },
-                        skills: { type: "array", items: { type: "string" } },
-                        experience: { type: "array", items: { type: "object", properties: { company: { type: "string" }, position: { type: "string" }, duration: { type: "string" }, achievements: { type: "array", items: { type: "string" } } } } },
-                        education: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, degree: { type: "string" }, year: { type: "string" } } } }
-                    }
-                };
                 extractResult = await retryWithBackoff(
                     () => base44.integrations.Core.ExtractDataFromUploadedFile({ file_url, json_schema: resumeSchema }),
                     { retries: 3, baseDelay: 1500 }
