@@ -183,14 +183,22 @@ export default function MyResumes() {
                 }
 
                 const parsedData = await base44.integrations.Core.InvokeLLM({
-                    prompt: `Extract ALL information from this resume comprehensively. Do not limit or summarize - capture every detail, every job, every skill, every achievement, every bullet point exactly as written.
+                    prompt: `Extract ALL information from this resume with ZERO LIMITS. Capture EVERY SINGLE detail exactly as written.
 
-CRITICAL: Extract ALL experience entries, ALL skills, ALL achievements per job, ALL education, ALL certifications. Do not truncate or limit the data.
+CRITICAL REQUIREMENTS:
+- Extract EVERY job/position ever held (not just 2-3, but ALL of them - 5, 10, 15+ if they exist)
+- For EACH job, extract ALL bullet points and achievements (not just a few, but EVERY SINGLE ONE)
+- Extract ALL skills mentioned throughout the entire document
+- Extract ALL education entries, certifications, projects, awards, languages, publications, volunteer work
+- Do NOT summarize, truncate, or limit ANY section
+- If the resume has 10 jobs, extract all 10 jobs
+- If a job has 8 bullet points, extract all 8 bullet points
+- Preserve the exact wording and all details
 
 Resume Text:
 ${docResult.text}
 
-Return a complete structured resume object with all information preserved.`,
+Return a COMPLETE structured resume object with EVERYTHING preserved - no limits, no truncation.`,
                     response_json_schema: resumeSchema
                 });
 
