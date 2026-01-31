@@ -22,8 +22,11 @@ export default function ResumeEditor() {
   const [baselineScore, setBaselineScore] = React.useState(null);
   const [currentScore, setCurrentScore] = React.useState(null);
   const [improved, setImproved] = React.useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
+  const [lastSavedDraft, setLastSavedDraft] = React.useState(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const rescoreTimeoutRef = React.useRef(null);
 
   React.useEffect(() => {
     const resumeId = searchParams.get("resumeId");
@@ -57,14 +60,17 @@ export default function ResumeEditor() {
         const parsed = safeParse(r.parsed_content);
         console.log("Parsed content:", parsed);
         
-        setDraft(parsed || {
+        const initialDraft = parsed || {
           personal_info: {},
           summary: "",
           skills: [],
           highlights: "",
           experience: [],
           education: []
-        });
+        };
+        
+        setDraft(initialDraft);
+        setLastSavedDraft(JSON.stringify(initialDraft));
         
         const base = Number(r?.quality_scores?.overall ?? 0);
         setBaselineScore(isFinite(base) ? base : null);
@@ -78,6 +84,32 @@ export default function ResumeEditor() {
   }, [searchParams]);
 
   const plain = React.useMemo(() => resumeJsonToPlainText(draft || {}), [draft]);
+
+  // Track unsaved changes
+  React.useEffect(() => {
+    if (!draft || !lastSavedDraft) return;
+    const currentDraftStr = JSON.stringify(draft);
+    setHasUnsavedChanges(currentDraftStr !== lastSavedDraft);
+  }, [draft, lastSavedDraft]);
+
+  // Auto-rescore on changes (debounced)
+  React.useEffect(() => {
+    if (!draft || !hasUnsavedChanges) return;
+    
+    if (rescoreTimeoutRef.current) {
+      clearTimeout(rescoreTimeoutRef.current);
+    }
+    
+    rescoreTimeoutRef.current = setTimeout(() => {
+      rescore();
+    }, 2000); // Rescore 2 seconds after last change
+    
+    return () => {
+      if (rescoreTimeoutRef.current) {
+        clearTimeout(rescoreTimeoutRef.current);
+      }
+    };
+  }, [draft, hasUnsavedChanges]);
 
   function safeParse(json) {
     try { return json ? JSON.parse(json) : null; } catch { return null; }
@@ -186,6 +218,10 @@ export default function ResumeEditor() {
       const base = Number(updated?.quality_scores?.overall ?? 0);
       setCurrentScore(isFinite(base) ? base : null);
       if (baselineScore == null) setBaselineScore(base);
+      
+      // Update saved state
+      setLastSavedDraft(JSON.stringify(draft));
+      setHasUnsavedChanges(false);
     } catch (e) {
       console.error(e);
       setError("Save failed. Please try again.");
@@ -471,6 +507,30 @@ export default function ResumeEditor() {
               </p>
             </CardContent>
           </Card>
+        )}
+
+        {/* Floating Save Button */}
+        {hasUnsavedChanges && (
+          <div className="fixed bottom-6 right-6 z-50">
+            <Button
+              onClick={saveEdits}
+              disabled={saving}
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 shadow-2xl gap-2 px-6"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
         )}
       </div>
     </div>
