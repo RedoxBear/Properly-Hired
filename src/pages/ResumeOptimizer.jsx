@@ -136,27 +136,36 @@ export default function ResumeOptimizer() {
       
       const response = await retryWithBackoff(() =>
         base44.integrations.Core.InvokeLLM({
-          prompt: `Analyze this role and provide strategic positioning guidance.
-          
+          prompt: `You are Kyle, a Career Positioning Expert. Analyze this role and provide SPECIFIC, ACTIONABLE strategic positioning guidance.
+
 Role: ${job.job_title}
 Company: ${job.company_name}
 Job Description: ${job.job_description}
 
-Provide:
-1. Positioning statement (2-3 sentences)
-2. Key themes to emphasize
-3. Focus areas for application
-4. Application approach strategy
+YOUR TASK:
+1. Write a 2-3 sentence positioning statement that frames the candidate's value proposition for THIS specific role
+2. Identify 4-5 key themes the candidate should emphasize (e.g., "Technical Leadership", "Cross-functional Collaboration")
+3. List 4-5 specific focus areas for the application (e.g., "Highlight budget management experience", "Emphasize cloud migration projects")
+4. Provide a concrete application approach strategy (2-3 sentences on how to structure the application)
 
-Return as JSON with keys: positioning_statement, key_themes, focus_areas, application_approach`,
+CRITICAL: Provide REAL, SPECIFIC guidance - not generic placeholders. Every field must contain actual strategic advice.
+
+Return JSON with complete data:
+{
+  "positioning_statement": "Actual 2-3 sentence statement here",
+  "key_themes": ["Theme 1", "Theme 2", "Theme 3", "Theme 4"],
+  "focus_areas": ["Specific area 1", "Specific area 2", "Specific area 3", "Specific area 4"],
+  "application_approach": "Actual 2-3 sentence strategy here"
+}`,
           response_json_schema: {
             type: "object",
             properties: {
-              positioning_statement: { type: "string" },
-              key_themes: { type: "array", items: { type: "string" } },
-              focus_areas: { type: "array", items: { type: "string" } },
-              application_approach: { type: "string" }
-            }
+              positioning_statement: { type: "string", description: "2-3 sentence positioning statement" },
+              key_themes: { type: "array", items: { type: "string" }, minItems: 4 },
+              focus_areas: { type: "array", items: { type: "string" }, minItems: 4 },
+              application_approach: { type: "string", description: "2-3 sentence strategy" }
+            },
+            required: ["positioning_statement", "key_themes", "focus_areas", "application_approach"]
           }
         })
       );
@@ -182,20 +191,47 @@ Return as JSON with keys: positioning_statement, key_themes, focus_areas, applic
       
       const response = await retryWithBackoff(() =>
         base44.integrations.Core.InvokeLLM({
-          prompt: `Create a quality checklist for CV optimization for this role:
+          prompt: `You are Kyle, a Resume Quality Auditor. Create a SPECIFIC quality checklist for optimizing a CV for this role.
 
 Role: ${job.job_title}
 Company: ${job.company_name}
 
-Provide evaluation criteria in these categories:
-- Professional Summary
-- Experience Section  
-- Skills Section
-- Formatting & Design
+Create evaluation criteria for these 4 categories:
+1. Professional Summary - What makes a summary strong for THIS specific role?
+2. Experience Section - What should experience bullets emphasize for THIS role?
+3. Skills Section - Which skills are critical to highlight?
+4. Formatting & Design - What format considerations matter for THIS role?
 
-For each category, list 4-5 specific quality criteria.
+For EACH category, provide 4-5 SPECIFIC, ACTIONABLE quality criteria (not generic advice).
 
-Return as JSON with structure: { categories: [{ category: string, criteria: string[] }] }`,
+Example criteria format:
+- "Summary mentions X years of experience in [specific domain]"
+- "Each bullet quantifies impact with metrics"
+- "Skills section includes [specific tools] required in JD"
+
+CRITICAL: Provide REAL, SPECIFIC criteria - not generic placeholders.
+
+Return JSON:
+{
+  "categories": [
+    {
+      "category": "Professional Summary",
+      "criteria": ["Specific criterion 1", "Specific criterion 2", "Specific criterion 3", "Specific criterion 4"]
+    },
+    {
+      "category": "Experience Section",
+      "criteria": ["Specific criterion 1", "Specific criterion 2", "Specific criterion 3", "Specific criterion 4"]
+    },
+    {
+      "category": "Skills Section",
+      "criteria": ["Specific criterion 1", "Specific criterion 2", "Specific criterion 3", "Specific criterion 4"]
+    },
+    {
+      "category": "Formatting & Design",
+      "criteria": ["Specific criterion 1", "Specific criterion 2", "Specific criterion 3", "Specific criterion 4"]
+    }
+  ]
+}`,
           response_json_schema: {
             type: "object",
             properties: {
@@ -205,11 +241,14 @@ Return as JSON with structure: { categories: [{ category: string, criteria: stri
                   type: "object",
                   properties: {
                     category: { type: "string" },
-                    criteria: { type: "array", items: { type: "string" } }
-                  }
-                }
+                    criteria: { type: "array", items: { type: "string" }, minItems: 4 }
+                  },
+                  required: ["category", "criteria"]
+                },
+                minItems: 4
               }
-            }
+            },
+            required: ["categories"]
           }
         })
       );
@@ -237,10 +276,15 @@ Return as JSON with structure: { categories: [{ category: string, criteria: stri
 
           const prompt = `You are Kyle, a CV expert specializing in the ARC formula (Action + Result + Context).
 
-Analyze these resume bullets and score them using the ARC formula. For each bullet, provide:
-1. ARC Score (0-10): How well it follows Action + Result + Context
-2. What's missing (weak action verb, no quantified result, lacks context)
-3. Improved version using ARC formula
+The ARC Formula:
+- ACTION: Strong verb + what you did
+- RESULT: Quantified impact (%, $, time saved, etc.)
+- CONTEXT: Why it mattered / business impact
+
+Analyze EACH resume bullet below and provide:
+1. ARC Score (0-10 as a NUMBER): Rate how well it follows Action + Result + Context
+2. What's missing: Specific feedback (e.g., "No quantified result", "Weak action verb 'managed'", "Missing business context")
+3. Improved version: Rewrite using ARC formula with strong action verb + quantified result + context
 
 Current Experience Bullets:
 ${experiences.map((exp, idx) => `
@@ -248,7 +292,22 @@ ${exp.position} at ${exp.company}:
 ${(exp.achievements || []).map((b, bidx) => `${idx + 1}.${bidx + 1} ${b}`).join("\n")}
 `).join("\n")}
 
-Return JSON with bullet_analysis array of {original, arc_score, missing, improved}`;
+CRITICAL: 
+- arc_score must be a NUMBER 0-10, not a string
+- Every bullet must get analyzed - no skipping
+- Improved versions must be complete sentences with ACTION + RESULT + CONTEXT
+
+Return JSON:
+{
+  "bullet_analysis": [
+    {
+      "original": "Managed team of employees",
+      "arc_score": 4,
+      "missing": "No quantified result, weak verb 'managed', no context on impact",
+      "improved": "Led 12-person team to deliver $2M project 3 weeks ahead of schedule, reducing operational costs by 25%"
+    }
+  ]
+}`;
 
           const kyleResponse = await base44.integrations.Core.InvokeLLM({
               prompt,
