@@ -381,6 +381,19 @@ export default function AutofillVaultPage() {
           <Button variant="ghost">Use in Q&A</Button>
         </Link>
       </div>
+
+      {/* Floating Save Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button 
+          onClick={save} 
+          disabled={saving} 
+          size="lg"
+          className="gap-2 bg-blue-600 hover:bg-blue-700 shadow-xl rounded-full h-14 px-6"
+        >
+          {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      </div>
     </div>
   );
 }
