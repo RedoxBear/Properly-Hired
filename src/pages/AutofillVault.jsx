@@ -5,7 +5,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, DownloadCloud, Save, Plus, Trash2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, DownloadCloud, Save, Plus, Trash2, RefreshCw, X } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 
@@ -26,6 +27,8 @@ export default function AutofillVaultPage() {
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [vaultRec, setVaultRec] = React.useState(null);
+  const [showRemapPrompt, setShowRemapPrompt] = React.useState(false);
+  const [latestMaster, setLatestMaster] = React.useState(null);
 
   // default structure
   const emptyVault = {
@@ -60,13 +63,33 @@ export default function AutofillVaultPage() {
   React.useEffect(() => {
     (async () => {
       setLoading(true);
-      const list = await AutofillVault.list("-updated_date", 1);
+      const [list, masters] = await Promise.all([
+        AutofillVault.list("-updated_date", 1),
+        Resume.filter({ is_master_resume: true }, "-updated_date", 1)
+      ]);
+      
       // Ensure all new ats_profile fields are initialized if vaultRec exists but is old
       let loadedVault = list && list[0] ? list[0] : emptyVault;
       if (loadedVault !== emptyVault && loadedVault.ats_profile) {
         loadedVault.ats_profile = { ...emptyVault.ats_profile, ...loadedVault.ats_profile };
       }
       setVaultRec(loadedVault);
+      
+      // Check if there's a master resume that's newer than the vault
+      const master = masters && masters[0] ? masters[0] : null;
+      if (master && loadedVault.updated_at) {
+        const masterDate = new Date(master.updated_date || master.created_date);
+        const vaultDate = new Date(loadedVault.updated_at);
+        if (masterDate > vaultDate) {
+          setLatestMaster(master);
+          setShowRemapPrompt(true);
+        }
+      } else if (master && !loadedVault.id) {
+        // New vault, suggest importing
+        setLatestMaster(master);
+        setShowRemapPrompt(true);
+      }
+      
       setLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,10 +138,13 @@ export default function AutofillVaultPage() {
     setSaving(false);
   };
 
-  const importFromMaster = async () => {
-    // fetch latest master resume
-    const masters = await Resume.filter({ is_master_resume: true }, "-created_date", 1);
-    const master = masters && masters[0] ? masters[0] : null;
+  const importFromMaster = async (masterResume = null) => {
+    // Use provided master or fetch latest
+    let master = masterResume;
+    if (!master) {
+      const masters = await Resume.filter({ is_master_resume: true }, "-updated_date", 1);
+      master = masters && masters[0] ? masters[0] : null;
+    }
     if (!master) return;
     let parsed = {};
     try {
@@ -203,6 +229,38 @@ export default function AutofillVaultPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+      {showRemapPrompt && latestMaster && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <AlertDescription className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <RefreshCw className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="font-semibold text-blue-900">Updated Master Resume Detected</p>
+                <p className="text-sm text-blue-700">
+                  Your master resume "{latestMaster.version_name}" has been updated. Remap your autofill fields from it?
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                onClick={() => importFromMaster(latestMaster)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Yes, Remap
+              </Button>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={() => setShowRemapPrompt(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Autofill Vault</h1>
