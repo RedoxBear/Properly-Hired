@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
+import { extractDocumentText } from "@/functions/extractDocumentText";
 
 export default function MyResumes() {
     const [resumes, setResumes] = React.useState([]);
@@ -55,7 +56,7 @@ export default function MyResumes() {
     };
 
     const validateFileType = (file) => {
-        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg'];
+        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.txt', '.md'];
         const fileName = file.name.toLowerCase();
         return allowedTypes.some(type => fileName.endsWith(type));
     };
@@ -64,7 +65,7 @@ export default function MyResumes() {
         if (!file) return;
 
         if (!validateFileType(file)) {
-            setError("Invalid file type. Please upload PDF, PNG, JPG, or JPEG files only.");
+            setError("Invalid file type. Please upload PDF, DOC, DOCX, TXT, MD, PNG, JPG, or JPEG files.");
             return;
         }
 
@@ -74,22 +75,57 @@ export default function MyResumes() {
         try {
             const { file_url } = await retryWithBackoff(() => UploadFile({ file }), { retries: 3, baseDelay: 1200 });
 
-            const resumeSchema = {
-                type: "object",
-                properties: {
-                    personal_info: { type: "object", properties: { name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, location: { type: "string" }, linkedin: { type: "string" }, portfolio: { type: "string" } } },
-                    skills: { type: "array", items: { type: "string" } },
-                    experience: { type: "array", items: { type: "object", properties: { company: { type: "string" }, position: { type: "string" }, duration: { type: "string" }, achievements: { type: "array", items: { type: "string" } } } } },
-                    education: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, degree: { type: "string" }, year: { type: "string" } } } }
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            let extractResult;
+
+            // Handle DOC/DOCX/TXT/MD files differently
+            if (['doc', 'docx', 'txt', 'md'].includes(fileExtension)) {
+                const { data: docResult } = await extractDocumentText({ file_url });
+                
+                if (docResult.status !== 'success' || !docResult.text) {
+                    throw new Error("Failed to extract text from document.");
                 }
-            };
-            const extractResult = await retryWithBackoff(
-                () => ExtractDataFromUploadedFile({ file_url, json_schema: resumeSchema }),
-                { retries: 3, baseDelay: 1500 }
-            );
+
+                // Use AI to parse the extracted text into structured resume data
+                const { InvokeLLM } = await import("@/integrations/Core");
+                const resumeSchema = {
+                    type: "object",
+                    properties: {
+                        personal_info: { type: "object", properties: { name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, location: { type: "string" }, linkedin: { type: "string" }, portfolio: { type: "string" } } },
+                        skills: { type: "array", items: { type: "string" } },
+                        experience: { type: "array", items: { type: "object", properties: { company: { type: "string" }, position: { type: "string" }, duration: { type: "string" }, achievements: { type: "array", items: { type: "string" } } } } },
+                        education: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, degree: { type: "string" }, year: { type: "string" } } } }
+                    }
+                };
+
+                const parsedData = await InvokeLLM({
+                    prompt: `Extract structured resume data from this text:\n\n${docResult.text}\n\nReturn a properly structured resume object.`,
+                    response_json_schema: resumeSchema
+                });
+
+                extractResult = {
+                    status: 'success',
+                    output: parsedData
+                };
+            } else {
+                // Handle PDF/images with existing extraction
+                const resumeSchema = {
+                    type: "object",
+                    properties: {
+                        personal_info: { type: "object", properties: { name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, location: { type: "string" }, linkedin: { type: "string" }, portfolio: { type: "string" } } },
+                        skills: { type: "array", items: { type: "string" } },
+                        experience: { type: "array", items: { type: "object", properties: { company: { type: "string" }, position: { type: "string" }, duration: { type: "string" }, achievements: { type: "array", items: { type: "string" } } } } },
+                        education: { type: "array", items: { type: "object", properties: { institution: { type: "string" }, degree: { type: "string" }, year: { type: "string" } } } }
+                    }
+                };
+                extractResult = await retryWithBackoff(
+                    () => ExtractDataFromUploadedFile({ file_url, json_schema: resumeSchema }),
+                    { retries: 3, baseDelay: 1500 }
+                );
+            }
 
             if (extractResult.status !== "success" || !extractResult.output) {
-                throw new Error("AI failed to parse resume data. Please try a different PDF or supported image format.");
+                throw new Error("AI failed to parse resume data. Please try a different file.");
             }
 
             const fileNameWithoutExtension = file.name.split('.').slice(0, -1).join('.');
@@ -296,7 +332,7 @@ export default function MyResumes() {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={(e) => handleFileUpload(e.target.files[0])}
-                                    accept=".pdf,.png,.jpg,.jpeg"
+                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.md"
                                     className="hidden"
                                 />
                                 <div
@@ -323,7 +359,7 @@ export default function MyResumes() {
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, PNG, JPG, JPEG only</p>
+                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, DOC, DOCX, TXT, MD, PNG, JPG, JPEG</p>
                                 <p className="text-xs text-blue-600 mt-1 text-center">Will be set as Master Resume - you can improve it in the editor</p>
                             </CardContent>
                         </Card>
