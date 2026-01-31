@@ -56,7 +56,7 @@ export default function MyResumes() {
     };
 
     const validateFileType = (file) => {
-        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.txt', '.md'];
+        const allowedTypes = ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.txt', '.md', '.rtf'];
         const fileName = file.name.toLowerCase();
         return allowedTypes.some(type => fileName.endsWith(type));
     };
@@ -65,7 +65,7 @@ export default function MyResumes() {
         if (!file) return;
 
         if (!validateFileType(file)) {
-            setError("Invalid file type. Please upload PDF, DOC, DOCX, TXT, MD, PNG, JPG, or JPEG files.");
+            setError("Invalid file type. Please upload PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG, or JPEG files.");
             return;
         }
 
@@ -78,8 +78,8 @@ export default function MyResumes() {
             const fileExtension = file.name.split('.').pop().toLowerCase();
             let extractResult;
 
-            // Handle DOC/DOCX/TXT/MD files differently
-            if (['doc', 'docx', 'txt', 'md'].includes(fileExtension)) {
+            // Handle DOC/DOCX/TXT/MD/RTF files differently
+            if (['doc', 'docx', 'txt', 'md', 'rtf'].includes(fileExtension)) {
                 const { data: docResult } = await extractDocumentText({ file_url });
                 
                 if (docResult.status !== 'success' || !docResult.text) {
@@ -332,7 +332,7 @@ export default function MyResumes() {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={(e) => handleFileUpload(e.target.files[0])}
-                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.md"
+                                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt,.md,.rtf"
                                     className="hidden"
                                 />
                                 <div
@@ -359,7 +359,7 @@ export default function MyResumes() {
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, DOC, DOCX, TXT, MD, PNG, JPG, JPEG</p>
+                                <p className="text-xs text-slate-500 mt-3 text-center">Supported: PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG, JPEG</p>
                                 <p className="text-xs text-blue-600 mt-1 text-center">Will be set as Master Resume - you can improve it in the editor</p>
                             </CardContent>
                         </Card>

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import mammoth from 'npm:mammoth@1.6.0';
+import rtfParser from 'npm:rtf-parser@1.2.0';
 
 Deno.serve(async (req) => {
     try {
@@ -33,6 +34,11 @@ Deno.serve(async (req) => {
         } else if (fileExtension === 'txt' || fileExtension === 'md') {
             // Handle plain text files
             text = await fileResponse.text();
+        } else if (fileExtension === 'rtf') {
+            // Handle RTF files
+            const arrayBuffer = await fileResponse.arrayBuffer();
+            const rtfDoc = await rtfParser.parseRTF(Buffer.from(arrayBuffer));
+            text = rtfDoc.text || '';
         } else {
             return Response.json({ error: 'Unsupported file type' }, { status: 400 });
         }
