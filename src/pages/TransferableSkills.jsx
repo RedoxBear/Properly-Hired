@@ -156,16 +156,39 @@ CRITICAL REQUIREMENTS:
 3. Scores must be HONEST - don't inflate scores, calculate based on actual skill matches
 4. Never use strings like "TBD" or "%" in numeric fields`;
 
-      const response = await retryWithBackoff(() => InvokeLLM({
+      const response = await retryWithBackoff(() => base44.integrations.Core.InvokeLLM({
         prompt,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
             top_transferable_skills: { type: "array", items: { type: "string" } },
-            role_mappings: { type: "array", items: { type: "object" } },
+            role_mappings: { 
+              type: "array", 
+              items: { 
+                type: "object",
+                properties: {
+                  role: { type: "string" },
+                  onet_code: { type: "string" },
+                  alignment_score: { type: "number" },
+                  why: { type: "string" }
+                },
+                required: ["role", "alignment_score", "why"]
+              }
+            },
             suggested_bullets: { type: "array", items: { type: "string" } },
-            onet_occupations: { type: "array", items: { type: "object" } }
+            onet_occupations: { 
+              type: "array", 
+              items: { 
+                type: "object",
+                properties: {
+                  code: { type: "string" },
+                  title: { type: "string" },
+                  match_score: { type: "number" }
+                },
+                required: ["title", "match_score"]
+              }
+            }
           }
         }
       }), { retries: 3, baseDelay: 1200 });
