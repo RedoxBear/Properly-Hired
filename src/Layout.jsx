@@ -49,7 +49,8 @@ const PRAGUE_DAY_FULL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/obj
 
 function AppShell({ children, currentPageName }) {
     const location = useLocation();
-    const { isMobile, isTablet, deviceType } = useDeviceDetection();
+    const { isMobile } = useDeviceDetection();
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     const navigationItems = [
         { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Overview & Quick Actions" },
@@ -171,7 +172,15 @@ function AppShell({ children, currentPageName }) {
                 `}
             </style>
             <div className="app-container bg-slate-50 text-slate-800">
-                <Sidebar className="border-r border-slate-200/60 app-sidebar">
+                {/* Backdrop for mobile */}
+                {isSidebarOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )}
+
+                <Sidebar isOpen={isSidebarOpen} className="border-r border-slate-200/60 app-sidebar">
                     <SidebarHeader className="border-b border-slate-200/60 p-4 md:p-6">
                         <div className="flex items-center justify-between gap-2 md:gap-3">
                             <div className="flex items-center gap-2 md:gap-3">
@@ -210,7 +219,11 @@ function AppShell({ children, currentPageName }) {
                                                     location.pathname === item.url ? 'bg-blue-50 text-blue-700 border-blue-200 border shadow-sm' : 'hover:shadow-sm'
                                                 }`}
                                             >
-                                                <RouterLink to={item.url} className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3">
+                                                <RouterLink 
+                                                    to={item.url} 
+                                                    className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3"
+                                                    onClick={() => setIsSidebarOpen(false)}
+                                                >
                                                     <item.icon className={`w-5 h-5 transition-colors flex-shrink-0 ${
                                                         location.pathname === item.url ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
                                                     }`} />
@@ -237,10 +250,18 @@ function AppShell({ children, currentPageName }) {
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <div className="px-2 md:px-3 py-2 grid grid-cols-2 gap-2 md:gap-3">
-                                    <RouterLink to={createPageUrl("ResumeOptimizer")} className="flex items-center justify-center p-3 rounded-lg border hover:bg-slate-50 min-h-[44px] active:scale-95 transition-transform">
+                                    <RouterLink 
+                                        to={createPageUrl("ResumeOptimizer")} 
+                                        className="flex items-center justify-center p-3 rounded-lg border hover:bg-slate-50 min-h-[44px] active:scale-95 transition-transform"
+                                        onClick={() => setIsSidebarOpen(false)}
+                                    >
                                         <Sparkles className="w-5 h-5 text-blue-600" />
                                     </RouterLink>
-                                    <RouterLink to={createPageUrl("CoverLetters")} className="flex items-center justify-center p-3 rounded-lg border hover:bg-slate-50 min-h-[44px] active:scale-95 transition-transform">
+                                    <RouterLink 
+                                        to={createPageUrl("CoverLetters")} 
+                                        className="flex items-center justify-center p-3 rounded-lg border hover:bg-slate-50 min-h-[44px] active:scale-95 transition-transform"
+                                        onClick={() => setIsSidebarOpen(false)}
+                                    >
                                         <Mail className="w-5 h-5 text-green-600" />
                                     </RouterLink>
                                 </div>
@@ -300,7 +321,10 @@ function AppShell({ children, currentPageName }) {
                     {/* Mobile Header */}
                     <header className="bg-white/90 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 md:hidden sticky top-0 z-10">
                         <div className="flex items-center justify-between gap-4">
-                            <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px]" />
+                            <SidebarTrigger 
+                                onClick={() => setIsSidebarOpen(true)} 
+                                className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px]" 
+                            />
                             <div className="flex items-center gap-2">
                                 <img
                                     src={PRAGUE_DAY_CIRCLE}

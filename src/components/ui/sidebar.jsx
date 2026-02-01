@@ -4,9 +4,12 @@ const SidebarProvider = ({ children, ...props }) => {
   return <div {...props}>{children}</div>
 }
 
-const Sidebar = ({ children, className = "", ...props }) => {
+const Sidebar = ({ children, className = "", isOpen, ...props }) => {
   return (
-    <aside className={`flex flex-col h-full ${className}`} {...props}>
+    <aside className={`flex flex-col h-full transform transition-transform duration-300 ease-in-out
+      ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+      md:translate-x-0 
+      w-64 fixed inset-y-0 left-0 z-50 md:relative md:flex md:w-auto ${className}`} {...props}>
       {children}
     </aside>
   )
