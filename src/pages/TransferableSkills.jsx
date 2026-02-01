@@ -96,18 +96,33 @@ TARGET CAREER DIRECTION:
 - Target Role: ${targetRole || "Open to exploration"}
 - Target Industry: ${targetIndustry || "Open to exploration"}
 
-YOUR TASK - Career Change Analysis:
+YOUR TASK - Career Change Analysis Based on Target:
+
+${targetRole || targetIndustry ? `
+FOCUSED ANALYSIS (Target Specified):
+1. Extract transferable skills from candidate's CV that match the TARGET ROLE: "${targetRole}" and TARGET INDUSTRY: "${targetIndustry}"
+2. Calculate a PRIMARY alignment score (0-100) for how well their current experience matches "${targetRole}" in "${targetIndustry}"
+3. List 3-5 alternate career paths based on their skills (if target role isn't perfect match)
+4. For each career path including the primary target, provide O*NET codes and realistic match scores
+5. Suggest how to reframe their CV specifically for "${targetRole}"
+` : `
+EXPLORATORY ANALYSIS (No Target):
 1. Extract ALL transferable skills from the candidate's experience
 2. Identify 3-5 realistic career paths based on their skills
 3. For each career path, provide O*NET occupation codes and match scores
 4. Calculate realistic alignment scores (0-100) based on skill overlap
 5. Suggest how to reframe their experience for each target role
+`}
 
 SCORING METHODOLOGY:
 - 90-100: Direct skill match, minimal retraining needed
 - 75-89: Strong transferable skills, some upskilling required
 - 60-74: Moderate overlap, significant retraining needed
 - Below 60: Major pivot, extensive retraining required
+
+${targetRole ? `
+CRITICAL: The FIRST role mapping MUST be the target role "${targetRole}" with its alignment score based on the candidate's actual CV.
+` : ''}
 
 OUTPUT REQUIREMENTS:
 Return JSON with ACTUAL NUMERIC SCORES (not placeholders):
@@ -116,7 +131,7 @@ Return JSON with ACTUAL NUMERIC SCORES (not placeholders):
   "top_transferable_skills": ["Project Management", "Data Analysis", "Team Leadership"],
   "role_mappings": [
     {
-      "role": "Product Manager",
+      "role": "${targetRole || 'Product Manager'}",
       "onet_code": "11-2021.00",
       "alignment_score": 82,
       "why": "Your program management and stakeholder coordination directly transfer. Need to develop product strategy skills."
@@ -129,13 +144,17 @@ Return JSON with ACTUAL NUMERIC SCORES (not placeholders):
   "onet_occupations": [
     {
       "code": "11-2021.00",
-      "title": "Marketing Managers",
+      "title": "${targetRole || 'Marketing Managers'}",
       "match_score": 78
     }
   ]
 }
 
-CRITICAL: Every alignment_score and match_score MUST be a number 0-100, never a string or "%"`;
+CRITICAL REQUIREMENTS:
+1. Every alignment_score and match_score MUST be a realistic NUMBER 0-100 based on the candidate's actual CV
+2. If target role is specified, it MUST appear as the FIRST role_mapping with a score reflecting actual skill overlap
+3. Scores must be HONEST - don't inflate scores, calculate based on actual skill matches
+4. Never use strings like "TBD" or "%" in numeric fields`;
 
       const response = await retryWithBackoff(() => InvokeLLM({
         prompt,
