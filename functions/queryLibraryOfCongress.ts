@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { searchQuery, endpoint = "search", maxResults = 10 } = await req.json();
+        const { searchQuery, endpoint = "search", maxResults = 20, strictFilter = false } = await req.json();
 
         if (!searchQuery) {
             return Response.json({ error: 'searchQuery is required' }, { status: 400 });
@@ -24,11 +24,10 @@ Deno.serve(async (req) => {
             "personnel management", "workplace", "career development"
         ];
 
-        // Build search query with HR context
-        const hrFocusedQuery = `${searchQuery} (${hrKeywords.slice(0, 5).join(" OR ")})`;
-
-        // Query Library of Congress API
-        const locUrl = `https://www.loc.gov/${endpoint}/?q=${encodeURIComponent(hrFocusedQuery)}&fo=json&c=${maxResults}`;
+        // Query Library of Congress API with simple query
+        const locUrl = `https://www.loc.gov/${endpoint}/?q=${encodeURIComponent(searchQuery)}&fo=json&c=${maxResults}`;
+        
+        console.log("Querying LoC:", locUrl);
         
         const response = await fetch(locUrl);
         
@@ -37,31 +36,43 @@ Deno.serve(async (req) => {
         }
 
         const data = await response.json();
+        
+        console.log("LoC response data:", JSON.stringify(data, null, 2));
 
-        // Filter results to ensure HR relevance
-        const filteredResults = (data.results || []).filter(item => {
-            const title = (item.title || "").toLowerCase();
-            const description = (item.description || []).join(" ").toLowerCase();
-            const subjects = (item.subject || []).join(" ").toLowerCase();
-            const fullText = `${title} ${description} ${subjects}`;
+        // Process results
+        let processedResults = (data.results || []).map(item => ({
+            title: item.title || "Untitled",
+            description: item.description || [],
+            subjects: item.subject || [],
+            url: item.id || item.url,
+            date: item.date,
+            format: item.original_format || item.format,
+            contributors: item.contributor || [],
+            summary: item.summary || []
+        }));
 
-            return hrKeywords.some(keyword => fullText.includes(keyword.toLowerCase()));
-        });
+        // Optional strict filtering (only if requested)
+        let filteredResults = processedResults;
+        if (strictFilter) {
+            filteredResults = processedResults.filter(item => {
+                const title = (item.title || "").toLowerCase();
+                const description = (item.description || []).join(" ").toLowerCase();
+                const subjects = (item.subjects || []).join(" ").toLowerCase();
+                const summary = (item.summary || []).join(" ").toLowerCase();
+                const fullText = `${title} ${description} ${subjects} ${summary}`;
+
+                return hrKeywords.some(keyword => fullText.includes(keyword.toLowerCase()));
+            });
+        }
 
         return Response.json({
             success: true,
             total_found: data.results?.length || 0,
-            hr_relevant: filteredResults.length,
-            results: filteredResults.map(item => ({
-                title: item.title || "Untitled",
-                description: item.description || [],
-                subjects: item.subject || [],
-                url: item.id || item.url,
-                date: item.date,
-                format: item.original_format || item.format,
-                contributors: item.contributor || []
-            })),
-            query_used: hrFocusedQuery
+            returned: filteredResults.length,
+            strict_filter_applied: strictFilter,
+            results: filteredResults,
+            query_used: searchQuery,
+            loc_url: locUrl
         });
 
     } catch (error) {
