@@ -45,13 +45,32 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const PRAGUE_DAY_CIRCLE = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/8925775c9_PragueDayLogo-Circle.png";
-const PRAGUE_DAY_FULL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/50e0a16e9_image.png";
+// Light mode logos
+const PRAGUE_DAY_CIRCLE_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/3bc95c8f4_Prague-DayCircleTransparent.jpg";
+const PRAGUE_DAY_FULL_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/0cf860df6_Prague-DayAcceptedConcept.jpg";
+
+// Dark mode logos
+const PRAGUE_DAY_CIRCLE_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/3477e6b96_Prague-DayAcceptedConcept-DarkMode-Circle.jpg";
+const PRAGUE_DAY_FULL_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/468690cdf_Prague-DayAcceptedConcept-DarkMode.jpg";
 
 function AppShell({ children, currentPageName }) {
     const location = useLocation();
     const { isMobile } = useDeviceDetection();
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+    React.useEffect(() => {
+        const checkDarkMode = () => {
+            setIsDarkMode(document.documentElement.classList.contains('dark'));
+        };
+        checkDarkMode();
+        const observer = new MutationObserver(checkDarkMode);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
+
+    const PRAGUE_DAY_CIRCLE = isDarkMode ? PRAGUE_DAY_CIRCLE_DARK : PRAGUE_DAY_CIRCLE_LIGHT;
+    const PRAGUE_DAY_FULL = isDarkMode ? PRAGUE_DAY_FULL_DARK : PRAGUE_DAY_FULL_LIGHT;
 
     const navigationItems = [
         { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Overview & Quick Actions" },
