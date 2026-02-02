@@ -116,17 +116,17 @@ export default function DailyEncouragement() {
   if (!quote) return null;
 
   return (
-    <Card className="bg-white/90 border-0 shadow">
+    <Card className="bg-card/90 border-0 shadow">
       <CardContent className="py-5 px-6 flex items-start gap-3">
-        <div className="p-2 rounded-lg bg-amber-50 text-amber-700">
+        <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
           <Sparkles className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-slate-800 text-base md:text-lg leading-relaxed">
-            “{quote.text}”
+          <div className="text-foreground text-base md:text-lg leading-relaxed">
+            "{quote.text}"
           </div>
           <div className="mt-2 flex items-center gap-2">
-            <Badge variant="outline" className="text-slate-600">
+            <Badge variant="outline" className="text-muted-foreground">
               {quote.author || "Unknown"}
             </Badge>
           </div>

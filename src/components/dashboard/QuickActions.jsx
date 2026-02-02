@@ -27,10 +27,10 @@ export default function QuickActions() {
     : createPageUrl("JobAnalysis"); // if no app yet, start with analysis
 
   return (
-    <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+    <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-800">
-          <Sparkles className="w-5 h-5 text-blue-600" /> Quick Actions
+        <CardTitle className="flex items-center gap-2 text-xl font-bold text-foreground">
+          <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Quick Actions
         </CardTitle>
       </CardHeader>
 
@@ -63,14 +63,14 @@ export default function QuickActions() {
 
 function Action({ title, desc, icon: Icon, to, gradient }) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl border bg-white/70">
+    <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/70">
       <div className="flex items-center gap-3">
         <div className={`p-2 rounded-lg text-white bg-gradient-to-r ${gradient}`}>
           <Icon className="w-5 h-5" />
         </div>
         <div>
-          <div className="font-semibold text-slate-800">{title}</div>
-          <div className="text-sm text-slate-500">{desc}</div>
+          <div className="font-semibold text-foreground">{title}</div>
+          <div className="text-sm text-muted-foreground">{desc}</div>
         </div>
       </div>
       <Link to={to}>

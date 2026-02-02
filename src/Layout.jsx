@@ -3,6 +3,7 @@ import { Link as RouterLink, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useDeviceDetection } from "@/components/utils/deviceDetection";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
     LayoutDashboard,
     Search,
@@ -77,21 +78,6 @@ function AppShell({ children, currentPageName }) {
                 {`
                     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-                    :root {
-                        --background: #fefefe;
-                        --foreground: #1f2937;
-                        --primary: #1e40af;
-                        --primary-foreground: #ffffff;
-                        --secondary: #f8fafc;
-                        --secondary-foreground: #475569;
-                        --accent: #059669;
-                        --accent-foreground: #ffffff;
-                        --muted: #f1f5f9;
-                        --muted-foreground: #64748b;
-                        --border: #e2e8f0;
-                        --success: #059669;
-                    }
-
                     * {
                         margin: 0;
                         padding: 0;
@@ -111,58 +97,68 @@ function AppShell({ children, currentPageName }) {
                     }
 
                     body {
-                        color: var(--foreground);
-                        background-color: var(--background);
+                        color: hsl(var(--foreground));
+                        background-color: hsl(var(--background));
                         -webkit-font-smoothing: antialiased;
                         -moz-osx-font-smoothing: grayscale;
                         position: fixed;
                         width: 100%;
                         height: 100%;
                     }
-                    
+
                     .app-container {
                         width: 100vw;
                         height: 100vh;
-                        height: 100dvh; /* Dynamic viewport height for mobile */
+                        height: 100dvh;
                         overflow: hidden;
                         display: flex;
+                        background-color: hsl(var(--background));
+                        color: hsl(var(--foreground));
                     }
-                    
+
                     .app-main {
-                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                        background: hsl(var(--background));
                         width: 100%;
                         height: 100%;
                         overflow-y: auto;
                         overflow-x: hidden;
                         -webkit-overflow-scrolling: touch;
                     }
-                    
+
                     .app-sidebar {
-                        background-color: rgba(255, 255, 255, 0.85);
+                        background-color: hsl(var(--sidebar-background));
                         backdrop-filter: blur(20px);
                         height: 100vh;
                         height: 100dvh;
                     }
-                    
+
+                    .dark .app-main {
+                        background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
+                    }
+
+                    :root .app-main {
+                        background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+                    }
+
                     /* Better mobile touch targets */
                     @media (max-width: 768px) {
-                        button, a { 
+                        button, a {
                             min-height: 44px;
                             min-width: 44px;
                         }
-                        
-                        .sidebar-description { 
-                            display: none !important; 
+
+                        .sidebar-description {
+                            display: none !important;
                         }
                     }
-                    
+
                     /* Prevent zoom on input focus on iOS */
                     @media (max-width: 768px) {
                         input, textarea, select {
                             font-size: 16px !important;
                         }
                     }
-                    
+
                     /* Handle orientation changes */
                     @media (orientation: landscape) and (max-height: 500px) {
                         .app-container {
@@ -171,7 +167,7 @@ function AppShell({ children, currentPageName }) {
                     }
                 `}
             </style>
-            <div className="app-container bg-slate-50 text-slate-800">
+            <div className="app-container bg-background text-foreground">
                 {/* Backdrop for mobile */}
                 {isSidebarOpen && (
                     <div 
@@ -180,14 +176,14 @@ function AppShell({ children, currentPageName }) {
                     />
                 )}
 
-                <Sidebar isOpen={isSidebarOpen} className="border-r border-slate-200/60 app-sidebar">
-                    <SidebarHeader className="border-b border-slate-200/60 p-4 md:p-6">
+                <Sidebar isOpen={isSidebarOpen} className="border-r border-border/60 app-sidebar">
+                    <SidebarHeader className="border-b border-border/60 p-4 md:p-6">
                         <div className="flex items-center justify-between gap-2 md:gap-3">
                             <div className="flex items-center gap-2 md:gap-3">
                                 <img
                                     src={PRAGUE_DAY_CIRCLE}
                                     alt="Prague Day"
-                                    className="w-8 h-8 md:w-10 md:h-10 rounded-xl shadow-lg object-contain bg-white"
+                                    className="w-8 h-8 md:w-10 md:h-10 rounded-xl shadow-lg object-contain bg-card"
                                     onError={(e) => {
                                         const el = e.currentTarget;
                                         if (el.dataset.fallback !== "1") {
@@ -197,8 +193,8 @@ function AppShell({ children, currentPageName }) {
                                     }}
                                 />
                                 <div>
-                                    <h2 className="font-bold text-slate-800 text-base md:text-lg">Prague Day</h2>
-                                    <p className="text-xs text-slate-500 font-medium hidden sm:block">Career Navigation</p>
+                                    <h2 className="font-bold text-foreground text-base md:text-lg">Prague Day</h2>
+                                    <p className="text-xs text-muted-foreground font-medium hidden sm:block">Career Navigation</p>
                                 </div>
                             </div>
                         </div>
@@ -206,7 +202,7 @@ function AppShell({ children, currentPageName }) {
 
                     <SidebarContent className="p-2 md:p-3">
                         <SidebarGroup>
-                            <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
+                            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
                                 Navigation
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
@@ -215,22 +211,26 @@ function AppShell({ children, currentPageName }) {
                                         <SidebarMenuItem key={item.title}>
                                             <SidebarMenuButton
                                                 asChild
-                                                className={`hover:bg-slate-50 transition-all duration-200 rounded-xl mb-1 group min-h-[44px] ${
-                                                    location.pathname === item.url ? 'bg-blue-50 text-blue-700 border-blue-200 border shadow-sm' : 'hover:shadow-sm'
+                                                className={`hover:bg-accent transition-all duration-200 rounded-xl mb-1 group min-h-[44px] ${
+                                                    location.pathname === item.url
+                                                        ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 border shadow-sm'
+                                                        : 'hover:shadow-sm'
                                                 }`}
                                             >
-                                                <RouterLink 
-                                                    to={item.url} 
+                                                <RouterLink
+                                                    to={item.url}
                                                     className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3"
                                                     onClick={() => setIsSidebarOpen(false)}
                                                 >
                                                     <item.icon className={`w-5 h-5 transition-colors flex-shrink-0 ${
-                                                        location.pathname === item.url ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
+                                                        location.pathname === item.url
+                                                            ? 'text-blue-600 dark:text-blue-400'
+                                                            : 'text-muted-foreground group-hover:text-foreground'
                                                     }`} />
                                                     <div className="min-w-0">
                                                         <div className="font-medium text-sm truncate">{item.title}</div>
                                                         {!isMobile && (
-                                                            <div className="text-xs text-slate-500 font-normal truncate hidden md:block sidebar-description">
+                                                            <div className="text-xs text-muted-foreground font-normal truncate hidden md:block sidebar-description">
                                                                 {item.description}
                                                             </div>
                                                         )}
@@ -245,33 +245,33 @@ function AppShell({ children, currentPageName }) {
 
                         {/* AI Tools section */}
                         <SidebarGroup className="mt-4 md:mt-6">
-                            <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
+                            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
                                 AI Tools
                             </SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <div className="px-2 md:px-3 py-2 grid grid-cols-2 gap-2 md:gap-3">
-                                    <RouterLink 
-                                        to={createPageUrl("ResumeOptimizer")} 
-                                        className="flex items-center justify-center p-3 rounded-lg border hover:bg-slate-50 min-h-[44px] active:scale-95 transition-transform"
+                                    <RouterLink
+                                        to={createPageUrl("ResumeOptimizer")}
+                                        className="flex items-center justify-center p-3 rounded-lg border border-border hover:bg-accent min-h-[44px] active:scale-95 transition-transform"
                                         onClick={() => setIsSidebarOpen(false)}
                                     >
-                                        <Sparkles className="w-5 h-5 text-blue-600" />
+                                        <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                     </RouterLink>
-                                    <RouterLink 
-                                        to={createPageUrl("CoverLetters")} 
-                                        className="flex items-center justify-center p-3 rounded-lg border hover:bg-slate-50 min-h-[44px] active:scale-95 transition-transform"
+                                    <RouterLink
+                                        to={createPageUrl("CoverLetters")}
+                                        className="flex items-center justify-center p-3 rounded-lg border border-border hover:bg-accent min-h-[44px] active:scale-95 transition-transform"
                                         onClick={() => setIsSidebarOpen(false)}
                                     >
-                                        <Mail className="w-5 h-5 text-green-600" />
+                                        <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
                                     </RouterLink>
                                 </div>
                             </SidebarGroupContent>
                         </SidebarGroup>
                     </SidebarContent>
 
-                    <SidebarFooter className="border-t border-slate-200/60 p-3 md:p-4">
+                    <SidebarFooter className="border-t border-border/60 p-3 md:p-4">
                         <div className="flex items-center gap-2 md:gap-3">
-                            <div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 bg-muted rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
                                 <img
                                     src={PRAGUE_DAY_CIRCLE}
                                     alt="Prague Day small"
@@ -286,8 +286,8 @@ function AppShell({ children, currentPageName }) {
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="font-medium text-slate-800 text-sm truncate">Prague Day</p>
-                                <p className="text-xs text-slate-500 truncate">AI Career Assistant</p>
+                                <p className="font-medium text-foreground text-sm truncate">Prague Day</p>
+                                <p className="text-xs text-muted-foreground truncate">AI Career Assistant</p>
                             </div>
                         </div>
                     </SidebarFooter>
@@ -295,15 +295,16 @@ function AppShell({ children, currentPageName }) {
 
                 <main className="flex-1 flex flex-col app-main">
                     {/* Desktop Header */}
-                    <header className="hidden md:flex bg-white/90 backdrop-blur-xl border-b border-slate-200/60 px-6 py-3 sticky top-0 z-10">
-                        <div className="flex items-center justify-end w-full">
+                    <header className="hidden md:flex bg-card/90 backdrop-blur-xl border-b border-border/60 px-6 py-3 sticky top-0 z-10">
+                        <div className="flex items-center justify-end w-full gap-2">
+                            <ThemeToggle />
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="flex items-center gap-2 hover:bg-slate-100">
-                                        <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                                            <User className="w-4 h-4 text-slate-600" />
+                                    <Button variant="ghost" className="flex items-center gap-2 hover:bg-accent">
+                                        <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                                            <User className="w-4 h-4 text-muted-foreground" />
                                         </div>
-                                        <span className="text-sm font-medium text-slate-700">My Account</span>
+                                        <span className="text-sm font-medium text-foreground">My Account</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-48">
@@ -319,11 +320,11 @@ function AppShell({ children, currentPageName }) {
                     </header>
 
                     {/* Mobile Header */}
-                    <header className="bg-white/90 backdrop-blur-xl border-b border-slate-200/60 px-4 py-3 md:hidden sticky top-0 z-10">
-                        <div className="flex items-center justify-between gap-4">
-                            <SidebarTrigger 
-                                onClick={() => setIsSidebarOpen(true)} 
-                                className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px]" 
+                    <header className="bg-card/90 backdrop-blur-xl border-b border-border/60 px-4 py-3 md:hidden sticky top-0 z-10">
+                        <div className="flex items-center justify-between gap-2">
+                            <SidebarTrigger
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="hover:bg-accent p-2 rounded-lg transition-colors duration-200 min-w-[44px] min-h-[44px]"
                             />
                             <div className="flex items-center gap-2">
                                 <img
@@ -338,23 +339,26 @@ function AppShell({ children, currentPageName }) {
                                         }
                                     }}
                                 />
-                                <h1 className="text-base font-bold text-slate-800">Prague Day</h1>
+                                <h1 className="text-base font-bold text-foreground">Prague Day</h1>
                             </div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="min-w-[44px] min-h-[44px]">
-                                        <User className="w-5 h-5" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem asChild>
-                                        <RouterLink to={createPageUrl("UserProfile")} className="flex items-center gap-2">
-                                            <Settings className="w-4 h-4" />
-                                            <span>Profile & Settings</span>
-                                        </RouterLink>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <div className="flex items-center gap-1">
+                                <ThemeToggle />
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="min-w-[44px] min-h-[44px]">
+                                            <User className="w-5 h-5" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem asChild>
+                                            <RouterLink to={createPageUrl("UserProfile")} className="flex items-center gap-2">
+                                                <Settings className="w-4 h-4" />
+                                                <span>Profile & Settings</span>
+                                            </RouterLink>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
                         </div>
                     </header>
 
