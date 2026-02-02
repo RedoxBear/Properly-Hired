@@ -30,7 +30,7 @@ export default function FollowUpList({ apps = [], onUpdated }) {
         {due.map(a => (
           <div key={a.id} className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="font-medium truncate">{a.job_title} @ {a.company_name}</div>
+              <div className="font-medium truncate text-foreground">{a.job_title} @ {a.company_name}</div>
               <div className="text-xs text-amber-800 dark:text-amber-300">
                 Scheduled: {new Date(a.next_follow_up_at).toLocaleString()}
               </div>

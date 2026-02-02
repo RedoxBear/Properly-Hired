@@ -155,4 +155,241 @@ button:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Smooth theme transitions */
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
+  }
+}
+
+/* Dark mode enhancements for common patterns */
+
+/* White backgrounds -> card in dark mode */
+.dark .bg-white,
+.dark .bg-white\/80,
+.dark .bg-white\/90 {
+  background-color: hsl(var(--card)) !important;
+}
+
+/* Slate text colors */
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Gray text colors */
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Background colors */
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* Border colors */
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-gray-200,
+.dark .border-gray-100 {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Hover states */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+/* Colored backgrounds - make them darker in dark mode */
+.dark .bg-blue-50 {
+  background-color: rgb(30 58 138 / 0.3) !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: rgb(30 58 138 / 0.4) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-green-50 {
+  background-color: rgb(6 78 59 / 0.3) !important;
+}
+
+.dark .bg-cyan-50 {
+  background-color: rgb(22 78 99 / 0.3) !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-yellow-50 {
+  background-color: rgb(120 53 15 / 0.3) !important;
+}
+
+.dark .bg-purple-50 {
+  background-color: rgb(88 28 135 / 0.3) !important;
+}
+
+.dark .bg-red-50 {
+  background-color: rgb(127 29 29 / 0.3) !important;
+}
+
+.dark .bg-orange-50 {
+  background-color: rgb(124 45 18 / 0.3) !important;
+}
+
+.dark .bg-pink-50 {
+  background-color: rgb(131 24 67 / 0.3) !important;
+}
+
+/* Colored borders */
+.dark .border-blue-200,
+.dark .border-blue-100 {
+  border-color: rgb(59 130 246 / 0.4) !important;
+}
+
+.dark .border-emerald-200,
+.dark .border-green-200 {
+  border-color: rgb(16 185 129 / 0.4) !important;
+}
+
+.dark .border-amber-200,
+.dark .border-yellow-200 {
+  border-color: rgb(245 158 11 / 0.4) !important;
+}
+
+.dark .border-red-200 {
+  border-color: rgb(248 113 113 / 0.4) !important;
+}
+
+/* Colored text - make brighter in dark mode */
+.dark .text-blue-700,
+.dark .text-blue-800 {
+  color: rgb(147 197 253) !important;
+}
+
+.dark .text-blue-600 {
+  color: rgb(96 165 250) !important;
+}
+
+.dark .text-emerald-700,
+.dark .text-emerald-800,
+.dark .text-green-700,
+.dark .text-green-800 {
+  color: rgb(110 231 183) !important;
+}
+
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-yellow-700 {
+  color: rgb(252 211 77) !important;
+}
+
+.dark .text-red-700,
+.dark .text-red-800 {
+  color: rgb(252 165 165) !important;
+}
+
+.dark .text-purple-700,
+.dark .text-purple-800 {
+  color: rgb(196 181 253) !important;
+}
+
+/* Gradient fix for hero section */
+.dark .bg-gradient-to-r.from-blue-50.to-cyan-50 {
+  background: linear-gradient(to right, rgb(30 58 138 / 0.2), rgb(22 78 99 / 0.2)) !important;
+}
+
+.dark .bg-gradient-to-r.from-blue-600.to-cyan-500 {
+  background: linear-gradient(to right, rgb(96 165 250), rgb(34 211 238)) !important;
+}
+
+/* Card component shadows in dark mode */
+.dark .shadow-lg,
+.dark .shadow-xl {
+  --tw-shadow-color: rgb(0 0 0 / 0.3);
+}
+
+/* Ring colors */
+.dark .ring-slate-200,
+.dark .ring-gray-200 {
+  --tw-ring-color: hsl(var(--border)) !important;
+}
+
+/* Backdrop blur on dark backgrounds */
+.dark .backdrop-blur-sm,
+.dark .backdrop-blur-xl {
+  background-color: hsl(var(--card) / 0.8);
+}
+
+/* Focus ring adjustments */
+.dark .focus\:ring-blue-500:focus {
+  --tw-ring-color: rgb(59 130 246 / 0.5) !important;
+}
+
+/* Divider lines */
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Input and form elements */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(var(--input));
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Scrollbar styling for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
 }

@@ -57,14 +57,14 @@ export default function SubscriptionStatus({ user }) {
     }
 
     return (
-        <Card className="border-slate-200 shadow-sm">
+        <Card className="border-border shadow-sm">
             <CardHeader className="pb-3">
                 <div className="flex justify-between items-center">
-                    <CardTitle className="text-base font-semibold text-slate-800">
+                    <CardTitle className="text-base font-semibold text-foreground">
                         Free Plan
                     </CardTitle>
                     <Link to="/Pricing">
-                        <Button size="sm" variant="ghost" className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                        <Button size="sm" variant="ghost" className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/50">
                             Upgrade <Zap className="w-3 h-3 ml-1" />
                         </Button>
                     </Link>
@@ -73,14 +73,14 @@ export default function SubscriptionStatus({ user }) {
             <CardContent className="space-y-4">
                 <div className="space-y-3">
                     <div className="space-y-1">
-                        <div className="flex justify-between text-xs text-slate-600">
+                        <div className="flex justify-between text-xs text-muted-foreground">
                             <span>Resumes this week</span>
                             <span>{resumeCount} / {RESUME_LIMIT}</span>
                         </div>
                         <Progress value={(resumeCount / RESUME_LIMIT) * 100} className="h-2" />
                     </div>
                     <div className="space-y-1">
-                        <div className="flex justify-between text-xs text-slate-600">
+                        <div className="flex justify-between text-xs text-muted-foreground">
                             <span>Applications this week</span>
                             <span>{appCount} / {APP_LIMIT}</span>
                         </div>
@@ -88,8 +88,8 @@ export default function SubscriptionStatus({ user }) {
                     </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100">
-                    <p className="text-xs text-slate-500 mb-3">
+                <div className="pt-2 border-t border-border">
+                    <p className="text-xs text-muted-foreground mb-3">
                         Unlock unlimited AI usage and premium features.
                     </p>
                     <Link to="/Pricing">

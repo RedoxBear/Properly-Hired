@@ -20,12 +20,12 @@ export default function ApplicationInsightsWidget({ applications }) {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
-                        <BarChart3 className="w-5 h-5 text-purple-600" />
+                        <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         Application Insights
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-slate-600 mb-3">
+                    <p className="text-sm text-muted-foreground mb-3">
                         Apply to jobs to see AI-powered insights on your success rates and patterns.
                     </p>
                     <Link to={createPageUrl("ApplicationTracker")}>
@@ -65,21 +65,21 @@ export default function ApplicationInsightsWidget({ applications }) {
     const trend = recentApps > prevApps ? "up" : recentApps < prevApps ? "down" : "stable";
 
     return (
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+        <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/30 dark:to-card">
             <CardHeader>
                 <CardTitle className="flex items-center justify-between text-lg">
                     <span className="flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5 text-purple-600" />
+                        <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         Application Insights
                     </span>
                     {trend === "up" && (
-                        <Badge className="bg-green-100 text-green-700 text-xs">
+                        <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
                             <TrendingUp className="w-3 h-3 mr-1" />
                             Active
                         </Badge>
                     )}
                     {trend === "down" && (
-                        <Badge className="bg-amber-100 text-amber-700 text-xs">
+                        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs">
                             <TrendingDown className="w-3 h-3 mr-1" />
                             Slower
                         </Badge>
@@ -96,33 +96,33 @@ export default function ApplicationInsightsWidget({ applications }) {
                 {/* Success Rate */}
                 <div>
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-slate-600">Success Rate</span>
-                        <span className="text-2xl font-bold text-purple-600">{successRate}%</span>
+                        <span className="text-sm text-muted-foreground">Success Rate</span>
+                        <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{successRate}%</span>
                     </div>
                     <Progress value={successRate} className="h-2 mb-1" />
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-muted-foreground">
                         {interviews} interviews • {offers} offers from {applied} applied
                     </div>
                 </div>
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-2 rounded-lg bg-white border">
-                        <div className="text-lg font-bold text-slate-800">{totalApps}</div>
-                        <div className="text-xs text-slate-600">Total</div>
+                    <div className="text-center p-2 rounded-lg bg-card border border-border">
+                        <div className="text-lg font-bold text-foreground">{totalApps}</div>
+                        <div className="text-xs text-muted-foreground">Total</div>
                     </div>
-                    <div className="text-center p-2 rounded-lg bg-white border">
-                        <div className="text-lg font-bold text-slate-800">{Math.round(avgScore)}</div>
-                        <div className="text-xs text-slate-600">Avg Score</div>
+                    <div className="text-center p-2 rounded-lg bg-card border border-border">
+                        <div className="text-lg font-bold text-foreground">{Math.round(avgScore)}</div>
+                        <div className="text-xs text-muted-foreground">Avg Score</div>
                     </div>
-                    <div className="text-center p-2 rounded-lg bg-white border">
-                        <div className="text-lg font-bold text-red-600">{rejected}</div>
-                        <div className="text-xs text-slate-600">Rejected</div>
+                    <div className="text-center p-2 rounded-lg bg-card border border-border">
+                        <div className="text-lg font-bold text-red-600 dark:text-red-400">{rejected}</div>
+                        <div className="text-xs text-muted-foreground">Rejected</div>
                     </div>
                 </div>
 
                 {/* Activity */}
-                <div className="text-xs text-slate-600">
+                <div className="text-xs text-muted-foreground">
                     <strong>{recentApps}</strong> applications in last 30 days
                 </div>
 
