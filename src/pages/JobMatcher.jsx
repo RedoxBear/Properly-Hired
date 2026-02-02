@@ -1,5 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
+import { jobAggregator } from "@/api/jobAggregator";
 
 const JobMatch = base44.entities.JobMatch;
 const Resume = base44.entities.Resume;
@@ -64,6 +65,8 @@ export default function JobMatcher() {
     const [userLocation, setUserLocation] = React.useState(null);
     const [searchRadius, setSearchRadius] = React.useState(30);
     const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
+    const [sourceFilter, setSourceFilter] = React.useState("all");
+    const [jobSourceStats, setJobSourceStats] = React.useState({});
     
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
@@ -492,125 +495,73 @@ Return JSON with:
         setError("");
 
         try {
-            // Parse full resume content for comprehensive matching
+            // Parse resume for background extraction
             const resumeData = JSON.parse(resume.parsed_content || "{}");
             const skills = resumeData.skills || [];
             const experience = resumeData.experience || [];
             const latestRole = experience[0]?.position || "";
             const yearsExp = experience.length;
 
-            // Extract last 10 roles or up to 10 years of history
-            const roleHistory = experience
-                .slice(0, 10)
-                .map(e => `${e.position} at ${e.company}`)
-                .join("; ");
+            // Extract user background for intelligent matching
+            const userBackground = await jobAggregator.extractUserBackground(resume.parsed_content || "{}");
             
-            // Build rich context from CV
-            const cvContext = {
-                current_title: latestRole,
-                role_history: roleHistory,
-                skills: skills.slice(0, 8).join(", "),
-                experience_level: yearsExp > 7 ? "Senior" : yearsExp > 3 ? "Mid-level" : "Entry-level",
-                industries: [...new Set(experience.map(e => e.company).slice(0, 3))].join(", "),
-                key_achievements: experience.slice(0, 2).flatMap(e => e.achievements?.slice(0, 2) || []).join("; ")
-            };
-            
+            // Build search query
             const query = searchQuery || latestRole || skills.slice(0, 3).join(", ");
+            
+            console.log("User background extracted:", userBackground);
+            console.log("Starting multi-source job search...");
 
-            // Build location context
-            const locationContext = userLocation 
-                ? `\n**LOCATION PREFERENCE:**
-- User Location: ${userLocation.city}, ${userLocation.state}
-- Search Radius: ${searchRadius} miles
-- Prioritize jobs within this radius, but include remote opportunities
-- For in-person jobs, prefer locations within ${searchRadius} miles of ${userLocation.city}, ${userLocation.state}`
-                : "";
-
-            // Enhanced search using full CV context
-            const searchPrompt = `Perform a real-time web search for ACTUAL, ACTIVE job postings on LinkedIn, Indeed, Glassdoor, and company career pages.
-
-**CANDIDATE PROFILE:**
-- Current Role: ${cvContext.current_title}
-- Work History (Last 10 roles/years): ${cvContext.role_history}
-- Top Skills: ${cvContext.skills}
-- Experience Level: ${cvContext.experience_level}
-${locationContext}
-
-**SEARCH QUERY:** "${query} jobs"
-
-**CRITICAL: REAL LINKS ONLY**
-- You MUST return **REAL, CLICKABLE URLs** found in the search results.
-- **DO NOT** construct or guess URLs (e.g., do not make up "company.com/careers/role").
-- **DO NOT** return generic search pages (e.g., "linkedin.com/jobs/search?keywords=...").
-- Valid URL examples: 
-  - linkedin.com/jobs/view/...
-  - indeed.com/viewjob?...
-  - greenhouse.io/...
-  - lever.co/...
-  - myworkdayjobs.com/...
-
-**Task:**
-Find 10-12 matching jobs. Include "fuzzy" matches where skills transfer.
-
-Return JSON format with:
-- job_title: Exact title from the listing
-- company_name: Company name
-- job_url: THE SPECIFIC, WORKING URL
-- job_description: A detailed summary of requirements and responsibilities (extract as much as possible from the snippet/page)
-- location: Specific city/state
-- salary_range: If mentioned
-- source: Site name
-- posted_days_ago: Estimate from "Posted X days ago"
-
-**Constraint:**
-If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Quality over quantity. Real links are the highest priority.`;
-
-            const searchResults = await retryWithBackoff(() =>
-                base44.integrations.Core.InvokeLLM({
-                    prompt: searchPrompt,
-                    add_context_from_internet: true,
-                    response_json_schema: {
-                        type: "object",
-                        properties: {
-                            jobs: {
-                                type: "array",
-                                items: {
-                                    type: "object",
-                                    properties: {
-                                        job_title: { type: "string" },
-                                        company_name: { type: "string" },
-                                        job_url: { type: "string" },
-                                        job_description: { type: "string" },
-                                        location: { type: "string" },
-                                        salary_range: { type: "string" },
-                                        source: { type: "string" },
-                                        posted_days_ago: { type: "number" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }),
-                { retries: 2, baseDelay: 1500 }
+            // Use aggregator to fetch and score jobs from multiple sources
+            const aggregatedJobs = await jobAggregator.aggregateAndScoreJobs(
+                query,
+                userLocation ? `${userLocation.city}, ${userLocation.state}` : "Remote",
+                userBackground,
+                {
+                    sources: "all", // Search all available sources
+                    remote_only: false,
+                    timeout: 60000,
+                    cache: false // Don't use cache for fresh results
+                }
             );
 
-            // Filter for valid, specific links only
-            const validJobs = (searchResults?.jobs || []).filter(job => {
-                const url = job.job_url?.toLowerCase() || "";
-                const isValidUrl = url.startsWith('http://') || url.startsWith('https://');
-                const isGenericSearch = url.includes('/search') || url.includes('/jobs?q=') || url.includes('search_id');
-                return isValidUrl && !isGenericSearch;
-            });
-            
-            if (validJobs.length === 0) {
-                setError("No jobs with verified, specific links found. Please try a different title or field.");
+            if (aggregatedJobs.length === 0) {
+                setError("No jobs found matching your profile. Try a different search term.");
                 setIsAutoSearching(false);
                 return;
             }
 
-            // Analyze each job against the resume
+            console.log(`Found ${aggregatedJobs.length} aggregated and scored jobs`);
+
+            // Calculate source statistics
+            const stats = {};
+            aggregatedJobs.forEach(job => {
+                stats[job.source] = (stats[job.source] || 0) + 1;
+            });
+            setJobSourceStats(stats);
+
+            // Filter for relevant background fit scores and process top matches
+            const relevantJobs = aggregatedJobs.filter(job => job.background_fit_score >= 40);
+            
+            if (relevantJobs.length === 0) {
+                setError(`Found ${aggregatedJobs.length} jobs but none had sufficient background match (40+). Consider adjusting your search.`);
+                setIsAutoSearching(false);
+                return;
+            }
+
+            console.log(`Processing ${relevantJobs.length} relevant jobs for detailed analysis...`);
+
+            // Analyze each job against the resume with rate limiting
             let processedCount = 0;
-            for (const job of validJobs) {
+            let skippedDuplicates = 0;
+
+            for (let i = 0; i < relevantJobs.length; i++) {
+                const job = relevantJobs[i];
+                
+                // Small delay between requests to avoid rate limiting
+                if (i > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
                 try {
                     // Check if job already exists (by URL or title+company)
                     const existing = matches.find(m => 
@@ -620,11 +571,14 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                     
                     if (existing) {
                         console.log(`Skipping duplicate: ${job.job_title} at ${job.company_name}`);
+                        skippedDuplicates++;
                         continue;
                     }
 
+                    // Analyze job fit using existing analyzer
                     const analysis = await analyzeJobFit(job, selectedResume);
 
+                    // Create job match record with background fit score
                     await JobMatch.create({
                         job_title: job.job_title,
                         company_name: job.company_name,
@@ -632,7 +586,7 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                         job_description: job.job_description,
                         location: job.location || "",
                         salary_range: job.salary_range || "",
-                        posted_date: new Date().toISOString(),
+                        posted_date: job.posted_date || new Date().toISOString(),
                         resume_id: selectedResume,
                         match_score: analysis.match_score || 0,
                         fit_analysis: {
@@ -648,20 +602,28 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                         status: "new",
                         ai_reasoning: analysis.ai_reasoning || "",
                         auto_matched: true,
-                        job_source: job.source || "web_search"
+                        job_source: job.source || "aggregated",
+                        background_fit_score: job.background_fit_score || 0,
+                        background_analysis: job.background_analysis || {}
                     });
 
                     processedCount++;
+                    console.log(`Processed ${processedCount}/${relevantJobs.length}: ${job.job_title}`);
                 } catch (e) {
                     console.error(`Error processing job ${job.job_title}:`, e);
                 }
             }
 
             await loadData();
-            setError(`Successfully found and analyzed ${processedCount} new job matches!`);
+            
+            const sourceInfo = Object.entries(stats)
+                .map(([source, count]) => `${count} from ${source}`)
+                .join(", ");
+            
+            setError(`✅ Successfully found and analyzed ${processedCount} new job matches from multiple sources (${sourceInfo})${skippedDuplicates > 0 ? `. Skipped ${skippedDuplicates} duplicates.` : "."}`);
         } catch (e) {
             console.error("Error searching jobs:", e);
-            setError("Failed to search jobs. Please try again.");
+            setError(`Failed to search jobs: ${e.message || "Please try again."}`);
         }
 
         setIsAutoSearching(false);
@@ -695,7 +657,11 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
             const locationMatch = !locationFilter || 
                 (match.location && match.location.toLowerCase().includes(locationFilter.toLowerCase()));
             
-            return statusMatch && scoreMatch && minScoreMatch && locationTypeMatch && locationMatch;
+            // Source filter for aggregated jobs
+            const sourceMatch = sourceFilter === "all" || 
+                (match.job_source && match.job_source.toLowerCase().includes(sourceFilter.toLowerCase()));
+            
+            return statusMatch && scoreMatch && minScoreMatch && locationTypeMatch && locationMatch && sourceMatch;
         });
 
         // Sort
@@ -707,10 +673,12 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
             filtered.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
         } else if (sortBy === "date_asc") {
             filtered.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+        } else if (sortBy === "background_fit_desc") {
+            filtered.sort((a, b) => (b.background_fit_score || 0) - (a.background_fit_score || 0));
         }
 
         return filtered;
-    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, locationTypeFilter, sortBy]);
+    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, locationTypeFilter, sortBy, sourceFilter]);
 
     const stats = {
         total: matches.length,
@@ -788,6 +756,27 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Job Source Breakdown */}
+                {Object.keys(jobSourceStats).length > 0 && (
+                    <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 border-purple-200">
+                        <CardContent className="p-4">
+                            <h3 className="text-sm font-semibold text-slate-700 mb-3">Jobs by Source</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {Object.entries(jobSourceStats).map(([source, count]) => (
+                                    <Badge 
+                                        key={source} 
+                                        variant="outline"
+                                        className="bg-white cursor-pointer hover:bg-slate-50"
+                                        onClick={() => setSourceFilter(source === sourceFilter ? "all" : source)}
+                                    >
+                                        {source}: {count}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Auto Search */}
                 <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
@@ -1108,7 +1097,7 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                 <Filter className="w-4 h-4 text-slate-500" />
                                 <span className="text-sm font-medium text-slate-700">Filters & Sort</span>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+                            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
                                 <div>
                                     <label className="text-xs text-slate-600 mb-1 block">Status</label>
                                     <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -1167,6 +1156,26 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                     </Select>
                                 </div>
                                 <div>
+                                    <label className="text-xs text-slate-600 mb-1 block">Job Source</label>
+                                    <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                                        <SelectTrigger className="h-9">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Sources</SelectItem>
+                                            <SelectItem value="manual">Manual Entry</SelectItem>
+                                            <SelectItem value="Indeed">Indeed</SelectItem>
+                                            <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                                            <SelectItem value="Glassdoor">Glassdoor</SelectItem>
+                                            <SelectItem value="ZipRecruiter">ZipRecruiter</SelectItem>
+                                            <SelectItem value="Dice">Dice</SelectItem>
+                                            <SelectItem value="FlexJobs">FlexJobs</SelectItem>
+                                            <SelectItem value="WellFound">WellFound</SelectItem>
+                                            <SelectItem value="Upwork">Upwork</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
                                     <label className="text-xs text-slate-600 mb-1 block">Search Location</label>
                                     <Input
                                         value={locationFilter}
@@ -1184,13 +1193,14 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                         <SelectContent>
                                             <SelectItem value="score_desc">Score (High to Low)</SelectItem>
                                             <SelectItem value="score_asc">Score (Low to High)</SelectItem>
+                                            <SelectItem value="background_fit_desc">Background Fit (High)</SelectItem>
                                             <SelectItem value="date_desc">Date (Newest)</SelectItem>
                                             <SelectItem value="date_asc">Date (Oldest)</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
-                            {(statusFilter !== "all" || scoreFilter !== "all" || minScoreFilter > 0 || locationFilter || locationTypeFilter !== "all") && (
+                            {(statusFilter !== "all" || scoreFilter !== "all" || minScoreFilter > 0 || locationFilter || locationTypeFilter !== "all" || sourceFilter !== "all") && (
                                 <div className="flex items-center gap-2 mt-3">
                                     <Button 
                                         size="sm" 
@@ -1201,6 +1211,7 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                             setMinScoreFilter(0);
                                             setLocationFilter("");
                                             setLocationTypeFilter("all");
+                                            setSourceFilter("all");
                                         }}
                                     >
                                         Clear Filters
@@ -1249,13 +1260,18 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                         <CardHeader>
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-3 mb-2">
+                                                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                                                         <h3 className="text-xl font-bold text-slate-800 truncate">
                                                             {match.job_title}
                                                         </h3>
                                                         <Badge variant={match.status === "new" ? "default" : "outline"}>
                                                             {match.status}
                                                         </Badge>
+                                                        {match.job_source && match.job_source !== "manual" && (
+                                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                                                📍 {match.job_source}
+                                                            </Badge>
+                                                        )}
                                                     </div>
                                                     <p className="text-slate-600 mb-1">{match.company_name}</p>
                                                     <div className="flex flex-wrap gap-2 text-sm text-slate-500">
@@ -1263,6 +1279,20 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                                         {match.salary_range && <span>💰 {match.salary_range}</span>}
                                                         <span>🕒 {formatDistanceToNow(new Date(match.created_date), { addSuffix: true })}</span>
                                                     </div>
+                                                    {match.background_fit_score > 0 && (
+                                                        <div className="mt-2 flex items-center gap-2 text-sm">
+                                                            <span className="font-medium text-slate-700">Background Fit: </span>
+                                                            <div className="flex items-center gap-1">
+                                                                <span className={`font-bold ${
+                                                                    match.background_fit_score >= 70 ? "text-green-600" :
+                                                                    match.background_fit_score >= 50 ? "text-amber-600" :
+                                                                    "text-red-600"
+                                                                }`}>
+                                                                    {Math.round(match.background_fit_score)}%
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="text-right">
                                                     <div className={`text-4xl font-bold ${getScoreColor(match.match_score)} mb-1`}>
