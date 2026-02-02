@@ -3,6 +3,7 @@ import { Link as RouterLink, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useDeviceDetection } from "@/components/utils/deviceDetection";
+import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
     LayoutDashboard,
@@ -405,6 +406,8 @@ function AppShell({ children, currentPageName }) {
 
 export default function Layout({ children, currentPageName }) {
     return (
-        <AppShell currentPageName={currentPageName}>{children}</AppShell>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <AppShell currentPageName={currentPageName}>{children}</AppShell>
+        </ThemeProvider>
     );
 }
