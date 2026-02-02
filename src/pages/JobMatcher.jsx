@@ -790,20 +790,20 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                 </div>
 
                 {/* Auto Search */}
-                <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
                     <CardContent className="p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-purple-100 rounded-lg">
-                                <Search className="w-5 h-5 text-purple-600" />
+                            <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                                <Search className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-slate-800">AI Job Search</h3>
-                                <p className="text-sm text-slate-600">Automatically find & match jobs from Indeed, LinkedIn, Glassdoor, and ZipRecruiter based on your CV</p>
+                                <h3 className="font-semibold text-foreground">AI Job Search</h3>
+                                <p className="text-sm text-muted-foreground">Automatically find & match jobs from Indeed, LinkedIn, Glassdoor, and ZipRecruiter based on your CV</p>
                             </div>
                         </div>
                         <div className="space-y-3">
                             <div>
-                                <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                <label className="text-sm font-medium text-foreground mb-2 block">
                                     Select Your Resume/CV *
                                 </label>
                                 <Select value={selectedResume || ""} onValueChange={setSelectedResume}>
@@ -823,17 +823,17 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                             {/* Location Settings */}
                             <div className="flex gap-3 items-end">
                                 <div className="flex-1">
-                                    <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                    <label className="text-sm font-medium text-foreground mb-2 block">
                                         Your Location {isDetectingLocation && "(Detecting...)"}
                                     </label>
                                     <Input
                                         value={userLocation ? `${userLocation.city}, ${userLocation.state}` : "Detecting..."}
                                         readOnly
-                                        className="bg-slate-50"
+                                        className="bg-muted"
                                     />
                                 </div>
                                 <div className="w-32">
-                                    <label className="text-sm font-medium text-slate-700 mb-2 block">
+                                    <label className="text-sm font-medium text-foreground mb-2 block">
                                         Radius (mi)
                                     </label>
                                     <Input
@@ -899,8 +899,8 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                 </Button>
                             </div>
                             {!selectedResume && (
-                                <Alert className="border-amber-200 bg-amber-50">
-                                    <AlertDescription className="text-amber-800">
+                                <Alert className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30">
+                                    <AlertDescription className="text-amber-800 dark:text-amber-200">
                                         Please select your resume/CV above to start searching
                                     </AlertDescription>
                                 </Alert>
