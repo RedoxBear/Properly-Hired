@@ -35,6 +35,7 @@ import FollowUpList from "../components/followups/FollowUpList";
 import DailyEncouragement from "../components/dashboard/DailyEncouragement";
 import ApplicationInsightsWidget from "../components/dashboard/ApplicationInsightsWidget";
 import SubscriptionStatus from "../components/dashboard/SubscriptionStatus";
+import HeroBanner from "../components/dashboard/HeroBanner";
 
 const heroPresets = {
     elegant: {
@@ -177,56 +178,13 @@ export default function Dashboard() {
 
                 <DailyEncouragement />
 
-                {/* Hero Section - Mobile Optimized */}
+                {/* Hero Banner */}
                 <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, ease: "easeOut" }}
-                    className="relative text-center mb-4 sm:mb-6 md:mb-10"
                 >
-                    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden sm:block">
-                        <div className="mx-auto h-48 w-48 sm:h-64 sm:w-64 md:h-80 md:w-80 rounded-full blur-3xl opacity-30"
-                             style={{ background: "radial-gradient(closest-side, #60a5fa, transparent)" }} />
-                    </div>
-
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 md:mb-5">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                            <path d="M12 2l2.39 4.84L20 7.27l-3.82 3.72.9 5.26L12 14.77 6.92 16.25l.9-5.26L4 7.27l5.61-.43L12 2z" />
-                        </svg>
-                        AI Career Assistant
-                    </div>
-
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-2 sm:mb-3 leading-tight px-2 sm:px-4">
-                        {renderHeadline()}
-                    </h1>
-
-                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-2 sm:px-4">
-                        {preset.sub}
-                    </p>
-
-                    <div className="mt-3 sm:mt-4 md:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3 px-2 sm:px-4">
-                        <Link to={preset.primary.href} className="w-full sm:w-auto">
-                            <Button
-                                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 h-10 sm:h-11 md:h-12 text-sm md:text-base px-4 sm:px-6"
-                                onClick={() => window.dispatchEvent(new CustomEvent("pd_click", { detail: { name: "hero_cta", variant: presetKey, type: "primary" } }))}
-                            >
-                                {preset.primary.label}
-                            </Button>
-                        </Link>
-                        <Link to={preset.secondary.href} className="w-full sm:w-auto">
-                            <Button
-                                variant="outline"
-                                className="w-full sm:w-auto h-10 sm:h-11 md:h-12 text-sm md:text-base px-4 sm:px-6"
-                                onClick={() => window.dispatchEvent(new CustomEvent("pd_click", { detail: { name: "hero_cta", variant: presetKey, type: "secondary" } }))}
-                            >
-                                {preset.secondary.label}
-                            </Button>
-                        </Link>
-                    </div>
-
-                    <div className="mt-2 sm:mt-3 md:mt-4 text-xs sm:text-sm text-muted-foreground px-2">
-                        Trusted by job seekers across 25+ industries.
-                    </div>
+                    <HeroBanner />
                 </motion.div>
 
                 {/* Vault Status */}
