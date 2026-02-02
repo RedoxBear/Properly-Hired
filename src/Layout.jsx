@@ -61,12 +61,25 @@ function AppShell({ children, currentPageName }) {
 
     React.useEffect(() => {
         const checkDarkMode = () => {
-            setIsDarkMode(document.documentElement.classList.contains('dark'));
+            const hasDarkClass = document.documentElement.classList.contains('dark');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setIsDarkMode(hasDarkClass || prefersDark);
         };
         checkDarkMode();
+        
+        // Watch for class changes
         const observer = new MutationObserver(checkDarkMode);
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-        return () => observer.disconnect();
+        
+        // Watch for system theme changes
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = () => checkDarkMode();
+        mediaQuery.addEventListener('change', handleChange);
+        
+        return () => {
+            observer.disconnect();
+            mediaQuery.removeEventListener('change', handleChange);
+        };
     }, []);
 
     const PRAGUE_DAY_CIRCLE = isDarkMode ? PRAGUE_DAY_CIRCLE_DARK : PRAGUE_DAY_CIRCLE_LIGHT;
