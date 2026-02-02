@@ -129,7 +129,7 @@ export default function Dashboard() {
             return (
                 <>
                     {parts[0]}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">{preset.highlight}</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400 dark:from-blue-400 dark:to-cyan-300">{preset.highlight}</span>
                     {parts[1]}
                 </>
             );
@@ -141,8 +141,8 @@ export default function Dashboard() {
         return (
             <div className="min-h-screen p-8 flex items-center justify-center">
                 <div className="text-center">
-                    <Sparkles className="w-8 h-8 animate-pulse text-blue-600 mx-auto mb-4" />
-                    <p className="text-slate-600">Loading your dashboard...</p>
+                    <Sparkles className="w-8 h-8 animate-pulse text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading your dashboard...</p>
                 </div>
             </div>
         );
@@ -158,7 +158,7 @@ export default function Dashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         className="flex items-center justify-center"
                     >
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted text-muted-foreground rounded-full text-xs font-medium">
                             {isTablet && (
                                 <>
                                     <Tablet className="w-3 h-3" />
@@ -189,18 +189,18 @@ export default function Dashboard() {
                              style={{ background: "radial-gradient(closest-side, #60a5fa, transparent)" }} />
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 bg-blue-50 text-blue-700 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 md:mb-5">
+                    <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4 md:mb-5">
                         <svg className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                             <path d="M12 2l2.39 4.84L20 7.27l-3.82 3.72.9 5.26L12 14.77 6.92 16.25l.9-5.26L4 7.27l5.61-.43L12 2z" />
                         </svg>
                         AI Career Assistant
                     </div>
 
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 mb-2 sm:mb-3 leading-tight px-2 sm:px-4">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-2 sm:mb-3 leading-tight px-2 sm:px-4">
                         {renderHeadline()}
                     </h1>
 
-                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto px-2 sm:px-4">
+                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-2 sm:px-4">
                         {preset.sub}
                     </p>
 
@@ -224,14 +224,14 @@ export default function Dashboard() {
                         </Link>
                     </div>
 
-                    <div className="mt-2 sm:mt-3 md:mt-4 text-xs sm:text-sm text-slate-500 px-2">
+                    <div className="mt-2 sm:mt-3 md:mt-4 text-xs sm:text-sm text-muted-foreground px-2">
                         Trusted by job seekers across 25+ industries.
                     </div>
                 </motion.div>
 
                 {/* Vault Status */}
                 <div className="flex items-center justify-center px-2 sm:px-4">
-                    <Link to={createPageUrl("AutofillVault")} className="inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs sm:text-sm">
+                    <Link to={createPageUrl("AutofillVault")} className="inline-flex items-center gap-1.5 sm:gap-2 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs sm:text-sm">
                         <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500" />
                         <span className="hidden xs:inline">Autofill Vault: </span>
                         {vaultUpdatedAt ? `updated ${timeAgo(vaultUpdatedAt)}` : "set up now"}
@@ -243,40 +243,40 @@ export default function Dashboard() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
                         <Link
                             to={createPageUrl("JobAnalysis")}
-                            className="p-3 sm:p-4 rounded-xl border bg-white/80 backdrop-blur-sm flex items-start gap-2 sm:gap-3 hover:bg-slate-50 transition-all active:scale-[0.98]"
+                            className="p-3 sm:p-4 rounded-xl border border-border bg-card/80 backdrop-blur-sm flex items-start gap-2 sm:gap-3 hover:bg-accent transition-all active:scale-[0.98]"
                         >
-                            <div className="p-1.5 sm:p-2 rounded-lg bg-blue-50 text-blue-700 flex-shrink-0">
+                            <div className="p-1.5 sm:p-2 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 flex-shrink-0">
                                 <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="min-w-0">
-                                <div className="font-semibold text-slate-800 text-sm sm:text-base">Analyze JD</div>
-                                <p className="text-xs sm:text-sm text-slate-600 line-clamp-2">Paste a job description or URL for instant insights.</p>
+                                <div className="font-semibold text-foreground text-sm sm:text-base">Analyze JD</div>
+                                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">Paste a job description or URL for instant insights.</p>
                             </div>
                         </Link>
 
                         <Link
                             to={createPageUrl("MyResumes")}
-                            className="p-3 sm:p-4 rounded-xl border bg-white/80 backdrop-blur-sm flex items-start gap-2 sm:gap-3 hover:bg-slate-50 transition-all active:scale-[0.98]"
+                            className="p-3 sm:p-4 rounded-xl border border-border bg-card/80 backdrop-blur-sm flex items-start gap-2 sm:gap-3 hover:bg-accent transition-all active:scale-[0.98]"
                         >
-                            <div className="p-1.5 sm:p-2 rounded-lg bg-cyan-50 text-cyan-700 flex-shrink-0">
+                            <div className="p-1.5 sm:p-2 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 flex-shrink-0">
                                 <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="min-w-0">
-                                <div className="font-semibold text-slate-800 text-sm sm:text-base">Upload Resume</div>
-                                <p className="text-xs sm:text-sm text-slate-600 line-clamp-2">Use your master resume for tailored optimization.</p>
+                                <div className="font-semibold text-foreground text-sm sm:text-base">Upload Resume</div>
+                                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">Use your master resume for tailored optimization.</p>
                             </div>
                         </Link>
 
                         <Link
                             to={createPageUrl("ApplicationQnA")}
-                            className="p-3 sm:p-4 rounded-xl border bg-white/80 backdrop-blur-sm flex items-start gap-2 sm:gap-3 hover:bg-slate-50 transition-all active:scale-[0.98] sm:col-span-2 lg:col-span-1"
+                            className="p-3 sm:p-4 rounded-xl border border-border bg-card/80 backdrop-blur-sm flex items-start gap-2 sm:gap-3 hover:bg-accent transition-all active:scale-[0.98] sm:col-span-2 lg:col-span-1"
                         >
-                            <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-50 text-emerald-700 flex-shrink-0">
+                            <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 flex-shrink-0">
                                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
                             <div className="min-w-0">
-                                <div className="font-semibold text-slate-800 text-sm sm:text-base">Generate Materials</div>
-                                <p className="text-xs sm:text-sm text-slate-600 line-clamp-2">Answer application questions using your CV & JD.</p>
+                                <div className="font-semibold text-foreground text-sm sm:text-base">Generate Materials</div>
+                                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">Answer application questions using your CV & JD.</p>
                             </div>
                         </Link>
                     </div>
@@ -329,7 +329,7 @@ export default function Dashboard() {
                 {/* Master CV Quality Card */}
                 {masterQuality && (
                     <Link to={createPageUrl("MyResumes")} className="block">
-                        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+                        <Card className="shadow-lg border-0 bg-card/90 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
                             <CardContent className="p-4 sm:p-6">
                                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                                     <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl">
@@ -337,11 +337,11 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-slate-600 text-xs sm:text-sm font-medium mb-1">Master CV Quality</p>
-                                    <p className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">
+                                    <p className="text-muted-foreground text-xs sm:text-sm font-medium mb-1">Master CV Quality</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                                         {masterQuality.overall || 0}%
                                     </p>
-                                    <p className="text-xs text-slate-500">
+                                    <p className="text-xs text-muted-foreground">
                                         {masterQuality.overall >= 85 ? "🎯 Excellent" : masterQuality.overall >= 70 ? "✓ Good" : "⚠ Needs work"}
                                     </p>
                                 </div>
@@ -351,9 +351,9 @@ export default function Dashboard() {
                 )}
 
                 {masterQuality && masterQuality.overall < 70 && (
-                    <Alert className="border-amber-200 bg-amber-50">
+                    <Alert className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30">
                         <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 text-sm">
-                            <span className="text-amber-800">
+                            <span className="text-amber-800 dark:text-amber-200">
                                 💡 Your master CV could be stronger. Review and improve it for better results.
                             </span>
                             <Link to={createPageUrl("MyResumes")}>
@@ -390,38 +390,38 @@ export default function Dashboard() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.5 }}
                     >
-                        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+                        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 border-blue-200 dark:border-blue-800">
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-blue-800 text-base sm:text-lg md:text-xl">
+                                <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200 text-base sm:text-lg md:text-xl">
                                     <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                                     Get Started with CareerCraft
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3 sm:space-y-4">
-                                    <p className="text-blue-700 text-xs sm:text-sm md:text-base">
+                                    <p className="text-blue-700 dark:text-blue-300 text-xs sm:text-sm md:text-base">
                                         Ready to supercharge your job applications? Follow these simple steps:
                                     </p>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                                         <div className="flex items-start gap-2 sm:gap-3">
                                             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0">1</div>
                                             <div>
-                                                <h4 className="font-semibold text-blue-800 text-xs sm:text-sm md:text-base">Analyze Job Posting</h4>
-                                                <p className="text-xs sm:text-sm text-blue-600">Paste a job URL or description</p>
+                                                <h4 className="font-semibold text-blue-800 dark:text-blue-200 text-xs sm:text-sm md:text-base">Analyze Job Posting</h4>
+                                                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">Paste a job URL or description</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-2 sm:gap-3">
                                             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0">2</div>
                                             <div>
-                                                <h4 className="font-semibold text-blue-800 text-xs sm:text-sm md:text-base">Upload Resume</h4>
-                                                <p className="text-xs sm:text-sm text-blue-600">Let AI optimize your resume</p>
+                                                <h4 className="font-semibold text-blue-800 dark:text-blue-200 text-xs sm:text-sm md:text-base">Upload Resume</h4>
+                                                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">Let AI optimize your resume</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-2 sm:gap-3">
                                             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0">3</div>
                                             <div>
-                                                <h4 className="font-semibold text-blue-800 text-xs sm:text-sm md:text-base">Generate Materials</h4>
-                                                <p className="text-xs sm:text-sm text-blue-600">Cover letter & application help</p>
+                                                <h4 className="font-semibold text-blue-800 dark:text-blue-200 text-xs sm:text-sm md:text-base">Generate Materials</h4>
+                                                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">Cover letter & application help</p>
                                             </div>
                                         </div>
                                     </div>

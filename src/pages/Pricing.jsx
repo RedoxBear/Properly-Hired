@@ -104,17 +104,17 @@ export default function Pricing() {
     ];
 
     return (
-        <div className="min-h-screen p-3 md:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen p-3 md:p-6 lg:p-8 bg-gradient-to-br from-background to-muted">
             <div className="max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-8 md:mb-12 px-4"
                 >
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-3 md:mb-4">
-                        Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600">Career Plan</span>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3 md:mb-4">
+                        Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">Career Plan</span>
                     </h1>
-                    <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
                         Start free and upgrade as your job search accelerates
                     </p>
                     {user && (
@@ -126,9 +126,9 @@ export default function Pricing() {
 
                 {discountApplied && (
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 px-2">
-                        <Alert className="border-green-200 bg-green-50">
-                            <AlertDescription className="flex items-center gap-2 text-green-800">
-                                <Gift className="w-5 h-5 text-green-600" />
+                        <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30">
+                            <AlertDescription className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                                <Gift className="w-5 h-5 text-green-600 dark:text-green-400" />
                                 <div>
                                     <strong>🎉 Referral discount applied!</strong> You'll get <strong>{discountPercentage}% off</strong> your first month.
                                     <span className="text-xs ml-2">(Code: {referralCode})</span>
@@ -152,7 +152,7 @@ export default function Pricing() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                <Card className={`relative h-full ${tier.popular ? 'border-2 border-blue-500 shadow-2xl' : 'shadow-lg'} bg-white/90 backdrop-blur-sm`}>
+                                <Card className={`relative h-full ${tier.popular ? 'border-2 border-blue-500 dark:border-blue-400 shadow-2xl' : 'shadow-lg'} bg-card/90 backdrop-blur-sm`}>
                                     {tier.popular && (
                                         <div className="absolute -top-3 md:-top-4 left-0 right-0 flex justify-center">
                                             <Badge className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-3 md:px-4 py-1 text-xs md:text-sm">
@@ -160,25 +160,25 @@ export default function Pricing() {
                                             </Badge>
                                         </div>
                                     )}
-                                    
+
                                     <CardHeader className="text-center pb-6 md:pb-8 pt-6 md:pt-8 px-4">
                                         <div className={`mx-auto p-2.5 md:p-3 rounded-xl bg-gradient-to-br ${tier.gradient} w-fit mb-3 md:mb-4`}>
                                             <Icon className="w-7 h-7 md:w-8 md:h-8 text-white" />
                                         </div>
                                         <CardTitle className="text-xl md:text-2xl mb-2">{tier.name}</CardTitle>
-                                        
+
                                         {isEnterprise ? (
-                                            <div className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
+                                            <div className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                                                 Contact Us
                                             </div>
                                         ) : discountApplied && tier.id !== TIERS.FREE ? (
                                             <div>
-                                                <div className="text-xl md:text-2xl font-bold text-slate-400 line-through">
+                                                <div className="text-xl md:text-2xl font-bold text-muted-foreground line-through">
                                                     ${pricing.price}
                                                 </div>
-                                                <div className="text-3xl md:text-4xl font-bold text-green-600">
+                                                <div className="text-3xl md:text-4xl font-bold text-green-600 dark:text-green-400">
                                                     ${(pricing.price * (1 - discountPercentage / 100)).toFixed(2)}
-                                                    <span className="text-base md:text-lg font-normal text-slate-600">
+                                                    <span className="text-base md:text-lg font-normal text-muted-foreground">
                                                         /{pricing.period}
                                                     </span>
                                                 </div>
@@ -187,23 +187,23 @@ export default function Pricing() {
                                                 </Badge>
                                             </div>
                                         ) : (
-                                            <div className="text-3xl md:text-4xl font-bold text-slate-800">
+                                            <div className="text-3xl md:text-4xl font-bold text-foreground">
                                                 ${pricing.price}
-                                                <span className="text-base md:text-lg font-normal text-slate-600">
+                                                <span className="text-base md:text-lg font-normal text-muted-foreground">
                                                     /{pricing.period}
                                                 </span>
                                             </div>
                                         )}
-                                        
-                                        <p className="text-xs md:text-sm text-slate-600 mt-2">{pricing.description}</p>
+
+                                        <p className="text-xs md:text-sm text-muted-foreground mt-2">{pricing.description}</p>
                                     </CardHeader>
 
                                     <CardContent className="space-y-6 px-4 md:px-6">
                                         <ul className="space-y-2.5 md:space-y-3">
                                             {tier.features.map((feature, idx) => (
                                                 <li key={idx} className="flex items-start gap-2">
-                                                    <Check className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                                                    <span className="text-slate-700 text-sm md:text-base">{feature}</span>
+                                                    <Check className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                                                    <span className="text-foreground text-sm md:text-base">{feature}</span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -240,38 +240,38 @@ export default function Pricing() {
                 </div>
 
                 {/* FAQ Section */}
-                <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm mx-2">
+                <Card className="shadow-lg border-0 bg-card/90 backdrop-blur-sm mx-2">
                     <CardHeader className="px-4 md:px-6">
                         <CardTitle className="text-lg md:text-xl">Frequently Asked Questions</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 px-4 md:px-6">
                         <div>
-                            <h4 className="font-semibold text-slate-800 mb-2 text-sm md:text-base">How do AI credits work?</h4>
-                            <p className="text-slate-600 text-xs md:text-sm">
+                            <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">How do AI credits work?</h4>
+                            <p className="text-muted-foreground text-xs md:text-sm">
                                 Each AI operation (resume optimization, cover letter generation, Q&A assistance) uses 1 credit. Free users get 5/month, Pro gets 50/week, Enterprise is unlimited.
                             </p>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-slate-800 mb-2 text-sm md:text-base">Can I cancel anytime?</h4>
-                            <p className="text-slate-600 text-xs md:text-sm">
+                            <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">Can I cancel anytime?</h4>
+                            <p className="text-muted-foreground text-xs md:text-sm">
                                 Yes! Cancel anytime. Your subscription remains active until the end of your billing period, then you'll be downgraded to Free.
                             </p>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-slate-800 mb-2 text-sm md:text-base">What payment methods do you accept?</h4>
-                            <p className="text-slate-600 text-xs md:text-sm">
+                            <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">What payment methods do you accept?</h4>
+                            <p className="text-muted-foreground text-xs md:text-sm">
                                 We accept all major credit cards through Stripe. Enterprise customers can arrange invoicing.
                             </p>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-slate-800 mb-2 text-sm md:text-base">Do you offer refunds?</h4>
-                            <p className="text-slate-600 text-xs md:text-sm">
+                            <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">Do you offer refunds?</h4>
+                            <p className="text-muted-foreground text-xs md:text-sm">
                                 We offer a 7-day money-back guarantee on all paid plans. Contact support for assistance.
                             </p>
                         </div>
                         <div>
-                            <h4 className="font-semibold text-slate-800 mb-2 text-sm md:text-base">How do I get the Enterprise plan?</h4>
-                            <p className="text-slate-600 text-xs md:text-sm">
+                            <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">How do I get the Enterprise plan?</h4>
+                            <p className="text-muted-foreground text-xs md:text-sm">
                                 Click "Contact Sales" on the Enterprise card to email us. We'll schedule a call to discuss your needs and provide custom pricing.
                             </p>
                         </div>
