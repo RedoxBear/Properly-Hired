@@ -82,7 +82,7 @@ export default function HeroBanner() {
                             </Button>
                         </Link>
                         <Link to={createPageUrl("JobAnalysis")}>
-                            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm w-full sm:w-auto">
+                            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm w-full sm:w-auto">
                                 Analyze Job
                                 <ArrowRight className="w-5 h-5 ml-2" />
                             </Button>
