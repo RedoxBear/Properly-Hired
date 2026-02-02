@@ -741,7 +741,7 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
     };
 
     return (
-        <div className="min-h-screen p-4 md:p-8 bg-gray-50">
+        <div className="min-h-screen p-4 md:p-8 bg-background">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -974,7 +974,7 @@ If you cannot find a specific, direct URL for a job, **DO NOT INCLUDE IT**. Qual
                                                 Add Job
                                             </Button>
                                         </DialogTrigger>
-                                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-slate-200 shadow-xl">
+                                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border shadow-xl">
                                         <DialogHeader>
                                             <DialogTitle>Add Job to Match</DialogTitle>
                                         </DialogHeader>
