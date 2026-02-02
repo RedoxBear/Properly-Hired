@@ -406,7 +406,7 @@ function AppShell({ children, currentPageName }) {
 
 export default function Layout({ children, currentPageName }) {
     return (
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <AppShell currentPageName={currentPageName}>{children}</AppShell>
         </ThemeProvider>
     );
