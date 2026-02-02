@@ -5,60 +5,43 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function HeroBanner() {
-    const [isDarkMode, setIsDarkMode] = React.useState(() => {
-        // Initialize immediately
-        const hasDarkClass = document.documentElement.classList.contains('dark');
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return hasDarkClass || prefersDark;
-    });
+    const [logoUrl, setLogoUrl] = React.useState("");
 
     React.useEffect(() => {
-        const checkDarkMode = () => {
+        const updateLogo = () => {
             const hasDarkClass = document.documentElement.classList.contains('dark');
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const newDarkMode = hasDarkClass || prefersDark;
-            setIsDarkMode(newDarkMode);
+            const isDark = hasDarkClass || prefersDark;
+            
+            const LOGO_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/0cf860df6_Prague-DayAcceptedConcept.jpg";
+            const LOGO_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/468690cdf_Prague-DayAcceptedConcept-DarkMode.jpg";
+            
+            setLogoUrl(isDark ? LOGO_DARK : LOGO_LIGHT);
         };
         
-        // Check immediately on mount
-        checkDarkMode();
+        // Update immediately
+        updateLogo();
         
-        // Recheck on visibility change (important for mobile)
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                checkDarkMode();
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        
-        // Watch for class changes
-        const observer = new MutationObserver(checkDarkMode);
-        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        // Watch for class changes on documentElement
+        const observer = new MutationObserver(updateLogo);
+        observer.observe(document.documentElement, { 
+            attributes: true, 
+            attributeFilter: ['class'] 
+        });
         
         // Watch for system theme changes
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => checkDarkMode();
         if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener('change', handleChange);
-        } else if (mediaQuery.addListener) {
-            // Fallback for older browsers
-            mediaQuery.addListener(handleChange);
+            mediaQuery.addEventListener('change', updateLogo);
         }
         
         return () => {
             observer.disconnect();
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
             if (mediaQuery.removeEventListener) {
-                mediaQuery.removeEventListener('change', handleChange);
-            } else if (mediaQuery.removeListener) {
-                mediaQuery.removeListener(handleChange);
+                mediaQuery.removeEventListener('change', updateLogo);
             }
         };
     }, []);
-
-    // Logo URLs
-    const LOGO_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/0cf860df6_Prague-DayAcceptedConcept.jpg";
-    const LOGO_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/468690cdf_Prague-DayAcceptedConcept-DarkMode.jpg";
 
     return (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-900 dark:via-indigo-900 dark:to-slate-900 p-8 md:p-12 shadow-2xl mb-8">
@@ -115,19 +98,14 @@ export default function HeroBanner() {
                         
                         {/* Logo container */}
                         <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                            <img
-                                key={isDarkMode ? 'dark' : 'light'}
-                                src={isDarkMode ? LOGO_DARK : LOGO_LIGHT}
-                                alt="Navigate Careers"
-                                className="w-48 md:w-64 h-auto object-contain"
-                                onError={(e) => {
-                                    const el = e.currentTarget;
-                                    if (el.dataset.fallback !== "1") {
-                                        el.dataset.fallback = "1";
-                                        el.src = isDarkMode ? LOGO_LIGHT : LOGO_DARK;
-                                    }
-                                }}
-                            />
+                            {logoUrl && (
+                                <img
+                                    key={logoUrl}
+                                    src={logoUrl}
+                                    alt="Navigate Careers"
+                                    className="w-48 md:w-64 h-auto object-contain"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
