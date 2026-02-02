@@ -361,6 +361,7 @@ function AppShell({ children, currentPageName }) {
                             />
                             <div className="flex items-center gap-2">
                                 <img
+                                    key={PRAGUE_DAY_CIRCLE}
                                     src={PRAGUE_DAY_CIRCLE}
                                     alt="Prague Day"
                                     className="w-6 h-6 object-contain"
