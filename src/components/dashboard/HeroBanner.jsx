@@ -5,15 +5,31 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function HeroBanner() {
-    const [isDarkMode, setIsDarkMode] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = React.useState(() => {
+        // Initialize immediately
+        const hasDarkClass = document.documentElement.classList.contains('dark');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return hasDarkClass || prefersDark;
+    });
 
     React.useEffect(() => {
         const checkDarkMode = () => {
             const hasDarkClass = document.documentElement.classList.contains('dark');
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            setIsDarkMode(hasDarkClass || prefersDark);
+            const newDarkMode = hasDarkClass || prefersDark;
+            setIsDarkMode(newDarkMode);
         };
+        
+        // Check immediately on mount
         checkDarkMode();
+        
+        // Recheck on visibility change (important for mobile)
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                checkDarkMode();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
         
         // Watch for class changes
         const observer = new MutationObserver(checkDarkMode);
@@ -22,11 +38,21 @@ export default function HeroBanner() {
         // Watch for system theme changes
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const handleChange = () => checkDarkMode();
-        mediaQuery.addEventListener('change', handleChange);
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handleChange);
+        } else if (mediaQuery.addListener) {
+            // Fallback for older browsers
+            mediaQuery.addListener(handleChange);
+        }
         
         return () => {
             observer.disconnect();
-            mediaQuery.removeEventListener('change', handleChange);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener('change', handleChange);
+            } else if (mediaQuery.removeListener) {
+                mediaQuery.removeListener(handleChange);
+            }
         };
     }, []);
 
@@ -90,12 +116,16 @@ export default function HeroBanner() {
                         {/* Logo container */}
                         <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
                             <img
+                                key={isDarkMode ? 'dark' : 'light'}
                                 src={isDarkMode ? LOGO_DARK : LOGO_LIGHT}
                                 alt="Navigate Careers"
                                 className="w-48 md:w-64 h-auto object-contain"
                                 onError={(e) => {
-                                    // Fallback in case of loading error
-                                    e.currentTarget.style.display = 'none';
+                                    const el = e.currentTarget;
+                                    if (el.dataset.fallback !== "1") {
+                                        el.dataset.fallback = "1";
+                                        el.src = isDarkMode ? LOGO_LIGHT : LOGO_DARK;
+                                    }
                                 }}
                             />
                         </div>
