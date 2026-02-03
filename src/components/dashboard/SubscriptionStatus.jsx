@@ -20,6 +20,7 @@ export default function SubscriptionStatus({ user }) {
     if (isPremium) {
         const tierName = tier === TIERS.ENTERPRISE ? "Enterprise" : tier === TIERS.PREMIUM ? "Premium" : "Pro";
         const tierColor = tier === TIERS.ENTERPRISE ? "from-amber-600 to-orange-700" : tier === TIERS.PREMIUM ? "from-purple-600 to-pink-700" : "from-indigo-600 to-purple-700";
+        const isProTier = tier === TIERS.PRO;
 
         return (
             <Card className={`bg-gradient-to-br ${tierColor} text-white border-0 shadow-lg`}>
@@ -63,6 +64,21 @@ export default function SubscriptionStatus({ user }) {
                                 <div className="text-xs text-indigo-200">Cover letters</div>
                             </div>
                         </div>
+
+                        {isProTier && (
+                            <div className="mt-3 p-3 rounded-lg bg-white/10 border border-white/20">
+                                <p className="text-xs font-semibold text-white mb-1">💡 Need more resumes?</p>
+                                <p className="text-xs text-indigo-100 mb-2">
+                                    Premium offers unlimited resumes (you're capped at 20)
+                                </p>
+                                <Link to="/Pricing">
+                                    <Button variant="secondary" size="sm" className="w-full bg-purple-600 hover:bg-purple-700 text-white border-0">
+                                        Upgrade to Premium
+                                    </Button>
+                                </Link>
+                            </div>
+                        )}
+
                         <Link to="/UserProfile">
                             <Button variant="secondary" className="w-full text-indigo-700 hover:text-indigo-800 bg-white">
                                 Manage Subscription
@@ -113,14 +129,24 @@ export default function SubscriptionStatus({ user }) {
                     </div>
                 </div>
 
-                <div className="pt-2 border-t border-border">
-                    <p className="text-xs text-muted-foreground mb-3">
-                        Unlock unlimited AI usage and premium features.
-                    </p>
+                <div className="pt-2 border-t border-border space-y-3">
+                    <div className="space-y-2">
+                        <p className="text-xs font-semibold text-foreground">Upgrade to unlock:</p>
+                        <div className="space-y-1.5">
+                            <div className="flex items-start gap-2 text-xs">
+                                <span className="text-blue-600 dark:text-blue-400">Pro:</span>
+                                <span className="text-muted-foreground">20 resumes + unlimited AI</span>
+                            </div>
+                            <div className="flex items-start gap-2 text-xs">
+                                <span className="text-purple-600 dark:text-purple-400">Premium:</span>
+                                <span className="text-muted-foreground">Unlimited resumes + all Pro features</span>
+                            </div>
+                        </div>
+                    </div>
                     <Link to="/Pricing">
-                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md">
-                            <Lock className="w-3 h-3 mr-2 opacity-70" />
-                            Upgrade to Premium
+                        <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md">
+                            <Crown className="w-3 h-3 mr-2" />
+                            Compare Plans
                         </Button>
                     </Link>
                 </div>

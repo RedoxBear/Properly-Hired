@@ -164,16 +164,60 @@ export function getRemainingQuota(user, action, currentCount) {
  */
 export function getUpgradeMessage(feature) {
   const messages = {
-    cover_letters: "Unlock AI-powered cover letter generation with Pro",
-    transferable_skills: "Discover your transferable skills with Pro",
-    insights: "Get detailed activity insights with Pro",
-    max_resumes: "You've reached your resume limit. Upgrade to Pro for 20 resumes",
-    max_applications: "You've reached your weekly job analysis limit. Upgrade to Pro",
-    resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade to Pro",
-    cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade to Pro"
+    cover_letters: "Unlock AI-powered cover letter generation with Pro or Premium",
+    transferable_skills: "Discover your transferable skills with Pro or Premium",
+    insights: "Get detailed activity insights with Pro or Premium",
+    max_resumes: "You've reached your resume limit. Upgrade to Pro (20 resumes) or Premium (unlimited)",
+    max_resumes_pro: "You've hit the 20 resume limit on Pro. Upgrade to Premium for unlimited resumes",
+    max_applications: "You've reached your weekly job analysis limit. Upgrade to Pro or Premium for unlimited",
+    resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade to Pro or Premium for unlimited",
+    cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade to Pro or Premium for unlimited"
   };
 
-  return messages[feature] || "Upgrade to Pro to unlock this feature";
+  return messages[feature] || "Upgrade to unlock this feature";
+}
+
+/**
+ * Get tier-specific comparison for upgrades
+ */
+export function getTierComparison(currentTier) {
+  const comparisons = {
+    [TIERS.FREE]: {
+      title: "Upgrade to unlock full potential",
+      options: [
+        {
+          tier: TIERS.PRO,
+          price: PRICING.pro.price,
+          period: PRICING.pro.period,
+          highlights: ["20 resumes", "Unlimited AI tools", "All Pro features"],
+          bestFor: "Active job seekers"
+        },
+        {
+          tier: TIERS.PREMIUM,
+          price: PRICING.premium.price,
+          period: PRICING.premium.period,
+          highlights: ["Unlimited resumes", "All Pro features", "No resume limits"],
+          bestFor: "Power users & career changers",
+          recommended: true
+        }
+      ]
+    },
+    [TIERS.PRO]: {
+      title: "Need unlimited resumes?",
+      options: [
+        {
+          tier: TIERS.PREMIUM,
+          price: PRICING.premium.price,
+          period: PRICING.premium.period,
+          highlights: ["Unlimited resumes (vs 20)", "Everything in Pro", "Perfect for career transitions"],
+          bestFor: "Managing multiple career paths",
+          recommended: true
+        }
+      ]
+    }
+  };
+
+  return comparisons[currentTier] || null;
 }
 
 /**

@@ -26,6 +26,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
 import { extractDocumentText } from "@/functions/extractDocumentText";
+import { checkResumeLimit, checkForDuplicateResume, isApproachingLimit } from "@/components/utils/resumeValidation";
+import { TierLimitWarningDialog, DuplicateResumeWarningDialog } from "@/components/resume/ResumeWarningDialog";
 
 export default function MyResumes() {
     const [resumes, setResumes] = React.useState([]);
@@ -38,9 +40,24 @@ export default function MyResumes() {
     const [isDragging, setIsDragging] = React.useState(false);
     const navigate = useNavigate();
 
+    // Warning dialog states
+    const [showTierLimitWarning, setShowTierLimitWarning] = React.useState(false);
+    const [showDuplicateWarning, setShowDuplicateWarning] = React.useState(false);
+    const [tierLimitInfo, setTierLimitInfo] = React.useState(null);
+    const [duplicateInfo, setDuplicateInfo] = React.useState(null);
+    const [pendingFile, setPendingFile] = React.useState(null);
+    const [proceedWithDuplicate, setProceedWithDuplicate] = React.useState(false);
+    const [currentLimitInfo, setCurrentLimitInfo] = React.useState(null);
+
     React.useEffect(() => {
         loadResumes();
+        loadLimitInfo();
     }, []);
+
+    const loadLimitInfo = async () => {
+        const info = await checkResumeLimit();
+        setCurrentLimitInfo(info);
+    };
 
     const loadResumes = async () => {
         setIsLoading(true);
@@ -48,6 +65,7 @@ export default function MyResumes() {
             const fetchedResumes = await Resume.list("-created_date");
             setResumes(fetchedResumes);
             clearSelection();
+            await loadLimitInfo(); // Update limit info when resumes change
         } catch (error) {
             console.error("Error loading resumes:", error);
             setError("Failed to load your resumes.");
@@ -61,12 +79,50 @@ export default function MyResumes() {
         return allowedTypes.some(type => fileName.endsWith(type));
     };
 
-    const handleFileUpload = async (file) => {
+    const handleDuplicateProceed = () => {
+        setShowDuplicateWarning(false);
+        setProceedWithDuplicate(true);
+        if (pendingFile) {
+            handleFileUpload(pendingFile, true);
+        }
+        setPendingFile(null);
+    };
+
+    const handleTierLimitClose = () => {
+        setShowTierLimitWarning(false);
+        setPendingFile(null);
+    };
+
+    const handleDuplicateClose = () => {
+        setShowDuplicateWarning(false);
+        setPendingFile(null);
+        setDuplicateInfo(null);
+    };
+
+    const handleFileUpload = async (file, bypassChecks = false) => {
         if (!file) return;
 
         if (!validateFileType(file)) {
             setError("Invalid file type. Please upload PDF, DOC, DOCX, TXT, MD, RTF, PNG, JPG, or JPEG files.");
             return;
+        }
+
+        // Check tier limits first (unless bypassing checks)
+        if (!bypassChecks) {
+            const limitCheck = await checkResumeLimit();
+
+            if (!limitCheck.canCreate) {
+                setTierLimitInfo(limitCheck);
+                setShowTierLimitWarning(true);
+                setPendingFile(file);
+                return;
+            }
+
+            // Show approaching limit warning
+            if (limitCheck.current === limitCheck.limit - 1 && limitCheck.limit !== -1) {
+                setTierLimitInfo(limitCheck);
+                setShowTierLimitWarning(true);
+            }
         }
 
         setIsUploading(true);
@@ -250,6 +306,22 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
             const plain = resumeJsonToPlainText(parsedObj);
             const analysis = await analyzeResumeAgainstJD(plain, "");
 
+            // Check for duplicate resume content (unless bypassing or already proceeded)
+            if (!bypassChecks && !proceedWithDuplicate) {
+                const duplicateCheck = await checkForDuplicateResume(parsedObj);
+
+                if (duplicateCheck.isDuplicate) {
+                    setDuplicateInfo(duplicateCheck);
+                    setShowDuplicateWarning(true);
+                    setPendingFile(file);
+                    setIsUploading(false);
+                    return;
+                }
+            }
+
+            // Reset duplicate flag if we got here
+            setProceedWithDuplicate(false);
+
             // Create as MASTER resume (newly uploaded resumes are Master by default)
             const resumeData = {
                 version_name: versionName,
@@ -265,7 +337,10 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                 quality_last_analyzed_at: new Date().toISOString()
             };
             const created = await Resume.create(resumeData);
-            
+
+            // Update limit info after successful creation
+            await loadLimitInfo();
+
             // Redirect to editor with "new" flag so user can improve it
             const editorUrl = `${createPageUrl('ResumeEditor')}?resumeId=${created.id}&new=1`;
             console.log("Navigating to:", editorUrl);
@@ -439,10 +514,23 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
 
                         <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-slate-800">
-                                    <Upload className="w-5 h-5 text-blue-600" />
-                                    Upload New Resume
-                                </CardTitle>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="flex items-center gap-2 text-slate-800">
+                                        <Upload className="w-5 h-5 text-blue-600" />
+                                        Upload New Resume
+                                    </CardTitle>
+                                    {currentLimitInfo && currentLimitInfo.limit !== -1 && (
+                                        <div className={`text-xs px-2 py-1 rounded-full ${
+                                            currentLimitInfo.current >= currentLimitInfo.limit
+                                                ? 'bg-red-100 text-red-700 font-semibold'
+                                                : currentLimitInfo.current >= currentLimitInfo.limit - 1
+                                                ? 'bg-amber-100 text-amber-700 font-semibold'
+                                                : 'bg-slate-100 text-slate-600'
+                                        }`}>
+                                            {currentLimitInfo.current}/{currentLimitInfo.limit}
+                                        </div>
+                                    )}
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <input
@@ -689,6 +777,20 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                     </div>
                 </div>
             </div>
+
+            {/* Warning Dialogs */}
+            <TierLimitWarningDialog
+                isOpen={showTierLimitWarning}
+                onClose={handleTierLimitClose}
+                limitInfo={tierLimitInfo}
+            />
+
+            <DuplicateResumeWarningDialog
+                isOpen={showDuplicateWarning}
+                onClose={handleDuplicateClose}
+                onProceed={handleDuplicateProceed}
+                similarity={duplicateInfo?.similarity}
+            />
         </div>
     );
 }

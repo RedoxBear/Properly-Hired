@@ -75,6 +75,7 @@ export default function Pricing() {
             popular: true,
             highlight: {
                 title: "Best for active job seekers",
+ codex/add-premium-upgrade-options-with-comparisons-13yb08
                 description: "Higher weekly limits across resumes, optimizations, and analysis."
             },
             features: [
