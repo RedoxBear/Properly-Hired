@@ -18,13 +18,16 @@ export default function SubscriptionStatus({ user }) {
     const coverLetters = user.cover_letters_this_week ?? 0;
 
     if (isPremium) {
+        const tierName = tier === TIERS.ENTERPRISE ? "Enterprise" : tier === TIERS.PREMIUM ? "Premium" : "Pro";
+        const tierColor = tier === TIERS.ENTERPRISE ? "from-amber-600 to-orange-700" : tier === TIERS.PREMIUM ? "from-purple-600 to-pink-700" : "from-indigo-600 to-purple-700";
+
         return (
-            <Card className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white border-0 shadow-lg">
+            <Card className={`bg-gradient-to-br ${tierColor} text-white border-0 shadow-lg`}>
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-center">
                         <CardTitle className="text-lg font-bold flex items-center gap-2">
                             <Crown className="w-5 h-5 text-yellow-300" />
-                            Premium Member
+                            {tierName} Member
                         </CardTitle>
                         <span className="px-2 py-1 bg-white/20 rounded-full text-xs font-medium">
                             Active
@@ -34,9 +37,19 @@ export default function SubscriptionStatus({ user }) {
                 <CardContent>
                     <div className="space-y-4">
                         <p className="text-indigo-100 text-sm">
-                            You have unlimited access to all AI features and premium tools.
+                            {tier === TIERS.ENTERPRISE
+                                ? "You have unlimited access to all features with priority support."
+                                : tier === TIERS.PREMIUM
+                                    ? "You have all Pro services unlocked with unlimited resumes."
+                                    : "You have unlimited AI features and premium tools."}
                         </p>
                         <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="bg-white/10 rounded-lg p-2 text-center">
+                                <div className="text-2xl font-bold mb-1">
+                                    {limits.max_resumes === -1 ? '∞' : limits.max_resumes}
+                                </div>
+                                <div className="text-xs text-indigo-200">Max Resumes</div>
+                            </div>
                             <div className="bg-white/10 rounded-lg p-2 text-center">
                                 <div className="text-2xl font-bold mb-1">∞</div>
                                 <div className="text-xs text-indigo-200">Optimizations</div>
@@ -48,10 +61,6 @@ export default function SubscriptionStatus({ user }) {
                             <div className="bg-white/10 rounded-lg p-2 text-center">
                                 <div className="text-2xl font-bold mb-1">∞</div>
                                 <div className="text-xs text-indigo-200">Cover letters</div>
-                            </div>
-                            <div className="bg-white/10 rounded-lg p-2 text-center">
-                                <div className="text-2xl font-bold mb-1">∞</div>
-                                <div className="text-xs text-indigo-200">Premium tools</div>
                             </div>
                         </div>
                         <Link to="/UserProfile">

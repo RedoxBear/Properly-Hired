@@ -9,8 +9,9 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, User, Target, MapPin, DollarSign, Bell, FileText, Settings, CheckCircle2, Plus, X } from "lucide-react";
+import { Loader2, User, Target, MapPin, DollarSign, Bell, FileText, Settings, CheckCircle2, Plus, X, Crown } from "lucide-react";
 import { motion } from "framer-motion";
+import { TIERS, TIER_LIMITS, PRICING } from "@/components/utils/accessControl";
 
 export default function UserProfile() {
     const [user, setUser] = React.useState(null);
@@ -149,6 +150,20 @@ export default function UserProfile() {
         setIsSaving(false);
     };
 
+    const updateSubscriptionTier = async (newTier) => {
+        try {
+            // Update user object with new subscription tier
+            const updatedUser = { ...user, subscription_tier: newTier };
+            await base44.entities.User.update(user.id, { subscription_tier: newTier });
+            setUser(updatedUser);
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 3000);
+        } catch (e) {
+            console.error("Error updating subscription tier:", e);
+            setError("Failed to update subscription tier. Please try again.");
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen p-6 flex items-center justify-center">
@@ -202,6 +217,74 @@ export default function UserProfile() {
                         <div>
                             <Label className="text-sm text-slate-600">Email</Label>
                             <p className="text-slate-800 font-medium">{user?.email}</p>
+                        </div>
+                        <div>
+                            <Label className="text-sm text-slate-600 flex items-center gap-2">
+                                <Crown className="w-4 h-4 text-amber-500" />
+                                Subscription Tier
+                            </Label>
+                            <Select
+                                value={user?.subscription_tier || TIERS.FREE}
+                                onValueChange={updateSubscriptionTier}
+                            >
+                                <SelectTrigger className="w-full md:w-64">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={TIERS.FREE}>
+                                        <div className="flex items-center gap-2">
+                                            <span>Free</span>
+                                            <Badge variant="outline" className="text-xs">
+                                                ${PRICING.free.price}
+                                            </Badge>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value={TIERS.PRO}>
+                                        <div className="flex items-center gap-2">
+                                            <span>Pro</span>
+                                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                                ${PRICING.pro.price}/{PRICING.pro.period}
+                                            </Badge>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value={TIERS.PREMIUM}>
+                                        <div className="flex items-center gap-2">
+                                            <span>Premium</span>
+                                            <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                                                ${PRICING.premium.price}/{PRICING.premium.period}
+                                            </Badge>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value={TIERS.ENTERPRISE}>
+                                        <div className="flex items-center gap-2">
+                                            <span>Enterprise</span>
+                                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                                                {PRICING.enterprise.price}
+                                            </Badge>
+                                        </div>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <div className="mt-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                                <p className="text-xs text-slate-600 font-medium mb-1">Current Plan Benefits:</p>
+                                <ul className="text-xs text-slate-700 space-y-1">
+                                    {(() => {
+                                        const tier = user?.subscription_tier || TIERS.FREE;
+                                        const limits = TIER_LIMITS[tier];
+                                        return (
+                                            <>
+                                                <li>• Max Resumes: {limits.max_resumes === -1 ? '∞ Unlimited' : limits.max_resumes}</li>
+                                                <li>• Resume Optimizations: {limits.resume_optimizations_per_week === -1 ? '∞ Unlimited/week' : `${limits.resume_optimizations_per_week}/week`}</li>
+                                                <li>• Job Analyses: {limits.job_analyses_per_week === -1 ? '∞ Unlimited/week' : `${limits.job_analyses_per_week}/week`}</li>
+                                                <li>• Cover Letters: {limits.cover_letters ? (limits.cover_letters_per_week === -1 ? '✓ Unlimited' : `${limits.cover_letters_per_week}/week`) : '✗ Unavailable'}</li>
+                                                <li>• Transferable Skills: {limits.transferable_skills ? '✓ Available' : '✗ Unavailable'}</li>
+                                                <li>• Insights: {limits.insights ? '✓ Available' : '✗ Unavailable'}</li>
+                                                <li>• Priority Support: {limits.priority_support ? '✓ Available' : '✗ Unavailable'}</li>
+                                            </>
+                                        );
+                                    })()}
+                                </ul>
+                            </div>
                         </div>
                         <div>
                             <Label className="text-sm text-slate-600">Job Search Status</Label>
