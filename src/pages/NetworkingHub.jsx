@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles, GraduationCap, Linkedin } from "lucide-react";
+import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles, GraduationCap, Linkedin, CalendarCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -128,11 +128,21 @@ export default function NetworkingHub() {
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <a 
+                      href="https://calendar.google.com/calendar/u/0/r/eventedit?text=Career+Coaching+Session+with+Richard+Xiong&add=reedxiong@gmail.com&details=Career+coaching+consultation+session" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="bg-orange-600 hover:bg-orange-700 text-white gap-2">
+                        <CalendarCheck className="w-4 h-4" />
+                        Book Appointment
+                      </Button>
+                    </a>
+                    <a 
                       href="https://www.linkedin.com/in/reedxiong" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                      <Button variant="outline" className="gap-2">
                         <Linkedin className="w-4 h-4" />
                         View LinkedIn Profile
                       </Button>
