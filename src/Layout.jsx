@@ -114,12 +114,6 @@ function AppShell({ children, currentPageName }) {
                 { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" }
             ]
         },
-        ...(isAdmin(currentUser) ? [{
-            label: "Admin",
-            items: [
-                { title: "User Management", url: createPageUrl("Users"), icon: Shield, description: "Manage users & tiers", badge: "Admin" }
-            ]
-        }] : []),
         {
             label: "Free AI (Weekly Limits)",
             items: [

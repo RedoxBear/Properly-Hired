@@ -69,6 +69,7 @@ import NetworkingMessages from './pages/NetworkingMessages';
 import ONetImport from './pages/ONetImport';
 import OptimizeResume from './pages/OptimizeResume';
 import PeopleSearch from './pages/PeopleSearch';
+import Pricing from './pages/Pricing';
 import QAAssistant from './pages/QAAssistant';
 import RecruiterConnect from './pages/RecruiterConnect';
 import ReferralProgram from './pages/ReferralProgram';
@@ -82,7 +83,6 @@ import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
-import Pricing from './pages/Pricing';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
 import __Layout from './Layout.jsx';
@@ -111,6 +111,7 @@ export const PAGES = {
     "ONetImport": ONetImport,
     "OptimizeResume": OptimizeResume,
     "PeopleSearch": PeopleSearch,
+    "Pricing": Pricing,
     "QAAssistant": QAAssistant,
     "RecruiterConnect": RecruiterConnect,
     "ReferralProgram": ReferralProgram,
@@ -124,7 +125,6 @@ export const PAGES = {
     "ResumeTemplates": ResumeTemplates,
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
-    "Pricing": Pricing,
     "UserProfile": UserProfile,
     "Users": Users,
 }
