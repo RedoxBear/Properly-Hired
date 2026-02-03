@@ -36,7 +36,6 @@ import DailyEncouragement from "../components/dashboard/DailyEncouragement";
 import ApplicationInsightsWidget from "../components/dashboard/ApplicationInsightsWidget";
 import SubscriptionStatus from "../components/dashboard/SubscriptionStatus";
 import HeroBanner from "../components/dashboard/HeroBanner";
-import RBACInfoCard from "../components/dashboard/RBACInfoCard";
 
 const heroPresets = {
     elegant: {
@@ -337,7 +336,6 @@ export default function Dashboard() {
 
                     <div className="space-y-6">
                         <SubscriptionStatus user={userData} />
-                        <RBACInfoCard user={userData} />
                         <ApplicationInsightsWidget applications={applications} />
                         <QuickActions />
                     </div>
