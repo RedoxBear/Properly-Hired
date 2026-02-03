@@ -643,7 +643,7 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                                                                 )}
                                                             </div>
                                                             <div className="flex flex-wrap gap-2 shrink-0">
-                                                                <Link to={createPageUrl(`ResumeViewer?resumeId=${resume.id}`)}>
+                                                                <Link to={createPageUrl(`ResumeEditor?resumeId=${resume.id}`)}>
                                                                     <Button size="sm" variant="outline">View & Download</Button>
                                                                 </Link>
                                                                 <Link to={createPageUrl(`ResumeTemplates?resumeId=${resume.id}`)}>
