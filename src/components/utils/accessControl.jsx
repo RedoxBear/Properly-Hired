@@ -5,6 +5,7 @@
 export const TIERS = {
   FREE: "free",
   PRO: "pro",
+  PREMIUM: "premium",
   ENTERPRISE: "enterprise"
 };
 
@@ -22,6 +23,17 @@ export const TIER_LIMITS = {
   },
   pro: {
     max_resumes: 20,
+    resume_optimizations_per_week: -1,
+    job_analyses_per_week: -1,
+    cover_letters_per_week: -1,
+    cover_letters: true,
+    transferable_skills: true,
+    insights: true,
+    priority_support: false,
+    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters", "transferable_skills", "insights", "autofill_vault", "application_qna"]
+  },
+  premium: {
+    max_resumes: -1, // unlimited
     resume_optimizations_per_week: -1,
     job_analyses_per_week: -1,
     cover_letters_per_week: -1,
@@ -57,6 +69,13 @@ export const PRICING = {
     discounted_price: 2.99,
     discount_note: "Use code CAREER40 for 40% off"
   },
+  premium: {
+    price: 9.99,
+    period: "week",
+    description: "All Pro services + unlimited resumes",
+    discounted_price: 6.99,
+    discount_note: "Use code CAREER40 for 40% off"
+  },
   enterprise: {
     price: "Custom",
     period: "contact us",
@@ -76,8 +95,8 @@ export function hasAccess(user, feature) {
   
   if (!limits) return false;
   
-  // Enterprise has access to everything
-  if (tier === TIERS.ENTERPRISE) return true;
+  // Enterprise and Premium have access to everything
+  if (tier === TIERS.ENTERPRISE || tier === TIERS.PREMIUM) return true;
   
   // Check if feature is in allowed list
   return limits.features.includes(feature) || limits.features.includes("*");
