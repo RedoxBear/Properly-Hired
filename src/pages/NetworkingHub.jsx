@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles } from "lucide-react";
+import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles, GraduationCap, Linkedin } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -92,6 +92,57 @@ export default function NetworkingHub() {
             );
           })}
         </div>
+
+        {/* Career Coaches */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <GraduationCap className="w-6 h-6 text-orange-600" />
+            Career Coaches
+          </h2>
+          <p className="text-sm text-slate-600 mb-6">
+            Connect with certified career coaches through our affiliate network. Coaches set their own rates and are independent 3rd party services.
+          </p>
+          
+          <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 hover:shadow-xl transition-all">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-shrink-0">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-orange-200">
+                    <img
+                      src="https://media.licdn.com/dms/image/v2/D5603AQHhqCKP8EtVew/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1690583267886?e=1744243200&v=beta&t=Fw5Y-O_xFOCIKXhJ5sN1FI8xYzl5cXNqvyW5aVA8nck"
+                      alt="Richard Xiong"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-slate-800 mb-1">Richard Xiong, CPCC</h3>
+                  <p className="text-sm text-orange-700 font-medium mb-3">Career Coach</p>
+                  <p className="text-slate-700 mb-4">
+                    Certified Professional Co-Active Coach (CPCC) specializing in career transitions, leadership development, and helping professionals navigate their career journey with clarity and confidence.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <a 
+                      href="https://www.linkedin.com/in/reedxiong" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                        <Linkedin className="w-4 h-4" />
+                        View LinkedIn Profile
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Quick Stats */}
         <Card className="bg-gradient-to-r from-slate-50 to-blue-50 border-slate-200">
