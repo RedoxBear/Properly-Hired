@@ -60,6 +60,7 @@ import HowTo from './pages/HowTo';
 import JobAnalysis from './pages/JobAnalysis';
 import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
+import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
 import MyNetwork from './pages/MyNetwork';
 import MyResumes from './pages/MyResumes';
@@ -83,7 +84,6 @@ import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
-import JobMatcher from './pages/JobMatcher';
 import __Layout from './Layout.jsx';
 
 
@@ -101,6 +101,7 @@ export const PAGES = {
     "JobAnalysis": JobAnalysis,
     "JobDetails": JobDetails,
     "JobLibrary": JobLibrary,
+    "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
     "MyNetwork": MyNetwork,
     "MyResumes": MyResumes,
@@ -124,7 +125,6 @@ export const PAGES = {
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
-    "JobMatcher": JobMatcher,
 }
 
 export const pagesConfig = {
