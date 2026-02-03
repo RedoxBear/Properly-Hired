@@ -352,6 +352,44 @@ function AppShell({ children, currentPageName }) {
                                 </div>
                             </SidebarGroupContent>
                         </SidebarGroup>
+
+                        {/* Admin Section (bottom, small font) */}
+                        {isAdmin(currentUser) && (
+                            <SidebarGroup className="mt-4">
+                                <SidebarGroupLabel className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 md:px-3 py-2">
+                                    Admin
+                                </SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton
+                                                asChild
+                                                className={`hover:bg-accent transition-all duration-200 rounded-xl group min-h-[40px] text-xs ${
+                                                    location.pathname === createPageUrl("Users")
+                                                        ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 border shadow-sm'
+                                                        : 'hover:shadow-sm'
+                                                }`}
+                                            >
+                                                <RouterLink
+                                                    to={createPageUrl("Users")}
+                                                    className="flex items-center gap-2 px-3 py-2"
+                                                    onClick={() => setIsSidebarOpen(false)}
+                                                >
+                                                    <Shield className={`w-4 h-4 transition-colors flex-shrink-0 ${
+                                                        location.pathname === createPageUrl("Users")
+                                                            ? 'text-red-600 dark:text-red-400'
+                                                            : 'text-muted-foreground group-hover:text-foreground'
+                                                    }`} />
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="font-medium text-xs">User Management</div>
+                                                    </div>
+                                                </RouterLink>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        )}
                     </SidebarContent>
 
                     <SidebarFooter className="border-t border-border/60 p-3 md:p-4">
