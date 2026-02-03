@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Search, FileText, Target, Sparkles, ArrowRight, Compass } from "lucide-react";
+import { Search, FileText, Target, Sparkles, ArrowRight, Compass, Users } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const JobApplication = base44.entities.JobApplication;
@@ -62,6 +62,13 @@ export default function QuickActions() {
           icon={Compass}
           to={createPageUrl("HowTo")}
           gradient="from-amber-500 to-orange-500"
+        />
+        <Action
+          title="Talk to a Career Coach"
+          desc="Connect with certified coaches"
+          icon={Users}
+          to={createPageUrl("NetworkingHub")}
+          gradient="from-orange-500 to-amber-600"
         />
       </CardContent>
     </Card>
