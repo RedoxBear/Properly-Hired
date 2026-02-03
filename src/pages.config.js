@@ -83,6 +83,7 @@ import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
+import Users from './pages/Users';
 import ResumeViewer from './pages/ResumeViewer';
 import __Layout from './Layout.jsx';
 
@@ -124,6 +125,7 @@ export const PAGES = {
     "ResumeTemplates": ResumeTemplates,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
+    "Users": Users,
     "ResumeViewer": ResumeViewer,
 }
 

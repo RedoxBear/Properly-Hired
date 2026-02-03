@@ -98,6 +98,12 @@ function AppShell({ children, currentPageName }) {
             ]
         },
         {
+            label: "Admin",
+            items: [
+                { title: "Users", url: createPageUrl("Users"), icon: Users, description: "Manage user tiers", badge: "Admin" }
+            ]
+        },
+        {
             label: "Free AI (Weekly Limits)",
             items: [
                 { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings", badge: "Free" },
