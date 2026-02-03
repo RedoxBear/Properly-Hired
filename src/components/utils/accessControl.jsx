@@ -1,5 +1,5 @@
 /**
- * Access control utilities for feature gating based on subscription tier
+ * Access control utilities for feature gating based on subscription tier and user roles
  */
 
 export const TIERS = {
@@ -7,6 +7,12 @@ export const TIERS = {
   PRO: "pro",
   PREMIUM: "premium",
   ENTERPRISE: "enterprise"
+};
+
+export const ROLES = {
+  USER: "user",
+  ADMIN: "admin",
+  SUPER_ADMIN: "super_admin"
 };
 
 export const TIER_LIMITS = {
@@ -166,6 +172,52 @@ export function getUpgradeMessage(feature) {
     resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade to Pro",
     cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade to Pro"
   };
-  
+
   return messages[feature] || "Upgrade to Pro to unlock this feature";
+}
+
+/**
+ * Check if user is an admin
+ */
+export function isAdmin(user) {
+  if (!user) return false;
+  const role = user.role || ROLES.USER;
+  return role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN;
+}
+
+/**
+ * Check if user is a super admin
+ */
+export function isSuperAdmin(user) {
+  if (!user) return false;
+  return user.role === ROLES.SUPER_ADMIN;
+}
+
+/**
+ * Check if user has a specific role
+ */
+export function hasRole(user, requiredRole) {
+  if (!user) return false;
+  const userRole = user.role || ROLES.USER;
+
+  // Super admin has access to everything
+  if (userRole === ROLES.SUPER_ADMIN) return true;
+
+  // Admin has access to admin and user
+  if (userRole === ROLES.ADMIN && requiredRole !== ROLES.SUPER_ADMIN) return true;
+
+  // Check exact role match
+  return userRole === requiredRole;
+}
+
+/**
+ * Get role display name
+ */
+export function getRoleDisplayName(role) {
+  const names = {
+    [ROLES.USER]: "User",
+    [ROLES.ADMIN]: "Admin",
+    [ROLES.SUPER_ADMIN]: "Super Admin"
+  };
+  return names[role] || "User";
 }
