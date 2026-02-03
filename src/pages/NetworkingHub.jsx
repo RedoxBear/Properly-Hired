@@ -114,9 +114,9 @@ export default function NetworkingHub() {
                 <div className="flex-shrink-0">
                   <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-orange-200">
                     <img
-                      src="https://media.licdn.com/dms/image/v2/D5603AQHhqCKP8EtVew/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1690583267886?e=1744243200&v=beta&t=Fw5Y-O_xFOCIKXhJ5sN1FI8xYzl5cXNqvyW5aVA8nck"
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/9576aa93d_IMG_0002.jpg"
                       alt="Richard Xiong"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top"
                     />
                   </div>
                 </div>

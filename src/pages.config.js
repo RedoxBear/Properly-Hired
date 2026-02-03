@@ -50,10 +50,14 @@
 import ActivityInsights from './pages/ActivityInsights';
 import ApplicationQnA from './pages/ApplicationQnA';
 import ApplicationTracker from './pages/ApplicationTracker';
+import AutofillVault from './pages/AutofillVault';
+import CoverLetter from './pages/CoverLetter';
 import CoverLetters from './pages/CoverLetters';
 import Dashboard from './pages/Dashboard';
 import ExtensionGuide from './pages/ExtensionGuide';
 import Home from './pages/Home';
+import HowTo from './pages/HowTo';
+import JobAnalysis from './pages/JobAnalysis';
 import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
 import JobMatcher from './pages/JobMatcher';
@@ -65,6 +69,7 @@ import NetworkingMessages from './pages/NetworkingMessages';
 import ONetImport from './pages/ONetImport';
 import OptimizeResume from './pages/OptimizeResume';
 import PeopleSearch from './pages/PeopleSearch';
+import Pricing from './pages/Pricing';
 import QAAssistant from './pages/QAAssistant';
 import RecruiterConnect from './pages/RecruiterConnect';
 import ReferralProgram from './pages/ReferralProgram';
@@ -76,14 +81,9 @@ import ResumeOptimizer from './pages/ResumeOptimizer';
 import ResumeQuality from './pages/ResumeQuality';
 import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
-import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
-import AutofillVault from './pages/AutofillVault';
-import CoverLetter from './pages/CoverLetter';
-import HowTo from './pages/HowTo';
-import JobAnalysis from './pages/JobAnalysis';
-import Pricing from './pages/Pricing';
+import ResumeViewer from './pages/ResumeViewer';
 import __Layout from './Layout.jsx';
 
 
@@ -91,10 +91,14 @@ export const PAGES = {
     "ActivityInsights": ActivityInsights,
     "ApplicationQnA": ApplicationQnA,
     "ApplicationTracker": ApplicationTracker,
+    "AutofillVault": AutofillVault,
+    "CoverLetter": CoverLetter,
     "CoverLetters": CoverLetters,
     "Dashboard": Dashboard,
     "ExtensionGuide": ExtensionGuide,
     "Home": Home,
+    "HowTo": HowTo,
+    "JobAnalysis": JobAnalysis,
     "JobDetails": JobDetails,
     "JobLibrary": JobLibrary,
     "JobMatcher": JobMatcher,
@@ -106,6 +110,7 @@ export const PAGES = {
     "ONetImport": ONetImport,
     "OptimizeResume": OptimizeResume,
     "PeopleSearch": PeopleSearch,
+    "Pricing": Pricing,
     "QAAssistant": QAAssistant,
     "RecruiterConnect": RecruiterConnect,
     "ReferralProgram": ReferralProgram,
@@ -117,14 +122,9 @@ export const PAGES = {
     "ResumeQuality": ResumeQuality,
     "ResumeReview": ResumeReview,
     "ResumeTemplates": ResumeTemplates,
-    "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
-    "AutofillVault": AutofillVault,
-    "CoverLetter": CoverLetter,
-    "HowTo": HowTo,
-    "JobAnalysis": JobAnalysis,
-    "Pricing": Pricing,
+    "ResumeViewer": ResumeViewer,
 }
 
 export const pagesConfig = {
