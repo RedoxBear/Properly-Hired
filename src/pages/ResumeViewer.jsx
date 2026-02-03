@@ -1,5 +1,5 @@
 import React from "react";
-import { Resume } from "@/entities/Resume";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,12 @@ export default function ResumeViewer() {
             return;
         }
         const load = async () => {
-            const res = await Resume.get(id);
-            setResume(res);
+            try {
+                const res = await base44.entities.Resume.get(id);
+                setResume(res);
+            } catch (error) {
+                console.error("Failed to load resume:", error);
+            }
             setLoading(false);
         };
         load();
