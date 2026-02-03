@@ -73,16 +73,21 @@ export default function Pricing() {
             color: "text-blue-600",
             gradient: "from-blue-500 to-cyan-600",
             popular: true,
+            highlight: {
+                title: "Best for active job seekers",
+                description: "Higher weekly limits across resumes, optimizations, and analysis."
+            },
             features: [
-                "20 master resumes",
-                "Unlimited resume optimizations",
-                "Unlimited job analysis",
-                "Unlimited cover letters",
+                "10 master resumes",
+                "Resume optimizations: 40/week",
+                "Job analysis: 100/week",
+                "Cover letters: 40/week",
                 "AI cover letter generator",
                 "Transferable skills analysis",
                 "Activity insights & analytics",
                 "Autofill vault",
                 "Application Q&A assistant"
+                "Standard support"
             ]
         },
         {
@@ -91,17 +96,15 @@ export default function Pricing() {
             icon: Crown,
             color: "text-purple-600",
             gradient: "from-purple-500 to-pink-600",
+            highlight: {
+                title: "Upgrade for priority + scale",
+                description: "Everything in Pro, plus unlimited resumes and faster support."
             features: [
-                "Unlimited master resumes",
-                "All Pro features unlocked",
-                "Unlimited resume optimizations",
-                "Unlimited job analysis",
-                "Unlimited cover letters",
-                "AI cover letter generator",
-                "Transferable skills analysis",
-                "Activity insights & analytics",
-                "Autofill vault",
-                "Application Q&A assistant"
+                "Everything in Pro",
+                "Unlimited master resumes (no cap)",
+                "Priority support & faster responses",
+                "Priority AI processing during peak times",
+                "Advanced analytics & strategy insights"
             ]
         },
         {
@@ -219,6 +222,16 @@ export default function Pricing() {
                                     </CardHeader>
 
                                     <CardContent className="space-y-6 px-4 md:px-6">
+                                         {tier.highlight && (
+                                            <div className="rounded-lg border border-slate-200/70 dark:border-slate-700/70 bg-slate-50/70 dark:bg-slate-900/40 p-3">
+                                                <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                                                    {tier.highlight.title}
+                                                </div>
+                                                <div className="text-sm text-foreground mt-1">
+                                                    {tier.highlight.description}
+                                                </div>
+                                            </div>
+                                        )}                                       
                                         <ul className="space-y-2.5 md:space-y-3">
                                             {tier.features.map((feature, idx) => (
                                                 <li key={idx} className="flex items-start gap-2">
