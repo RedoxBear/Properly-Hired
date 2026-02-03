@@ -599,11 +599,14 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                                 ) : optimizedVersions.length > 0 ? (
                                     <div className="space-y-3">
                                         {optimizedVersions.map((resume) => {
+                                            const resumeId = resume.id || resume.resume_id || resume.resumeId;
                                             const score = resume.quality_scores?.overall;
                                             const criticalCount = (resume.quality_flags || []).filter(f => f.severity === "critical").length;
                                             const benchmark = resume.master_benchmark_overall;
                                             const delta = resume.optimizer_delta;
                                             const beatsBenchmark = typeof score === 'number' && masterBenchmark !== null && score > masterBenchmark;
+                                            const resumeEditorUrl = resumeId ? `${createPageUrl("ResumeEditor")}?resumeId=${resumeId}` : "";
+                                            const resumeTemplatesUrl = resumeId ? `${createPageUrl("ResumeTemplates")}?resumeId=${resumeId}` : "";
                                             
                                             return (
                                                 <div key={resume.id} className="p-4 border rounded-xl hover:bg-slate-50 transition-colors flex items-start gap-3">
@@ -643,12 +646,24 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                                                                 )}
                                                             </div>
                                                             <div className="flex flex-wrap gap-2 shrink-0">
-                                                                <Link to={createPageUrl(`ResumeEditor?resumeId=${resume.id}`)}>
-                                                                    <Button size="sm" variant="outline">View & Download</Button>
-                                                                </Link>
-                                                                <Link to={createPageUrl(`ResumeTemplates?resumeId=${resume.id}`)}>
-                                                                    <Button size="sm">Apply Template</Button>
-                                                                </Link>
+                                                                {resumeId ? (
+                                                                    <Link to={resumeEditorUrl}>
+                                                                        <Button size="sm" variant="outline">View & Download</Button>
+                                                                    </Link>
+                                                                ) : (
+                                                                    <Button size="sm" variant="outline" disabled title="Resume ID missing">
+                                                                        View & Download
+                                                                    </Button>
+                                                                )}
+                                                                {resumeId ? (
+                                                                    <Link to={resumeTemplatesUrl}>
+                                                                        <Button size="sm">Apply Template</Button>
+                                                                    </Link>
+                                                                ) : (
+                                                                    <Button size="sm" disabled title="Resume ID missing">
+                                                                        Apply Template
+                                                                    </Button>
+                                                                )}
                                                                 {beatsBenchmark && (
                                                                     <Button size="sm" variant="outline" className="bg-green-50 hover:bg-green-100 text-green-700" onClick={() => promoteToMaster(resume.id)} title="Promote to Master">
                                                                         Promote to Master
