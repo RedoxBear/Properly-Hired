@@ -224,7 +224,7 @@ export default function Pricing() {
                                     </CardHeader>
 
                                     <CardContent className="space-y-6 px-4 md:px-6">
-                                        {tier.highlight && (
+                                         {tier.highlight && (
                                             <div className="rounded-lg border border-slate-200/70 dark:border-slate-700/70 bg-slate-50/70 dark:bg-slate-900/40 p-3">
                                                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
                                                     {tier.highlight.title}
@@ -233,7 +233,7 @@ export default function Pricing() {
                                                     {tier.highlight.description}
                                                 </div>
                                             </div>
-                                        )}
+                                        )}                                       
                                         <ul className="space-y-2.5 md:space-y-3">
                                             {tier.features.map((feature, idx) => (
                                                 <li key={idx} className="flex items-start gap-2">

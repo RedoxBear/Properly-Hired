@@ -1,5 +1,6 @@
 import React from "react";
 import { JobApplication } from "@/entities/JobApplication";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,8 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import AgentChat from "@/components/agents/AgentChat";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 // Kyle's Cover Letter Expertise
 const KYLE_CL_EXPERTISE = [
@@ -22,6 +25,7 @@ const KYLE_CL_EXPERTISE = [
 export default function CoverLetters() {
     const [jobApplications, setJobApplications] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [currentUser, setCurrentUser] = React.useState(null);
 
     React.useEffect(() => {
         loadJobApplications();
@@ -30,8 +34,12 @@ export default function CoverLetters() {
     const loadJobApplications = async () => {
         setIsLoading(true);
         try {
-            const applications = await JobApplication.list("-created_date", 50);
+            const [applications, user] = await Promise.all([
+                JobApplication.list("-created_date", 50),
+                base44.auth.me()
+            ]);
             setJobApplications(applications);
+            setCurrentUser(user);
         } catch (error) {
             console.error("Error loading job applications:", error);
         }
@@ -58,6 +66,14 @@ export default function CoverLetters() {
                         Select a job application to generate a personalized cover letter with organization research and De-AI humanization.
                     </p>
                 </motion.div>
+
+                {/* Access Check */}
+                {currentUser && !hasAccess(currentUser, "cover_letters") && (
+                    <UpgradePrompt 
+                        feature="cover_letters" 
+                        currentTier={currentUser.subscription_tier || TIERS.FREE}
+                    />
+                )}
 
                 {/* Kyle's Cover Letter Expertise */}
                 <Card className="mb-6 border-pink-200 dark:border-pink-800 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30">

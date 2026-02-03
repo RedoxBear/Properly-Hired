@@ -16,6 +16,7 @@ export default function ResumeEditor() {
   const [resume, setResume] = React.useState(null);
   const [draft, setDraft] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [previewMode, setPreviewMode] = React.useState("text");
   const [saving, setSaving] = React.useState(false);
   const [scoring, setScoring] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -27,6 +28,158 @@ export default function ResumeEditor() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rescoreTimeoutRef = React.useRef(null);
+
+  const safeParse = (value) => {
+    if (!value) return null;
+    if (typeof value === "object") return value;
+    if (typeof value === "string") {
+      try {
+        return JSON.parse(value);
+      } catch (error) {
+        console.error("Failed to parse resume content:", error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const buildText = (content) => {
+    if (!content) return "";
+    let text = "";
+    const pi = content.personal_info || {};
+    if (Object.keys(pi).length) {
+      text += `${pi?.name || ""}\n${pi?.email || ""} | ${pi?.phone || ""} | ${pi?.location || ""}${pi?.linkedin ? ` | ${pi.linkedin}` : ""}${pi?.portfolio ? ` | ${pi.portfolio}` : ""}\n\n`;
+    }
+
+    if (content?.executive_summary || content?.summary) {
+      text += "Summary\n------\n";
+      text += `${content.executive_summary || content.summary}\n\n`;
+    }
+
+    if (content?.skills?.length) {
+      text += "Skills\n------\n";
+      text += content.skills.map((s) => `• ${s}`).join("\n") + "\n\n";
+    }
+
+    if (content?.experience?.length) {
+      text += "Experience\n---------\n";
+      content.experience.forEach((exp) => {
+        text += `${exp.position || ""} at ${exp.company || ""} (${exp.duration || ""})\n`;
+        if (exp.achievements?.length) {
+          exp.achievements.forEach((a) => {
+            text += `   - ${a}\n`;
+          });
+        }
+        text += "\n";
+      });
+    }
+
+    if (content?.education?.length) {
+      text += "Education\n---------\n";
+      content.education.forEach((edu) => {
+        text += `${edu.degree || ""}, ${edu.institution || ""} ${edu.year ? `(${edu.year})` : ""}\n`;
+      });
+      text += "\n";
+    }
+
+    return text.trim();
+  };
+
+  const buildMarkdown = (content) => {
+    if (!content) return "";
+    const lines = [];
+    const pi = content.personal_info || {};
+    if (pi.name) lines.push(`# ${pi.name}`);
+    const contact = [pi.email, pi.phone, pi.location, pi.linkedin, pi.portfolio].filter(Boolean).join(" | ");
+    if (contact) lines.push(contact);
+    lines.push("");
+
+    const summary = content.executive_summary || content.summary;
+    if (summary) {
+      lines.push("## Summary");
+      lines.push(summary);
+      lines.push("");
+    }
+
+    if (content.skills?.length) {
+      lines.push("## Skills");
+      content.skills.forEach((skill) => lines.push(`- ${skill}`));
+      lines.push("");
+    }
+
+    if (content.experience?.length) {
+      lines.push("## Experience");
+      content.experience.forEach((exp) => {
+        const header = [exp.position, exp.company].filter(Boolean).join(" at ");
+        const meta = [exp.duration, exp.location].filter(Boolean).join(" • ");
+        lines.push(`### ${header || "Role"}`);
+        if (meta) lines.push(meta);
+        if (exp.achievements?.length) {
+          exp.achievements.forEach((item) => lines.push(`- ${item}`));
+        }
+        lines.push("");
+      });
+    }
+
+    if (content.education?.length) {
+      lines.push("## Education");
+      content.education.forEach((edu) => {
+        const detail = [edu.degree, edu.institution].filter(Boolean).join(", ");
+        const meta = [edu.year, edu.location].filter(Boolean).join(" • ");
+        lines.push(`- ${detail}${meta ? ` (${meta})` : ""}`);
+      });
+      lines.push("");
+    }
+
+    return lines.join("\n").trim();
+  };
+
+  const buildJson = (content) => {
+    const payload = {
+      version_name: resume?.version_name,
+      content: content || null
+    };
+    return JSON.stringify(payload, null, 2);
+  };
+
+  const download = (type) => {
+    const safeName = (resume?.version_name || "Resume").replace(/[\\/:*?"<>|]/g, "_");
+    const content = draft || {};
+
+    if (type === "txt") {
+      const text = buildText(content);
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } else if (type === "md") {
+      const markdown = buildMarkdown(content);
+      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName}.md`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } else if (type === "json") {
+      const blob = new Blob([buildJson(content)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeName}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+  };
 
   React.useEffect(() => {
     const resumeId = searchParams.get("resumeId");
@@ -58,9 +211,10 @@ export default function ResumeEditor() {
         
         // Try to parse the resume content
         const parsed = safeParse(r.parsed_content);
+        const optimized = safeParse(r.optimized_content);
         console.log("Parsed content:", parsed);
         
-        const initialDraft = parsed || {
+        const initialDraft = parsed || optimized || {
           personal_info: {},
           summary: "",
           skills: [],
@@ -110,10 +264,6 @@ export default function ResumeEditor() {
       }
     };
   }, [draft, hasUnsavedChanges]);
-
-  function safeParse(json) {
-    try { return json ? JSON.parse(json) : null; } catch { return null; }
-  }
 
   const updateField = (path, value) => {
     setDraft((prev) => ({ ...(prev || {}), [path]: value }));
@@ -285,6 +435,11 @@ export default function ResumeEditor() {
   }
 
   const isNew = searchParams.get("new") === "1";
+  const previewText = previewMode === "markdown"
+    ? buildMarkdown(draft)
+    : previewMode === "json"
+      ? buildJson(draft)
+      : buildText(draft);
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50">
@@ -301,22 +456,67 @@ export default function ResumeEditor() {
         )}
 
         <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-start justify-between">
+          <CardHeader className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <CardTitle className="text-2xl">Resume Editor</CardTitle>
               <p className="text-sm text-slate-600 mt-1">{resume.version_name}</p>
             </div>
-            <div className="text-sm text-slate-600 space-y-1 text-right">
-              <div>
-                Baseline: <span className="font-semibold text-slate-800">{baselineScore ?? "—"}</span>
+            <div className="flex flex-col gap-3 text-sm text-slate-600">
+              <div className="space-y-1 text-left md:text-right">
+                <div>
+                  Baseline: <span className="font-semibold text-slate-800">{baselineScore ?? "—"}</span>
+                </div>
+                <div className="flex items-center gap-2 md:justify-end">
+                  Current: <span className={`font-semibold ${improved ? "text-green-600" : "text-slate-800"}`}>{currentScore ?? "—"}</span>
+                  {improved && <TrendingUp className="w-4 h-4 text-green-600" />}
+                </div>
               </div>
-              <div className="flex items-center gap-2 justify-end">
-                Current: <span className={`font-semibold ${improved ? "text-green-600" : "text-slate-800"}`}>{currentScore ?? "—"}</span>
-                {improved && <TrendingUp className="w-4 h-4 text-green-600" />}
+              <div className="flex flex-wrap gap-2 md:justify-end">
+                <Button onClick={() => download("txt")} size="sm" variant="outline" className="gap-2">
+                  Download TXT
+                </Button>
+                <Button onClick={() => download("md")} size="sm" variant="outline" className="gap-2">
+                  Download MD
+                </Button>
+                <Button onClick={() => download("json")} size="sm" variant="outline" className="gap-2">
+                  Download JSON
+                </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            <section>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                <Label className="text-base font-semibold">Resume Preview</Label>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={previewMode === "text" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPreviewMode("text")}
+                  >
+                    Text
+                  </Button>
+                  <Button
+                    variant={previewMode === "markdown" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPreviewMode("markdown")}
+                  >
+                    Markdown
+                  </Button>
+                  <Button
+                    variant={previewMode === "json" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPreviewMode("json")}
+                  >
+                    JSON
+                  </Button>
+                </div>
+              </div>
+              <div className="border rounded-lg bg-slate-50 p-4 max-h-[320px] overflow-auto">
+                <pre className="whitespace-pre-wrap text-sm text-slate-700">{previewText}</pre>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Use the toggles to view or download the resume in TXT, Markdown, or JSON.</p>
+            </section>
             <section>
               <Label className="text-base font-semibold mb-2 block">Career Summary {draft?.summary && <span className="text-xs text-green-600 ml-2">✓ Filled</span>}</Label>
               <Textarea
