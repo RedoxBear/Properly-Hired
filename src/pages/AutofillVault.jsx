@@ -92,7 +92,6 @@ export default function AutofillVaultPage() {
       
       setLoading(false);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setField = (path, val) => {
@@ -150,7 +149,9 @@ export default function AutofillVaultPage() {
     try {
       parsed = master.optimized_content ? JSON.parse(master.optimized_content)
         : (master.parsed_content ? JSON.parse(master.parsed_content) : {});
-    } catch { }
+    } catch {
+      // If parsing fails, fall back to an empty object.
+    }
     const roles = Array.isArray(parsed.experience) ? parsed.experience.map(e => ({
       id: crypto.randomUUID(),
       title: e?.position || "",

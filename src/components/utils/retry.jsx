@@ -7,8 +7,7 @@ export async function retryWithBackoff(task, options = {}) {
   } = options;
 
   let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
+  while (attempt <= retries) {
     try {
       return await task();
     } catch (err) {

@@ -11,18 +11,20 @@ export const TIERS = {
 export const TIER_LIMITS = {
   free: {
     max_resumes: 3,
-    max_applications_per_month: 10,
-    ai_credits_per_month: 5,
+    resume_optimizations_per_week: 5,
+    job_analyses_per_week: 10,
+    cover_letters_per_week: 5,
     cover_letters: false,
     transferable_skills: false,
     insights: false,
     priority_support: false,
-    features: ["job_analysis", "resume_upload", "basic_optimization"]
+    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters"]
   },
   pro: {
     max_resumes: 20,
-    max_applications_per_month: 100,
-    ai_credits_per_month: 50,
+    resume_optimizations_per_week: -1,
+    job_analyses_per_week: -1,
+    cover_letters_per_week: -1,
     cover_letters: true,
     transferable_skills: true,
     insights: true,
@@ -31,8 +33,9 @@ export const TIER_LIMITS = {
   },
   enterprise: {
     max_resumes: -1, // unlimited
-    max_applications_per_month: -1,
-    ai_credits_per_month: -1,
+    resume_optimizations_per_week: -1,
+    job_analyses_per_week: -1,
+    cover_letters_per_week: -1,
     cover_letters: true,
     transferable_skills: true,
     insights: true,
@@ -93,8 +96,10 @@ export function canPerformAction(user, action, currentCount) {
   
   const actionLimits = {
     create_resume: limits.max_resumes,
-    track_application: limits.max_applications_per_month,
-    use_ai: limits.ai_credits_per_month
+    optimize_resume: limits.resume_optimizations_per_week,
+    job_analysis: limits.job_analyses_per_week,
+    cover_letter: limits.cover_letters_per_week,
+    track_application: limits.job_analyses_per_week
   };
   
   const limit = actionLimits[action];
@@ -117,8 +122,10 @@ export function getRemainingQuota(user, action, currentCount) {
   
   const actionLimits = {
     create_resume: limits.max_resumes,
-    track_application: limits.max_applications_per_month,
-    use_ai: user.credits_remaining || limits.ai_credits_per_month
+    optimize_resume: limits.resume_optimizations_per_week,
+    job_analysis: limits.job_analyses_per_week,
+    cover_letter: limits.cover_letters_per_week,
+    track_application: limits.job_analyses_per_week
   };
   
   const limit = actionLimits[action];
@@ -136,8 +143,9 @@ export function getUpgradeMessage(feature) {
     transferable_skills: "Discover your transferable skills with Pro",
     insights: "Get detailed activity insights with Pro",
     max_resumes: "You've reached your resume limit. Upgrade to Pro for 20 resumes",
-    max_applications: "You've reached your monthly application limit. Upgrade to Pro",
-    ai_credits: "You're out of AI credits. Upgrade to Pro for 50 credits/week"
+    max_applications: "You've reached your weekly job analysis limit. Upgrade to Pro",
+    resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade to Pro",
+    cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade to Pro"
   };
   
   return messages[feature] || "Upgrade to Pro to unlock this feature";

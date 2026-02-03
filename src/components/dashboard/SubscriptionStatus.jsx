@@ -4,17 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Crown, Zap, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { TIER_LIMITS, TIERS } from "@/components/utils/accessControl";
 
 export default function SubscriptionStatus({ user }) {
     if (!user) return null;
 
-    // Default to free limits if not set
-    const RESUME_LIMIT = 5;
-    const APP_LIMIT = 10;
-    
-    const isPremium = user.is_premium;
-    const resumeCount = user.resumes_this_week || 0;
-    const appCount = user.applications_this_week || 0;
+    const tier = user.subscription_tier || TIERS.FREE;
+    const limits = TIER_LIMITS[tier] || TIER_LIMITS.free;
+    const isPremium = tier !== TIERS.FREE;
+
+    const resumeOptimizations = user.resume_optimizations_this_week ?? user.resumes_this_week ?? 0;
+    const jobAnalyses = user.job_analyses_this_week ?? user.applications_this_week ?? 0;
+    const coverLetters = user.cover_letters_this_week ?? 0;
 
     if (isPremium) {
         return (
@@ -33,16 +34,24 @@ export default function SubscriptionStatus({ user }) {
                 <CardContent>
                     <div className="space-y-4">
                         <p className="text-indigo-100 text-sm">
-                            You have unlimited access to all AI features.
+                            You have unlimited access to all AI features and premium tools.
                         </p>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                             <div className="bg-white/10 rounded-lg p-2 text-center">
                                 <div className="text-2xl font-bold mb-1">∞</div>
-                                <div className="text-xs text-indigo-200">Resumes</div>
+                                <div className="text-xs text-indigo-200">Optimizations</div>
                             </div>
                             <div className="bg-white/10 rounded-lg p-2 text-center">
                                 <div className="text-2xl font-bold mb-1">∞</div>
-                                <div className="text-xs text-indigo-200">Applications</div>
+                                <div className="text-xs text-indigo-200">Job analyses</div>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-2 text-center">
+                                <div className="text-2xl font-bold mb-1">∞</div>
+                                <div className="text-xs text-indigo-200">Cover letters</div>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-2 text-center">
+                                <div className="text-2xl font-bold mb-1">∞</div>
+                                <div className="text-xs text-indigo-200">Premium tools</div>
                             </div>
                         </div>
                         <Link to="/UserProfile">
@@ -74,17 +83,24 @@ export default function SubscriptionStatus({ user }) {
                 <div className="space-y-3">
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Resumes this week</span>
-                            <span>{resumeCount} / {RESUME_LIMIT}</span>
+                            <span>Resume optimizations (weekly)</span>
+                            <span>{resumeOptimizations} / {limits.resume_optimizations_per_week}</span>
                         </div>
-                        <Progress value={(resumeCount / RESUME_LIMIT) * 100} className="h-2" />
+                        <Progress value={(resumeOptimizations / limits.resume_optimizations_per_week) * 100} className="h-2" />
                     </div>
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Applications this week</span>
-                            <span>{appCount} / {APP_LIMIT}</span>
+                            <span>Job analyses (weekly)</span>
+                            <span>{jobAnalyses} / {limits.job_analyses_per_week}</span>
                         </div>
-                        <Progress value={(appCount / APP_LIMIT) * 100} className="h-2" />
+                        <Progress value={(jobAnalyses / limits.job_analyses_per_week) * 100} className="h-2" />
+                    </div>
+                    <div className="space-y-1">
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Cover letters (weekly)</span>
+                            <span>{coverLetters} / {limits.cover_letters_per_week}</span>
+                        </div>
+                        <Progress value={(coverLetters / limits.cover_letters_per_week) * 100} className="h-2" />
                     </div>
                 </div>
 

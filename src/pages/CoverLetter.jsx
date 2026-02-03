@@ -428,7 +428,7 @@ Return ONLY a JSON object with these 4 clean paragraph strings:
         const sanitize = (text) => {
           if (!text) return "";
           return String(text)
-            .replace(/^[\s]*[•·\-\*]\s+/gm, '')
+            .replace(/^[\s]*[•·*-]\s+/gm, '')
             .replace(/^[\s]*(Role|Position|Company|Duration):\s*/gmi, '')
             .replace(/\s{2,}/g, ' ')
             .trim();

@@ -60,9 +60,9 @@ export default function Pricing() {
             gradient: "from-slate-500 to-slate-600",
             features: [
                 "3 master resumes",
-                "10 applications/month",
-                "5 AI optimization credits",
-                "Basic job analysis",
+                "Optimize resume: 5/week",
+                "Job analysis: 10/week",
+                "Cover letters: 5/week",
                 "Resume upload & parsing"
             ]
         },
@@ -75,8 +75,9 @@ export default function Pricing() {
             popular: true,
             features: [
                 "20 master resumes",
-                "100 applications/month",
-                "50 AI credits/week",
+                "Unlimited resume optimizations",
+                "Unlimited job analysis",
+                "Unlimited cover letters",
                 "AI cover letter generator",
                 "Transferable skills analysis",
                 "Activity insights & analytics",
@@ -93,7 +94,7 @@ export default function Pricing() {
             features: [
                 "Unlimited resumes",
                 "Unlimited applications",
-                "Unlimited AI credits",
+                "Unlimited AI usage",
                 "All Pro features",
                 "Priority support",
                 "Custom integrations",
@@ -248,7 +249,7 @@ export default function Pricing() {
                         <div>
                             <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">How do AI credits work?</h4>
                             <p className="text-muted-foreground text-xs md:text-sm">
-                                Each AI operation (resume optimization, cover letter generation, Q&A assistance) uses 1 credit. Free users get 5/month, Pro gets 50/week, Enterprise is unlimited.
+                                Free users receive weekly limits for resume optimization, job analysis, and cover letters. Pro and Enterprise unlock unlimited AI usage.
                             </p>
                         </div>
                         <div>
