@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useDeviceDetection } from "@/components/utils/deviceDetection";
 import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { base44 } from "@/api/base44Client";
+import { isAdmin } from "@/components/utils/accessControl";
 import {
     LayoutDashboard,
     Search,
@@ -60,6 +62,20 @@ function AppShell({ children, currentPageName }) {
     const { isMobile } = useDeviceDetection();
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
     const [isDarkMode, setIsDarkMode] = React.useState(false);
+    const [currentUser, setCurrentUser] = React.useState(null);
+
+    React.useEffect(() => {
+        loadCurrentUser();
+    }, []);
+
+    const loadCurrentUser = async () => {
+        try {
+            const user = await base44.auth.me();
+            setCurrentUser(user);
+        } catch (e) {
+            console.error("Error loading current user:", e);
+        }
+    };
 
     React.useEffect(() => {
         const checkDarkMode = () => {
@@ -87,7 +103,7 @@ function AppShell({ children, currentPageName }) {
     const PRAGUE_DAY_CIRCLE = isDarkMode ? PRAGUE_DAY_CIRCLE_DARK : PRAGUE_DAY_CIRCLE_LIGHT;
     const PRAGUE_DAY_FULL = isDarkMode ? PRAGUE_DAY_FULL_DARK : PRAGUE_DAY_FULL_LIGHT;
 
-    const navigationSections = [
+    const allSections = [
         {
             label: "Start Here",
             items: [
@@ -97,12 +113,12 @@ function AppShell({ children, currentPageName }) {
                 { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" }
             ]
         },
-        {
+        ...(isAdmin(currentUser) ? [{
             label: "Admin",
             items: [
                 { title: "Users", url: createPageUrl("Users"), icon: Users, description: "Manage user tiers", badge: "Admin" }
             ]
-        },
+        }] : []),
         {
             label: "Free AI (Weekly Limits)",
             items: [
@@ -262,7 +278,7 @@ function AppShell({ children, currentPageName }) {
                     </SidebarHeader>
 
                     <SidebarContent className="p-2 md:p-3">
-                        {navigationSections.map((section) => (
+                        {allSections.map((section) => (
                             <SidebarGroup key={section.label}>
                                 <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
                                     {section.label}
