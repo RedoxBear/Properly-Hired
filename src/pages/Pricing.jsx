@@ -86,20 +86,39 @@ export default function Pricing() {
             ]
         },
         {
-            id: TIERS.ENTERPRISE,
-            name: "Enterprise",
+            id: TIERS.PREMIUM,
+            name: "Premium",
             icon: Crown,
             color: "text-purple-600",
             gradient: "from-purple-500 to-pink-600",
             features: [
-                "Unlimited resumes",
-                "Unlimited applications",
-                "Unlimited AI usage",
-                "All Pro features",
+                "Unlimited master resumes",
+                "All Pro features unlocked",
+                "Unlimited resume optimizations",
+                "Unlimited job analysis",
+                "Unlimited cover letters",
+                "AI cover letter generator",
+                "Transferable skills analysis",
+                "Activity insights & analytics",
+                "Autofill vault",
+                "Application Q&A assistant"
+            ]
+        },
+        {
+            id: TIERS.ENTERPRISE,
+            name: "Enterprise",
+            icon: Crown,
+            color: "text-amber-600",
+            gradient: "from-amber-500 to-orange-600",
+            features: [
+                "Everything in Premium",
                 "Priority support",
                 "Custom integrations",
                 "Dedicated account manager",
-                "Team collaboration"
+                "Team collaboration",
+                "Custom workflows",
+                "Advanced analytics",
+                "SLA guarantees"
             ]
         }
     ];
@@ -139,7 +158,7 @@ export default function Pricing() {
                     </motion.div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12 px-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-6 mb-8 md:mb-12 px-2">
                     {tiers.map((tier, index) => {
                         const Icon = tier.icon;
                         const pricing = PRICING[tier.id];
@@ -213,10 +232,14 @@ export default function Pricing() {
                                             onClick={() => handleUpgrade(tier.id)}
                                             disabled={isCurrentTier || isLoading}
                                             className={`w-full h-11 md:h-12 text-sm md:text-base ${
-                                                tier.popular 
-                                                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700' 
+                                                tier.popular
+                                                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700'
                                                     : tier.id === TIERS.FREE
                                                     ? 'bg-slate-600 hover:bg-slate-700'
+                                                    : tier.id === TIERS.PREMIUM
+                                                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                                                    : tier.id === TIERS.ENTERPRISE
+                                                    ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700'
                                                     : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
                                             } active:scale-95 transition-transform`}
                                         >
@@ -249,7 +272,7 @@ export default function Pricing() {
                         <div>
                             <h4 className="font-semibold text-foreground mb-2 text-sm md:text-base">How do AI credits work?</h4>
                             <p className="text-muted-foreground text-xs md:text-sm">
-                                Free users receive weekly limits for resume optimization, job analysis, and cover letters. Pro and Enterprise unlock unlimited AI usage.
+                                Free users receive weekly limits for resume optimization, job analysis, and cover letters. Pro, Premium, and Enterprise tiers unlock unlimited AI usage.
                             </p>
                         </div>
                         <div>
