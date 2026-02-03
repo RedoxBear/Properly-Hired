@@ -1,5 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
+import { hasAccess, canPerformAction, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 const Resume = base44.entities.Resume;
 const JobApplication = base44.entities.JobApplication;
@@ -87,19 +89,30 @@ export default function ResumeOptimizer() {
   const [isLoadingKyleAnalysis, setIsLoadingKyleAnalysis] = React.useState(false);
   const [kyleArcGuidance, setKyleArcGuidance] = React.useState(null);
   const [isLoadingArc, setIsLoadingArc] = React.useState(false);
+  const [currentUser, setCurrentUser] = React.useState(null);
+  const [optimizationCount, setOptimizationCount] = React.useState(0);
 
   const loadInitialData = React.useCallback(async () => {
     setIsProcessing(true);
     setError("");
     try {
-      const [applications, resumes, matches] = await Promise.all([
+      const [applications, resumes, matches, user] = await Promise.all([
         JobApplication.list("-created_date", 50),
         Resume.filter({ is_master_resume: true }, "-created_date", 100),
-        JobMatch.list("-created_date", 50)
+        JobMatch.list("-created_date", 50),
+        base44.auth.me()
       ]);
       setJobApplications(applications);
       setMasterResumes(resumes);
       setJobMatches(matches);
+      setCurrentUser(user);
+
+      // Count this week's optimizations (estimate)
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weeklyCount = resumes.filter(r => !r.is_master_resume && new Date(r.created_date) > weekAgo).length;
+      setOptimizationCount(weeklyCount);
+
       if (resumes.length === 0) {
         setError("Please upload or build a master resume first.");
       }
@@ -411,6 +424,12 @@ Return JSON:
   };
 
   const optimizeResume = async (generateMultiple = false) => {
+    // Check tier limits
+    if (!canPerformAction(currentUser, "optimize_resume", optimizationCount)) {
+      setError("You've reached your weekly optimization limit. Upgrade to Pro for unlimited optimizations.");
+      return;
+    }
+
     if (useJobMatch && !selectedMatchId) {
       setError("Please select a job match to optimize for.");
       return;
@@ -692,6 +711,15 @@ Return JSON:
         </Card>
 
         {error && <Alert variant="destructive" className="mb-6"><AlertDescription>{error}</AlertDescription></Alert>}
+
+        {/* Tier Limit Warning */}
+        {currentUser && !canPerformAction(currentUser, "optimize_resume", optimizationCount) && (
+          <UpgradePrompt 
+            feature="resume_optimizations" 
+            currentTier={currentUser.subscription_tier || TIERS.FREE}
+            variant="alert"
+          />
+        )}
 
         <AnimatePresence mode="wait">
           {!optimizationResults ? (

@@ -6,6 +6,7 @@ import { useDeviceDetection } from "@/components/utils/deviceDetection";
 import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { base44 } from "@/api/base44Client";
+import { isAdmin } from "@/components/utils/accessControl";
 import {
     LayoutDashboard,
     Search,
@@ -25,7 +26,8 @@ import {
     Users,
     Gift,
     Settings,
-    Compass
+    Compass,
+    Shield
 } from "lucide-react";
 import {
     Sidebar,
@@ -112,6 +114,12 @@ function AppShell({ children, currentPageName }) {
                 { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" }
             ]
         },
+        ...(isAdmin(currentUser) ? [{
+            label: "Admin",
+            items: [
+                { title: "User Management", url: createPageUrl("Users"), icon: Shield, description: "Manage users & tiers", badge: "Admin" }
+            ]
+        }] : []),
         {
             label: "Free AI (Weekly Limits)",
             items: [
