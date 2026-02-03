@@ -10,6 +10,7 @@ import { createPageUrl } from "@/utils";
 export default function ResumeViewer() {
     const [resume, setResume] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
+    const [previewMode, setPreviewMode] = React.useState("text");
     const navigate = useNavigate();
 
     React.useEffect(() => {
@@ -31,12 +32,27 @@ export default function ResumeViewer() {
         load();
     }, []);
 
-    const buildText = (data) => {
-        let text = "";
-        const optimized = data.optimized_content ? JSON.parse(data.optimized_content) : null;
-        const parsed = data.parsed_content ? JSON.parse(data.parsed_content) : null;
+    const safeParse = (value) => {
+        if (!value) return null;
+        if (typeof value === "object") return value;
+        if (typeof value === "string") {
+            try {
+                return JSON.parse(value);
+            } catch (error) {
+                console.error("Failed to parse resume content:", error);
+                return null;
+            }
+        }
+        return null;
+    };
 
-        const useData = optimized || parsed || null;
+    const resolveContent = (data) => {
+        return safeParse(data?.optimized_content) || safeParse(data?.parsed_content) || null;
+    };
+
+    const buildText = (content) => {
+        let text = "";
+        const useData = content;
 
         if (useData?.personal_info) {
             const pi = useData.personal_info;
@@ -91,12 +107,79 @@ export default function ResumeViewer() {
         return text.trim();
     };
 
+    const buildMarkdown = (content) => {
+        if (!content) return "";
+        const lines = [];
+        const pi = content.personal_info || {};
+        if (pi.name) lines.push(`# ${pi.name}`);
+        const contact = [pi.email, pi.phone, pi.location, pi.linkedin, pi.portfolio].filter(Boolean).join(" | ");
+        if (contact) lines.push(contact);
+        lines.push("");
+
+        const summary = content.executive_summary || content.summary;
+        if (summary) {
+            lines.push("## Summary");
+            lines.push(summary);
+            lines.push("");
+        }
+
+        if (content.skills?.length) {
+            lines.push("## Skills");
+            content.skills.forEach((skill) => lines.push(`- ${skill}`));
+            lines.push("");
+        }
+
+        if (content.experience?.length) {
+            lines.push("## Experience");
+            content.experience.forEach((exp) => {
+                const header = [exp.position, exp.company].filter(Boolean).join(" at ");
+                const meta = [exp.duration, exp.location].filter(Boolean).join(" • ");
+                lines.push(`### ${header || "Role"}`);
+                if (meta) lines.push(meta);
+                if (exp.achievements?.length) {
+                    exp.achievements.forEach((item) => lines.push(`- ${item}`));
+                }
+                lines.push("");
+            });
+        }
+
+        if (content.education?.length) {
+            lines.push("## Education");
+            content.education.forEach((edu) => {
+                const detail = [edu.degree, edu.institution].filter(Boolean).join(", ");
+                const meta = [edu.year, edu.location].filter(Boolean).join(" • ");
+                lines.push(`- ${detail}${meta ? ` (${meta})` : ""}`);
+            });
+            lines.push("");
+        }
+
+        if (content.references?.length) {
+            lines.push("## Professional References");
+            content.references.forEach((ref) => {
+                const header = [ref.name, ref.title, ref.company].filter(Boolean).join(" • ");
+                lines.push(`- ${header}`);
+            });
+            lines.push("");
+        }
+
+        return lines.join("\n").trim();
+    };
+
+    const buildJson = (content) => {
+        const payload = {
+            version_name: resume?.version_name,
+            content: content || null
+        };
+        return JSON.stringify(payload, null, 2);
+    };
+
     const download = (type) => {
         const safeName = (resume?.version_name || "Resume").replace(/[\\/:*?"<>|]/g, "_");
+        const content = resolveContent(resume);
         
         if (type === "txt") {
-            const content = buildText(resume);
-            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+            const text = buildText(content);
+            const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -105,14 +188,19 @@ export default function ResumeViewer() {
             a.click();
             a.remove();
             URL.revokeObjectURL(url);
+        } else if (type === "md") {
+            const markdown = buildMarkdown(content);
+            const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${safeName}.md`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
         } else if (type === "json") {
-            // Standard JSON export (content only)
-            const payload = {
-                version_name: resume?.version_name,
-                optimized_content: resume?.optimized_content ? JSON.parse(resume.optimized_content) : null,
-                parsed_content: resume?.parsed_content ? JSON.parse(resume.parsed_content) : null
-            };
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+            const blob = new Blob([buildJson(content)], { type: "application/json;charset=utf-8" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -125,8 +213,8 @@ export default function ResumeViewer() {
             // Full Repository Backup (includes all metadata, scores, flags, etc.)
             const payload = {
                 ...resume,
-                optimized_content: resume?.optimized_content ? JSON.parse(resume.optimized_content) : null,
-                parsed_content: resume?.parsed_content ? JSON.parse(resume.parsed_content) : null,
+                optimized_content: safeParse(resume?.optimized_content),
+                parsed_content: safeParse(resume?.parsed_content),
                 exported_at: new Date().toISOString(),
                 _meta: {
                     description: "Full Resume Repository Backup",
@@ -167,6 +255,12 @@ export default function ResumeViewer() {
     }
 
     const isOptimized = resume.is_master_resume === false;
+    const content = resolveContent(resume);
+    const previewText = previewMode === "markdown"
+        ? buildMarkdown(content)
+        : previewMode === "json"
+            ? buildJson(content)
+            : buildText(content);
 
     return (
         <div className="min-h-screen p-4 md:p-8">
@@ -185,6 +279,10 @@ export default function ResumeViewer() {
                             <Download className="w-4 h-4" />
                             Download TXT
                         </Button>
+                        <Button onClick={() => download("md")} variant="outline" className="gap-2">
+                            <Download className="w-4 h-4" />
+                            Download MD
+                        </Button>
                         <Button onClick={() => download("json")} variant="outline" className="gap-2">
                             <Download className="w-4 h-4" />
                             Download JSON
@@ -197,12 +295,35 @@ export default function ResumeViewer() {
                 </div>
 
                 <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
-                    <CardHeader>
+                    <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <CardTitle>Preview</CardTitle>
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant={previewMode === "text" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setPreviewMode("text")}
+                            >
+                                Text
+                            </Button>
+                            <Button
+                                variant={previewMode === "markdown" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setPreviewMode("markdown")}
+                            >
+                                Markdown
+                            </Button>
+                            <Button
+                                variant={previewMode === "json" ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setPreviewMode("json")}
+                            >
+                                JSON
+                            </Button>
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <pre className="whitespace-pre-wrap text-sm text-slate-700">
-{buildText(resume)}
+{previewText}
                         </pre>
                     </CardContent>
                 </Card>
