@@ -63,7 +63,6 @@ import JobLibrary from './pages/JobLibrary';
 import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
 import MyNetwork from './pages/MyNetwork';
-import MyResumes from './pages/MyResumes';
 import NetworkingHub from './pages/NetworkingHub';
 import NetworkingMessages from './pages/NetworkingMessages';
 import ONetImport from './pages/ONetImport';
@@ -84,6 +83,7 @@ import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
+import MyResumes from './pages/MyResumes';
 import Pricing from './pages/Pricing';
 import __Layout from './Layout.jsx';
 
@@ -105,7 +105,6 @@ export const PAGES = {
     "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
     "MyNetwork": MyNetwork,
-    "MyResumes": MyResumes,
     "NetworkingHub": NetworkingHub,
     "NetworkingMessages": NetworkingMessages,
     "ONetImport": ONetImport,
@@ -126,6 +125,7 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
+    "MyResumes": MyResumes,
     "Pricing": Pricing,
 }
 
