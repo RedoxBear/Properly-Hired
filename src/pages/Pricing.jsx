@@ -86,7 +86,7 @@ export default function Pricing() {
                 "Transferable skills analysis",
                 "Activity insights & analytics",
                 "Autofill vault",
-                "Application Q&A assistant"
+                "Application Q&A assistant",
                 "Standard support"
             ]
         },
@@ -99,6 +99,7 @@ export default function Pricing() {
             highlight: {
                 title: "Upgrade for priority + scale",
                 description: "Everything in Pro, plus unlimited resumes and faster support."
+            },
             features: [
                 "Everything in Pro",
                 "Unlimited master resumes (no cap)",
