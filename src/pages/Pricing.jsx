@@ -75,13 +75,14 @@ export default function Pricing() {
             popular: true,
             highlight: {
                 title: "Best for active job seekers",
-                description: "Unlimited AI outputs plus the core toolset to move fast."
+ codex/add-premium-upgrade-options-with-comparisons-13yb08
+                description: "Higher weekly limits across resumes, optimizations, and analysis."
             },
             features: [
-                "20 master resumes",
-                "Unlimited resume optimizations",
-                "Unlimited job analysis",
-                "Unlimited cover letters",
+                "10 master resumes",
+                "Resume optimizations: 40/week",
+                "Job analysis: 100/week",
+                "Cover letters: 40/week",
                 "AI cover letter generator",
                 "Transferable skills analysis",
                 "Activity insights & analytics",
