@@ -23,7 +23,8 @@ import {
     User,
     Users,
     Gift,
-    Settings
+    Settings,
+    Compass
 } from "lucide-react";
 import {
     Sidebar,
@@ -86,23 +87,44 @@ function AppShell({ children, currentPageName }) {
     const PRAGUE_DAY_CIRCLE = isDarkMode ? PRAGUE_DAY_CIRCLE_DARK : PRAGUE_DAY_CIRCLE_LIGHT;
     const PRAGUE_DAY_FULL = isDarkMode ? PRAGUE_DAY_FULL_DARK : PRAGUE_DAY_FULL_LIGHT;
 
-    const navigationItems = [
-        { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Overview & Quick Actions" },
-        { title: "My Resumes", url: createPageUrl("MyResumes"), icon: Archive, description: "Manage all your resumes" },
-        { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" },
-        { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis" },
-        { title: "App Tracker", url: createPageUrl("ApplicationTracker"), icon: Briefcase, description: "Track all your applications" },
-        { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings" },
-        { title: "Resume Optimizer", url: createPageUrl("ResumeOptimizer"), icon: FileText, description: "Tailor Your Resume" },
-        { title: "Autofill Vault", url: createPageUrl("AutofillVault"), icon: Boxes, description: "Keep answers." },
-        { title: "Transferable Skills", url: createPageUrl("TransferableSkills"), icon: ArrowRightLeft, description: "Identify & Retarget Skills" },
-        { title: "Cover Letters", url: createPageUrl("CoverLetters"), icon: Mail, description: "Generate Cover Letters" },
-        { title: "Application Q&A", url: createPageUrl("ApplicationQnA"), icon: MessageCircleQuestion, description: "Prepare portal answers" },
-        { title: "Resume Templates", url: createPageUrl("ResumeTemplates"), icon: Palette, description: "Choose & Print Templates" },
-        { title: "Insights", url: createPageUrl("ActivityInsights"), icon: TrendingUp, description: "Activity & Timing Insights" },
-        { title: "Networking Hub", url: createPageUrl("NetworkingHub"), icon: Users, description: "Professional Networking" },
-        { title: "Referral Program", url: createPageUrl("ReferralProgram"), icon: Gift, description: "Refer & Get Rewards" },
-        { title: "Upgrade", url: createPageUrl("Pricing"), icon: Crown, description: "View Plans & Pricing" }
+    const navigationSections = [
+        {
+            label: "Start Here",
+            items: [
+                { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard, description: "Overview & Quick Actions" },
+                { title: "How to Use", url: createPageUrl("HowTo"), icon: Compass, description: "Step-by-step guidance" },
+                { title: "My Resumes", url: createPageUrl("MyResumes"), icon: Archive, description: "Manage all your resumes" },
+                { title: "New Build", url: createPageUrl("ResumeBuilder"), icon: Sparkles, description: "Start from scratch" }
+            ]
+        },
+        {
+            label: "Free AI (Weekly Limits)",
+            items: [
+                { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings", badge: "Free" },
+                { title: "Resume Optimizer", url: createPageUrl("ResumeOptimizer"), icon: FileText, description: "Tailor Your Resume", badge: "Free" },
+                { title: "Cover Letters", url: createPageUrl("CoverLetters"), icon: Mail, description: "Generate Cover Letters", badge: "Free" }
+            ]
+        },
+        {
+            label: "Premium & Growth",
+            items: [
+                { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis", badge: "Pro" },
+                { title: "App Tracker", url: createPageUrl("ApplicationTracker"), icon: Briefcase, description: "Track all your applications", badge: "Pro" },
+                { title: "Autofill Vault", url: createPageUrl("AutofillVault"), icon: Boxes, description: "Keep answers.", badge: "Pro" },
+                { title: "Transferable Skills", url: createPageUrl("TransferableSkills"), icon: ArrowRightLeft, description: "Identify & Retarget Skills", badge: "Pro" },
+                { title: "Application Q&A", url: createPageUrl("ApplicationQnA"), icon: MessageCircleQuestion, description: "Prepare portal answers", badge: "Pro" },
+                { title: "Resume Templates", url: createPageUrl("ResumeTemplates"), icon: Palette, description: "Choose & Print Templates", badge: "Pro" },
+                { title: "Insights", url: createPageUrl("ActivityInsights"), icon: TrendingUp, description: "Activity & Timing Insights", badge: "Pro" },
+                { title: "Networking Hub", url: createPageUrl("NetworkingHub"), icon: Users, description: "Professional Networking", badge: "Pro" },
+            ]
+        },
+        {
+            label: "Plans",
+            items: [
+                { title: "Referral Program", url: createPageUrl("ReferralProgram"), icon: Gift, description: "Refer & Get Rewards" },
+                { title: "Upgrade", url: createPageUrl("Pricing"), icon: Crown, description: "View Plans & Pricing" }
+            ]
+        }
     ];
 
     return (
@@ -234,47 +256,60 @@ function AppShell({ children, currentPageName }) {
                     </SidebarHeader>
 
                     <SidebarContent className="p-2 md:p-3">
-                        <SidebarGroup>
-                            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
-                                Navigation
-                            </SidebarGroupLabel>
-                            <SidebarGroupContent>
-                                <SidebarMenu className="space-y-1">
-                                    {navigationItems.map((item) => (
-                                        <SidebarMenuItem key={item.title}>
-                                            <SidebarMenuButton
-                                                asChild
-                                                className={`hover:bg-accent transition-all duration-200 rounded-xl mb-1 group min-h-[44px] ${
-                                                    location.pathname === item.url
-                                                        ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 border shadow-sm'
-                                                        : 'hover:shadow-sm'
-                                                }`}
-                                            >
-                                                <RouterLink
-                                                    to={item.url}
-                                                    className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3"
-                                                    onClick={() => setIsSidebarOpen(false)}
-                                                >
-                                                    <item.icon className={`w-5 h-5 transition-colors flex-shrink-0 ${
+                        {navigationSections.map((section) => (
+                            <SidebarGroup key={section.label}>
+                                <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 md:px-3 py-2 md:py-3">
+                                    {section.label}
+                                </SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu className="space-y-1">
+                                        {section.items.map((item) => (
+                                            <SidebarMenuItem key={item.title}>
+                                                <SidebarMenuButton
+                                                    asChild
+                                                    className={`hover:bg-accent transition-all duration-200 rounded-xl mb-1 group min-h-[44px] ${
                                                         location.pathname === item.url
-                                                            ? 'text-blue-600 dark:text-blue-400'
-                                                            : 'text-muted-foreground group-hover:text-foreground'
-                                                    }`} />
-                                                    <div className="min-w-0">
-                                                        <div className="font-medium text-sm truncate">{item.title}</div>
-                                                        {!isMobile && (
-                                                            <div className="text-xs text-muted-foreground font-normal truncate hidden md:block sidebar-description">
-                                                                {item.description}
+                                                            ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 border shadow-sm'
+                                                            : 'hover:shadow-sm'
+                                                    }`}
+                                                >
+                                                    <RouterLink
+                                                        to={item.url}
+                                                        className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3"
+                                                        onClick={() => setIsSidebarOpen(false)}
+                                                    >
+                                                        <item.icon className={`w-5 h-5 transition-colors flex-shrink-0 ${
+                                                            location.pathname === item.url
+                                                                ? 'text-blue-600 dark:text-blue-400'
+                                                                : 'text-muted-foreground group-hover:text-foreground'
+                                                        }`} />
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <div className="font-medium text-sm truncate">{item.title}</div>
+                                                                {item.badge && (
+                                                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide ${
+                                                                        item.badge === "Free"
+                                                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200"
+                                                                            : "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-200"
+                                                                    }`}>
+                                                                        {item.badge}
+                                                                    </span>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                </RouterLink>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    ))}
-                                </SidebarMenu>
-                            </SidebarGroupContent>
-                        </SidebarGroup>
+                                                            {!isMobile && (
+                                                                <div className="text-xs text-muted-foreground font-normal truncate hidden md:block sidebar-description">
+                                                                    {item.description}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </RouterLink>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        ))}
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        ))}
 
                         {/* AI Tools section */}
                         <SidebarGroup className="mt-4 md:mt-6">

@@ -76,7 +76,7 @@ export default function JobAnalysis() {
     }, []);
 
     // NEW: fetch structured fields from URL
-    async function autofillFromUrl() {
+    const autofillFromUrl = React.useCallback(async () => {
         if (!jobUrl.trim()) {
             setError("Please paste a job URL first.");
             return;
@@ -146,7 +146,7 @@ URL: ${jobUrl}
         } finally {
             setIsFetchingFromUrl(false);
         }
-    }
+    }, [companyName, jobTitle, jobUrl]);
 
     // NEW: Auto-try once when user pastes a URL and title/company/JD are empty
     React.useEffect(() => {
@@ -156,7 +156,6 @@ URL: ${jobUrl}
             const t = setTimeout(() => { autofillFromUrl(); }, 350);
             return () => clearTimeout(t);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [jobUrl]);
 
     // Deep-link prefill and optional autostart (for browser extension)
@@ -184,7 +183,6 @@ URL: ${jobUrl}
                 analyzeJobPosting();
             }, 10);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Build preview CV from latest master resume JSON (if available)

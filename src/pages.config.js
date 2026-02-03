@@ -56,6 +56,7 @@ import CoverLetters from './pages/CoverLetters';
 import Dashboard from './pages/Dashboard';
 import ExtensionGuide from './pages/ExtensionGuide';
 import Home from './pages/Home';
+import HowTo from './pages/HowTo';
 import JobAnalysis from './pages/JobAnalysis';
 import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
@@ -96,6 +97,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "ExtensionGuide": ExtensionGuide,
     "Home": Home,
+    "HowTo": HowTo,
     "JobAnalysis": JobAnalysis,
     "JobDetails": JobDetails,
     "JobLibrary": JobLibrary,

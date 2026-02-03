@@ -3,8 +3,14 @@ export function savePrefill(obj) {
   try {
     const curr = loadPrefill();
     localStorage.setItem(KEY, JSON.stringify({ ...curr, ...obj }));
-  } catch {}
+  } catch {
+    // Ignore storage errors (e.g., private mode or quota exceeded).
+  }
 }
 export function loadPrefill() {
-  try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(KEY) || "{}");
+  } catch {
+    return {};
+  }
 }
