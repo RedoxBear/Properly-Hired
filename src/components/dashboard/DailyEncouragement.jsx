@@ -113,7 +113,9 @@ export default function DailyEncouragement() {
     })();
   }, []);
 
-  if (!quote) return null;
+  if (!quote) {
+    return null;
+  }
 
   return (
     <Card className="bg-card/90 border-0 shadow">
