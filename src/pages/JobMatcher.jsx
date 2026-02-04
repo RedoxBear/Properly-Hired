@@ -71,6 +71,14 @@ export default function JobMatcher() {
     const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
     const [sourceFilter, setSourceFilter] = React.useState("all");
     const [jobSourceStats, setJobSourceStats] = React.useState({});
+    const [jobInput, setJobInput] = React.useState({
+        job_url: "",
+        job_title: "",
+        company_name: "",
+        job_description: "",
+        location: "",
+        salary_range: ""
+    });
 
     // Load user for feature access check
     React.useEffect(() => {
@@ -85,15 +93,31 @@ export default function JobMatcher() {
             }
         })();
     }, []);
-    
-    const [jobInput, setJobInput] = React.useState({
-        job_url: "",
-        job_title: "",
-        company_name: "",
-        job_description: "",
-        location: "",
-        salary_range: ""
-    });
+
+    // Show loading while checking user access
+    if (isLoadingUser) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-slate-600">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    // Feature gate - require Pro or higher
+    if (!hasAccess(currentUser, "job_matcher")) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <UpgradePrompt
+                    feature="job_matcher"
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
+                    variant="card"
+                />
+            </div>
+        );
+    }
 
     React.useEffect(() => {
         loadData();

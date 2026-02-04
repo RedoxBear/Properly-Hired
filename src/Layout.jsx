@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { base44 } from "@/api/base44Client";
 import { isAdmin, isSuperAdmin } from "@/components/utils/accessControl";
+import { AppContextProvider } from "@/components/context/AppContextProvider";
 import {
     LayoutDashboard,
     Search,
@@ -524,7 +525,9 @@ function AppShell({ children, currentPageName }) {
 export default function Layout({ children, currentPageName }) {
     return (
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-            <AppShell currentPageName={currentPageName}>{children}</AppShell>
+            <AppContextProvider>
+                <AppShell currentPageName={currentPageName}>{children}</AppShell>
+            </AppContextProvider>
         </ThemeProvider>
     );
 }

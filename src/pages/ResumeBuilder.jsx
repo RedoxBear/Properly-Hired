@@ -1,8 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { InvokeLLM } from "@/integrations/Core";
-import { Resume } from "@/entities/Resume";
+import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
@@ -47,7 +46,7 @@ Ensure the JSON is concise, truthful, and structured for resume templates.
 
     try {
       const resp = await retryWithBackoff(() =>
-        InvokeLLM({
+        base44.integrations.Core.InvokeLLM({
           prompt,
           response_json_schema: {
             type: "object",
@@ -86,7 +85,7 @@ Ensure the JSON is concise, truthful, and structured for resume templates.
         quality_last_analyzed_at: new Date().toISOString()
       };
 
-      const created = await Resume.create(payload);
+      const created = await base44.entities.Resume.create(payload);
 
       // Clear draft after successful build
       localStorage.removeItem("cvbuilder_draft");
