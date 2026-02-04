@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import { useAppContext } from "@/context/AppContextProvider";
 
 export default function AgentChat({ agentName, agentTitle, context = {} }) {
+    const { context: appContext, getContextSummary } = useAppContext();
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [conversation, setConversation] = useState(null);
@@ -43,11 +45,20 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
         }, 10000);
 
         try {
+            // Combine provided context with app context
+            const mergedContext = {
+                ...context,
+                appPage: appContext?.currentPage,
+                appTask: appContext?.currentTask,
+                contextSummary: getContextSummary()
+            };
+
             const conv = await base44.agents.createConversation({
                 agent_name: agentName,
                 metadata: {
                     name: `${agentTitle} Chat`,
-                    context: JSON.stringify(context)
+                    context: JSON.stringify(mergedContext),
+                    appContext: appContext
                 }
             });
             clearTimeout(timeoutId);
@@ -88,9 +99,21 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
         setIsLoading(true);
 
         try {
+            // Include context in the message
+            const messageContent = {
+                userMessage: userMessage,
+                context: {
+                    currentPage: appContext?.currentPage,
+                    currentTask: appContext?.currentTask,
+                    contextSummary: getContextSummary(),
+                    timestamp: new Date().toISOString()
+                }
+            };
+
             await base44.agents.addMessage(conversation, {
                 role: "user",
-                content: userMessage
+                content: userMessage,
+                metadata: messageContent
             });
         } catch (e) {
             console.error("Failed to send message:", e);
