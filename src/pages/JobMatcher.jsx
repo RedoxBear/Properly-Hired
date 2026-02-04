@@ -94,35 +94,12 @@ export default function JobMatcher() {
         })();
     }, []);
 
-    // Show loading while checking user access
-    if (isLoadingUser) {
-        return (
-            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-                <div className="flex items-center gap-3 text-slate-600">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Loading...</span>
-                </div>
-            </div>
-        );
-    }
-
-    // Feature gate - require Pro or higher
-    if (!hasAccess(currentUser, "job_matcher")) {
-        return (
-            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-                <UpgradePrompt
-                    feature="job_matcher"
-                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
-                    variant="card"
-                />
-            </div>
-        );
-    }
-
     React.useEffect(() => {
-        loadData();
-        detectUserLocation();
-    }, []);
+        if (currentUser && hasAccess(currentUser, "job_matcher")) {
+            loadData();
+            detectUserLocation();
+        }
+    }, [currentUser]);
 
     const detectUserLocation = async () => {
         setIsDetectingLocation(true);
@@ -690,57 +667,6 @@ Return JSON with:
         setIsAutoSearching(false);
     };
 
-    const filteredMatches = React.useMemo(() => {
-        let filtered = matches.filter(match => {
-            const statusMatch = statusFilter === "all" || match.status === statusFilter;
-            const scoreMatch = 
-                scoreFilter === "all" ||
-                (scoreFilter === "excellent" && match.match_score >= 85) ||
-                (scoreFilter === "good" && match.match_score >= 70 && match.match_score < 85) ||
-                (scoreFilter === "fair" && match.match_score >= 50 && match.match_score < 70) ||
-                (scoreFilter === "poor" && match.match_score < 50);
-            const minScoreMatch = match.match_score >= minScoreFilter;
-            
-            // Location type filter (Remote, City, State)
-            let locationTypeMatch = true;
-            if (locationTypeFilter !== "all") {
-                const loc = (match.location || "").toLowerCase();
-                if (locationTypeFilter === "remote") {
-                    locationTypeMatch = /remote|work from home|wfh|anywhere/i.test(match.location || "");
-                } else if (locationTypeFilter === "city") {
-                    locationTypeMatch = loc && !/remote|work from home|wfh/i.test(loc) && /,/.test(loc);
-                } else if (locationTypeFilter === "state") {
-                    // State-level filtering - locations with US state abbreviations
-                    locationTypeMatch = loc && /\b[A-Z]{2}\b/.test(match.location || "");
-                }
-            }
-            
-            const locationMatch = !locationFilter || 
-                (match.location && match.location.toLowerCase().includes(locationFilter.toLowerCase()));
-            
-            // Source filter for aggregated jobs
-            const sourceMatch = sourceFilter === "all" || 
-                (match.job_source && match.job_source.toLowerCase().includes(sourceFilter.toLowerCase()));
-            
-            return statusMatch && scoreMatch && minScoreMatch && locationTypeMatch && locationMatch && sourceMatch;
-        });
-
-        // Sort
-        if (sortBy === "score_desc") {
-            filtered.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
-        } else if (sortBy === "score_asc") {
-            filtered.sort((a, b) => (a.match_score || 0) - (b.match_score || 0));
-        } else if (sortBy === "date_desc") {
-            filtered.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-        } else if (sortBy === "date_asc") {
-            filtered.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-        } else if (sortBy === "background_fit_desc") {
-            filtered.sort((a, b) => (b.background_fit_score || 0) - (a.background_fit_score || 0));
-        }
-
-        return filtered;
-    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, locationTypeFilter, sortBy, sourceFilter]);
-
     const stats = {
         total: matches.length,
         excellent: matches.filter(m => m.match_score >= 85).length,
@@ -793,6 +719,57 @@ Return JSON with:
             </div>
         );
     }
+
+    const filteredMatches = React.useMemo(() => {
+        let filtered = matches.filter(match => {
+            const statusMatch = statusFilter === "all" || match.status === statusFilter;
+            const scoreMatch = 
+                scoreFilter === "all" ||
+                (scoreFilter === "excellent" && match.match_score >= 85) ||
+                (scoreFilter === "good" && match.match_score >= 70 && match.match_score < 85) ||
+                (scoreFilter === "fair" && match.match_score >= 50 && match.match_score < 70) ||
+                (scoreFilter === "poor" && match.match_score < 50);
+            const minScoreMatch = match.match_score >= minScoreFilter;
+            
+            // Location type filter (Remote, City, State)
+            let locationTypeMatch = true;
+            if (locationTypeFilter !== "all") {
+                const loc = (match.location || "").toLowerCase();
+                if (locationTypeFilter === "remote") {
+                    locationTypeMatch = /remote|work from home|wfh|anywhere/i.test(match.location || "");
+                } else if (locationTypeFilter === "city") {
+                    locationTypeMatch = loc && !/remote|work from home|wfh/i.test(loc) && /,/.test(loc);
+                } else if (locationTypeFilter === "state") {
+                    // State-level filtering - locations with US state abbreviations
+                    locationTypeMatch = loc && /\b[A-Z]{2}\b/.test(match.location || "");
+                }
+            }
+            
+            const locationMatch = !locationFilter || 
+                (match.location && match.location.toLowerCase().includes(locationFilter.toLowerCase()));
+            
+            // Source filter for aggregated jobs
+            const sourceMatch = sourceFilter === "all" || 
+                (match.job_source && match.job_source.toLowerCase().includes(sourceFilter.toLowerCase()));
+            
+            return statusMatch && scoreMatch && minScoreMatch && locationTypeMatch && locationMatch && sourceMatch;
+        });
+
+        // Sort
+        if (sortBy === "score_desc") {
+            filtered.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+        } else if (sortBy === "score_asc") {
+            filtered.sort((a, b) => (a.match_score || 0) - (b.match_score || 0));
+        } else if (sortBy === "date_desc") {
+            filtered.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+        } else if (sortBy === "date_asc") {
+            filtered.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+        } else if (sortBy === "background_fit_desc") {
+            filtered.sort((a, b) => (b.background_fit_score || 0) - (a.background_fit_score || 0));
+        }
+
+        return filtered;
+    }, [matches, statusFilter, scoreFilter, minScoreFilter, locationFilter, locationTypeFilter, sortBy, sourceFilter]);
 
     return (
         <div className="min-h-screen p-4 md:p-8 bg-background">
