@@ -63,6 +63,8 @@ const heroPresets = {
 
 // Cycle fix
 export default function Dashboard() {
+    const { isMobile, isTablet, isDesktop, deviceType } = useDeviceDetection();
+    
     const [applications, setApplications] = React.useState([]);
     const [resumes, setResumes] = React.useState([]);
     const [userData, setUserData] = React.useState(null);
@@ -70,8 +72,6 @@ export default function Dashboard() {
     const [error, setError] = React.useState("");
     const [vaultUpdatedAt, setVaultUpdatedAt] = React.useState(null);
     const [masterQuality, setMasterQuality] = React.useState(null);
-    
-    const { isMobile, isTablet, isDesktop, deviceType } = useDeviceDetection();
 
     React.useEffect(() => {
         loadData();
