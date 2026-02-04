@@ -173,47 +173,48 @@ export default function ONetImport() {
         throw new Error(`Entity ${entityName} not found. Please ensure it exists in Base44.`);
       }
 
-      // Batch import
+      // Batch import using individual creates
       let importedCount = 0;
+      let failedCount = 0;
       const totalRecords = records.length;
 
       for (let i = 0; i < totalRecords; i += BATCH_SIZE) {
         const batch = records.slice(i, i + BATCH_SIZE);
 
-        try {
-          await entity.bulkCreate(batch);
-          importedCount += batch.length;
-
-          const progress = Math.round((importedCount / totalRecords) * 100);
-          updateFileState(fileName, {
-            progress,
-            importedCount
-          });
-        } catch (batchError) {
-          console.error(`Batch error at offset ${i}:`, batchError);
-
-          // Try individual inserts for failed batch
-          for (const record of batch) {
-            try {
-              await entity.create(record);
-              importedCount++;
-            } catch (recordError) {
-              console.warn(`Record insert failed:`, recordError.message);
-            }
+        // Process each record individually for reliability
+        for (let j = 0; j < batch.length; j++) {
+          const record = batch[j];
+          try {
+            await entity.create(record);
+            importedCount++;
+          } catch (recordError) {
+            failedCount++;
+            const recordIndex = i + j;
+            console.warn(`Record ${recordIndex} insert failed:`, recordError.message, record);
+            // Continue with next record instead of stopping
           }
-
-          const progress = Math.round((importedCount / totalRecords) * 100);
-          updateFileState(fileName, {
-            progress,
-            importedCount
-          });
         }
+
+        // Update progress after each batch
+        const progress = Math.round((importedCount / totalRecords) * 100);
+        updateFileState(fileName, {
+          progress,
+          importedCount,
+          failedCount
+        });
       }
 
+      const status = failedCount > 0 ? FILE_STATUS.COMPLETE : FILE_STATUS.COMPLETE;
+      const summary = failedCount > 0
+        ? `Imported ${importedCount} of ${totalRecords} records (${failedCount} failed)`
+        : `Successfully imported all ${importedCount} records`;
+
       updateFileState(fileName, {
-        status: FILE_STATUS.COMPLETE,
+        status,
         progress: 100,
         importedCount,
+        failedCount,
+        summary,
         endTime: Date.now()
       });
 
