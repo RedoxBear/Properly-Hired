@@ -15,6 +15,10 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [initError, setInitError] = useState("");
+    const [isInitializing, setIsInitializing] = useState(false);
+    const initTimeoutRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -26,6 +30,15 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
     }, [messages]);
 
     const initConversation = async () => {
+        setIsInitializing(true);
+        setInitError("");
+
+        // Set timeout for initialization
+        const timeoutId = setTimeout(() => {
+            setInitError("Chat initialization timed out. Please try again.");
+            setIsInitializing(false);
+        }, 10000);
+
         try {
             const conv = await base44.agents.createConversation({
                 agent_name: agentName,
@@ -34,10 +47,16 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                     context: JSON.stringify(context)
                 }
             });
+            clearTimeout(timeoutId);
             setConversation(conv);
             setMessages(conv.messages || []);
+            setInitError("");
         } catch (e) {
+            clearTimeout(timeoutId);
             console.error("Failed to create conversation:", e);
+            setInitError(e.message || "Failed to initialize chat. Please try again.");
+        } finally {
+            setIsInitializing(false);
         }
     };
 
@@ -61,6 +80,7 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
         if (!input.trim() || !conversation) return;
 
         const userMessage = input.trim();
+        setError("");
         setInput("");
         setIsLoading(true);
 
@@ -71,6 +91,9 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
             });
         } catch (e) {
             console.error("Failed to send message:", e);
+            // Restore input on failure so user doesn't lose their message
+            setInput(userMessage);
+            setError(e.message || "Failed to send message. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -143,12 +166,40 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                     {!isMinimized && (
                         <>
                             <CardContent className="flex-1 overflow-y-auto p-4 space-y-3">
-                                {messages.length === 0 && (
+                                {initError && (
+                                    <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+                                        <p className="font-medium mb-2">{initError}</p>
+                                        <Button
+                                            size="sm"
+                                            onClick={initConversation}
+                                            disabled={isInitializing}
+                                            className="text-xs"
+                                        >
+                                            {isInitializing ? (
+                                                <>
+                                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                                    Retrying...
+                                                </>
+                                            ) : (
+                                                "Try Again"
+                                            )}
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {isInitializing && !initError && (
+                                    <div className="flex items-center justify-center py-8 text-slate-500">
+                                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                        <span className="text-sm">Initializing chat...</span>
+                                    </div>
+                                )}
+
+                                {messages.length === 0 && !isInitializing && !initError && (
                                     <div className="text-center text-slate-500 text-sm mt-8">
                                         <Bot className="w-12 h-12 mx-auto mb-3 text-slate-300" />
                                         <p>
-                                            {agentName === 'kyle' 
-                                                ? "Ask Kyle, your Resume Expert!" 
+                                            {agentName === 'kyle'
+                                                ? "Ask Kyle, your Resume Expert!"
                                                 : agentName === 'simon'
                                                 ? "Ask Simon, insider Recruiter for the Company!"
                                                 : `Ask me anything about ${agentTitle.toLowerCase()}!`}
@@ -184,29 +235,38 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                 <div ref={messagesEndRef} />
                             </CardContent>
 
-                            <div className="border-t p-3">
+                            <div className="border-t p-3 space-y-2">
+                                {error && (
+                                    <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                                        {error}
+                                    </div>
+                                )}
                                 <div className="flex gap-2">
                                     <Textarea
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         onKeyPress={handleKeyPress}
                                         placeholder={
-                                            agentName === 'kyle' 
-                                                ? "Ask Kyle, your Resume Expert!" 
+                                            agentName === 'kyle'
+                                                ? "Ask Kyle, your Resume Expert!"
                                                 : agentName === 'simon'
                                                 ? "Ask Simon, insider Recruiter for the Company!"
                                                 : "Type your message..."
                                         }
                                         className="resize-none h-10 min-h-0"
-                                        disabled={isLoading}
+                                        disabled={isLoading || !conversation}
                                     />
                                     <Button
                                         onClick={sendMessage}
-                                        disabled={!input.trim() || isLoading}
+                                        disabled={!input.trim() || isLoading || !conversation}
                                         size="icon"
                                         className="bg-orange-600 hover:bg-orange-700"
                                     >
-                                        <Send className="w-4 h-4" />
+                                        {isLoading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <Send className="w-4 h-4" />
+                                        )}
                                     </Button>
                                 </div>
                             </div>

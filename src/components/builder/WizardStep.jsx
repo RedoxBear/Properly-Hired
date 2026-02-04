@@ -16,6 +16,7 @@ export default function WizardStep({
   onVoiceTranscriptChange
 }) {
   const [listening, setListening] = React.useState(false);
+  const [voiceError, setVoiceError] = React.useState("");
   const [showExample, setShowExample] = React.useState(false);
   const recognitionRef = React.useRef(null);
   const textareaRef = React.useRef(null);
@@ -31,6 +32,7 @@ export default function WizardStep({
     rec.interimResults = true;
     rec.continuous = false;
     recognitionRef.current = rec;
+    setVoiceError("");
 
     let finalTranscript = answer || "";
     rec.onresult = (e) => {
@@ -41,9 +43,28 @@ export default function WizardStep({
         else interim += transcript;
       }
       onAnswerChange(finalTranscript + (interim ? " " + interim : ""));
+      setVoiceError(""); // Clear error on successful speech
     };
     rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
+    rec.onerror = (event) => {
+      const errorType = event.error;
+      console.error("Voice recognition error in question:", question.id, errorType);
+
+      // Map error codes to user-friendly messages
+      const errorMessages = {
+        'no-speech': 'No speech detected. Please try again.',
+        'audio-capture': 'Microphone not found. Check audio permissions.',
+        'network': 'Network error. Please try again.',
+        'permission-denied': 'Microphone access denied. Enable audio permissions.',
+        'aborted': 'Voice recording was cancelled.',
+        'service-not-allowed': 'Voice service unavailable in your region.'
+      };
+
+      const userMessage = errorMessages[errorType] || `Voice error: ${errorType}`;
+      setVoiceError(userMessage);
+      console.warn(`Voice error for question "${question.title}": ${userMessage}`);
+      setListening(false);
+    };
 
     setListening(true);
     rec.start();
@@ -127,6 +148,17 @@ export default function WizardStep({
             {listening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </Button>
         </div>
+
+        {/* Voice Error Display */}
+        {voiceError && (
+          <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 flex items-start gap-2">
+            <span className="text-base mt-0.5">⚠️</span>
+            <div>
+              <p className="font-medium">{voiceError}</p>
+              <p className="text-xs mt-1">You can type your answer or try the microphone again.</p>
+            </div>
+          </div>
+        )}
 
         {/* Answer Strength */}
         <AnswerStrength score={strength} />
