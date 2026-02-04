@@ -21,11 +21,19 @@ export const TIER_LIMITS = {
     resume_optimizations_per_week: 5,
     job_analyses_per_week: 10,
     cover_letters_per_week: 5,
-    cover_letters: false,
+    cover_letters: true,
     transferable_skills: false,
     insights: false,
     priority_support: false,
-    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters"]
+    // FREE: Basic features + Career Coach only in Networking Hub
+    features: [
+      "job_analysis",
+      "resume_upload",
+      "basic_optimization",
+      "cover_letters",
+      "resume_builder",
+      "career_coach" // Only Career Coach in Networking Hub for FREE
+    ]
   },
   pro: {
     max_resumes: 10,
@@ -36,7 +44,23 @@ export const TIER_LIMITS = {
     transferable_skills: true,
     insights: true,
     priority_support: false,
-    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters", "transferable_skills", "insights", "autofill_vault", "application_qna"]
+    // PRO: All features except priority support
+    features: [
+      "job_analysis",
+      "resume_upload",
+      "basic_optimization",
+      "cover_letters",
+      "resume_builder",
+      "job_matcher",
+      "app_tracker",
+      "autofill_vault",
+      "transferable_skills",
+      "application_qna",
+      "resume_templates",
+      "insights",
+      "networking_hub",
+      "career_coach"
+    ]
   },
   premium: {
     max_resumes: -1, // unlimited
@@ -46,8 +70,25 @@ export const TIER_LIMITS = {
     cover_letters: true,
     transferable_skills: true,
     insights: true,
-    priority_support: false,
-    features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters", "transferable_skills", "insights", "autofill_vault", "application_qna"]
+    priority_support: true,
+    // PREMIUM: All features
+    features: [
+      "job_analysis",
+      "resume_upload",
+      "basic_optimization",
+      "cover_letters",
+      "resume_builder",
+      "job_matcher",
+      "app_tracker",
+      "autofill_vault",
+      "transferable_skills",
+      "application_qna",
+      "resume_templates",
+      "insights",
+      "networking_hub",
+      "career_coach",
+      "priority_support"
+    ]
   },
   enterprise: {
     max_resumes: -1, // unlimited
@@ -167,14 +208,21 @@ export function getUpgradeMessage(feature) {
     cover_letters: "Unlock AI-powered cover letter generation with Pro or Premium",
     transferable_skills: "Discover your transferable skills with Pro or Premium",
     insights: "Get detailed activity insights with Pro or Premium",
-    max_resumes: "You've reached your resume limit. Upgrade to Pro (20 resumes) or Premium (unlimited)",
-    max_resumes_pro: "You've hit the 20 resume limit on Pro. Upgrade to Premium for unlimited resumes",
-    max_applications: "You've reached your weekly job analysis limit. Upgrade to Pro or Premium for unlimited",
-    resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade to Pro or Premium for unlimited",
-    cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade to Pro or Premium for unlimited"
+    max_resumes: "You've reached your resume limit. Upgrade to Pro (10 resumes) or Premium (unlimited)",
+    max_resumes_pro: "You've hit the 10 resume limit on Pro. Upgrade to Premium for unlimited resumes",
+    max_applications: "You've reached your weekly job analysis limit. Upgrade for more analyses",
+    resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade for more optimizations",
+    cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade for more cover letters",
+    // Locked features for FREE tier
+    job_matcher: "Match jobs to your profile with Pro or Premium",
+    app_tracker: "Track your job applications with Pro or Premium",
+    autofill_vault: "Auto-fill applications instantly with Pro or Premium",
+    application_qna: "Get AI-powered Q&A assistance with Pro or Premium",
+    resume_templates: "Access professional resume templates with Pro or Premium",
+    networking_hub: "Unlock full Networking Hub features with Pro or Premium"
   };
 
-  return messages[feature] || "Upgrade to unlock this feature";
+  return messages[feature] || "Upgrade to Pro or Premium to unlock this feature";
 }
 
 /**

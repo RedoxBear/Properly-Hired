@@ -1,6 +1,9 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +42,7 @@ import { motion } from "framer-motion";
 import CompanyResearchDisplay from "@/components/company/CompanyResearchDisplay";
 
 export default function ApplicationTracker() {
+    const [currentUser, setCurrentUser] = React.useState(null);
     const [applications, setApplications] = React.useState([]);
     const [resumes, setResumes] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
@@ -63,6 +67,31 @@ export default function ApplicationTracker() {
     const [error, setError] = React.useState("");
     const [selectedIds, setSelectedIds] = React.useState([]);
     const [expandedApp, setExpandedApp] = React.useState(null);
+
+    // Load user for feature access check
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const user = await base44.auth.me();
+                setCurrentUser(user);
+            } catch (e) {
+                console.warn("Failed to load user:", e);
+            }
+        })();
+    }, []);
+
+    // Feature gate - require Pro or higher
+    if (currentUser && !hasAccess(currentUser, "app_tracker")) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <UpgradePrompt
+                    feature="app_tracker"
+                    currentTier={currentUser.subscription_tier || TIERS.FREE}
+                    variant="card"
+                />
+            </div>
+        );
+    }
 
     const statusConfig = {
         applied: { color: "bg-blue-100 text-blue-800", label: "Applied", icon: FileText },

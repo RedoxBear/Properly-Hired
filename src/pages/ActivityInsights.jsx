@@ -1,9 +1,12 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { readEvents } from "@/components/utils/telemetry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BarChart as BarChartIcon, Activity as ActivityIcon, PieChart as PieChartIcon } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 const daysBack = (n) => {
   const arr = [];
@@ -85,10 +88,13 @@ const detectAtsVendor = (host = "", vendor = "") => {
 export default function ActivityInsights() {
   const [events, setEvents] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [currentUser, setCurrentUser] = React.useState(null);
 
   React.useEffect(() => {
     (async () => {
       try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
         const evs = await readEvents();
         setEvents(Array.isArray(evs) ? evs : []);
       } finally {
@@ -96,6 +102,19 @@ export default function ActivityInsights() {
       }
     })();
   }, []);
+
+  // Feature gate: Insights requires Pro or higher
+  if (currentUser && !hasAccess(currentUser, "insights")) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <UpgradePrompt
+          feature="insights"
+          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          variant="card"
+        />
+      </div>
+    );
+  }
 
   const byType = React.useMemo(() => {
     const m = new Map();

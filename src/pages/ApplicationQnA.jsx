@@ -1,4 +1,5 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { JobApplication } from "@/entities/JobApplication";
 import { Resume } from "@/entities/Resume";
 import { InvokeLLM } from "@/integrations/Core";
@@ -9,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { 
-    MessageCircleQuestion, 
-    Sparkles, 
+import {
+    MessageCircleQuestion,
+    Sparkles,
     Plus,
     Trash2,
     CheckCircle2,
@@ -23,6 +24,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { retryWithBackoff } from "@/components/utils/retry";
 import { logEvent } from "@/components/utils/telemetry";
 import AgentChat from "@/components/agents/AgentChat";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 export default function QAAssistant() {
     const [jobApplications, setJobApplications] = React.useState([]);
@@ -32,10 +35,28 @@ export default function QAAssistant() {
     const [error, setError] = React.useState("");
     const [answerStyle, setAnswerStyle] = React.useState("balanced"); // concise | balanced | detailed
     const [resumes, setResumes] = React.useState([]);
+    const [currentUser, setCurrentUser] = React.useState(null);
 
     React.useEffect(() => {
+        (async () => {
+            const user = await base44.auth.me();
+            setCurrentUser(user);
+        })();
         loadJobApplications();
     }, []);
+
+    // Feature gate: Application Q&A requires Pro or higher
+    if (currentUser && !hasAccess(currentUser, "application_qna")) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <UpgradePrompt
+                    feature="application_qna"
+                    currentTier={currentUser.subscription_tier || TIERS.FREE}
+                    variant="card"
+                />
+            </div>
+        );
+    }
 
     const loadJobApplications = async () => {
         try {

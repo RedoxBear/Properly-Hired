@@ -1,41 +1,60 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles, GraduationCap, Linkedin, CalendarCheck } from "lucide-react";
+import { Users, MessageSquare, Calendar, ExternalLink, Search, Sparkles, GraduationCap, Linkedin, CalendarCheck, Lock } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AgentChat from "@/components/agents/AgentChat";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 export default function NetworkingHub() {
+  const [currentUser, setCurrentUser] = React.useState(null);
+
+  React.useEffect(() => {
+    (async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+    })();
+  }, []);
+
+  // Check if user has full networking hub access (Pro or higher)
+  const hasFullAccess = currentUser && hasAccess(currentUser, "networking_hub");
+
   const features = [
     {
       title: "People Search",
       description: "Find professionals in your target companies and industries",
       icon: Search,
       color: "from-blue-500 to-cyan-600",
-      link: "PeopleSearch"
+      link: "PeopleSearch",
+      requiresPaid: true
     },
     {
       title: "AI Message Generator",
       description: "Create personalized connection requests and outreach messages",
       icon: MessageSquare,
       color: "from-purple-500 to-pink-600",
-      link: "NetworkingMessages"
+      link: "NetworkingMessages",
+      requiresPaid: true
     },
     {
       title: "Recruiter Connect",
       description: "Schedule virtual meetings with recruiters and hiring managers",
       icon: Calendar,
       color: "from-green-500 to-emerald-600",
-      link: "RecruiterConnect"
+      link: "RecruiterConnect",
+      requiresPaid: true
     },
     {
       title: "My Network",
       description: "Manage your contacts and track connection status",
       icon: Users,
       color: "from-amber-500 to-orange-600",
-      link: "MyNetwork"
+      link: "MyNetwork",
+      requiresPaid: true
     }
   ];
 
@@ -62,6 +81,39 @@ export default function NetworkingHub() {
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {features.map((feature, index) => {
             const Icon = feature.icon;
+            const isLocked = feature.requiresPaid && !hasFullAccess;
+
+            if (isLocked) {
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="h-full border-0 bg-slate-100/90 backdrop-blur-sm relative overflow-hidden">
+                    <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                      <div className="text-center p-4">
+                        <Lock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                        <p className="text-sm text-slate-600 font-medium">Upgrade to Pro or Premium</p>
+                      </div>
+                    </div>
+                    <CardHeader className="opacity-50">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <CardTitle className="text-xl">
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="opacity-50">
+                      <p className="text-slate-600">{feature.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            }
+
             return (
               <motion.div
                 key={feature.title}
@@ -92,6 +144,22 @@ export default function NetworkingHub() {
             );
           })}
         </div>
+
+        {/* Upgrade prompt for FREE users */}
+        {currentUser && !hasFullAccess && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="mb-8"
+          >
+            <UpgradePrompt
+              feature="networking_hub"
+              currentTier={currentUser.subscription_tier || TIERS.FREE}
+              variant="inline"
+            />
+          </motion.div>
+        )}
 
         {/* Career Coaches */}
         <motion.div

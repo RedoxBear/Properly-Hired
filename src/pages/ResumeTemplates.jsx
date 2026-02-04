@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { base44 } from "@/api/base44Client";
 import { Resume } from "@/entities/Resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import Minimal from "@/components/resume/templates/Minimal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { parse, parseISO, isValid, differenceInMonths } from "date-fns";
 import TemplateGallery from "@/components/resume/templates/TemplateGallery";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 export default function ResumeTemplates() {
   const [resumes, setResumes] = useState([]);
@@ -19,9 +22,12 @@ export default function ResumeTemplates() {
   const [template, setTemplate] = useState("classic");
   const [appliedNote, setAppliedNote] = useState("");
   const printRef = useRef(null); // NEW: printable area ref
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const init = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
       const urlParams = new URLSearchParams(window.location.search);
       const rid = urlParams.get("resumeId") || "";
       const list = await Resume.list("-created_date", 50);
@@ -32,6 +38,19 @@ export default function ResumeTemplates() {
     };
     init();
   }, []);
+
+  // Feature gate: Resume Templates requires Pro or higher
+  if (currentUser && !hasAccess(currentUser, "resume_templates")) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <UpgradePrompt
+          feature="resume_templates"
+          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          variant="card"
+        />
+      </div>
+    );
+  }
 
   // When switching selected resume, load its saved template if exists
   useEffect(() => {

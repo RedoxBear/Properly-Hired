@@ -14,6 +14,8 @@ import { retryWithBackoff } from "@/components/utils/retry";
 import AgentChat from "@/components/agents/AgentChat";
 import ONetAttribution from "@/components/onet/ONetAttribution";
 import ONetContentModel from "@/components/onet/ONetContentModel";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 // Kyle's Transferable Skills Expertise
 const KYLE_SKILLS_EXPERTISE = [
@@ -33,10 +35,13 @@ export default function TransferableSkills() {
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState(null);
   const [error, setError] = React.useState("");
+  const [currentUser, setCurrentUser] = React.useState(null);
 
   React.useEffect(() => {
     const init = async () => {
       try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
         const list = await Resume.list("-created_date", 50);
         setResumes(list);
         if (list.length) setSelectedId(list[0].id);
@@ -47,6 +52,19 @@ export default function TransferableSkills() {
     };
     init();
   }, []);
+
+  // Feature gate: Transferable Skills requires Pro or higher
+  if (currentUser && !hasAccess(currentUser, "transferable_skills")) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <UpgradePrompt
+          feature="transferable_skills"
+          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          variant="card"
+        />
+      </div>
+    );
+  }
 
   const analyze = async () => {
     if (!selectedId) return;

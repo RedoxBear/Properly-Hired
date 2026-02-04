@@ -1,4 +1,5 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { AutofillVault } from "@/entities/AutofillVault";
 import { Resume } from "@/entities/Resume";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -9,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, DownloadCloud, Save, Plus, Trash2, RefreshCw, X } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 function timeAgo(ts) {
   if (!ts) return "never";
@@ -24,11 +27,37 @@ function timeAgo(ts) {
 }
 
 export default function AutofillVaultPage() {
+  const [currentUser, setCurrentUser] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [vaultRec, setVaultRec] = React.useState(null);
   const [showRemapPrompt, setShowRemapPrompt] = React.useState(false);
   const [latestMaster, setLatestMaster] = React.useState(null);
+
+  // Load user for feature access check
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+      } catch (e) {
+        console.warn("Failed to load user:", e);
+      }
+    })();
+  }, []);
+
+  // Feature gate - require Pro or higher
+  if (currentUser && !hasAccess(currentUser, "autofill_vault")) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <UpgradePrompt
+          feature="autofill_vault"
+          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          variant="card"
+        />
+      </div>
+    );
+  }
 
   // default structure
   const emptyVault = {
