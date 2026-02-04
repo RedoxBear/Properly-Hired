@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import { useAppContext } from "@/context/AppContextProvider";
+import { useAppContext } from "@/components/context/AppContextProvider";
 
 export default function AgentChat({ agentName, agentTitle, context = {} }) {
     const { context: appContext, getContextSummary } = useAppContext();
