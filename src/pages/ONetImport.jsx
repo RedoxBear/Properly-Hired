@@ -45,6 +45,10 @@ export default function ONetImport() {
   const [verificationInProgress, setVerificationInProgress] = React.useState(false);
   const [importStats, setImportStats] = React.useState(null);
   const [totalProgress, setTotalProgress] = React.useState(0);
+  const [previewMode, setPreviewMode] = React.useState(false);
+  const [matchedFiles, setMatchedFiles] = React.useState([]);
+  const [unmatchedFiles, setUnmatchedFiles] = React.useState([]);
+  const folderInputRef = React.useRef(null);
 
   React.useEffect(() => {
     checkAccess();
@@ -329,6 +333,61 @@ export default function ONetImport() {
     }
   };
 
+  const handleFolderSelect = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const matched = [];
+    const unmatched = [];
+
+    // Try to match each file to a schema by filename
+    files.forEach(file => {
+      const schema = getSchemaByFileName(file.name);
+      if (schema) {
+        matched.push({ file, schema, fileName: schema.fileName });
+      } else {
+        unmatched.push({ fileName: file.name });
+      }
+    });
+
+    // Set file states for matched files
+    const newFileStates = { ...fileStates };
+    matched.forEach(({ file, fileName }) => {
+      newFileStates[fileName] = {
+        file,
+        status: FILE_STATUS.PENDING,
+        error: null,
+        progress: 0,
+        importedCount: 0
+      };
+    });
+    setFileStates(newFileStates);
+
+    setMatchedFiles(matched);
+    setUnmatchedFiles(unmatched);
+    setPreviewMode(true);
+    setError("");
+
+    // Reset file input
+    if (folderInputRef.current) {
+      folderInputRef.current.value = "";
+    }
+  };
+
+  const confirmAndImportAll = async () => {
+    if (matchedFiles.length === 0) return;
+
+    setPreviewMode(false);
+    await handleImportAll();
+  };
+
+  const cancelPreview = () => {
+    setPreviewMode(false);
+    setMatchedFiles([]);
+    setUnmatchedFiles([]);
+    setFileStates({});
+  };
+
   const handleClearAllData = async () => {
     if (!confirm("This will delete ALL O*NET data from the database. Are you sure?")) {
       return;
@@ -575,6 +634,106 @@ export default function ONetImport() {
             </ol>
           </CardContent>
         </Card>
+
+        {/* Batch Folder Upload */}
+        {!previewMode && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">Batch Upload from Folder</h3>
+                  <p className="text-sm text-blue-700">Select your O*NET CSV folder to auto-match and preview all files</p>
+                </div>
+                <div>
+                  <input
+                    ref={folderInputRef}
+                    type="file"
+                    multiple
+                    webkitdirectory="true"
+                    onChange={handleFolderSelect}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() => folderInputRef.current?.click()}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Select Folder
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Preview Mode */}
+        {previewMode && (
+          <Card className="bg-green-50 border-green-200">
+            <CardHeader>
+              <CardTitle className="text-green-900 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                Import Preview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {matchedFiles.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-green-900 mb-2">Matched Files ({matchedFiles.length})</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {matchedFiles.map((item, idx) => (
+                      <div key={idx} className="p-2 bg-white rounded border border-green-200">
+                        <div className="text-sm font-medium text-green-800 truncate">{item.file.name}</div>
+                        <div className="text-xs text-green-700">→ {item.schema.entity}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {unmatchedFiles.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-amber-900 mb-2">Unmatched Files ({unmatchedFiles.length})</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {unmatchedFiles.map((item, idx) => (
+                      <div key={idx} className="p-2 bg-white rounded border border-amber-200">
+                        <div className="text-sm text-amber-800 truncate">{item.fileName}</div>
+                        <div className="text-xs text-amber-600">Not recognized</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-4 border-t border-green-200">
+                <Button
+                  onClick={confirmAndImportAll}
+                  disabled={matchedFiles.length === 0 || isImporting}
+                  className="bg-green-600 hover:bg-green-700 flex-1"
+                >
+                  {isImporting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Confirm & Import All ({matchedFiles.length} files)
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={cancelPreview}
+                  disabled={isImporting}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* File List */}
         <ONetFileList
