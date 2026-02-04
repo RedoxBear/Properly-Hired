@@ -769,6 +769,31 @@ Return JSON with:
         return XCircle;
     };
 
+    // Show loading while checking user access
+    if (isLoadingUser) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-slate-600">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    // Feature gate - require Pro or higher
+    if (!hasAccess(currentUser, "job_matcher")) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <UpgradePrompt
+                    feature="job_matcher"
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
+                    variant="card"
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen p-4 md:p-8 bg-background">
             <div className="max-w-7xl mx-auto space-y-6">

@@ -112,6 +112,28 @@ export default function ActivityInsights() {
     })();
   }, []);
 
+  const byType = React.useMemo(() => {
+    const m = new Map();
+    for (const e of events) {
+      const a = m.get(e.type) || [];
+      a.push(e);
+      m.set(e.type, a);
+    }
+    return m;
+  }, [events]);
+
+  const atsVendors = React.useMemo(() => {
+    const rows = (byType.get("ats_detected") || []).reduce((acc, e) => {
+      const vendor = detectAtsVendor(e.host, e.vendor);
+      acc[vendor] = (acc[vendor] || 0) + 1;
+      return acc;
+    }, {});
+    // sort by count desc
+    return Object.entries(rows)
+      .map(([vendor, count]) => ({ vendor, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [byType]);
+
   // Show loading while checking user access
   if (isLoadingUser) {
     return (
@@ -136,16 +158,6 @@ export default function ActivityInsights() {
       </div>
     );
   }
-
-  const byType = React.useMemo(() => {
-    const m = new Map();
-    for (const e of events) {
-      const a = m.get(e.type) || [];
-      a.push(e);
-      m.set(e.type, a);
-    }
-    return m;
-  }, [events]);
 
   const series = (type) => {
     const days = daysBack(30);
@@ -172,18 +184,6 @@ export default function ActivityInsights() {
     application_qna_used: kpiCount("application_qna_used"),
     ats_detected: kpiCount("ats_detected"),
   };
-
-  const atsVendors = React.useMemo(() => {
-    const rows = (byType.get("ats_detected") || []).reduce((acc, e) => {
-      const vendor = detectAtsVendor(e.host, e.vendor);
-      acc[vendor] = (acc[vendor] || 0) + 1;
-      return acc;
-    }, {});
-    // sort by count desc
-    return Object.entries(rows)
-      .map(([vendor, count]) => ({ vendor, count }))
-      .sort((a, b) => b.count - a.count);
-  }, [byType]);
 
   if (loading) {
     return (

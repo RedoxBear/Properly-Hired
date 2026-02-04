@@ -51,6 +51,14 @@ export default function ResumeTemplates() {
     init();
   }, []);
 
+  // When switching selected resume, load its saved template if exists
+  useEffect(() => {
+    const r = resumes.find(x => x.id === selectedResumeId);
+    if (r?.template && ["classic", "modern", "minimal"].includes(r.template)) {
+      setTemplate(r.template);
+    }
+  }, [selectedResumeId, resumes]);
+
   // Show loading while checking user access
   if (isLoadingUser) {
     return (
@@ -75,14 +83,6 @@ export default function ResumeTemplates() {
       </div>
     );
   }
-
-  // When switching selected resume, load its saved template if exists
-  useEffect(() => {
-    const r = resumes.find(x => x.id === selectedResumeId);
-    if (r?.template && ["classic", "modern", "minimal"].includes(r.template)) {
-      setTemplate(r.template);
-    }
-  }, [selectedResumeId, resumes]);
 
   const resume = resumes.find(r => r.id === selectedResumeId);
   let resumeData = null;
