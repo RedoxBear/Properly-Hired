@@ -78,6 +78,7 @@ export default function QAAssistant() {
     }
 
     const loadJobApplications = async () => {
+        setError("");
         try {
             const [applications, resumeList] = await Promise.all([
                 JobApplication.list("-created_date", 20),
@@ -87,6 +88,7 @@ export default function QAAssistant() {
             setResumes(resumeList);
         } catch (error) {
             console.error("Error loading job applications:", error);
+            setError("Failed to load job applications. Please refresh the page.");
         }
     };
 

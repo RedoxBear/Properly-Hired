@@ -34,6 +34,7 @@ import { logEvent } from "@/components/utils/telemetry";
 export default function JobLibrary() {
     const [applications, setApplications] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [error, setError] = React.useState("");
     const [searchTerm, setSearchTerm] = React.useState("");
     const [statusFilter, setStatusFilter] = React.useState("all");
     const [selectedIds, setSelectedIds] = React.useState([]); // NEW: selection for bulk delete
@@ -54,47 +55,63 @@ export default function JobLibrary() {
 
     const loadApplications = async () => {
         setIsLoading(true);
-        const fetchedApplications = await JobApplication.list("-created_date");
-        setApplications(fetchedApplications);
+        setError("");
+        try {
+            const fetchedApplications = await JobApplication.list("-created_date");
+            setApplications(fetchedApplications);
+        } catch (error) {
+            console.error("Error loading applications:", error);
+            setError("Failed to load applications. Please refresh the page.");
+        }
         setIsLoading(false);
     };
 
     const handleDelete = async (id) => {
         const ok = window.confirm("Delete this job application? This cannot be undone.");
         if (!ok) return;
-        await JobApplication.delete(id);
-        setSelectedIds(prev => prev.filter(x => x !== id)); // Remove from selection if deleted
-        await loadApplications();
+        try {
+            await JobApplication.delete(id);
+            setSelectedIds(prev => prev.filter(x => x !== id)); // Remove from selection if deleted
+            await loadApplications();
+        } catch (error) {
+            console.error("Failed to delete application:", error);
+            setError("Failed to delete application. Please try again.");
+        }
     };
 
     // Toggle between Applied and Not Applied (Ready)
     const handleAppliedToggle = async (app, checked) => {
         const newStatus = checked ? "applied" : "ready";
-        if (checked) {
-            const now = new Date().toISOString();
-            const scheduled = schedule48_72(now);
-            await JobApplication.update(app.id, {
-                application_status: newStatus,
-                applied: true,
-                applied_at: now,
-                follow_up_policy: "48-72",
-                scheduled_follow_ups: scheduled,
-                next_follow_up_at: scheduled[0]
-            });
-            // NEW: telemetry for applied click
-            try {
-                await logEvent({ type: "job_applied_click", ts: now, app_id: app.id });
-            } catch (error) {
-                console.error("Telemetry logging failed for job_applied_click:", error);
+        try {
+            if (checked) {
+                const now = new Date().toISOString();
+                const scheduled = schedule48_72(now);
+                await JobApplication.update(app.id, {
+                    application_status: newStatus,
+                    applied: true,
+                    applied_at: now,
+                    follow_up_policy: "48-72",
+                    scheduled_follow_ups: scheduled,
+                    next_follow_up_at: scheduled[0]
+                });
+                // NEW: telemetry for applied click
+                try {
+                    await logEvent({ type: "job_applied_click", ts: now, app_id: app.id });
+                } catch (error) {
+                    console.error("Telemetry logging failed for job_applied_click:", error);
+                }
+            } else {
+                await JobApplication.update(app.id, {
+                    application_status: newStatus,
+                    applied: false,
+                    next_follow_up_at: null
+                });
             }
-        } else {
-            await JobApplication.update(app.id, {
-                application_status: newStatus,
-                applied: false,
-                next_follow_up_at: null
-            });
+            await loadApplications();
+        } catch (error) {
+            console.error("Failed to update application status:", error);
+            setError("Failed to update application status. Please try again.");
         }
-        await loadApplications();
     };
 
     // NEW: bulk helpers
@@ -132,6 +149,13 @@ export default function JobLibrary() {
                         Track and manage all your saved job applications.
                     </p>
                 </motion.div>
+
+                {/* Error Alert */}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        {error}
+                    </div>
+                )}
 
                 <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm mb-6">
                     <CardContent className="p-4 flex flex-col md:flex-row gap-4">

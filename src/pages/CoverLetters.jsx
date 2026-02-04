@@ -25,6 +25,7 @@ const KYLE_CL_EXPERTISE = [
 export default function CoverLetters() {
     const [jobApplications, setJobApplications] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [error, setError] = React.useState("");
     const [currentUser, setCurrentUser] = React.useState(null);
 
     React.useEffect(() => {
@@ -33,6 +34,7 @@ export default function CoverLetters() {
 
     const loadJobApplications = async () => {
         setIsLoading(true);
+        setError("");
         try {
             const [applications, user] = await Promise.all([
                 JobApplication.list("-created_date", 50),
@@ -42,6 +44,7 @@ export default function CoverLetters() {
             setCurrentUser(user);
         } catch (error) {
             console.error("Error loading job applications:", error);
+            setError("Failed to load job applications. Please refresh the page.");
         }
         setIsLoading(false);
     };
@@ -69,10 +72,17 @@ export default function CoverLetters() {
 
                 {/* Access Check */}
                 {currentUser && !hasAccess(currentUser, "cover_letters") && (
-                    <UpgradePrompt 
-                        feature="cover_letters" 
+                    <UpgradePrompt
+                        feature="cover_letters"
                         currentTier={currentUser.subscription_tier || TIERS.FREE}
                     />
+                )}
+
+                {/* Error Alert */}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        {error}
+                    </div>
                 )}
 
                 {/* Kyle's Cover Letter Expertise */}

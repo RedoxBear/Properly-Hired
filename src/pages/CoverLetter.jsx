@@ -131,7 +131,13 @@ export default function CoverLetter() {
           setError("Failed to load job application. Please try again.");
         }
       }
-      setVault(await getVault());
+      try {
+        const vaultData = await getVault();
+        setVault(vaultData);
+      } catch (e) {
+        console.error("Failed to load autofill vault:", e);
+        setVault(null);
+      }
     })();
   }, [appId]);
 

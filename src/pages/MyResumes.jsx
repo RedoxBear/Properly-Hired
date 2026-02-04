@@ -55,8 +55,19 @@ export default function MyResumes() {
     }, []);
 
     const loadLimitInfo = async () => {
-        const info = await checkResumeLimit();
-        setCurrentLimitInfo(info);
+        try {
+            const info = await checkResumeLimit();
+            setCurrentLimitInfo(info);
+        } catch (error) {
+            console.error("Failed to load resume limit info:", error);
+            // Set fallback with conservative defaults (assume free tier)
+            setCurrentLimitInfo({
+                canCreate: false,
+                currentCount: 0,
+                limit: 1,
+                tier: "FREE"
+            });
+        }
     };
 
     const loadResumes = async () => {

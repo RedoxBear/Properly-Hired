@@ -67,6 +67,7 @@ export default function Dashboard() {
     const [resumes, setResumes] = React.useState([]);
     const [userData, setUserData] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [error, setError] = React.useState("");
     const [vaultUpdatedAt, setVaultUpdatedAt] = React.useState(null);
     const [masterQuality, setMasterQuality] = React.useState(null);
     
@@ -78,6 +79,7 @@ export default function Dashboard() {
 
     const loadData = async () => {
         setIsLoading(true);
+        setError("");
         try {
             const [fetchedApplications, fetchedResumes, vaultList, userList] = await Promise.all([
                 JobApplication.list("-created_date", 10),
@@ -98,6 +100,7 @@ export default function Dashboard() {
             }
         } catch (error) {
             console.error("Error loading data:", error);
+            setError("Failed to load dashboard data. Please refresh the page.");
         }
         setIsLoading(false);
     };
@@ -152,6 +155,13 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 bg-background">
             <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
+                {/* Error Alert */}
+                {error && (
+                    <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
+
                 {/* Device Type Banner - Simplified for mobile */}
                 {!isMobile && (
                     <motion.div

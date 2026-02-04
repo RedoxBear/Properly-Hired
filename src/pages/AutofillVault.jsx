@@ -30,6 +30,7 @@ export default function AutofillVaultPage() {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [isLoadingUser, setIsLoadingUser] = React.useState(true);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
   const [saving, setSaving] = React.useState(false);
   const [vaultRec, setVaultRec] = React.useState(null);
   const [showRemapPrompt, setShowRemapPrompt] = React.useState(false);
@@ -107,33 +108,41 @@ export default function AutofillVaultPage() {
   React.useEffect(() => {
     (async () => {
       setLoading(true);
-      const [list, masters] = await Promise.all([
-        AutofillVault.list("-updated_date", 1),
-        Resume.filter({ is_master_resume: true }, "-updated_date", 1)
-      ]);
-      
-      // Ensure all new ats_profile fields are initialized if vaultRec exists but is old
-      let loadedVault = list && list[0] ? list[0] : emptyVault;
-      if (loadedVault !== emptyVault && loadedVault.ats_profile) {
-        loadedVault.ats_profile = { ...emptyVault.ats_profile, ...loadedVault.ats_profile };
-      }
-      setVaultRec(loadedVault);
-      
-      // Check if there's a master resume that's newer than the vault
-      const master = masters && masters[0] ? masters[0] : null;
-      if (master && loadedVault.updated_at) {
-        const masterDate = new Date(master.updated_date || master.created_date);
-        const vaultDate = new Date(loadedVault.updated_at);
-        if (masterDate > vaultDate) {
+      setError("");
+      try {
+        const [list, masters] = await Promise.all([
+          AutofillVault.list("-updated_date", 1),
+          Resume.filter({ is_master_resume: true }, "-updated_date", 1)
+        ]);
+
+        // Ensure all new ats_profile fields are initialized if vaultRec exists but is old
+        let loadedVault = list && list[0] ? list[0] : emptyVault;
+        if (loadedVault !== emptyVault && loadedVault.ats_profile) {
+          loadedVault.ats_profile = { ...emptyVault.ats_profile, ...loadedVault.ats_profile };
+        }
+        setVaultRec(loadedVault);
+
+        // Check if there's a master resume that's newer than the vault
+        const master = masters && masters[0] ? masters[0] : null;
+        if (master && loadedVault.updated_at) {
+          const masterDate = new Date(master.updated_date || master.created_date);
+          const vaultDate = new Date(loadedVault.updated_at);
+          if (masterDate > vaultDate) {
+            setLatestMaster(master);
+            setShowRemapPrompt(true);
+          }
+        } else if (master && !loadedVault.id) {
+          // New vault, suggest importing
           setLatestMaster(master);
           setShowRemapPrompt(true);
         }
-      } else if (master && !loadedVault.id) {
-        // New vault, suggest importing
-        setLatestMaster(master);
-        setShowRemapPrompt(true);
+      } catch (e) {
+        console.error("Failed to load vault data:", e);
+        setError("Failed to load your autofill vault. Please refresh the page.");
+        // Set empty vault as fallback
+        setVaultRec(emptyVault);
       }
-      
+
       setLoading(false);
     })();
   }, []);
@@ -275,6 +284,14 @@ export default function AutofillVaultPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+      {error && (
+        <Alert className="bg-red-50 border-red-200">
+          <AlertDescription className="text-red-700">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {showRemapPrompt && latestMaster && (
         <Alert className="bg-blue-50 border-blue-200">
           <AlertDescription className="flex items-center justify-between">

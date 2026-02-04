@@ -13,6 +13,7 @@ import AgentChat from "@/components/agents/AgentChat";
 export default function MyNetwork() {
   const [contacts, setContacts] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filterStatus, setFilterStatus] = React.useState("all");
 
@@ -22,34 +23,40 @@ export default function MyNetwork() {
 
   const loadContacts = async () => {
     setLoading(true);
+    setError("");
     try {
       const data = await base44.entities.NetworkContact.list("-created_date", 100);
       setContacts(data);
     } catch (err) {
       console.error(err);
+      setError("Failed to load contacts. Please try again.");
     }
     setLoading(false);
   };
 
   const deleteContact = async (id) => {
     if (!confirm("Remove this contact from your network?")) return;
+    setError("");
     try {
       await base44.entities.NetworkContact.delete(id);
       await loadContacts();
     } catch (err) {
       console.error(err);
+      setError("Failed to delete contact. Please try again.");
     }
   };
 
   const updateStatus = async (id, status) => {
+    setError("");
     try {
-      await base44.entities.NetworkContact.update(id, { 
+      await base44.entities.NetworkContact.update(id, {
         connection_status: status,
         last_contacted: new Date().toISOString()
       });
       await loadContacts();
     } catch (err) {
       console.error(err);
+      setError("Failed to update contact status. Please try again.");
     }
   };
 
@@ -90,6 +97,13 @@ export default function MyNetwork() {
             Manage your professional connections and track interactions
           </p>
         </motion.div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
 
         <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm mb-6">
           <CardHeader>
