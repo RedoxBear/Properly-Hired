@@ -23,29 +23,53 @@ export default function ResumeTemplates() {
   const [appliedNote, setAppliedNote] = useState("");
   const printRef = useRef(null); // NEW: printable area ref
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      const user = await base44.auth.me();
-      setCurrentUser(user);
-      const urlParams = new URLSearchParams(window.location.search);
-      const rid = urlParams.get("resumeId") || "";
-      const list = await Resume.list("-created_date", 50);
-      setResumes(list);
-      if (rid) setSelectedResumeId(rid);
-      else if (list.length) setSelectedResumeId(list[0].id);
-      setLoading(false);
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+        setIsLoadingUser(false);
+
+        // Only load resumes if user has access
+        if (hasAccess(user, "resume_templates")) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const rid = urlParams.get("resumeId") || "";
+          const list = await Resume.list("-created_date", 50);
+          setResumes(list);
+          if (rid) setSelectedResumeId(rid);
+          else if (list.length) setSelectedResumeId(list[0].id);
+        }
+      } catch (e) {
+        console.warn("Failed to load user:", e);
+        setIsLoadingUser(false);
+      } finally {
+        setLoading(false);
+      }
     };
     init();
   }, []);
 
+  // Show loading while checking user access
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-600">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   // Feature gate: Resume Templates requires Pro or higher
-  if (currentUser && !hasAccess(currentUser, "resume_templates")) {
+  if (!hasAccess(currentUser, "resume_templates")) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <UpgradePrompt
           feature="resume_templates"
-          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          currentTier={currentUser?.subscription_tier || TIERS.FREE}
           variant="card"
         />
       </div>

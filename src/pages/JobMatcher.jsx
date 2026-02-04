@@ -48,6 +48,7 @@ import { motion } from "framer-motion";
 export default function JobMatcher() {
     const navigate = useNavigate();
     const [currentUser, setCurrentUser] = React.useState(null);
+    const [isLoadingUser, setIsLoadingUser] = React.useState(true);
     const [matches, setMatches] = React.useState([]);
     const [resumes, setResumes] = React.useState([]);
     const [selectedResume, setSelectedResume] = React.useState("");
@@ -63,17 +64,31 @@ export default function JobMatcher() {
                 setCurrentUser(user);
             } catch (e) {
                 console.warn("Failed to load user:", e);
+            } finally {
+                setIsLoadingUser(false);
             }
         })();
     }, []);
 
+    // Show loading while checking user access
+    if (isLoadingUser) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-slate-600">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
     // Feature gate - require Pro or higher
-    if (currentUser && !hasAccess(currentUser, "job_matcher")) {
+    if (!hasAccess(currentUser, "job_matcher")) {
         return (
             <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
                 <UpgradePrompt
                     feature="job_matcher"
-                    currentTier={currentUser.subscription_tier || TIERS.FREE}
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
                     variant="card"
                 />
             </div>

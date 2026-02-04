@@ -43,6 +43,7 @@ import CompanyResearchDisplay from "@/components/company/CompanyResearchDisplay"
 
 export default function ApplicationTracker() {
     const [currentUser, setCurrentUser] = React.useState(null);
+    const [isLoadingUser, setIsLoadingUser] = React.useState(true);
     const [applications, setApplications] = React.useState([]);
     const [resumes, setResumes] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true);
@@ -76,17 +77,31 @@ export default function ApplicationTracker() {
                 setCurrentUser(user);
             } catch (e) {
                 console.warn("Failed to load user:", e);
+            } finally {
+                setIsLoadingUser(false);
             }
         })();
     }, []);
 
+    // Show loading while checking user access
+    if (isLoadingUser) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-slate-600">
+                    <Sparkles className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
     // Feature gate - require Pro or higher
-    if (currentUser && !hasAccess(currentUser, "app_tracker")) {
+    if (!hasAccess(currentUser, "app_tracker")) {
         return (
             <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
                 <UpgradePrompt
                     feature="app_tracker"
-                    currentTier={currentUser.subscription_tier || TIERS.FREE}
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
                     variant="card"
                 />
             </div>

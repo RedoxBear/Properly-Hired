@@ -36,22 +36,41 @@ export default function QAAssistant() {
     const [answerStyle, setAnswerStyle] = React.useState("balanced"); // concise | balanced | detailed
     const [resumes, setResumes] = React.useState([]);
     const [currentUser, setCurrentUser] = React.useState(null);
+    const [isLoadingUser, setIsLoadingUser] = React.useState(true);
 
     React.useEffect(() => {
         (async () => {
-            const user = await base44.auth.me();
-            setCurrentUser(user);
+            try {
+                const user = await base44.auth.me();
+                setCurrentUser(user);
+            } catch (e) {
+                console.warn("Failed to load user:", e);
+            } finally {
+                setIsLoadingUser(false);
+            }
         })();
         loadJobApplications();
     }, []);
 
+    // Show loading while checking user access
+    if (isLoadingUser) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-slate-600">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
     // Feature gate: Application Q&A requires Pro or higher
-    if (currentUser && !hasAccess(currentUser, "application_qna")) {
+    if (!hasAccess(currentUser, "application_qna")) {
         return (
             <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
                 <UpgradePrompt
                     feature="application_qna"
-                    currentTier={currentUser.subscription_tier || TIERS.FREE}
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
                     variant="card"
                 />
             </div>

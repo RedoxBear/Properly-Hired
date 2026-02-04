@@ -37,6 +37,7 @@ export default function TransferableSkills() {
   const [result, setResult] = React.useState(null);
   const [error, setError] = React.useState("");
   const [currentUser, setCurrentUser] = React.useState(null);
+  const [isLoadingUser, setIsLoadingUser] = React.useState(true);
   const [onetStatus, setOnetStatus] = React.useState(null);
 
   React.useEffect(() => {
@@ -44,27 +45,45 @@ export default function TransferableSkills() {
       try {
         const user = await base44.auth.me();
         setCurrentUser(user);
-        const list = await Resume.list("-created_date", 50);
-        setResumes(list);
-        if (list.length) setSelectedId(list[0].id);
+        setIsLoadingUser(false);
 
-        // Check O*NET data service status
-        setOnetStatus(onetDataService.getApiStatus());
+        // Only load resumes if user has access
+        if (hasAccess(user, "transferable_skills")) {
+          const list = await Resume.list("-created_date", 50);
+          setResumes(list);
+          if (list.length) setSelectedId(list[0].id);
+
+          // Check O*NET data service status
+          setOnetStatus(onetDataService.getApiStatus());
+        }
       } catch (e) {
         console.error(e);
         setError("Failed to load your resumes.");
+        setIsLoadingUser(false);
       }
     };
     init();
   }, []);
 
+  // Show loading while checking user access
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-600">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   // Feature gate: Transferable Skills requires Pro or higher
-  if (currentUser && !hasAccess(currentUser, "transferable_skills")) {
+  if (!hasAccess(currentUser, "transferable_skills")) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <UpgradePrompt
           feature="transferable_skills"
-          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          currentTier={currentUser?.subscription_tier || TIERS.FREE}
           variant="card"
         />
       </div>

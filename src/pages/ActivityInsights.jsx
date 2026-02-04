@@ -89,27 +89,48 @@ export default function ActivityInsights() {
   const [events, setEvents] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [currentUser, setCurrentUser] = React.useState(null);
+  const [isLoadingUser, setIsLoadingUser] = React.useState(true);
 
   React.useEffect(() => {
     (async () => {
       try {
         const user = await base44.auth.me();
         setCurrentUser(user);
-        const evs = await readEvents();
-        setEvents(Array.isArray(evs) ? evs : []);
+        setIsLoadingUser(false);
+
+        // Only load events if user has access
+        if (hasAccess(user, "insights")) {
+          const evs = await readEvents();
+          setEvents(Array.isArray(evs) ? evs : []);
+        }
+      } catch (e) {
+        console.warn("Failed to load user:", e);
+        setIsLoadingUser(false);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
+  // Show loading while checking user access
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-600">
+          <ActivityIcon className="w-5 h-5 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   // Feature gate: Insights requires Pro or higher
-  if (currentUser && !hasAccess(currentUser, "insights")) {
+  if (!hasAccess(currentUser, "insights")) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <UpgradePrompt
           feature="insights"
-          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          currentTier={currentUser?.subscription_tier || TIERS.FREE}
           variant="card"
         />
       </div>

@@ -115,7 +115,7 @@ export default function ResumeOptimizer() {
       ).length;
       setOptimizationCount(optimizedThisWeek);
 
-      if (resumes.length === 0) {
+      if (masterResumesResult.length === 0) {
         setError("Please upload or build a master resume first.");
       }
     } catch (e) {
@@ -126,6 +126,8 @@ export default function ResumeOptimizer() {
   }, []);
 
   React.useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
     loadInitialData();
   }, [loadInitialData]);
 
@@ -284,10 +286,50 @@ Return JSON:
       }
 
       setIsLoadingArc(true);
+      setError("");
       try {
           const resume = masterResumes.find(r => r.id === selectedResumeId);
-          const resumeContent = JSON.parse(resume.parsed_content || resume.optimized_content);
+          if (!resume) {
+              setError("Selected resume not found. Please select another.");
+              setIsLoadingArc(false);
+              return;
+          }
+
+          const contentToParse = resume.parsed_content || resume.optimized_content;
+          if (!contentToParse) {
+              setError("Resume content not available. Please try another resume.");
+              setIsLoadingArc(false);
+              return;
+          }
+
+          const resumeContent = typeof contentToParse === 'string'
+              ? JSON.parse(contentToParse)
+              : contentToParse;
           const experiences = resumeContent.experience || [];
+
+          if (experiences.length === 0) {
+              setError("No experience entries found in this resume.");
+              setIsLoadingArc(false);
+              return;
+          }
+
+          // Collect all bullets for analysis
+          const allBullets = [];
+          experiences.forEach((exp, idx) => {
+              (exp.achievements || []).forEach((bullet, bidx) => {
+                  allBullets.push({
+                      role: `${exp.position} at ${exp.company}`,
+                      bullet: bullet,
+                      index: `${idx + 1}.${bidx + 1}`
+                  });
+              });
+          });
+
+          if (allBullets.length === 0) {
+              setError("No bullet points found in resume experience. Please add achievements to your resume.");
+              setIsLoadingArc(false);
+              return;
+          }
 
           const prompt = `You are Kyle, a CV expert specializing in the ARC formula (Action + Result + Context).
 
@@ -296,27 +338,26 @@ The ARC Formula:
 - RESULT: Quantified impact (%, $, time saved, etc.)
 - CONTEXT: Why it mattered / business impact
 
-Analyze EACH resume bullet below and provide:
+Analyze EACH of these ${allBullets.length} resume bullets and provide feedback:
+
+${allBullets.map(b => `[${b.index}] ${b.role}: "${b.bullet}"`).join("\n")}
+
+For EACH bullet provide:
 1. ARC Score (0-10 as a NUMBER): Rate how well it follows Action + Result + Context
 2. What's missing: Specific feedback (e.g., "No quantified result", "Weak action verb 'managed'", "Missing business context")
 3. Improved version: Rewrite using ARC formula with strong action verb + quantified result + context
 
-Current Experience Bullets:
-${experiences.map((exp, idx) => `
-${exp.position} at ${exp.company}:
-${(exp.achievements || []).map((b, bidx) => `${idx + 1}.${bidx + 1} ${b}`).join("\n")}
-`).join("\n")}
-
-CRITICAL: 
+CRITICAL REQUIREMENTS:
 - arc_score must be a NUMBER 0-10, not a string
-- Every bullet must get analyzed - no skipping
+- Analyze ALL ${allBullets.length} bullets - do not skip any
 - Improved versions must be complete sentences with ACTION + RESULT + CONTEXT
+- Be specific in the "missing" field about what exact elements are lacking
 
 Return JSON:
 {
   "bullet_analysis": [
     {
-      "original": "Managed team of employees",
+      "original": "The exact original bullet text",
       "arc_score": 4,
       "missing": "No quantified result, weak verb 'managed', no context on impact",
       "improved": "Led 12-person team to deliver $2M project 3 weeks ahead of schedule, reducing operational costs by 25%"
@@ -324,30 +365,42 @@ Return JSON:
   ]
 }`;
 
-          const kyleResponse = await base44.integrations.Core.InvokeLLM({
-              prompt,
-              response_json_schema: {
-                  type: "object",
-                  properties: {
-                      bullet_analysis: {
-                          type: "array",
-                          items: {
-                              type: "object",
-                              properties: {
-                                  original: { type: "string" },
-                                  arc_score: { type: "number" },
-                                  missing: { type: "string" },
-                                  improved: { type: "string" }
+          const kyleResponse = await retryWithBackoff(() =>
+              base44.integrations.Core.InvokeLLM({
+                  prompt,
+                  response_json_schema: {
+                      type: "object",
+                      properties: {
+                          bullet_analysis: {
+                              type: "array",
+                              items: {
+                                  type: "object",
+                                  properties: {
+                                      original: { type: "string" },
+                                      arc_score: { type: "number" },
+                                      missing: { type: "string" },
+                                      improved: { type: "string" }
+                                  },
+                                  required: ["original", "arc_score", "missing", "improved"]
                               }
                           }
-                      }
+                      },
+                      required: ["bullet_analysis"]
                   }
-              }
-          });
+              }),
+              { retries: 3, baseDelay: 1500 }
+          );
+
+          if (!kyleResponse || !kyleResponse.bullet_analysis || kyleResponse.bullet_analysis.length === 0) {
+              setError("ARC analysis returned empty results. Please try again.");
+              setIsLoadingArc(false);
+              return;
+          }
 
           setKyleArcGuidance(kyleResponse);
       } catch (e) {
           console.error("Kyle ARC analysis failed:", e);
+          setError("ARC analysis failed. The service may be busy - please try again in a moment.");
       }
       setIsLoadingArc(false);
   };
@@ -464,13 +517,41 @@ Return JSON:
     };
 
     const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
-    
-    // Define constraints based on mode
-    const constraints = optimizeMode === "full_cv" 
-        ? "For Full CV mode, provide comprehensive details. You MUST provide between 4 to 7 bullet points per experience role, prioritising relevance to the JD. Do not exceed 7 bullets." 
-        : optimizeMode === "ats_one_page"
-        ? "Keep it concise for a 1-page limit. Use maximum 3-4 highly relevant bullet points per role."
-        : "Balance detail for a 2-page limit. Use 4-5 relevant bullet points per role.";
+
+    // Define STRICT constraints based on mode - MUST BE ENFORCED
+    const constraints = optimizeMode === "ats_one_page"
+        ? `**ATS 1-PAGE MODE - STRICT CONSTRAINTS:**
+- MAXIMUM 3 bullet points per role (STRICTLY ENFORCED - never exceed 3)
+- Focus ONLY on the most impactful, JD-relevant achievements
+- Use SHORT, punchy bullets (under 120 characters each)
+- Include ONLY the 3-4 most recent/relevant roles
+- Skip older roles (10+ years) entirely or combine into one-line "Earlier Experience" note
+- Professional summary: 2-3 sentences MAX
+- Skills section: 8-12 most relevant keywords only
+- NO elaborate descriptions - every word must earn its place
+- Target: Under 400 words total for all experience bullets combined`
+        : optimizeMode === "two_page"
+        ? `**PRO 2-PAGE MODE - BALANCED CONSTRAINTS:**
+- EXACTLY 4-5 bullet points per recent role (last 5 years) - no more, no less
+- 2-3 bullet points for older roles (5-10 years)
+- 1-2 bullet points for roles 10+ years old
+- Bullets should be medium length (100-180 characters each)
+- Include ALL relevant job history but with proportional detail
+- Professional summary: 3-4 sentences with key value proposition
+- Skills section: 15-20 relevant keywords organized by category
+- More detail on quantified achievements and context
+- Target: 600-800 words total for all experience bullets combined`
+        : `**FULL CV MODE - COMPREHENSIVE CONSTRAINTS:**
+- EXACTLY 5-7 bullet points per role (no exceptions)
+- Include EVERY job from the candidate's history without omissions
+- Bullets should be detailed (150-250 characters each)
+- Comprehensive coverage of responsibilities AND achievements
+- Professional summary: 4-5 sentences with full value proposition
+- Skills section: Complete list of all relevant skills (20+)
+- Include ALL education, certifications, and professional development
+- Include volunteer work, side projects, publications if present
+- Full context for each achievement with metrics where available
+- Target: 1000+ words total for all experience bullets combined`;
 
     try {
         const numVersions = generateMultiple ? 3 : 1;
@@ -542,18 +623,38 @@ Return JSON:
 
             **OPTIMIZATION INSTRUCTIONS:**
             - **Mode:** ${modeLabel}
-            - **Constraints:** ${constraints}
+            ${constraints}
             - **Task:** Rewrite the resume content to maximize relevance to the JD. You MUST process and include ALL ${allJobHistory.length} job history items listed above. Evaluate each one individually for JD alignment.
+
+            **BULLET POINT COUNT ENFORCEMENT (MODE: ${modeLabel}):**
+            ${optimizeMode === "ats_one_page" ? `
+            FOR ATS 1-PAGE MODE - COUNT YOUR BULLETS:
+            - Recent roles (last 3-5 years): EXACTLY 2-3 bullets each (NOT 4, NOT 5)
+            - Older roles: 1 bullet OR skip entirely
+            - Total experience section: MAX 10-12 bullets across ALL roles
+            - If you exceed these counts, you FAIL the task` : optimizeMode === "two_page" ? `
+            FOR PRO 2-PAGE MODE - COUNT YOUR BULLETS:
+            - Recent roles (last 5 years): EXACTLY 4-5 bullets each (NOT 3, NOT 6)
+            - Older roles (5-10 years): EXACTLY 2-3 bullets each
+            - Very old roles (10+ years): 1-2 bullets each
+            - Total experience section: 20-30 bullets across ALL roles` : `
+            FOR FULL CV MODE - COUNT YOUR BULLETS:
+            - ALL roles: EXACTLY 5-7 bullets each (minimum 5, maximum 7)
+            - Include EVERY role from the resume without exception
+            - Comprehensive detail on each achievement
+            - Total experience section: 35+ bullets across ALL roles`}
 
             **INPUT DATA:**
             - **Job Description:** ${jobData.job_description}
             - **Original Resume (Full Context):** ${selectedResume.parsed_content}
             ${generateMultiple ? `- **Variation:** Create variation ${i + 1} with a slightly different truthful angle.` : ''}
 
-            **CRITICAL OUTPUT REQUIREMENT:**
-            - optimization_score MUST be a numeric value (0-100), NOT a string or percentage symbol
-            - Example: "optimization_score": 85 (CORRECT)
-            - Example: "optimization_score": "85%" (WRONG)`,
+            **CRITICAL OUTPUT REQUIREMENTS:**
+            1. optimization_score MUST be a numeric value (0-100), NOT a string or percentage symbol
+               - Example: "optimization_score": 85 (CORRECT)
+               - Example: "optimization_score": "85%" (WRONG)
+            2. COUNT your bullets before submitting - verify they match the ${modeLabel} requirements above
+            3. PRESERVE the core meaning of achievements - reframe wording but don't invent new achievements`,
                 response_json_schema: {
                   type: "object",
                   properties: {
