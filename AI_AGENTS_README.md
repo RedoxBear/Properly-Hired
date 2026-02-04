@@ -198,6 +198,38 @@ See [src/components/AIIntegrationExamples.jsx](./src/components/AIIntegrationExa
 
 Each agent has specialized knowledge files:
 
+- **Simon** reads from `knowledge/simon/` (long-form HR and recruiting references).
+- **Kyle** reads from `knowledge/kyle/` (resume, interview, and career strategy references).
+
+These sources are augmented by **O*NET data** when available, via local database tables and the O*NET API integration used in the Transferable Skills experience.
+
+---
+
+## ✅ Recommended Lean Answer Pipeline (Simple + Reliable)
+
+If you want the agents to answer *any* question with higher accuracy and clearer sourcing, use this lean, “chain-of-trust” flow. It is designed to be lightweight but business-safe:
+
+1. **Intent Check (1–2 lines)**  
+   Confirm what the user is really asking and the business outcome they want.
+
+2. **Internal Knowledge Scan (fast)**  
+   Search the in-repo knowledge files first (Simon/Kyle) so answers stay grounded in your curated materials.
+
+3. **External Data Scan (targeted)**  
+   Pull structured data from O*NET (local DB + API) *only* when the question needs occupational or skills facts.
+
+4. **Optional Web Check (only if needed)**  
+   If internal sources are thin, do a focused web lookup for missing facts.
+
+5. **Truthfulness Gate (≥75%)**  
+   Score the combined evidence. If confidence is <75%, answer with caveats and next steps instead of pretending certainty.
+
+6. **Fact Extraction (bullet points)**  
+   Extract 3–7 facts that directly support the final response.
+
+7. **Final Response (executive-ready)**  
+   Provide a concise answer, recommended actions, and a short “why this is reliable” note.
+
 **Simon's Knowledge** (6 files):
 - Ghost job detection patterns
 - Role classification logic
