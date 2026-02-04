@@ -33,15 +33,19 @@ class Simon:
             search_tool: A callable that takes a query string and returns search results
         """
         self.name = "Simon"
-        self.rag = RAGClient(llm_provider=llm_provider)
+        # Use Simon's local knowledge base
+        simon_kb_path = str(Path(__file__).parent.parent.parent / "knowledge" / "simon")
+        self.rag = RAGClient(llm_provider=llm_provider, knowledge_path=simon_kb_path)
         self.search_tool = search_tool
-        self.kb_path = Path("/mnt/f/Projects/AI_Projects/code/brilliant-day/data/knowledge_base/hr/recruit/")
+        self.kb_path = Path(simon_kb_path)
 
         # Check RAG readiness
         if self.rag.is_ready():
             print(f"✓ {self.name} initialized with RAG-powered recruitment knowledge")
+            print(f"  → Connected to local knowledge base: {simon_kb_path}")
         else:
             print(f"⚠ {self.name} initialized WITHOUT RAG (using local text search fallback)")
+            print(f"  Expected knowledge path: {simon_kb_path}")
 
     # =====================================================================
     # SEARCH & RETRIEVAL UTILITIES

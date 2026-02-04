@@ -31,15 +31,17 @@ class Kyle:
             llm_provider: LLM provider (claude, openai, gemini, ollama)
         """
         self.name = "Kyle"
-        self.rag = RAGClient(llm_provider=llm_provider)
+        # Use Kyle's local knowledge base
+        kyle_kb_path = str(Path(__file__).parent.parent.parent / "knowledge" / "kyle")
+        self.rag = RAGClient(llm_provider=llm_provider, knowledge_path=kyle_kb_path)
 
         # Check RAG readiness
         if self.rag.is_ready():
             print(f"✓ {self.name} initialized with RAG-powered career coaching")
-            print(f"  → Access to 2.3M chunks for best practices, strategies, examples")
+            print(f"  → Connected to local knowledge base: {kyle_kb_path}")
         else:
             print(f"⚠ {self.name} initialized WITHOUT RAG (knowledge base not ready)")
-            print(f"  Run: cd /mnt/f/Projects/AI_Projects/rag-system && ./rag-check")
+            print(f"  Expected knowledge path: {kyle_kb_path}")
 
     # =====================================================================
     # PHASE 1: JD ANALYSIS (RAG-ENHANCED)

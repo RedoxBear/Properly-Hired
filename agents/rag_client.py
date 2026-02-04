@@ -1,29 +1,54 @@
 #!/usr/bin/env python3
 """
 Lightweight RAG client for Career-Coach agents (Kyle/Simon).
-Wraps the shared .agents/rag_integration.py helper.
+Tries external RAG integration first, falls back to local knowledge files.
 """
 from typing import Optional
+from pathlib import Path
 
 RAG_INTEGRATION_PATH = "/mnt/f/Projects/AI_Projects/.agents"
 
 
 class RAGClient:
-    def __init__(self, llm_provider: Optional[str] = None):
+    def __init__(self, llm_provider: Optional[str] = None, knowledge_path: Optional[str] = None):
+        """
+        Initialize RAGClient
+
+        Args:
+            llm_provider: LLM provider (claude, openai, gemini, ollama)
+            knowledge_path: Optional local knowledge path. If not provided, tries external path first.
+        """
         self.llm_provider = llm_provider
+        self.knowledge_path = knowledge_path
         self._rag = None
 
     def _init_rag(self):
         if self._rag is not None:
             return
+
+        # Try 1: External RAG integration (if available)
         try:
             import sys
             if RAG_INTEGRATION_PATH not in sys.path:
                 sys.path.insert(0, RAG_INTEGRATION_PATH)
             from rag_integration import RAGIntegration
             self._rag = RAGIntegration(llm_provider=self.llm_provider)
-        except Exception:
-            self._rag = False
+            print(f"✓ Using external RAG integration from {RAG_INTEGRATION_PATH}")
+            return
+        except Exception as e:
+            pass  # External RAG not available, try local
+
+        # Try 2: Local RAG with provided knowledge path
+        if self.knowledge_path:
+            try:
+                from local_rag import LocalRAGClient
+                self._rag = LocalRAGClient(self.knowledge_path, llm_provider=self.llm_provider)
+                return
+            except Exception as e:
+                pass  # Local RAG with provided path failed
+
+        # Failed to initialize any RAG
+        self._rag = False
 
     def is_ready(self) -> bool:
         self._init_rag()
@@ -35,7 +60,7 @@ class RAGClient:
         self._init_rag()
         if not self._rag:
             return None
-        return self._rag.query(question, k=k, show_sources=show_sources)
+        return self._rag.ask(question, k=k, show_sources=show_sources)
 
     def search(self, query: str, k: int = 4):
         self._init_rag()
