@@ -5,13 +5,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, Loader2, CheckCircle2 } from "lucide-react";
+import { isSuperAdmin } from "@/components/utils/accessControl";
+import { useNavigate } from "react-router-dom";
 
 export default function ONetImport() {
+  const navigate = useNavigate();
   const [file, setFile] = React.useState(null);
   const [importing, setImporting] = React.useState(false);
   const [progress, setProgress] = React.useState("");
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = React.useState(true);
+
+  React.useEffect(() => {
+    checkAccess();
+  }, []);
+
+  const checkAccess = async () => {
+    setIsCheckingAccess(true);
+    try {
+      const user = await base44.auth.me();
+      if (!isSuperAdmin(user)) {
+        setError("Access Denied: Super Admin privileges required.");
+        setTimeout(() => navigate("/Dashboard"), 2000);
+        return;
+      }
+    } catch (e) {
+      console.error("Error checking access:", e);
+      setError("Failed to verify access. Redirecting...");
+      setTimeout(() => navigate("/Dashboard"), 2000);
+      return;
+    } finally {
+      setIsCheckingAccess(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -83,6 +110,17 @@ export default function ONetImport() {
 
     setImporting(false);
   };
+
+  if (isCheckingAccess) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-600">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Verifying access...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-8">

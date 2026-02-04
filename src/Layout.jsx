@@ -6,7 +6,7 @@ import { useDeviceDetection } from "@/components/utils/deviceDetection";
 import { ThemeProvider } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { base44 } from "@/api/base44Client";
-import { isAdmin } from "@/components/utils/accessControl";
+import { isAdmin, isSuperAdmin } from "@/components/utils/accessControl";
 import {
     LayoutDashboard,
     Search,
@@ -27,7 +27,8 @@ import {
     Gift,
     Settings,
     Compass,
-    Shield
+    Shield,
+    Upload
 } from "lucide-react";
 import {
     Sidebar,
@@ -386,6 +387,33 @@ function AppShell({ children, currentPageName }) {
                                                 </RouterLink>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
+                                        {isSuperAdmin(currentUser) && (
+                                            <SidebarMenuItem>
+                                                <SidebarMenuButton
+                                                    asChild
+                                                    className={`hover:bg-accent transition-all duration-200 rounded-xl group min-h-[40px] text-xs ${
+                                                        location.pathname === createPageUrl("ONetImport")
+                                                            ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 border shadow-sm'
+                                                            : 'hover:shadow-sm'
+                                                    }`}
+                                                >
+                                                    <RouterLink
+                                                        to={createPageUrl("ONetImport")}
+                                                        className="flex items-center gap-2 px-3 py-2"
+                                                        onClick={() => setIsSidebarOpen(false)}
+                                                    >
+                                                        <Upload className={`w-4 h-4 transition-colors flex-shrink-0 ${
+                                                            location.pathname === createPageUrl("ONetImport")
+                                                                ? 'text-red-600 dark:text-red-400'
+                                                                : 'text-muted-foreground group-hover:text-foreground'
+                                                        }`} />
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="font-medium text-xs">O*NET Import</div>
+                                                        </div>
+                                                    </RouterLink>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        )}
                                     </SidebarMenu>
                                 </SidebarGroupContent>
                             </SidebarGroup>
