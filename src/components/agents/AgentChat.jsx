@@ -26,12 +26,10 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
     const recognitionRef = useRef(null);
     const messagesEndRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
     useEffect(() => {
-        scrollToBottom();
+        if (messages.length > 0) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
     }, [messages]);
 
     const initConversation = async () => {
