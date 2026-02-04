@@ -117,9 +117,8 @@ USER ASKS: ${userMessage}
 
 Remember: Maximum 2 sentences. Be specific and helpful.`;
 
-      const response = await InvokeLLM({
-        prompt: contextPrompt,
-        model: "claude-sonnet-3.5"
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: contextPrompt
       });
 
       addMessage("assistant", response || "I'm here to help with your CV! What would you like to know?");
