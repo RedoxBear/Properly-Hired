@@ -55,6 +55,30 @@ export default function JobMatcher() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [isScanning, setIsScanning] = React.useState(false);
     const [error, setError] = React.useState("");
+    const [showAddDialog, setShowAddDialog] = React.useState(false);
+    const [statusFilter, setStatusFilter] = React.useState("all");
+    const [scoreFilter, setScoreFilter] = React.useState("all");
+    const [isAutoSearching, setIsAutoSearching] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState("");
+    const [minScoreFilter, setMinScoreFilter] = React.useState(0);
+    const [locationFilter, setLocationFilter] = React.useState("");
+    const [locationTypeFilter, setLocationTypeFilter] = React.useState("all");
+    const [sortBy, setSortBy] = React.useState("score_desc");
+    const [aiSuggestions, setAiSuggestions] = React.useState(null);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
+    const [userLocation, setUserLocation] = React.useState(null);
+    const [searchRadius, setSearchRadius] = React.useState(30);
+    const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
+    const [sourceFilter, setSourceFilter] = React.useState("all");
+    const [jobSourceStats, setJobSourceStats] = React.useState({});
+    const [jobInput, setJobInput] = React.useState({
+        job_url: "",
+        job_title: "",
+        company_name: "",
+        job_description: "",
+        location: "",
+        salary_range: ""
+    });
 
     // Load user for feature access check
     React.useEffect(() => {
@@ -94,31 +118,6 @@ export default function JobMatcher() {
             </div>
         );
     }
-    const [showAddDialog, setShowAddDialog] = React.useState(false);
-    const [statusFilter, setStatusFilter] = React.useState("all");
-    const [scoreFilter, setScoreFilter] = React.useState("all");
-    const [isAutoSearching, setIsAutoSearching] = React.useState(false);
-    const [searchQuery, setSearchQuery] = React.useState("");
-    const [minScoreFilter, setMinScoreFilter] = React.useState(0);
-    const [locationFilter, setLocationFilter] = React.useState("");
-    const [locationTypeFilter, setLocationTypeFilter] = React.useState("all");
-    const [sortBy, setSortBy] = React.useState("score_desc");
-    const [aiSuggestions, setAiSuggestions] = React.useState(null);
-    const [isLoadingSuggestions, setIsLoadingSuggestions] = React.useState(false);
-    const [userLocation, setUserLocation] = React.useState(null);
-    const [searchRadius, setSearchRadius] = React.useState(30);
-    const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
-    const [sourceFilter, setSourceFilter] = React.useState("all");
-    const [jobSourceStats, setJobSourceStats] = React.useState({});
-    
-    const [jobInput, setJobInput] = React.useState({
-        job_url: "",
-        job_title: "",
-        company_name: "",
-        job_description: "",
-        location: "",
-        salary_range: ""
-    });
 
     React.useEffect(() => {
         loadData();
