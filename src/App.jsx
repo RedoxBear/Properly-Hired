@@ -11,6 +11,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { ThemeProvider, useTheme } from 'next-themes';
+import { AppContextProvider } from '@/context/AppContextProvider';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -86,19 +87,21 @@ const AuthenticatedApp = () => {
 function App() {
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <SystemThemeListener />
-      <AuthProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <NavigationTracker />
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-          <VisualEditAgent />
-        </QueryClientProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <AppContextProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <SystemThemeListener />
+        <AuthProvider>
+          <QueryClientProvider client={queryClientInstance}>
+            <Router>
+              <NavigationTracker />
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+            <VisualEditAgent />
+          </QueryClientProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </AppContextProvider>
   )
 }
 

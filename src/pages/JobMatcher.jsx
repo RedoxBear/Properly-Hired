@@ -55,45 +55,6 @@ export default function JobMatcher() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [isScanning, setIsScanning] = React.useState(false);
     const [error, setError] = React.useState("");
-
-    // Load user for feature access check
-    React.useEffect(() => {
-        (async () => {
-            try {
-                const user = await base44.auth.me();
-                setCurrentUser(user);
-            } catch (e) {
-                console.warn("Failed to load user:", e);
-            } finally {
-                setIsLoadingUser(false);
-            }
-        })();
-    }, []);
-
-    // Show loading while checking user access
-    if (isLoadingUser) {
-        return (
-            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-                <div className="flex items-center gap-3 text-slate-600">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Loading...</span>
-                </div>
-            </div>
-        );
-    }
-
-    // Feature gate - require Pro or higher
-    if (!hasAccess(currentUser, "job_matcher")) {
-        return (
-            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-                <UpgradePrompt
-                    feature="job_matcher"
-                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
-                    variant="card"
-                />
-            </div>
-        );
-    }
     const [showAddDialog, setShowAddDialog] = React.useState(false);
     const [statusFilter, setStatusFilter] = React.useState("all");
     const [scoreFilter, setScoreFilter] = React.useState("all");
@@ -110,6 +71,20 @@ export default function JobMatcher() {
     const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
     const [sourceFilter, setSourceFilter] = React.useState("all");
     const [jobSourceStats, setJobSourceStats] = React.useState({});
+
+    // Load user for feature access check
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const user = await base44.auth.me();
+                setCurrentUser(user);
+            } catch (e) {
+                console.warn("Failed to load user:", e);
+            } finally {
+                setIsLoadingUser(false);
+            }
+        })();
+    }, []);
     
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
@@ -769,6 +744,31 @@ Return JSON with:
         if (score >= 50) return AlertCircle;
         return XCircle;
     };
+
+    // Show loading while checking user access
+    if (isLoadingUser) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <div className="flex items-center gap-3 text-slate-600">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    // Feature gate - require Pro or higher
+    if (!hasAccess(currentUser, "job_matcher")) {
+        return (
+            <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+                <UpgradePrompt
+                    feature="job_matcher"
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
+                    variant="card"
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen p-4 md:p-8 bg-background">

@@ -36,45 +36,6 @@ export default function AutofillVaultPage() {
   const [showRemapPrompt, setShowRemapPrompt] = React.useState(false);
   const [latestMaster, setLatestMaster] = React.useState(null);
 
-  // Load user for feature access check
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const user = await base44.auth.me();
-        setCurrentUser(user);
-      } catch (e) {
-        console.warn("Failed to load user:", e);
-      } finally {
-        setIsLoadingUser(false);
-      }
-    })();
-  }, []);
-
-  // Show loading while checking user access
-  if (isLoadingUser) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-600">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Feature gate - require Pro or higher
-  if (!hasAccess(currentUser, "autofill_vault")) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-        <UpgradePrompt
-          feature="autofill_vault"
-          currentTier={currentUser?.subscription_tier || TIERS.FREE}
-          variant="card"
-        />
-      </div>
-    );
-  }
-
   // default structure
   const emptyVault = {
     personal: { full_name: "", email: "", phone: "", location: "" },
@@ -104,6 +65,20 @@ export default function AutofillVaultPage() {
     },
     updated_at: new Date().toISOString()
   };
+
+  // Load user for feature access check
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+      } catch (e) {
+        console.warn("Failed to load user:", e);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    })();
+  }, []);
 
   React.useEffect(() => {
     (async () => {
@@ -146,6 +121,31 @@ export default function AutofillVaultPage() {
       setLoading(false);
     })();
   }, []);
+
+  // Show loading while checking user access
+  if (isLoadingUser) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-600">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Feature gate - require Pro or higher
+  if (!hasAccess(currentUser, "autofill_vault")) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <UpgradePrompt
+          feature="autofill_vault"
+          currentTier={currentUser?.subscription_tier || TIERS.FREE}
+          variant="card"
+        />
+      </div>
+    );
+  }
 
   const setField = (path, val) => {
     setVaultRec(prev => {

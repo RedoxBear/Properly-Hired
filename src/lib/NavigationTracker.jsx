@@ -3,10 +3,12 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { base44 } from '@/api/base44Client';
 import { pagesConfig } from '@/pages.config';
+import { useAppContext } from '@/context/AppContextProvider';
 
 export default function NavigationTracker() {
     const location = useLocation();
     const { isAuthenticated } = useAuth();
+    const { setPageContext, clearContext } = useAppContext();
     const { Pages, mainPage } = pagesConfig;
     const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 
@@ -44,7 +46,13 @@ export default function NavigationTracker() {
                 // Silently fail - logging shouldn't break the app
             });
         }
-    }, [location, isAuthenticated, Pages, mainPageKey]);
+
+        if (pageName) {
+            setPageContext(pageName);
+        } else {
+            clearContext();
+        }
+    }, [location, isAuthenticated, Pages, mainPageKey, setPageContext, clearContext]);
 
     return null;
 }

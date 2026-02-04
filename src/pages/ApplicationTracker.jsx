@@ -69,6 +69,22 @@ export default function ApplicationTracker() {
     const [selectedIds, setSelectedIds] = React.useState([]);
     const [expandedApp, setExpandedApp] = React.useState(null);
 
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
+            const [apps, resumeList] = await Promise.all([
+                JobApplication.list("-created_date"),
+                Resume.list("-created_date", 100)
+            ]);
+            setApplications(apps);
+            setResumes(resumeList);
+        } catch (e) {
+            console.error("Error loading data:", e);
+            setError("Failed to load applications");
+        }
+        setIsLoading(false);
+    };
+
     // Load user for feature access check
     React.useEffect(() => {
         (async () => {
@@ -81,6 +97,10 @@ export default function ApplicationTracker() {
                 setIsLoadingUser(false);
             }
         })();
+    }, []);
+
+    React.useEffect(() => {
+        loadData();
     }, []);
 
     // Show loading while checking user access
@@ -115,26 +135,6 @@ export default function ApplicationTracker() {
         final_interview: { color: "bg-purple-100 text-purple-800", label: "Final Interview", icon: Users },
         hired: { color: "bg-green-100 text-green-800", label: "Hired", icon: CheckCircle },
         rejected: { color: "bg-red-100 text-red-800", label: "Rejected", icon: XCircle }
-    };
-
-    React.useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = async () => {
-        setIsLoading(true);
-        try {
-            const [apps, resumeList] = await Promise.all([
-                JobApplication.list("-created_date"),
-                Resume.list("-created_date", 100)
-            ]);
-            setApplications(apps);
-            setResumes(resumeList);
-        } catch (e) {
-            console.error("Error loading data:", e);
-            setError("Failed to load applications");
-        }
-        setIsLoading(false);
     };
 
     const resetForm = () => {
