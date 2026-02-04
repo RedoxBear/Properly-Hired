@@ -31,25 +31,10 @@ export default function QAAssistant() {
     const [questions, setQuestions] = React.useState([{ question: "", character_limit: "", answer: "" }]);
     const [isGenerating, setIsGenerating] = React.useState(false);
     const [error, setError] = React.useState("");
-    const [answerStyle, setAnswerStyle] = React.useState("balanced"); // concise | balanced | detailed
+    const [answerStyle, setAnswerStyle] = React.useState("balanced");
     const [resumes, setResumes] = React.useState([]);
     const [currentUser, setCurrentUser] = React.useState(null);
     const [isLoadingUser, setIsLoadingUser] = React.useState(true);
-
-    const loadJobApplications = async () => {
-        setError("");
-        try {
-            const [applications, resumeList] = await Promise.all([
-                base44.entities.JobApplication.list("-created_date", 20),
-                base44.entities.Resume.list("-created_date", 100)
-            ]);
-            setJobApplications(applications);
-            setResumes(resumeList);
-        } catch (error) {
-            console.error("Error loading job applications:", error);
-            setError("Failed to load job applications. Please refresh the page.");
-        }
-    };
 
     React.useEffect(() => {
         (async () => {
@@ -62,8 +47,26 @@ export default function QAAssistant() {
                 setIsLoadingUser(false);
             }
         })();
+
+        const loadJobApplications = async () => {
+            setError("");
+            try {
+                const [applications, resumeList] = await Promise.all([
+                    base44.entities.JobApplication.list("-created_date", 20),
+                    base44.entities.Resume.list("-created_date", 100)
+                ]);
+                setJobApplications(applications);
+                setResumes(resumeList);
+            } catch (error) {
+                console.error("Error loading job applications:", error);
+                setError("Failed to load job applications. Please refresh the page.");
+            }
+        };
+        
         loadJobApplications();
     }, []);
+
+    const selectedJobData = selectedJobId ? jobApplications.find(job => job.id === selectedJobId) : null;
 
     // Show loading while checking user access
     if (isLoadingUser) {
@@ -267,8 +270,6 @@ Return one focused answer per question grounded in their actual resume.
         if (percentage > 0.9) return "text-yellow-600";
         return "text-green-600";
     };
-
-    const selectedJobData = selectedJobId ? jobApplications.find(job => job.id === selectedJobId) : null;
 
     return (
         <div className="min-h-screen p-4 md:p-8">
