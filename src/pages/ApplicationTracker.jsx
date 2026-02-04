@@ -789,7 +789,7 @@ export default function ApplicationTracker() {
                                                 )}
                                             </React.Fragment>
                                             );
-                                        })}
+                                            })}
                                     </tbody>
                                 </table>
                             </div>
