@@ -7,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Award, Database } from "lucide-react";
+import { Lightbulb, Sparkles, Target, Loader2, ArrowRight, Award, Database, Wifi, WifiOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { retryWithBackoff } from "@/components/utils/retry";
 import AgentChat from "@/components/agents/AgentChat";
 import ONetAttribution from "@/components/onet/ONetAttribution";
 import ONetContentModel from "@/components/onet/ONetContentModel";
+import { onetDataService } from "@/components/onet/ONetDataService";
 import { hasAccess, TIERS } from "@/components/utils/accessControl";
 import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
@@ -36,6 +37,7 @@ export default function TransferableSkills() {
   const [result, setResult] = React.useState(null);
   const [error, setError] = React.useState("");
   const [currentUser, setCurrentUser] = React.useState(null);
+  const [onetStatus, setOnetStatus] = React.useState(null);
 
   React.useEffect(() => {
     const init = async () => {
@@ -45,6 +47,9 @@ export default function TransferableSkills() {
         const list = await Resume.list("-created_date", 50);
         setResumes(list);
         if (list.length) setSelectedId(list[0].id);
+
+        // Check O*NET data service status
+        setOnetStatus(onetDataService.getApiStatus());
       } catch (e) {
         console.error(e);
         setError("Failed to load your resumes.");
@@ -85,21 +90,19 @@ export default function TransferableSkills() {
         .map(k => `[${k.subcategory}]\n${k.content}`)
         .join("\n\n");
 
-      // Query O*NET local database for occupation matches
-      const onetSkills = await base44.entities.ONetSkill.list("-importance", 100);
-
-      // Query live O*NET API for real-time occupation data
-      let liveOnetData = null;
+      // Query O*NET data using API-first service (falls back to local DB)
+      let onetData = null;
+      let onetSource = 'none';
       try {
         if (targetRole) {
-          const onetSearchResponse = await base44.functions.invoke('queryONetAPI', {
-            endpoint: '/online/search',
-            params: { keyword: targetRole }
-          });
-          liveOnetData = onetSearchResponse;
+          const searchResult = await onetDataService.searchOccupations(targetRole, 10);
+          onetData = searchResult.data;
+          onetSource = searchResult.source;
+          setOnetStatus(onetDataService.getApiStatus());
         }
       } catch (e) {
-        console.log("O*NET API unavailable, using local data only", e);
+        console.log("O*NET data service unavailable:", e);
+        setOnetStatus(onetDataService.getApiStatus());
       }
 
       const prompt = `You are Kyle, a Career Transition Expert specializing in identifying transferable skills for career pivots.
@@ -228,6 +231,23 @@ CRITICAL REQUIREMENTS:
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Career Change Explorer</h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">Discover transferable skills and explore new career paths using O*NET occupation data</p>
+
+          {/* O*NET Data Source Status */}
+          {onetStatus && (
+            <div className="mt-3 inline-flex items-center gap-2 text-xs">
+              {onetStatus.available ? (
+                <>
+                  <Wifi className="w-3 h-3 text-green-600" />
+                  <span className="text-green-700">O*NET API Online</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-3 h-3 text-amber-600" />
+                  <span className="text-amber-700">Using Local Database</span>
+                </>
+              )}
+            </div>
+          )}
           
           <Card className="mt-6 bg-blue-50 border-blue-200">
             <CardContent className="p-4">

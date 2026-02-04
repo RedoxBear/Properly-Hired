@@ -387,8 +387,7 @@ function AppShell({ children, currentPageName }) {
                                                 </RouterLink>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
-                                        {isSuperAdmin(currentUser) && (
-                                            <SidebarMenuItem>
+                                        <SidebarMenuItem>
                                                 <SidebarMenuButton
                                                     asChild
                                                     className={`hover:bg-accent transition-all duration-200 rounded-xl group min-h-[40px] text-xs ${
@@ -413,7 +412,6 @@ function AppShell({ children, currentPageName }) {
                                                     </RouterLink>
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
-                                        )}
                                     </SidebarMenu>
                                 </SidebarGroupContent>
                             </SidebarGroup>
