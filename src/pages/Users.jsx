@@ -136,12 +136,6 @@ export default function Users() {
         setError("");
         setSuccess("");
 
-        // Super Admin check for role changes
-        if (newRole === ROLES.SUPER_ADMIN && !isSuperAdmin(currentUser)) {
-            setError("Only Super Admins can assign Super Admin role");
-            return;
-        }
-
         try {
             await base44.entities.User.update(userId, { role: newRole });
 
@@ -423,7 +417,6 @@ export default function Users() {
                                                 <SelectItem value="all">All Roles</SelectItem>
                                                 <SelectItem value={ROLES.USER}>Users Only</SelectItem>
                                                 <SelectItem value={ROLES.ADMIN}>Admins Only</SelectItem>
-                                                <SelectItem value={ROLES.SUPER_ADMIN}>Super Admins</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -518,8 +511,8 @@ export default function Users() {
                                                                             Admin
                                                                         </SelectItem>
                                                                         {isSuperAdmin(currentUser) && (
-                                                                            <SelectItem value={ROLES.SUPER_ADMIN}>
-                                                                                Super Admin
+                                                                            <SelectItem value={ROLES.ADMIN}>
+                                                                                Admin
                                                                             </SelectItem>
                                                                         )}
                                                                     </SelectContent>
@@ -650,7 +643,7 @@ export default function Users() {
                                     </div>
                                     <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Admins</span>
+                                            <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Admin</span>
                                             <Badge variant="outline" className="bg-indigo-100 dark:bg-indigo-900/50">{roleStats[ROLES.ADMIN]}</Badge>
                                         </div>
                                         <div className="w-full bg-indigo-200 dark:bg-indigo-900/30 rounded-full h-2">
@@ -662,8 +655,8 @@ export default function Users() {
                                     </div>
                                     <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-medium text-red-700 dark:text-red-300">Super Admins</span>
-                                            <Badge variant="outline" className="bg-red-100 dark:bg-red-900/50">{roleStats[ROLES.SUPER_ADMIN]}</Badge>
+                                            <span className="text-sm font-medium text-red-700 dark:text-red-300">Admins</span>
+                                            <Badge variant="outline" className="bg-red-100 dark:bg-red-900/50">{roleStats[ROLES.ADMIN]}</Badge>
                                         </div>
                                         <div className="w-full bg-red-200 dark:bg-red-900/30 rounded-full h-2">
                                             <div
