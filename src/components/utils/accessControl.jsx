@@ -28,10 +28,10 @@ export const TIER_LIMITS = {
     features: ["job_analysis", "resume_upload", "basic_optimization", "cover_letters"]
   },
   pro: {
-    max_resumes: 20,
-    resume_optimizations_per_week: -1,
-    job_analyses_per_week: -1,
-    cover_letters_per_week: -1,
+    max_resumes: 10,
+    resume_optimizations_per_week: 40,
+    job_analyses_per_week: 100,
+    cover_letters_per_week: 40,
     cover_letters: true,
     transferable_skills: true,
     insights: true,
@@ -264,4 +264,42 @@ export function getRoleDisplayName(role) {
     [ROLES.SUPER_ADMIN]: "Super Admin"
   };
   return names[role] || "User";
+}
+
+/**
+ * Get start of current week (Monday 00:00:00)
+ */
+export function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+/**
+ * Get tier limit for a specific action
+ */
+export function getTierLimit(user, action) {
+  const tier = user?.subscription_tier || TIERS.FREE;
+  const limits = TIER_LIMITS[tier];
+
+  if (!limits) return 0;
+
+  const actionLimits = {
+    create_resume: limits.max_resumes,
+    optimize_resume: limits.resume_optimizations_per_week,
+    job_analysis: limits.job_analyses_per_week,
+    cover_letter: limits.cover_letters_per_week
+  };
+
+  return actionLimits[action] ?? -1;
+}
+
+/**
+ * Format limit display (handles unlimited)
+ */
+export function formatLimit(limit) {
+  return limit === -1 ? "Unlimited" : limit.toString();
 }

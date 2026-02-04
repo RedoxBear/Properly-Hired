@@ -17,6 +17,8 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import { retryWithBackoff } from "@/components/utils/retry";
+import { canPerformAction, getWeekStart, getTierLimit, formatLimit, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 export default function CoverLetter() {
   const [params] = useSearchParams();
@@ -40,6 +42,10 @@ export default function CoverLetter() {
   const [aiFeedback, setAIFeedback] = useState(null);
   const [isCheckingFeedback, setIsCheckingFeedback] = useState(false);
   const feedbackTextRef = useRef("");
+
+  // Tier limit enforcement
+  const [currentUser, setCurrentUser] = useState(null);
+  const [coverLetterCount, setCoverLetterCount] = useState(0);
 
   const [vars, setVars] = useState({
     candidate_name: "",
@@ -145,6 +151,26 @@ export default function CoverLetter() {
       closing: prev.closing
     }));
   }, [vault, app]);
+
+  // Load user and cover letter count for tier limits
+  useEffect(() => {
+    (async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+
+        // Count this week's cover letters (Monday to Sunday)
+        const weekStart = getWeekStart();
+        const allApplications = await JobApplication.list("-created_date", 500);
+        const weeklyCount = allApplications.filter(app =>
+          app.cover_letter_text && new Date(app.updated_date || app.created_date) >= weekStart
+        ).length;
+        setCoverLetterCount(weeklyCount);
+      } catch (e) {
+        console.warn("Failed to load user for tier check:", e);
+      }
+    })();
+  }, []);
 
   const output = useMemo(() => fillTemplate(template, vars), [template, vars]);
 
@@ -281,6 +307,12 @@ Write like you're explaining to a friend why you're excited about this opportuni
   const selectedToneConfig = toneConfigs[tone];
 
   const generateCoverLetter = async (generateMultiple = false) => {
+    // Check tier limits
+    if (!canPerformAction(currentUser, "cover_letter", coverLetterCount)) {
+      setError("You've reached your weekly cover letter limit. Upgrade to Pro for more cover letters.");
+      return;
+    }
+
     if (!app) {
       setError("Job application data is missing. Please go back and analyze the job first.");
       return;
@@ -543,6 +575,15 @@ Return ONLY a JSON object with these 4 clean paragraph strings:
           </Button>
         </div>
       </div>
+
+      {/* Tier Limit Warning */}
+      {currentUser && !canPerformAction(currentUser, "cover_letter", coverLetterCount) && (
+        <UpgradePrompt
+          feature="cover_letters_weekly"
+          currentTier={currentUser.subscription_tier || TIERS.FREE}
+          variant="alert"
+        />
+      )}
 
       {error && (
         <Alert variant="destructive">

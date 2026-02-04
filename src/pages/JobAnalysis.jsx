@@ -1,8 +1,11 @@
 import React from "react";
+import { base44 } from "@/api/base44Client";
 import { JobApplication } from "@/entities/JobApplication";
 import { InvokeLLM } from "@/integrations/Core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { canPerformAction, getWeekStart, getTierLimit, formatLimit, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -60,6 +63,10 @@ export default function JobAnalysis() {
     // NEW: track if we've already logged a job search in this session
     const jobSearchLoggedRef = React.useRef(false);
 
+    // Tier limit enforcement
+    const [currentUser, setCurrentUser] = React.useState(null);
+    const [analysisCount, setAnalysisCount] = React.useState(0);
+
     React.useEffect(() => {
         (async () => {
             try {
@@ -71,6 +78,26 @@ export default function JobAnalysis() {
                 }
             } catch (e) {
                 console.warn("No master resume found for articulation panel.");
+            }
+        })();
+    }, []);
+
+    // Load user and analysis count for tier limits
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const user = await base44.auth.me();
+                setCurrentUser(user);
+
+                // Count this week's job analyses (Monday to Sunday)
+                const weekStart = getWeekStart();
+                const allApplications = await JobApplication.list("-created_date", 500);
+                const weeklyCount = allApplications.filter(app =>
+                    new Date(app.created_date) >= weekStart
+                ).length;
+                setAnalysisCount(weeklyCount);
+            } catch (e) {
+                console.warn("Failed to load user for tier check:", e);
             }
         })();
     }, []);
@@ -283,6 +310,12 @@ URL: ${jobUrl}
     const masterPlain = React.useMemo(() => toPlainFromCv(masterCvFull), [masterCvFull]);
 
     const analyzeJobPosting = async () => {
+        // Check tier limits
+        if (!canPerformAction(currentUser, "job_analysis", analysisCount)) {
+            setError("You've reached your weekly job analysis limit. Upgrade to Pro for more analyses.");
+            return;
+        }
+
         // Always log a single job_searched when Analyze is triggered (even without URL)
         if (!jobSearchLoggedRef.current) {
             try {
@@ -541,6 +574,15 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                         Extract key requirements, understand company culture, and get strategic insights to optimize your application
                     </p>
                 </motion.div>
+
+                {/* Tier Limit Warning */}
+                {currentUser && !canPerformAction(currentUser, "job_analysis", analysisCount) && (
+                    <UpgradePrompt
+                        feature="max_applications"
+                        currentTier={currentUser.subscription_tier || TIERS.FREE}
+                        variant="alert"
+                    />
+                )}
 
                 {/* Alerts */}
                 {error && (

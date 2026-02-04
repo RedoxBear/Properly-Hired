@@ -1,6 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { hasAccess, canPerformAction, TIERS } from "@/components/utils/accessControl";
+import { hasAccess, canPerformAction, TIERS, getWeekStart, getTierLimit, formatLimit } from "@/components/utils/accessControl";
 import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 const Resume = base44.entities.Resume;
@@ -96,22 +96,24 @@ export default function ResumeOptimizer() {
     setIsProcessing(true);
     setError("");
     try {
-      const [applications, resumes, matches, user] = await Promise.all([
+      const [applications, masterResumesResult, allResumes, matches, user] = await Promise.all([
         JobApplication.list("-created_date", 50),
         Resume.filter({ is_master_resume: true }, "-created_date", 100),
+        Resume.list("-created_date", 500),
         JobMatch.list("-created_date", 50),
         base44.auth.me()
       ]);
       setJobApplications(applications);
-      setMasterResumes(resumes);
+      setMasterResumes(masterResumesResult);
       setJobMatches(matches);
       setCurrentUser(user);
 
-      // Count this week's optimizations (estimate)
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const weeklyCount = resumes.filter(r => !r.is_master_resume && new Date(r.created_date) > weekAgo).length;
-      setOptimizationCount(weeklyCount);
+      // Count this week's optimizations (Monday to Sunday)
+      const weekStart = getWeekStart();
+      const optimizedThisWeek = allResumes.filter(r =>
+        !r.is_master_resume && new Date(r.created_date) >= weekStart
+      ).length;
+      setOptimizationCount(optimizedThisWeek);
 
       if (resumes.length === 0) {
         setError("Please upload or build a master resume first.");
