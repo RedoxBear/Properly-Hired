@@ -302,9 +302,17 @@ Return JSON:
               return;
           }
 
-          const resumeContent = typeof contentToParse === 'string'
-              ? JSON.parse(contentToParse)
-              : contentToParse;
+          let resumeContent;
+          try {
+              resumeContent = typeof contentToParse === 'string'
+                  ? JSON.parse(contentToParse)
+                  : contentToParse;
+          } catch (parseError) {
+              console.error("Failed to parse resume content:", parseError);
+              setError("Resume content is corrupted or invalid. Please upload the resume again.");
+              setIsLoadingArc(false);
+              return;
+          }
           const experiences = resumeContent.experience || [];
 
           if (experiences.length === 0) {
@@ -416,7 +424,31 @@ Return JSON:
           const job = jobApplications.find(j => j.id === selectedJobId);
           const resume = masterResumes.find(r => r.id === selectedResumeId);
 
-          const resumeContent = JSON.parse(resume.parsed_content || resume.optimized_content);
+          if (!resume) {
+              setError("Selected resume not found. Please select another.");
+              setIsLoadingTailoring(false);
+              return;
+          }
+
+          const contentToParse = resume.parsed_content || resume.optimized_content;
+          if (!contentToParse) {
+              setError("Resume content not available. Please try another resume.");
+              setIsLoadingTailoring(false);
+              return;
+          }
+
+          let resumeContent;
+          try {
+              resumeContent = typeof contentToParse === 'string'
+                  ? JSON.parse(contentToParse)
+                  : contentToParse;
+          } catch (parseError) {
+              console.error("Failed to parse resume content:", parseError);
+              setError("Resume content is corrupted or invalid. Please upload the resume again.");
+              setIsLoadingTailoring(false);
+              return;
+          }
+
           const currentSummary = resumeContent.summary || resumeContent.executive_summary || "";
           const experiences = resumeContent.experience || [];
 
@@ -558,7 +590,15 @@ Return JSON:
         const versions = [];
 
         // Parse resume to extract all job history items
-        const resumeData = JSON.parse(selectedResume.parsed_content);
+        let resumeData;
+        try {
+            resumeData = JSON.parse(selectedResume.parsed_content);
+        } catch (parseError) {
+            console.error("Failed to parse resume content:", parseError);
+            setError("Resume content is corrupted or invalid. Please upload the resume again.");
+            setIsProcessing(false);
+            return;
+        }
         const allJobHistory = resumeData.experience || [];
 
         // Create detailed job history breakdown for analysis

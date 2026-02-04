@@ -484,9 +484,28 @@ Return JSON with:
             const resume = resumes.find(r => r.id === selectedResume);
             if (!resume) return;
 
-            const resumeContent = JSON.parse(resume.parsed_content || resume.optimized_content);
+            // Safely parse resume content with null checks
+            const contentToParse = resume.parsed_content || resume.optimized_content;
+            if (!contentToParse) {
+                setError("Selected resume has no content. Please rebuild it.");
+                setIsLoadingSuggestions(false);
+                return;
+            }
+
+            let resumeContent;
+            try {
+                resumeContent = typeof contentToParse === 'string'
+                    ? JSON.parse(contentToParse)
+                    : contentToParse;
+            } catch (parseError) {
+                console.error("Failed to parse resume content:", parseError);
+                setError("Resume content is corrupted. Please rebuild it.");
+                setIsLoadingSuggestions(false);
+                return;
+            }
+
             const skills = Array.isArray(resumeContent.skills) ? resumeContent.skills.join(", ") : "";
-            const experience = Array.isArray(resumeContent.experience) 
+            const experience = Array.isArray(resumeContent.experience)
                 ? resumeContent.experience.map(e => `${e.position} at ${e.company}`).join("; ")
                 : "";
 

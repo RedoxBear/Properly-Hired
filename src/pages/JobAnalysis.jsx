@@ -133,9 +133,15 @@ export default function JobAnalysis() {
         setIsFetchingFromUrl(true);
         setError("");
         try {
-            const res = await retryWithBackoff(
-                () => InvokeLLM({
-                    prompt: `
+            // Add 30-second timeout for URL fetch
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Job details fetch timeout')), 30000)
+            );
+
+            const res = await Promise.race([
+                retryWithBackoff(
+                    () => InvokeLLM({
+                        prompt: `
 You are a structured extractor. Visit this job posting URL and return JSON with:
 - job_title: string
 - company_name: string
@@ -144,20 +150,22 @@ You are a structured extractor. Visit this job posting URL and return JSON with:
 Return empty strings if not visible.
 
 URL: ${jobUrl}
-                    `,
-                    add_context_from_internet: true,
-                    response_json_schema: {
-                        type: "object",
-                        properties: {
-                            job_title: { type: "string" },
-                            company_name: { type: "string" },
-                            jd_text: { type: "string" }
-                        },
-                        required: ["job_title", "company_name", "jd_text"]
-                    }
-                }),
-                { retries: 2, baseDelay: 1000 }
-            );
+                        `,
+                        add_context_from_internet: true,
+                        response_json_schema: {
+                            type: "object",
+                            properties: {
+                                job_title: { type: "string" },
+                                company_name: { type: "string" },
+                                jd_text: { type: "string" }
+                            },
+                            required: ["job_title", "company_name", "jd_text"]
+                        }
+                    }),
+                    { retries: 2, baseDelay: 1000 }
+                ),
+                timeoutPromise
+            ]);
 
             if (res?.job_title) setJobTitle(res.job_title);
             if (res?.company_name) setCompanyName(res.company_name);
@@ -169,7 +177,10 @@ URL: ${jobUrl}
             setPrefillInfo("Pulled key fields from the job page. Please review before analyzing.");
         } catch (e) {
             console.error(e);
-            setError("Couldn’t pull job details from the URL. You can still paste the JD manually.");
+            const errorMsg = e.message === 'Job details fetch timeout'
+                ? "The job details fetch took too long. Please try again or paste the job description manually."
+                : "Couldn't pull job details from the URL. You can still paste the JD manually.";
+            setError(errorMsg);
         } finally {
             setIsFetchingFromUrl(false);
         }

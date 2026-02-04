@@ -251,13 +251,27 @@ export default function ApplicationTracker() {
     };
 
     const updateStatus = async (app, field, value) => {
+        // Store original value for rollback
+        const originalValue = app[field];
+
         try {
+            // First, update the API
             await JobApplication.update(app.id, { [field]: value });
-            // Update the application status in the local state without reloading
-            setApplications(prev => prev.map(a => a.id === app.id ? { ...a, [field]: value } : a));
+
+            // Only update state AFTER successful API call
+            setApplications(prev => prev.map(a =>
+                a.id === app.id ? { ...a, [field]: value } : a
+            ));
+
+            setError(""); // Clear any previous errors
         } catch (e) {
             console.error("Error updating status:", e);
-            setError("Failed to update status");
+            setError(`Failed to update status. Changes reverted.`);
+
+            // Rollback: revert to original value
+            setApplications(prev => prev.map(a =>
+                a.id === app.id ? { ...a, [field]: originalValue } : a
+            ));
         }
     };
 

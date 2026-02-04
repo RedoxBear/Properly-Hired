@@ -91,7 +91,17 @@ export const AuthProvider = ({ children }) => {
     try {
       // Now check if the user is authenticated
       setIsLoadingAuth(true);
-      const currentUser = await base44.auth.me();
+
+      // Add 10-second timeout for auth check
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Auth check timeout')), 10000)
+      );
+
+      const currentUser = await Promise.race([
+        base44.auth.me(),
+        timeoutPromise
+      ]);
+
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
@@ -99,12 +109,14 @@ export const AuthProvider = ({ children }) => {
       console.error('User auth check failed:', error);
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
-      
+
       // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
+      if (error.status === 401 || error.status === 403 || error.message === 'Auth check timeout') {
         setAuthError({
           type: 'auth_required',
-          message: 'Authentication required'
+          message: error.message === 'Auth check timeout'
+            ? 'Authentication check timed out. Please refresh the page.'
+            : 'Authentication required'
         });
       }
     }
@@ -124,8 +136,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    // Use the SDK's redirectToLogin method
-    base44.auth.redirectToLogin(window.location.href);
+    try {
+      // Use the SDK's redirectToLogin method
+      if (base44.auth && typeof base44.auth.redirectToLogin === 'function') {
+        base44.auth.redirectToLogin(window.location.href);
+      } else {
+        // Fallback if SDK method unavailable
+        console.warn('SDK redirectToLogin unavailable, using window redirect');
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('Failed to navigate to login:', error);
+      // Final fallback
+      window.location.href = '/login';
+    }
   };
 
   return (
