@@ -91,16 +91,17 @@ export default function CVBot({ isOpen, currentQuestion, currentAnswer, onClose,
     const userMessage = text.trim();
     if (!userMessage) return;
 
-    setInput("");
-    addMessage("user", userMessage);
-
-    // Client-side guardrail
+    // Check guardrail BEFORE clearing input
     if (!isOnTopic(userMessage)) {
       setTimeout(() => {
         addMessage("assistant", "I'm here to help with your CV! What would you like help with for this section? Try asking for an example or tips to improve your answer.");
       }, 300);
-      return;
+      return; // Input remains for user to edit
     }
+
+    // Only clear input after validation passes
+    setInput("");
+    addMessage("user", userMessage);
 
     setIsLoading(true);
 

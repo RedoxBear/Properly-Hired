@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 
@@ -18,7 +18,10 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
     const [error, setError] = useState("");
     const [initError, setInitError] = useState("");
     const [isInitializing, setIsInitializing] = useState(false);
+    const [voiceListening, setVoiceListening] = useState(false);
+    const [voiceSupported, setVoiceSupported] = useState(true);
     const initTimeoutRef = useRef(null);
+    const recognitionRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -104,6 +107,60 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
             e.preventDefault();
             sendMessage();
         }
+    };
+
+    const startVoiceInput = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            setVoiceSupported(false);
+            setError("Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.");
+            return;
+        }
+
+        const rec = new SpeechRecognition();
+        rec.lang = "en-US";
+        rec.interimResults = true;
+        rec.continuous = false;
+        recognitionRef.current = rec;
+        setError("");
+
+        let finalTranscript = input || "";
+        rec.onresult = (e) => {
+            let interim = "";
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                const transcript = e.results[i][0].transcript;
+                if (e.results[i].isFinal) finalTranscript += (finalTranscript ? " " : "") + transcript;
+                else interim += transcript;
+            }
+            setInput(finalTranscript + (interim ? " " + interim : ""));
+            setError("");
+        };
+        rec.onend = () => setVoiceListening(false);
+        rec.onerror = (event) => {
+            const errorType = event.error;
+            console.error("Voice input error:", errorType);
+
+            const errorMessages = {
+                'no-speech': 'No speech detected. Please try again.',
+                'audio-capture': 'Microphone not found. Check audio permissions.',
+                'network': 'Network error. Please try again.',
+                'permission-denied': 'Microphone access denied. Enable audio permissions.',
+                'aborted': 'Voice input was cancelled.',
+                'service-not-allowed': 'Voice service unavailable in your region.'
+            };
+
+            const userMessage = errorMessages[errorType] || `Voice error: ${errorType}`;
+            setError(userMessage);
+            setVoiceListening(false);
+        };
+
+        setVoiceListening(true);
+        rec.start();
+    };
+
+    const stopVoiceInput = () => {
+        setVoiceListening(false);
+        if (recognitionRef.current) recognitionRef.current.stop();
     };
 
     if (!isOpen) {
@@ -256,6 +313,21 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                         className="resize-none h-10 min-h-0"
                                         disabled={isLoading || !conversation}
                                     />
+                                    {voiceSupported && (
+                                        <Button
+                                            onClick={voiceListening ? stopVoiceInput : startVoiceInput}
+                                            disabled={isLoading || !conversation}
+                                            size="icon"
+                                            variant={voiceListening ? "destructive" : "outline"}
+                                            title={voiceListening ? "Stop voice input" : "Start voice input"}
+                                        >
+                                            {voiceListening ? (
+                                                <MicOff className="w-4 h-4" />
+                                            ) : (
+                                                <Mic className="w-4 h-4" />
+                                            )}
+                                        </Button>
+                                    )}
                                     <Button
                                         onClick={sendMessage}
                                         disabled={!input.trim() || isLoading || !conversation}
