@@ -86,7 +86,8 @@ export default function ResumeOptimizer() {
   const [qualityFramework, setQualityFramework] = React.useState(null);
   const [applicationPackageStrategy, setApplicationPackageStrategy] = React.useState(null);
   const [expandedFrameworks, setExpandedFrameworks] = React.useState({});
-  const [isLoadingKyleAnalysis, setIsLoadingKyleAnalysis] = React.useState(false);
+  const [isLoadingPositioning, setIsLoadingPositioning] = React.useState(false);
+  const [isLoadingQualityFramework, setIsLoadingQualityFramework] = React.useState(false);
   const [kyleArcGuidance, setKyleArcGuidance] = React.useState(null);
   const [isLoadingArc, setIsLoadingArc] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState(null);
@@ -147,10 +148,10 @@ export default function ResumeOptimizer() {
       return;
     }
 
-    setIsLoadingKyleAnalysis(true);
+    setIsLoadingPositioning(true);
     try {
       const job = jobApplications.find(j => j.id === selectedJobId);
-      
+
       const response = await retryWithBackoff(() =>
         base44.integrations.Core.InvokeLLM({
           prompt: `You are Kyle, a Career Positioning Expert. Analyze this role and provide SPECIFIC, ACTIONABLE strategic positioning guidance.
@@ -192,7 +193,7 @@ Return JSON with complete data:
       console.error("Failed to load positioning analysis:", e);
       setError("Could not generate positioning analysis");
     }
-    setIsLoadingKyleAnalysis(false);
+    setIsLoadingPositioning(false);
   };
 
   // Load Quality Framework
@@ -202,10 +203,10 @@ Return JSON with complete data:
       return;
     }
 
-    setIsLoadingKyleAnalysis(true);
+    setIsLoadingQualityFramework(true);
     try {
       const job = jobApplications.find(j => j.id === selectedJobId);
-      
+
       const response = await retryWithBackoff(() =>
         base44.integrations.Core.InvokeLLM({
           prompt: `You are Kyle, a Resume Quality Auditor. Create a SPECIFIC quality checklist for optimizing a CV for this role.
@@ -276,7 +277,7 @@ Return JSON:
       console.error("Failed to load quality framework:", e);
       setError("Could not generate quality framework");
     }
-    setIsLoadingKyleAnalysis(false);
+    setIsLoadingQualityFramework(false);
   };
 
   const getKyleArcGuidance = async () => {
@@ -958,21 +959,21 @@ Return JSON:
                       Kyle's Career Coaching Analysis
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Button 
-                        onClick={loadPositioningAnalysis} 
-                        disabled={isLoadingKyleAnalysis || !selectedJobId}
+                      <Button
+                        onClick={loadPositioningAnalysis}
+                        disabled={isLoadingPositioning || !selectedJobId}
                         variant="outline"
                         className="border-amber-600 text-amber-700 hover:bg-amber-50"
                       >
-                        {isLoadingKyleAnalysis ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Positioning Analysis</>}
+                        {isLoadingPositioning ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><Target className="w-4 h-4 mr-2" />Positioning Analysis</>}
                       </Button>
-                      <Button 
+                      <Button
                         onClick={loadQualityFramework}
-                        disabled={isLoadingKyleAnalysis || !selectedJobId}
+                        disabled={isLoadingQualityFramework || !selectedJobId}
                         variant="outline"
                         className="border-green-600 text-green-700 hover:bg-green-50"
                       >
-                        {isLoadingKyleAnalysis ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><CheckCircle2 className="w-4 h-4 mr-2" />Quality Framework</>}
+                        {isLoadingQualityFramework ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Loading...</> : <><CheckCircle2 className="w-4 h-4 mr-2" />Quality Framework</>}
                       </Button>
                     </div>
                   </div>
