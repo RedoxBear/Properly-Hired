@@ -1,8 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
-import { JobApplication } from "@/entities/JobApplication";
-import { Resume } from "@/entities/Resume";
-import { InvokeLLM } from "@/integrations/Core";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -37,6 +35,21 @@ export default function QAAssistant() {
     const [resumes, setResumes] = React.useState([]);
     const [currentUser, setCurrentUser] = React.useState(null);
     const [isLoadingUser, setIsLoadingUser] = React.useState(true);
+
+    const loadJobApplications = async () => {
+        setError("");
+        try {
+            const [applications, resumeList] = await Promise.all([
+                base44.entities.JobApplication.list("-created_date", 20),
+                base44.entities.Resume.list("-created_date", 100)
+            ]);
+            setJobApplications(applications);
+            setResumes(resumeList);
+        } catch (error) {
+            console.error("Error loading job applications:", error);
+            setError("Failed to load job applications. Please refresh the page.");
+        }
+    };
 
     React.useEffect(() => {
         (async () => {
@@ -76,21 +89,6 @@ export default function QAAssistant() {
             </div>
         );
     }
-
-    const loadJobApplications = async () => {
-        setError("");
-        try {
-            const [applications, resumeList] = await Promise.all([
-                JobApplication.list("-created_date", 20),
-                Resume.list("-created_date", 100)
-            ]);
-            setJobApplications(applications);
-            setResumes(resumeList);
-        } catch (error) {
-            console.error("Error loading job applications:", error);
-            setError("Failed to load job applications. Please refresh the page.");
-        }
-    };
 
     const addQuestion = () => {
         setQuestions([...questions, { question: "", character_limit: "", answer: "" }]);
@@ -199,7 +197,7 @@ INSTRUCTIONS:
 Return one focused answer per question grounded in their actual resume.
             `;
 
-            const response = await retryWithBackoff(() => InvokeLLM({
+            const response = await retryWithBackoff(() => base44.integrations.Core.InvokeLLM({
                 prompt: qaPrompt,
                 add_context_from_internet: false,
                 response_json_schema: {
@@ -232,7 +230,7 @@ Return one focused answer per question grounded in their actual resume.
             setQuestions(updatedQuestions);
 
             // Save to job application
-            await JobApplication.update(selectedJobId, {
+            await base44.entities.JobApplication.update(selectedJobId, {
                 application_questions: validQuestions.map((q, i) => ({
                     question: q.question,
                     answer: response.answers[i]?.answer || "",
