@@ -42,6 +42,9 @@ export default function ONetImport() {
   const [apiStatus, setApiStatus] = React.useState(null);
   const [isImporting, setIsImporting] = React.useState(false);
   const [dbStats, setDbStats] = React.useState(null);
+  const [verificationInProgress, setVerificationInProgress] = React.useState(false);
+  const [importStats, setImportStats] = React.useState(null);
+  const [totalProgress, setTotalProgress] = React.useState(0);
 
   React.useEffect(() => {
     checkAccess();
@@ -86,22 +89,57 @@ export default function ONetImport() {
       const entities = ['ONetOccupation', 'ONetSkill', 'ONetAbility', 'ONetKnowledge',
                         'ONetTask', 'ONetWorkActivity', 'ONetWorkContext', 'ONetReference'];
       const stats = {};
+      let totalRecords = 0;
+      let entitiesWithData = 0;
 
       for (const entityName of entities) {
         try {
           const entity = base44.entities[entityName];
           if (entity) {
-            const records = await entity.list('-created_date', 1);
-            stats[entityName] = records.length > 0 ? 'has_data' : 'empty';
+            // Get count of records (fetch all to get actual count)
+            const records = await entity.list('-created_date', 1000);
+            const count = records.length;
+            stats[entityName] = {
+              status: count > 0 ? 'has_data' : 'empty',
+              count: count
+            };
+            if (count > 0) {
+              totalRecords += count;
+              entitiesWithData++;
+            }
           }
         } catch (e) {
-          stats[entityName] = 'error';
+          stats[entityName] = { status: 'error', count: 0, error: e.message };
         }
       }
 
       setDbStats(stats);
+      return { stats, totalRecords, entitiesWithData, totalEntities: entities.length };
     } catch (e) {
       console.error("Failed to load DB stats:", e);
+      return null;
+    }
+  };
+
+  const verifyImportedData = async () => {
+    setVerificationInProgress(true);
+    try {
+      const result = await loadDbStats();
+      if (result) {
+        setImportStats({
+          totalRecords: result.totalRecords,
+          entitiesWithData: result.entitiesWithData,
+          totalEntities: result.totalEntities,
+          isComplete: result.entitiesWithData === result.totalEntities && result.totalRecords > 0,
+          timestamp: new Date().toISOString(),
+          details: result.stats
+        });
+      }
+    } catch (e) {
+      console.error("Failed to verify import:", e);
+      setError("Failed to verify imported data");
+    } finally {
+      setVerificationInProgress(false);
     }
   };
 
@@ -251,9 +289,15 @@ export default function ONetImport() {
 
     setIsImporting(true);
     try {
+      let completed = 0;
       for (const schema of filesToImport) {
         await importFile(schema.fileName);
+        completed++;
+        // Update overall progress
+        setTotalProgress(Math.round((completed / filesToImport.length) * 100));
       }
+      // Verify data after phase import
+      await verifyImportedData();
     } finally {
       setIsImporting(false);
     }
@@ -269,10 +313,17 @@ export default function ONetImport() {
     if (filesToImport.length === 0) return;
 
     setIsImporting(true);
+    setTotalProgress(0);
     try {
+      let completed = 0;
       for (const schema of filesToImport) {
         await importFile(schema.fileName);
+        completed++;
+        // Update overall progress
+        setTotalProgress(Math.round((completed / filesToImport.length) * 100));
       }
+      // Verify data after all imports complete
+      await verifyImportedData();
     } finally {
       setIsImporting(false);
     }
@@ -386,11 +437,16 @@ export default function ONetImport() {
                 <div className="p-2 rounded-lg bg-blue-100">
                   <Database className="w-5 h-5 text-blue-600" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <div className="font-medium">Local Database</div>
                   <div className="text-xs text-slate-500">
-                    {dbStats ? Object.values(dbStats).filter(s => s === 'has_data').length : 0}/8 entities with data
+                    {dbStats ? Object.values(dbStats).filter(s => s.status === 'has_data').length : 0}/8 entities
                   </div>
+                  {dbStats && importStats?.totalRecords > 0 && (
+                    <div className="text-xs text-green-600 font-medium mt-1">
+                      {importStats.totalRecords.toLocaleString()} records loaded
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -399,24 +455,106 @@ export default function ONetImport() {
           {/* Actions */}
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Data Management</div>
-                  <div className="text-xs text-slate-500">Clear all imported data</div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  <div className="font-medium">Actions</div>
+                  <div className="text-xs text-slate-500">Manage or verify data</div>
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleClearAllData}
-                  disabled={isImporting}
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Clear All
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={verifyImportedData}
+                    disabled={isImporting || verificationInProgress}
+                    className="text-xs"
+                  >
+                    {verificationInProgress ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        Verifying
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        Verify
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleClearAllData}
+                    disabled={isImporting}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Overall Import Progress Bar */}
+        {isImporting && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="font-medium text-blue-900">Overall Import Progress</div>
+                <div className="text-sm font-semibold text-blue-700">{totalProgress}%</div>
+              </div>
+              <div className="w-full bg-blue-200 rounded-full h-3">
+                <div
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${totalProgress}%` }}
+                />
+              </div>
+              {isImporting && (
+                <div className="flex items-center gap-2 mt-3 text-sm text-blue-700">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Importing files...
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Verification Results */}
+        {importStats && (
+          <Card className={importStats.isComplete ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${importStats.isComplete ? 'bg-green-100' : 'bg-yellow-100'}`}>
+                  {importStats.isComplete ? (
+                    <CheckCircle2 className={`w-5 h-5 ${importStats.isComplete ? 'text-green-600' : 'text-yellow-600'}`} />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className={`font-semibold ${importStats.isComplete ? 'text-green-900' : 'text-yellow-900'}`}>
+                    {importStats.isComplete ? 'Import Complete ✓' : 'Partial Import'}
+                  </div>
+                  <div className={`text-sm mt-1 ${importStats.isComplete ? 'text-green-700' : 'text-yellow-700'}`}>
+                    {importStats.totalRecords.toLocaleString()} records loaded across {importStats.entitiesWithData} of {importStats.totalEntities} entities
+                  </div>
+                  {importStats.details && (
+                    <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                      {Object.entries(importStats.details).map(([entity, data]) => (
+                        <div key={entity} className="p-2 bg-white rounded">
+                          <div className="font-medium truncate">{entity}</div>
+                          <div className={data.status === 'has_data' ? 'text-green-600' : data.status === 'error' ? 'text-red-600' : 'text-gray-500'}>
+                            {data.count.toLocaleString()} records
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Import Progress */}
         <ONetImportProgress fileStates={fileStates} schemas={ONET_SCHEMAS} />
