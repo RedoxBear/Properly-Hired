@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, Bot, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { InvokeLLM } from "@/integrations/Core";
+import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
 
 // CVBot System Prompt - Strict scope restriction
