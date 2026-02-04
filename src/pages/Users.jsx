@@ -21,11 +21,13 @@ import {
     BarChart3,
     Calendar,
     Download,
-    RefreshCw
+    RefreshCw,
+    Upload
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TIERS, TIER_LIMITS, PRICING, ROLES, isAdmin, isSuperAdmin, getRoleDisplayName } from "@/components/utils/accessControl";
 import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function Users() {
     const navigate = useNavigate();
@@ -302,7 +304,19 @@ export default function Users() {
                                 Manage users, roles, and subscription tiers
                             </p>
                         </div>
-                        {getRoleBadge(currentUser?.role)}
+                        <div className="flex items-center gap-3">
+                            {isSuperAdmin(currentUser) && (
+                                <Button
+                                    variant="outline"
+                                    className="gap-2"
+                                    onClick={() => navigate(createPageUrl("ONetImport"))}
+                                >
+                                    <Upload className="w-4 h-4" />
+                                    O*NET Import
+                                </Button>
+                            )}
+                            {getRoleBadge(currentUser?.role)}
+                        </div>
                     </div>
                 </motion.div>
 
