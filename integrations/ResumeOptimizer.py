@@ -1,13 +1,13 @@
 """
 Base44 Custom Integration: Resume Optimizer
-Uses Kyle v2.1.0 for positioning analysis and interview preparation
+Uses Kyle for positioning analysis and interview preparation
 
 Integration Name: ResumeOptimizer
 Description: Optimizes resumes, creates positioning strategies, and prepares interview materials
 
 Kyle's Best Qualities Integrated:
 - Domain-focused expertise (CV, Cover Letters, Interview Prep, Positioning)
-- RAG-powered knowledge base access
+- RAG-powered knowledge base access with local knowledge files
 - Quality frameworks and checklists
 - Integrated workflows (complete application packages)
 - Strategic positioning and personal branding
@@ -16,11 +16,13 @@ Kyle's Best Qualities Integrated:
 import sys
 import os
 from typing import Dict, Any, Optional
+from pathlib import Path
 
-# Add career-coach agents to path
-sys.path.insert(0, '/mnt/f/Projects/AI_Projects/code/career-coach')
+# Add local agents to path
+current_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(current_dir / 'agents'))
 
-from agents import Kyle
+from kyle.kyle import Kyle
 
 
 class ResumeOptimizer:

@@ -1,6 +1,6 @@
 """
 Base44 Custom Integration: Job Analysis
-Uses Simon v2.1.0 for comprehensive job opportunity analysis
+Uses Simon for comprehensive job opportunity analysis
 
 Integration Name: JobAnalysis
 Description: Analyzes job opportunities with ghost-job detection and recommendations
@@ -8,11 +8,13 @@ Description: Analyzes job opportunities with ghost-job detection and recommendat
 import sys
 import os
 from typing import Dict, Any
+from pathlib import Path
 
-# Add career-coach agents to path
-sys.path.insert(0, '/mnt/f/Projects/AI_Projects/code/career-coach')
+# Add local agents to path
+current_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(current_dir / 'agents'))
 
-from agents import Simon
+from simon.simon import Simon
 
 
 def mock_search_tool(query: str) -> str:
