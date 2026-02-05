@@ -470,11 +470,23 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                                 )}
 
                                 {messages.map((msg, idx) => {
-                                    // Handle content that might be an object or string
+                                    // Handle content that might be an object, array, or string
                                     let contentText = "";
 
                                     if (typeof msg.content === 'string') {
                                         contentText = msg.content;
+                                    } else if (Array.isArray(msg.content)) {
+                                        // Handle array of content blocks (common in AI responses)
+                                        contentText = msg.content
+                                            .map(block => {
+                                                if (typeof block === 'string') return block;
+                                                if (block && typeof block === 'object') {
+                                                    return block.text || block.content || block.message || JSON.stringify(block);
+                                                }
+                                                return '';
+                                            })
+                                            .filter(Boolean)
+                                            .join('\n');
                                     } else if (msg.content && typeof msg.content === 'object') {
                                         // Try multiple properties for object content
                                         if (msg.content.text) {
@@ -488,12 +500,13 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                                         } else {
                                             // Last resort: stringify but log warning
                                             console.warn("Unexpected message content format:", msg.content);
-                                            contentText = JSON.stringify(msg.content);
+                                            contentText = JSON.stringify(msg.content, null, 2);
                                         }
                                     }
 
                                     // Ensure we have a string
-                                    if (!contentText || contentText === "[object Object]") {
+                                    if (!contentText || contentText === "[object Object]" || contentText === "[object Object],[object Object]") {
+                                        console.error("Failed to extract text from message:", msg);
                                         contentText = "Sorry, I encountered an error processing that response. Please try again.";
                                     }
 
