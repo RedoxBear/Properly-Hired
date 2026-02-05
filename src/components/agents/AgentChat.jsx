@@ -4,16 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ArrowRight } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
 import ChatErrorBoundary from "./ChatErrorBoundary";
-import { AGENT_CONFIG, generateAgentPrompt, parseAgentFromResponse } from "./agentPrompts";
+import { AGENT_CONFIG } from "./agentPrompts";
 
 function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const { context: appContext, getContextSummary } = useAppContext();
-    const [currentAgent, setCurrentAgent] = useState(agentName); // Track active agent
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [conversation, setConversation] = useState(null);
@@ -26,7 +25,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const [isInitializing, setIsInitializing] = useState(false);
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
-    const [handoffNotification, setHandoffNotification] = useState(null); // Agent switch notification
 
     // Refs for cleanup
     const isMountedRef = useRef(true);
@@ -119,15 +117,13 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                     contextSummary: getContextSummary()
                 };
 
-                // Generate multi-agent system prompt
-                const systemPrompt = generateAgentPrompt(agentName, mergedContext);
-
+                // Note: base44 SDK doesn't use systemPrompt in metadata for kyle/simon agents
+                // Each agent (build, kyle, simon) has pre-configured backend system prompts
                 conv = await base44.agents.createConversation({
                     agent_name: agentName,
                     metadata: {
                         name: `${agentTitle} Chat`,
                         context: JSON.stringify(mergedContext),
-                        systemPrompt: systemPrompt,
                         appContext: appContext
                     }
                 });
@@ -178,36 +174,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
             if (isMountedRef.current) {
                 const newMessages = data.messages || [];
                 setMessages(newMessages);
-
-                // Check last message for agent handoff
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage && lastMessage.role !== "user") {
-                    const contentText = typeof lastMessage.content === 'string'
-                        ? lastMessage.content
-                        : lastMessage.content?.text || '';
-
-                    const parsed = parseAgentFromResponse(contentText);
-                    if (parsed && parsed.agent !== currentAgent) {
-                        // Agent handoff detected!
-                        setCurrentAgent(parsed.agent);
-
-                        if (parsed.isHandoff) {
-                            const newAgentConfig = AGENT_CONFIG[parsed.agent];
-                            setHandoffNotification({
-                                from: currentAgent,
-                                to: parsed.agent,
-                                message: `${newAgentConfig?.icon} ${newAgentConfig?.fullName || parsed.agent} is now helping you`
-                            });
-
-                            // Clear notification after 4 seconds
-                            setTimeout(() => {
-                                if (isMountedRef.current) {
-                                    setHandoffNotification(null);
-                                }
-                            }, 4000);
-                        }
-                    }
-                }
             }
         });
 
@@ -234,21 +200,14 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         const originalInput = input;
 
         try {
-            const enhancedContext = {
-                currentPage: appContext?.currentPage,
-                currentTask: appContext?.currentTask,
-                contextSummary: getContextSummary(),
-                timestamp: new Date().toISOString(),
-                currentAgent: currentAgent
-            };
-
-            // Generate updated system prompt with current context
-            const systemPrompt = generateAgentPrompt(currentAgent, enhancedContext);
-
             const messageContent = {
                 userMessage: userMessage,
-                context: enhancedContext,
-                systemPrompt: systemPrompt
+                context: {
+                    currentPage: appContext?.currentPage,
+                    currentTask: appContext?.currentTask,
+                    contextSummary: getContextSummary(),
+                    timestamp: new Date().toISOString()
+                }
             };
 
             await base44.agents.addMessage(conversation, {
@@ -397,8 +356,8 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         };
     }, [voiceListening]);
 
-    // Get current agent config for dynamic styling
-    const agentConfig = AGENT_CONFIG[currentAgent] || AGENT_CONFIG.build;
+    // Get agent config for styling
+    const agentConfig = AGENT_CONFIG[agentName] || AGENT_CONFIG.build;
 
     if (!isOpen) {
         return (
@@ -427,22 +386,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                 className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-6 right-6'} z-50`}
             >
                 <Card className={`shadow-2xl border-2 ${agentConfig.headerBorder} ${isMinimized ? 'w-80' : 'w-96 h-[600px]'} flex flex-col`}>
-                    <CardHeader className={`border-b ${agentConfig.headerBg} py-3 px-4 relative`}>
-                        {/* Handoff notification banner */}
-                        <AnimatePresence>
-                            {handoffNotification && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: -20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
-                                    className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs py-1 px-3 flex items-center justify-center gap-2 rounded-t-lg"
-                                >
-                                    <ArrowRight className="w-3 h-3" />
-                                    <span>{handoffNotification.message}</span>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
+                    <CardHeader className={`border-b ${agentConfig.headerBg} py-3 px-4`}>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">{agentConfig.icon}</span>
@@ -526,17 +470,31 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                                 )}
 
                                 {messages.map((msg, idx) => {
-                                    // Handle content that might be an object
-                                    let contentText = typeof msg.content === 'string'
-                                        ? msg.content
-                                        : msg.content?.text || JSON.stringify(msg.content);
+                                    // Handle content that might be an object or string
+                                    let contentText = "";
 
-                                    // Clean up agent routing tags for assistant messages
-                                    if (msg.role !== "user") {
-                                        const parsed = parseAgentFromResponse(contentText);
-                                        if (parsed) {
-                                            contentText = parsed.cleanedResponse;
+                                    if (typeof msg.content === 'string') {
+                                        contentText = msg.content;
+                                    } else if (msg.content && typeof msg.content === 'object') {
+                                        // Try multiple properties for object content
+                                        if (msg.content.text) {
+                                            contentText = msg.content.text;
+                                        } else if (msg.content.message) {
+                                            contentText = msg.content.message;
+                                        } else if (msg.content.response) {
+                                            contentText = msg.content.response;
+                                        } else if (msg.content.content) {
+                                            contentText = msg.content.content;
+                                        } else {
+                                            // Last resort: stringify but log warning
+                                            console.warn("Unexpected message content format:", msg.content);
+                                            contentText = JSON.stringify(msg.content);
                                         }
+                                    }
+
+                                    // Ensure we have a string
+                                    if (!contentText || contentText === "[object Object]") {
+                                        contentText = "Sorry, I encountered an error processing that response. Please try again.";
                                     }
 
                                     // Use message ID if available, otherwise create stable key
