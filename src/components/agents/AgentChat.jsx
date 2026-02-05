@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
 import ChatErrorBoundary from "./ChatErrorBoundary";
-import { AGENT_CONFIG } from "./agentPrompts";
+import { AGENT_CONFIG, parseAgentFromResponse } from "./agentPrompts";
 
 function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const { context: appContext, getContextSummary } = useAppContext();
@@ -124,7 +124,9 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                     metadata: {
                         name: `${agentTitle} Chat`,
                         context: JSON.stringify(mergedContext),
-                        appContext: appContext
+                        appContext: typeof appContext === 'string'
+                            ? appContext
+                            : JSON.stringify(appContext)
                     }
                 });
 
@@ -171,8 +173,33 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         if (!conversation) return;
 
         const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
+            // DEBUG: Log raw response structure to diagnose [object Object] issues
+            if (data?.messages && data.messages.length > 0) {
+                const firstMsg = data.messages[data.messages.length - 1]; // Last message (most recent)
+                console.log('[CHATBOT] SDK Response:', {
+                    timestamp: new Date().toISOString(),
+                    agentName: agentName,
+                    messageCount: data.messages.length,
+                    latestMessage: {
+                        role: firstMsg?.role,
+                        contentType: typeof firstMsg?.content,
+                        contentIsArray: Array.isArray(firstMsg?.content),
+                        contentKeys: firstMsg?.content ? Object.keys(firstMsg.content).slice(0, 5) : [],
+                        contentPreview: typeof firstMsg?.content === 'string'
+                            ? firstMsg.content.substring(0, 100)
+                            : Array.isArray(firstMsg?.content)
+                            ? `[Array: ${firstMsg.content.length} items]`
+                            : JSON.stringify(firstMsg?.content).substring(0, 100)
+                    }
+                });
+            }
+
             if (isMountedRef.current) {
-                const newMessages = data.messages || [];
+                const newMessages = data?.messages || [];
+                if (!Array.isArray(newMessages)) {
+                    console.error('[CHATBOT] Expected messages to be an array:', newMessages);
+                    return;
+                }
                 setMessages(newMessages);
             }
         });
@@ -185,7 +212,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                 subscriptionRef.current = null;
             }
         };
-    }, [conversation]);
+    }, [conversation, agentName]);
 
     // Send message
     const sendMessage = useCallback(async () => {
@@ -243,6 +270,86 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
             setError("");
         }
     }, [pendingInput]);
+
+    // Safe content extraction with comprehensive error handling
+    const safeExtractContent = useCallback((msg) => {
+        try {
+            if (!msg || !msg.content) {
+                return '';
+            }
+
+            // Type 1: String content (simplest case)
+            if (typeof msg.content === 'string') {
+                return msg.content;
+            }
+
+            // Type 2: True Array
+            if (Array.isArray(msg.content)) {
+                return msg.content
+                    .map(block => {
+                        if (typeof block === 'string') return block;
+                        if (block && typeof block === 'object') {
+                            try {
+                                return block.text || block.content || block.message || JSON.stringify(block);
+                            } catch (e) {
+                                console.warn('[CHATBOT] Failed to stringify array block:', e);
+                                return '[Unable to parse content block]';
+                            }
+                        }
+                        return '';
+                    })
+                    .filter(Boolean)
+                    .join('\n');
+            }
+
+            // Type 3: Object - could be sparse array or regular object
+            if (typeof msg.content === 'object' && msg.content !== null) {
+                // Check if it's a sparse array (numeric keys + length property)
+                const keys = Object.keys(msg.content);
+                const hasNumericKeys = keys.some(k => !isNaN(parseInt(k)));
+                const hasLengthProp = 'length' in msg.content;
+
+                if (hasNumericKeys && hasLengthProp) {
+                    // Treat as sparse array - iterate by numeric index
+                    console.log('[CHATBOT] Detected sparse array in content, extracting...');
+                    const texts = [];
+                    for (let i = 0; i < msg.content.length; i++) {
+                        if (msg.content[i]) {
+                            texts.push(String(msg.content[i]));
+                        }
+                    }
+                    const result = texts.join('\n');
+                    return result || '[Empty sparse array]';
+                }
+
+                // Regular object - try known properties
+                if (msg.content.text) return msg.content.text;
+                if (msg.content.message) return msg.content.message;
+                if (msg.content.response) return msg.content.response;
+                if (msg.content.content) return msg.content.content;
+
+                // Fallback: stringify with error handling
+                try {
+                    const stringified = JSON.stringify(msg.content, null, 2);
+                    if (stringified !== '{}' && stringified !== '[object Object]') {
+                        console.warn('[CHATBOT] Falling back to JSON.stringify for content');
+                        return stringified;
+                    } else {
+                        console.error('[CHATBOT] Empty object in content:', msg.content);
+                        return '[Empty response object]';
+                    }
+                } catch (stringifyErr) {
+                    console.error('[CHATBOT] Failed to stringify content:', stringifyErr);
+                    return `[Error: ${stringifyErr.message}]`;
+                }
+            }
+
+            return `Unexpected content type: ${typeof msg.content}`;
+        } catch (error) {
+            console.error('[CHATBOT] Error extracting content:', error, msg);
+            return `Error processing response: ${error.message}`;
+        }
+    }, []);
 
     // Clear conversation history
     const clearHistory = useCallback(() => {
@@ -470,43 +577,27 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                                 )}
 
                                 {messages.map((msg, idx) => {
-                                    // Handle content that might be an object, array, or string
-                                    let contentText = "";
+                                    // Extract content safely with comprehensive error handling
+                                    let contentText = safeExtractContent(msg);
 
-                                    if (typeof msg.content === 'string') {
-                                        contentText = msg.content;
-                                    } else if (Array.isArray(msg.content)) {
-                                        // Handle array of content blocks (common in AI responses)
-                                        contentText = msg.content
-                                            .map(block => {
-                                                if (typeof block === 'string') return block;
-                                                if (block && typeof block === 'object') {
-                                                    return block.text || block.content || block.message || JSON.stringify(block);
+                                    // If this is an assistant response, try to parse agent tags
+                                    if (msg.role === 'assistant' && typeof contentText === 'string') {
+                                        try {
+                                            const parsed = parseAgentFromResponse(contentText);
+                                            if (parsed?.cleanedResponse) {
+                                                contentText = parsed.cleanedResponse;
+                                                if (parsed.agent) {
+                                                    console.log('[CHATBOT] Parsed agent response:', parsed.agent);
                                                 }
-                                                return '';
-                                            })
-                                            .filter(Boolean)
-                                            .join('\n');
-                                    } else if (msg.content && typeof msg.content === 'object') {
-                                        // Try multiple properties for object content
-                                        if (msg.content.text) {
-                                            contentText = msg.content.text;
-                                        } else if (msg.content.message) {
-                                            contentText = msg.content.message;
-                                        } else if (msg.content.response) {
-                                            contentText = msg.content.response;
-                                        } else if (msg.content.content) {
-                                            contentText = msg.content.content;
-                                        } else {
-                                            // Last resort: stringify but log warning
-                                            console.warn("Unexpected message content format:", msg.content);
-                                            contentText = JSON.stringify(msg.content, null, 2);
+                                            }
+                                        } catch (parseErr) {
+                                            console.warn('[CHATBOT] Failed to parse agent from response:', parseErr);
                                         }
                                     }
 
-                                    // Ensure we have a string
-                                    if (!contentText || contentText === "[object Object]" || contentText === "[object Object],[object Object]") {
-                                        console.error("Failed to extract text from message:", msg);
+                                    // Final safety check for [object Object]
+                                    if (!contentText || contentText.includes('[object Object]')) {
+                                        console.error("[CHATBOT] Failed to extract text from message:", msg);
                                         contentText = "Sorry, I encountered an error processing that response. Please try again.";
                                     }
 

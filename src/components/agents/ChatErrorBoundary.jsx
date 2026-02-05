@@ -32,6 +32,16 @@ export class ChatErrorBoundary extends React.Component {
         // Log error details
         console.error("Chat Error Boundary caught an error:", error, errorInfo);
 
+        // Special detection for [object Object] errors
+        if (error.message && error.message.includes('object Object')) {
+            console.error('[CHATBOT] DETECTED [object Object] ERROR:', {
+                message: error.message,
+                stack: error.stack,
+                componentStack: errorInfo.componentStack,
+                timestamp: new Date().toISOString()
+            });
+        }
+
         // Store error in component state for display
         this.setState(prevState => ({
             error,
