@@ -23,6 +23,33 @@ Deno.serve(async (req) => {
         const body = await req.json();
         const { action, profiles, entityName, records } = body;
 
+        // Verify required entities exist before processing (except for 'get_counts')
+        if (action !== 'get_counts') {
+            const requiredEntities = [
+                'ONetOccupation', 'ONetSkill', 'ONetAbility', 'ONetKnowledge',
+                'ONetTask', 'ONetWorkActivity', 'ONetWorkContext', 'ONetReference'
+            ];
+
+            const missingEntities: string[] = [];
+            for (const ent of requiredEntities) {
+                if (!base44.asServiceRole.entities[ent]) {
+                    missingEntities.push(ent);
+                }
+            }
+
+            if (missingEntities.length > 0) {
+                return Response.json({
+                    error: 'Missing O*NET entity schemas in Base44',
+                    missingEntities,
+                    totalMissing: missingEntities.length,
+                    message: `${missingEntities.length} required entities are not configured: ${missingEntities.join(', ')}`,
+                    instructions: 'Please create these entities in Base44: Settings → Schema. Each entity must be a Data Entity and exposed in the API.',
+                    createdEntities: requiredEntities.filter(e => base44.asServiceRole.entities[e]),
+                    allRequiredEntities: requiredEntities
+                }, { status: 412 }); // 412 Precondition Failed
+            }
+        }
+
         // Route to appropriate handler
         switch (action) {
             case 'bulk_import_profiles':
@@ -61,6 +88,15 @@ async function bulkImportProfiles(base44: any, profiles: any[]) {
 
     const startTime = Date.now();
     const entity = base44.asServiceRole.entities.ONetOccupationProfile;
+
+    // Check if entity exists
+    if (!entity) {
+        return Response.json({
+            error: 'Entity schema "ONetOccupationProfile" not found in Base44 app',
+            details: 'This entity needs to be created in Base44 Settings → Schema before importing data',
+            hint: 'Create the ONetOccupationProfile entity in Base44 and ensure it is exposed in the API'
+        }, { status: 404 });
+    }
 
     // Get existing SOC codes to avoid duplicates
     const existing = await entity.list('-created_date', 2000);
@@ -141,6 +177,16 @@ async function bulkImportRaw(base44: any, entityName: string, records: any[]) {
 
     const startTime = Date.now();
     const entity = base44.asServiceRole.entities[entityName];
+
+    // Check if entity exists
+    if (!entity) {
+        return Response.json({
+            error: `Entity schema "${entityName}" not found in Base44 app`,
+            details: 'This entity needs to be created in Base44 Settings → Schema before importing data',
+            requiredEntities: validEntities,
+            hint: 'Create the entity in Base44 and ensure it is exposed in the API'
+        }, { status: 404 });
+    }
 
     // Batch bulkCreate
     const BATCH_SIZE = 100;
