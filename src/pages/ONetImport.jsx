@@ -32,6 +32,7 @@ import {
   validateRecords
 } from "@/lib/onetSchemas";
 import { generateRecordKey } from "@/lib/onetAggregator";
+import { verifyONetEntities, getONetSetupInstructions } from "@/lib/onetEntitySetup";
 
 const BATCH_SIZE = 50;
 const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
@@ -97,6 +98,7 @@ export default function ONetImport() {
   const [verificationInProgress, setVerificationInProgress] = React.useState(false);
   const [importStats, setImportStats] = React.useState(null);
   const [totalProgress, setTotalProgress] = React.useState(0);
+  const [entitiesStatus, setEntitiesStatus] = React.useState(null);
   const [previewMode, setPreviewMode] = React.useState(false);
   const [matchedFiles, setMatchedFiles] = React.useState([]);
   const [unmatchedFiles, setUnmatchedFiles] = React.useState([]);
@@ -119,8 +121,22 @@ export default function ONetImport() {
   React.useEffect(() => {
     checkAccess();
     checkApiStatus();
+    checkEntities();
     loadDbStats();
   }, []);
+
+  const checkEntities = async () => {
+    try {
+      const status = await verifyONetEntities(base44);
+      setEntitiesStatus(status);
+      if (!status.valid) {
+        setError(`Missing O*NET entities. ${status.present}/${status.total} entities found. See setup instructions below.`);
+      }
+    } catch (e) {
+      console.error("Error checking entities:", e);
+      setError("Failed to verify O*NET entities configuration.");
+    }
+  };
 
   const checkAccess = async () => {
     setIsCheckingAccess(true);
@@ -696,6 +712,50 @@ export default function ONetImport() {
           </Alert>
         )}
 
+        {/* Entity Status Alert */}
+        {entitiesStatus && !entitiesStatus.valid && (
+          <Card className="border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                O*NET Entities Not Configured
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-sm text-red-700 font-medium mb-2">
+                  {entitiesStatus.present}/{entitiesStatus.total} entities created
+                </p>
+                <div className="space-y-2">
+                  {entitiesStatus.missingEntities.map(entity => (
+                    <div key={entity} className="flex items-center gap-2 text-sm text-red-600">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>{entity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-white p-3 rounded border border-red-100">
+                <p className="text-sm font-medium text-slate-700 mb-2">Setup Required:</p>
+                <ol className="text-sm text-slate-600 space-y-1 list-decimal list-inside">
+                  <li>Create the missing entity schemas in your Base44 application</li>
+                  <li>Navigate to Settings → Entities</li>
+                  <li>Create each entity listed above</li>
+                  <li>Refresh this page to verify</li>
+                </ol>
+              </div>
+              <Button
+                onClick={checkEntities}
+                variant="outline"
+                className="w-full"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Entity Status
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Status Cards */}
         <div className="grid md:grid-cols-3 gap-4">
           {/* API Status */}
@@ -1227,7 +1287,7 @@ export default function ONetImport() {
           onImport={handleImport}
           onImportPhase={handleImportPhase}
           onImportAll={handleImportAll}
-          disabled={isImporting}
+          disabled={isImporting || (entitiesStatus && !entitiesStatus.valid)}
         />
 
         {/* Entity Reference */}
