@@ -1,103 +1,201 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
+import ChatErrorBoundary from "./ChatErrorBoundary";
 
-export default function AgentChat({ agentName, agentTitle, context = {} }) {
+function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const { context: appContext, getContextSummary } = useAppContext();
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [conversation, setConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+    const [pendingInput, setPendingInput] = useState(""); // For failed message retry
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [initError, setInitError] = useState("");
     const [isInitializing, setIsInitializing] = useState(false);
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
-    const initTimeoutRef = useRef(null);
+
+    // Refs for cleanup
+    const isMountedRef = useRef(true);
     const recognitionRef = useRef(null);
     const messagesEndRef = useRef(null);
+    const initTimeoutRef = useRef(null);
+    const subscriptionRef = useRef(null);
 
+    // Scroll to bottom when messages update
     useEffect(() => {
         if (messages.length > 0) {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
 
-    const initConversation = async () => {
+    // Cleanup on unmount
+    useEffect(() => {
+        isMountedRef.current = true;
+
+        return () => {
+            isMountedRef.current = false;
+
+            // Clear init timeout
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+            }
+
+            // Stop voice recognition
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) {
+                    // Ignore errors on cleanup
+                }
+            }
+
+            // Unsubscribe from conversation
+            if (subscriptionRef.current) {
+                subscriptionRef.current();
+            }
+        };
+    }, []);
+
+    // Initialize or retrieve conversation
+    const initConversation = useCallback(async () => {
+        if (!isMountedRef.current) return;
+
         setIsInitializing(true);
         setInitError("");
 
         // Set timeout for initialization
-        const timeoutId = setTimeout(() => {
-            setInitError("Chat initialization timed out. Please try again.");
-            setIsInitializing(false);
+        initTimeoutRef.current = setTimeout(() => {
+            if (isMountedRef.current) {
+                setInitError("Chat initialization timed out. Please try again.");
+                setIsInitializing(false);
+            }
         }, 10000);
 
         try {
-            // Combine provided context with app context
-            const mergedContext = {
-                ...context,
-                appPage: appContext?.currentPage,
-                appTask: appContext?.currentTask,
-                contextSummary: getContextSummary()
-            };
+            // Check for existing conversation in sessionStorage
+            const sessionKey = `agent-chat-${agentName}`;
+            const existingConvId = sessionStorage.getItem(sessionKey);
 
-            const conv = await base44.agents.createConversation({
-                agent_name: agentName,
-                metadata: {
-                    name: `${agentTitle} Chat`,
-                    context: JSON.stringify(mergedContext),
-                    appContext: appContext
+            let conv;
+
+            if (existingConvId) {
+                // Try to retrieve existing conversation
+                try {
+                    // Attempt to get conversation (may not be implemented in SDK)
+                    if (base44.agents.getConversation) {
+                        conv = await base44.agents.getConversation(existingConvId);
+                    } else {
+                        // If getConversation not available, create new one
+                        throw new Error("Retrieval not available");
+                    }
+                } catch (retrieveError) {
+                    console.log("Could not retrieve conversation, creating new one:", retrieveError);
+                    // Clear invalid session and create new
+                    sessionStorage.removeItem(sessionKey);
+                    conv = null;
                 }
-            });
-            clearTimeout(timeoutId);
-            setConversation(conv);
-            setMessages(conv.messages || []);
-            setInitError("");
-        } catch (e) {
-            clearTimeout(timeoutId);
-            console.error("Failed to create conversation:", e);
-            setInitError(e.message || "Failed to initialize chat. Please try again.");
-        } finally {
-            setIsInitializing(false);
-        }
-    };
+            }
 
+            // Create new conversation if needed
+            if (!conv) {
+                const mergedContext = {
+                    ...context,
+                    appPage: appContext?.currentPage,
+                    appTask: appContext?.currentTask,
+                    contextSummary: getContextSummary()
+                };
+
+                conv = await base44.agents.createConversation({
+                    agent_name: agentName,
+                    metadata: {
+                        name: `${agentTitle} Chat`,
+                        context: JSON.stringify(mergedContext),
+                        appContext: appContext
+                    }
+                });
+
+                // Store conversation ID in sessionStorage
+                sessionStorage.setItem(sessionKey, conv.id);
+            }
+
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+                initTimeoutRef.current = null;
+            }
+
+            if (isMountedRef.current) {
+                setConversation(conv);
+                setMessages(conv.messages || []);
+                setInitError("");
+            }
+        } catch (e) {
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+                initTimeoutRef.current = null;
+            }
+
+            console.error("Failed to create conversation:", e);
+            if (isMountedRef.current) {
+                setInitError(e.message || "Failed to initialize chat. Please try again.");
+            }
+        } finally {
+            if (isMountedRef.current) {
+                setIsInitializing(false);
+            }
+        }
+    }, [agentName, agentTitle, context, appContext, getContextSummary]);
+
+    // Open chat and initialize conversation
     useEffect(() => {
         if (isOpen && !conversation) {
             initConversation();
         }
-    }, [isOpen]);
+    }, [isOpen, conversation, initConversation]);
 
+    // Subscribe to conversation updates
     useEffect(() => {
         if (!conversation) return;
 
         const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
-            setMessages(data.messages || []);
+            if (isMountedRef.current) {
+                setMessages(data.messages || []);
+            }
         });
 
-        return () => unsubscribe();
+        subscriptionRef.current = unsubscribe;
+
+        return () => {
+            if (subscriptionRef.current) {
+                subscriptionRef.current();
+                subscriptionRef.current = null;
+            }
+        };
     }, [conversation]);
 
-    const sendMessage = async () => {
+    // Send message
+    const sendMessage = useCallback(async () => {
         if (!input.trim() || !conversation) return;
 
         const userMessage = input.trim();
+        setPendingInput(""); // Clear any pending retry
         setError("");
-        setInput("");
         setIsLoading(true);
 
+        // Don't clear input yet - wait for success
+        const originalInput = input;
+
         try {
-            // Include context in the message
             const messageContent = {
                 userMessage: userMessage,
                 context: {
@@ -113,24 +211,59 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                 content: userMessage,
                 metadata: messageContent
             });
+
+            // Success - clear input
+            if (isMountedRef.current) {
+                setInput("");
+            }
         } catch (e) {
             console.error("Failed to send message:", e);
-            // Restore input on failure so user doesn't lose their message
-            setInput(userMessage);
-            setError(e.message || "Failed to send message. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
-    const handleKeyPress = (e) => {
+            if (isMountedRef.current) {
+                // Save failed message for retry
+                setPendingInput(userMessage);
+                setError(e.message || "Failed to send message. Click retry to try again.");
+            }
+        } finally {
+            if (isMountedRef.current) {
+                setIsLoading(false);
+            }
+        }
+    }, [input, conversation, appContext, getContextSummary]);
+
+    // Retry failed message
+    const retryMessage = useCallback(() => {
+        if (pendingInput) {
+            setInput(pendingInput);
+            setPendingInput("");
+            setError("");
+        }
+    }, [pendingInput]);
+
+    // Clear conversation history
+    const clearHistory = useCallback(() => {
+        const sessionKey = `agent-chat-${agentName}`;
+        sessionStorage.removeItem(sessionKey);
+        setConversation(null);
+        setMessages([]);
+        setError("");
+        setInitError("");
+        // Reinitialize
+        if (isOpen) {
+            initConversation();
+        }
+    }, [agentName, isOpen, initConversation]);
+
+    // Handle keyboard shortcuts
+    const handleKeyPress = useCallback((e) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
-    };
+    }, [sendMessage]);
 
-    const startVoiceInput = () => {
+    // Voice recognition
+    const startVoiceInput = useCallback(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             setVoiceSupported(false);
@@ -145,18 +278,31 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
         recognitionRef.current = rec;
         setError("");
 
-        let finalTranscript = input || "";
+        let finalTranscript = "";
+
         rec.onresult = (e) => {
             let interim = "";
             for (let i = e.resultIndex; i < e.results.length; i++) {
                 const transcript = e.results[i][0].transcript;
-                if (e.results[i].isFinal) finalTranscript += (finalTranscript ? " " : "") + transcript;
-                else interim += transcript;
+                if (e.results[i].isFinal) {
+                    finalTranscript += (finalTranscript ? " " : "") + transcript;
+                } else {
+                    interim += transcript;
+                }
             }
-            setInput(finalTranscript + (interim ? " " + interim : ""));
-            setError("");
+
+            if (isMountedRef.current) {
+                setInput(prev => finalTranscript + (interim ? " " + interim : ""));
+                setError("");
+            }
         };
-        rec.onend = () => setVoiceListening(false);
+
+        rec.onend = () => {
+            if (isMountedRef.current) {
+                setVoiceListening(false);
+            }
+        };
+
         rec.onerror = (event) => {
             const errorType = event.error;
             console.error("Voice input error:", errorType);
@@ -170,19 +316,41 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                 'service-not-allowed': 'Voice service unavailable in your region.'
             };
 
-            const userMessage = errorMessages[errorType] || `Voice error: ${errorType}`;
-            setError(userMessage);
-            setVoiceListening(false);
+            if (isMountedRef.current) {
+                setError(errorMessages[errorType] || `Voice error: ${errorType}`);
+                setVoiceListening(false);
+            }
         };
 
         setVoiceListening(true);
         rec.start();
-    };
+    }, []);
 
-    const stopVoiceInput = () => {
-        setVoiceListening(false);
-        if (recognitionRef.current) recognitionRef.current.stop();
-    };
+    const stopVoiceInput = useCallback(() => {
+        if (isMountedRef.current) {
+            setVoiceListening(false);
+        }
+        if (recognitionRef.current) {
+            try {
+                recognitionRef.current.stop();
+            } catch (e) {
+                // Ignore errors
+            }
+        }
+    }, []);
+
+    // Cleanup voice recognition on listening state change
+    useEffect(() => {
+        return () => {
+            if (recognitionRef.current && voiceListening) {
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) {
+                    // Ignore errors
+                }
+            }
+        };
+    }, [voiceListening]);
 
     if (!isOpen) {
         return (
@@ -221,6 +389,15 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                 </Badge>
                             </div>
                             <div className="flex items-center gap-1">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={clearHistory}
+                                    title="Clear conversation history"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -291,23 +468,26 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                         ? msg.content
                                         : msg.content?.text || JSON.stringify(msg.content);
 
+                                    // Use message ID if available, otherwise create stable key
+                                    const messageKey = msg.id || `msg-${idx}-${msg.timestamp || Date.now()}`;
+
                                     return (
-                                    <div
-                                        key={idx}
-                                        className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                                    >
                                         <div
-                                            className={`max-w-[85%] rounded-lg px-4 py-2 ${
-                                                msg.role === "user"
-                                                    ? "bg-orange-600 text-white"
-                                                    : "bg-slate-100 text-slate-800"
-                                            }`}
+                                            key={messageKey}
+                                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                                         >
-                                            <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                                                <ReactMarkdown>{contentText}</ReactMarkdown>
+                                            <div
+                                                className={`max-w-[85%] rounded-lg px-4 py-2 ${
+                                                    msg.role === "user"
+                                                        ? "bg-orange-600 text-white"
+                                                        : "bg-slate-100 text-slate-800"
+                                                }`}
+                                            >
+                                                <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                                                    <ReactMarkdown>{contentText}</ReactMarkdown>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     );
                                 })}
                                 {isLoading && (
@@ -322,8 +502,19 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
 
                             <div className="border-t p-3 space-y-2">
                                 {error && (
-                                    <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-                                        {error}
+                                    <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center justify-between">
+                                        <span>{error}</span>
+                                        {pendingInput && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={retryMessage}
+                                                className="h-6 text-xs ml-2"
+                                            >
+                                                <RotateCcw className="w-3 h-3 mr-1" />
+                                                Retry
+                                            </Button>
+                                        )}
                                     </div>
                                 )}
                                 <div className="flex gap-2">
@@ -383,5 +574,14 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                 </Card>
             </motion.div>
         </AnimatePresence>
+    );
+}
+
+// Export wrapped with error boundary
+export default function AgentChat(props) {
+    return (
+        <ChatErrorBoundary agentName={props.agentName}>
+            <AgentChatComponent {...props} />
+        </ChatErrorBoundary>
     );
 }
