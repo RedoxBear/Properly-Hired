@@ -150,30 +150,46 @@ export default function ONetImport() {
       let totalRecords = 0;
       let entitiesWithData = 0;
       const expectedRecordCounts = {
-        'ONetOccupation': 968,        // Typical O*NET occupation count
-        'ONetSkill': 35,              // Typical skill count
-        'ONetAbility': 52,            // Typical ability count
-        'ONetKnowledge': 34,          // Typical knowledge count
-        'ONetTask': 15000,            // Typical task count (varies)
-        'ONetWorkActivity': 41,       // Typical work activity count
-        'ONetWorkContext': 40,        // Typical work context count
-        'ONetReference': 50           // Typical reference count
+        'ONetReference': 630,         // Phase 1 reference tables
+        'ONetOccupation': 968,        // Phase 2 occupation count
+        'ONetSkill': 35,              // Phase 3 skill count
+        'ONetAbility': 52,            // Phase 3 ability count
+        'ONetKnowledge': 34,          // Phase 3 knowledge count
+        'ONetTask': 15000,            // Phase 4 task count
+        'ONetWorkActivity': 41,       // Phase 5 work activity count
+        'ONetWorkContext': 40         // Phase 5 work context count
       };
 
+      // Map entities to phases
+      const entityPhases = {
+        'ONetReference': 1,
+        'ONetOccupation': 2,
+        'ONetSkill': 3,
+        'ONetAbility': 3,
+        'ONetKnowledge': 3,
+        'ONetTask': 4,
+        'ONetWorkActivity': 5,
+        'ONetWorkContext': 5
+      };
+
+      // Get actual counts
       for (const entityName of entities) {
         try {
           const entity = base44.entities[entityName];
           if (entity) {
-            // Get count of records (fetch all to get actual count)
             const records = await entity.list('-created_date', 1000);
             const count = records.length;
             const expected = expectedRecordCounts[entityName] || 100;
             const percentage = Math.round((count / expected) * 100);
+            const phase = entityPhases[entityName];
+
             stats[entityName] = {
               status: count > 0 ? 'has_data' : 'empty',
               count: count,
               expected: expected,
-              percentage: Math.min(percentage, 100)
+              percentage: Math.min(percentage, 100),
+              phase: phase,
+              displayString: `${count} / ${expected} = ${Math.min(percentage, 100)}%`
             };
             if (count > 0) {
               totalRecords += count;
@@ -181,7 +197,16 @@ export default function ONetImport() {
             }
           }
         } catch (e) {
-          stats[entityName] = { status: 'error', count: 0, expected: 0, percentage: 0, error: e.message };
+          const expected = expectedRecordCounts[entityName] || 100;
+          stats[entityName] = {
+            status: 'error',
+            count: 0,
+            expected: expected,
+            percentage: 0,
+            phase: entityPhases[entityName],
+            displayString: `0 / ${expected} = 0%`,
+            error: e.message
+          };
         }
       }
 
@@ -189,8 +214,25 @@ export default function ONetImport() {
       const totalExpected = Object.values(expectedRecordCounts).reduce((a, b) => a + b, 0);
       const overallPercentage = Math.round((totalRecords / totalExpected) * 100);
 
-      setDbStats({ ...stats, totalRecords, overallPercentage });
-      return { stats, totalRecords, entitiesWithData, totalEntities: entities.length, overallPercentage };
+      // Calculate per-phase stats
+      const phaseStats = {};
+      for (let phase = 1; phase <= 5; phase++) {
+        const phaseEntities = Object.entries(stats).filter(([_, data]) => data.phase === phase);
+        const phaseRecords = phaseEntities.reduce((sum, [_, data]) => sum + data.count, 0);
+        const phaseExpected = phaseEntities.reduce((sum, [_, data]) => sum + data.expected, 0);
+        const phasePercentage = phaseExpected > 0 ? Math.round((phaseRecords / phaseExpected) * 100) : 0;
+
+        phaseStats[phase] = {
+          records: phaseRecords,
+          expected: phaseExpected,
+          percentage: phasePercentage,
+          displayString: `${phaseRecords} / ${phaseExpected} = ${phasePercentage}%`,
+          entities: phaseEntities.map(([name, data]) => ({ name, ...data }))
+        };
+      }
+
+      setDbStats({ ...stats, totalRecords, overallPercentage, phaseStats });
+      return { stats, totalRecords, entitiesWithData, totalEntities: entities.length, overallPercentage, phaseStats };
     } catch (e) {
       console.error("Failed to load DB stats:", e);
       return null;
@@ -855,7 +897,7 @@ export default function ONetImport() {
                     <div className="flex items-center justify-between mb-2">
                       <div className="font-medium text-sm">Phase 1: Reference Tables</div>
                       <span className={`text-xs font-bold ${dbStats.ONetReference?.percentage >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
-                        {dbStats.ONetReference?.percentage || 0}%
+                        {dbStats.ONetReference?.displayString || '0 / 0 = 0%'}
                       </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
@@ -864,9 +906,6 @@ export default function ONetImport() {
                         style={{ width: `${Math.min(dbStats.ONetReference?.percentage || 0, 100)}%` }}
                       />
                     </div>
-                    <div className="text-xs text-slate-600 mt-1">
-                      {dbStats.ONetReference?.count || 0} / {dbStats.ONetReference?.expected || 0} records
-                    </div>
                   </div>
 
                   {/* Phase 2: Occupations */}
@@ -874,7 +913,7 @@ export default function ONetImport() {
                     <div className="flex items-center justify-between mb-2">
                       <div className="font-medium text-sm">Phase 2: Occupations</div>
                       <span className={`text-xs font-bold ${dbStats.ONetOccupation?.percentage >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
-                        {dbStats.ONetOccupation?.percentage || 0}%
+                        {dbStats.ONetOccupation?.displayString || '0 / 0 = 0%'}
                       </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
@@ -882,9 +921,6 @@ export default function ONetImport() {
                         className={`h-2 rounded-full transition-all ${dbStats.ONetOccupation?.percentage >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
                         style={{ width: `${Math.min(dbStats.ONetOccupation?.percentage || 0, 100)}%` }}
                       />
-                    </div>
-                    <div className="text-xs text-slate-600 mt-1">
-                      {dbStats.ONetOccupation?.count || 0} / {dbStats.ONetOccupation?.expected || 0} records
                     </div>
                   </div>
 
@@ -903,9 +939,9 @@ export default function ONetImport() {
                       />
                     </div>
                     <div className="text-xs text-slate-600 mt-1 space-y-0.5">
-                      <div>Skills: {dbStats.ONetSkill?.count || 0} / {dbStats.ONetSkill?.expected || 0}</div>
-                      <div>Abilities: {dbStats.ONetAbility?.count || 0} / {dbStats.ONetAbility?.expected || 0}</div>
-                      <div>Knowledge: {dbStats.ONetKnowledge?.count || 0} / {dbStats.ONetKnowledge?.expected || 0}</div>
+                      <div>Skills: {dbStats.ONetSkill?.displayString || '0 / 0 = 0%'}</div>
+                      <div>Abilities: {dbStats.ONetAbility?.displayString || '0 / 0 = 0%'}</div>
+                      <div>Knowledge: {dbStats.ONetKnowledge?.displayString || '0 / 0 = 0%'}</div>
                     </div>
                   </div>
 
@@ -914,7 +950,7 @@ export default function ONetImport() {
                     <div className="flex items-center justify-between mb-2">
                       <div className="font-medium text-sm">Phase 4: Tasks</div>
                       <span className={`text-xs font-bold ${dbStats.ONetTask?.percentage >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
-                        {dbStats.ONetTask?.percentage || 0}%
+                        {dbStats.ONetTask?.displayString || '0 / 0 = 0%'}
                       </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
@@ -922,9 +958,6 @@ export default function ONetImport() {
                         className={`h-2 rounded-full transition-all ${dbStats.ONetTask?.percentage >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
                         style={{ width: `${Math.min(dbStats.ONetTask?.percentage || 0, 100)}%` }}
                       />
-                    </div>
-                    <div className="text-xs text-slate-600 mt-1">
-                      {dbStats.ONetTask?.count || 0} / {dbStats.ONetTask?.expected || 0} records
                     </div>
                   </div>
 
@@ -943,8 +976,8 @@ export default function ONetImport() {
                       />
                     </div>
                     <div className="text-xs text-slate-600 mt-1 space-y-0.5">
-                      <div>Work Activities: {dbStats.ONetWorkActivity?.count || 0} / {dbStats.ONetWorkActivity?.expected || 0}</div>
-                      <div>Work Context: {dbStats.ONetWorkContext?.count || 0} / {dbStats.ONetWorkContext?.expected || 0}</div>
+                      <div>Work Activities: {dbStats.ONetWorkActivity?.displayString || '0 / 0 = 0%'}</div>
+                      <div>Work Context: {dbStats.ONetWorkContext?.displayString || '0 / 0 = 0%'}</div>
                     </div>
                   </div>
 
