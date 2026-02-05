@@ -123,10 +123,8 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                     agent_name: agentName,
                     metadata: {
                         name: `${agentTitle} Chat`,
-                        context: JSON.stringify(mergedContext),
-                        appContext: typeof appContext === 'string'
-                            ? appContext
-                            : JSON.stringify(appContext)
+                        context: mergedContext,
+                        appContext: appContext
                     }
                 });
 
