@@ -35,6 +35,35 @@ import {
 const BATCH_SIZE = 50;
 const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
 const IMPORTED_RECORDS_KEY = 'onet_imported_record_ids';
+const TOTAL_ONET_FILES = Object.keys(ONET_SCHEMAS).length;
+
+const RECORD_KEY_CANDIDATES = [
+  'soc_code',
+  'element_id',
+  'task_id',
+  'commodity_code',
+  'iwa_id',
+  'dwa_id',
+  'scale_id',
+  'category',
+  'title',
+  'alternate_title',
+  'description'
+];
+
+const buildRecordKey = (record, fileName, index) => {
+  const keyParts = RECORD_KEY_CANDIDATES
+    .filter(field => record[field] !== undefined && record[field] !== null && String(record[field]).trim() !== '')
+    .slice(0, 4)
+    .map(field => `${field}:${record[field]}`);
+
+  if (keyParts.length > 0) {
+    return `${fileName}|${keyParts.join('|')}`;
+  }
+
+  const fallback = JSON.stringify(record);
+  return `${fileName}|row:${index}|${fallback}`;
+};
 
 // Helper functions for localStorage persistence
 const getUploadQueue = () => {
@@ -47,12 +76,21 @@ const getUploadQueue = () => {
   }
 };
 
+
 const saveUploadQueue = (queue) => {
   try {
     localStorage.setItem(UPLOAD_STORAGE_KEY, JSON.stringify(queue));
   } catch (e) {
     console.error("Failed to save upload queue:", e);
   }
+};
+
+const updateUploadQueueState = (setUploadQueue, updater) => {
+  setUploadQueue(prev => {
+    const next = typeof updater === 'function' ? updater(prev) : updater;
+    saveUploadQueue(next);
+    return next;
+  });
 };
 
 const getImportedRecordIds = () => {
@@ -90,6 +128,67 @@ export default function ONetImport() {
   const [uploadQueue, setUploadQueue] = React.useState(getUploadQueue());
   const [importedRecordIds, setImportedRecordIds] = React.useState(getImportedRecordIds());
   const folderInputRef = React.useRef(null);
+
+  const completedImports = React.useMemo(
+    () => Object.entries(uploadQueue)
+      .filter(([, value]) => value?.status === FILE_STATUS.COMPLETE)
+      .sort((a, b) => new Date(b[1].importedAt || 0) - new Date(a[1].importedAt || 0)),
+    [uploadQueue]
+  );
+
+  const totalImportedRows = React.useMemo(
+    () => completedImports.reduce((sum, [, value]) => sum + (value?.importedCount || 0), 0),
+    [completedImports]
+  );
+
+
+  const latestBatchStatus = React.useMemo(() => {
+    const entries = Object.entries(uploadQueue).filter(([, value]) => value?.batchId);
+    if (entries.length === 0) return null;
+
+    const batches = entries.reduce((acc, [fileName, value]) => {
+      const batchId = value.batchId;
+      if (!acc[batchId]) {
+        acc[batchId] = {
+          batchId,
+          files: [],
+          latestTimestamp: 0
+        };
+      }
+
+      const timestamp = new Date(value.selectedAt || value.importedAt || 0).getTime();
+      if (timestamp > acc[batchId].latestTimestamp) {
+        acc[batchId].latestTimestamp = timestamp;
+      }
+
+      acc[batchId].files.push({ fileName, ...value });
+      return acc;
+    }, {});
+
+    const latestBatch = Object.values(batches)
+      .sort((a, b) => b.latestTimestamp - a.latestTimestamp)[0];
+
+    const counts = latestBatch.files.reduce((summary, file) => {
+      const status = file.status || FILE_STATUS.PENDING;
+      if (status === FILE_STATUS.COMPLETE) summary.complete += 1;
+      else if (status === FILE_STATUS.ERROR) summary.error += 1;
+      else if ([FILE_STATUS.IMPORTING, FILE_STATUS.PARSING, FILE_STATUS.UPLOADING].includes(status)) summary.processing += 1;
+      else summary.pending += 1;
+      return summary;
+    }, { total: latestBatch.files.length, complete: 0, error: 0, processing: 0, pending: 0 });
+
+    let label = 'Pending';
+    if (counts.error > 0) label = 'Needs Attention';
+    else if (counts.complete === counts.total && counts.total > 0) label = 'Confirmed Complete';
+    else if (counts.processing > 0 || counts.pending > 0) label = 'In Progress';
+
+    return {
+      batchId: latestBatch.batchId,
+      latestTimestamp: latestBatch.latestTimestamp,
+      counts,
+      label
+    };
+  }, [uploadQueue]);
 
   React.useEffect(() => {
     checkAccess();
@@ -214,6 +313,20 @@ export default function ONetImport() {
   };
 
   const handleFileSelect = (fileName, file) => {
+    updateUploadQueueState(setUploadQueue, prev => ({
+      ...prev,
+      [fileName]: {
+        ...(prev[fileName] || {}),
+        fileName,
+        sourceFileName: file.name,
+        fileSize: file.size,
+        fileLastModified: file.lastModified,
+        selectedAt: new Date().toISOString(),
+        batchId: `manual_${Date.now()}`,
+        status: FILE_STATUS.PENDING
+      }
+    }));
+
     updateFileState(fileName, {
       file,
       status: FILE_STATUS.PENDING,
@@ -227,6 +340,19 @@ export default function ONetImport() {
   const importFile = async (fileName) => {
     const state = fileStates[fileName];
     if (!state?.file) return;
+
+    const existingImport = getUploadQueue()[fileName];
+    if (existingImport?.status === FILE_STATUS.COMPLETE) {
+      updateFileState(fileName, {
+        status: FILE_STATUS.COMPLETE,
+        progress: 100,
+        importedCount: existingImport.importedCount || 0,
+        skippedCount: existingImport.skippedCount || 0,
+        failedCount: existingImport.failedCount || 0,
+        summary: `Already imported on ${new Date(existingImport.importedAt).toLocaleString()}`
+      });
+      return;
+    }
 
     const schema = getSchemaByFileName(fileName);
     if (!schema) {
@@ -276,14 +402,17 @@ export default function ONetImport() {
 
       // Load previously imported records to detect duplicates
       const importedIds = getImportedRecordIds();
-      const entityImportedIds = importedIds[entityName] || {};
+      const fileImportedIds = importedIds[fileName] || {};
+
+      // Backward compatibility for legacy entity-level tracking
+      const legacyEntityImportedIds = importedIds[entityName] || {};
 
       // Batch import using individual creates
       let importedCount = 0;
       let skippedCount = 0;
       let failedCount = 0;
       const totalRecords = records.length;
-      const newImportedIds = { ...entityImportedIds };
+      const newImportedIds = { ...legacyEntityImportedIds, ...fileImportedIds };
 
       for (let i = 0; i < totalRecords; i += BATCH_SIZE) {
         const batch = records.slice(i, i + BATCH_SIZE);
@@ -291,7 +420,7 @@ export default function ONetImport() {
         // Process each record individually for reliability
         for (let j = 0; j < batch.length; j++) {
           const record = batch[j];
-          const recordId = record.id || record.code || record.title; // Use unique identifier
+          const recordId = buildRecordKey(record, fileName, i + j);
 
           try {
             // Check if already imported (duplicate detection)
@@ -322,7 +451,7 @@ export default function ONetImport() {
       }
 
       // Save imported record IDs to prevent duplicates on resume
-      importedIds[entityName] = newImportedIds;
+      importedIds[fileName] = newImportedIds;
       saveImportedRecordIds(importedIds);
       setImportedRecordIds(importedIds);
 
@@ -343,11 +472,45 @@ export default function ONetImport() {
         endTime: Date.now()
       });
 
+      updateUploadQueueState(setUploadQueue, prev => ({
+        ...prev,
+        [fileName]: {
+          ...(prev[fileName] || {}),
+          fileName,
+          sourceFileName: state.file.name,
+          fileSize: state.file.size,
+          fileLastModified: state.file.lastModified,
+          status,
+          entity: entityName,
+          expectedRows: schema.rowCount,
+          importedCount,
+          skippedCount,
+          failedCount,
+          importedAt: new Date().toISOString(),
+          summary
+        }
+      }));
+
       // Refresh DB stats
       loadDbStats();
 
     } catch (e) {
       console.error(`Import failed for ${fileName}:`, e);
+
+      updateUploadQueueState(setUploadQueue, prev => ({
+        ...prev,
+        [fileName]: {
+          ...(prev[fileName] || {}),
+          fileName,
+          sourceFileName: state.file.name,
+          fileSize: state.file.size,
+          fileLastModified: state.file.lastModified,
+          status: FILE_STATUS.ERROR,
+          error: e.message,
+          failedAt: new Date().toISOString()
+        }
+      }));
+
       updateFileState(fileName, {
         status: FILE_STATUS.ERROR,
         error: e.message,
@@ -420,6 +583,7 @@ export default function ONetImport() {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
+    const batchId = `batch_${Date.now()}`;
     const matched = [];
     const unmatched = [];
 
@@ -445,6 +609,25 @@ export default function ONetImport() {
       };
     });
     setFileStates(newFileStates);
+
+    if (matched.length > 0) {
+      updateUploadQueueState(setUploadQueue, prev => {
+        const next = { ...prev };
+        matched.forEach(({ file, fileName }) => {
+          next[fileName] = {
+            ...(next[fileName] || {}),
+            fileName,
+            sourceFileName: file.name,
+            fileSize: file.size,
+            fileLastModified: file.lastModified,
+            selectedAt: new Date().toISOString(),
+            batchId,
+            status: next[fileName]?.status === FILE_STATUS.COMPLETE ? FILE_STATUS.COMPLETE : FILE_STATUS.PENDING
+          };
+        });
+        return next;
+      });
+    }
 
     setMatchedFiles(matched);
     setUnmatchedFiles(unmatched);
@@ -651,6 +834,116 @@ export default function ONetImport() {
             </CardContent>
           </Card>
         </div>
+
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Latest Batch Upload Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {latestBatchStatus ? (
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="text-xs text-slate-500">Batch ID</div>
+                    <div className="font-semibold text-slate-800">{latestBatchStatus.batchId}</div>
+                  </div>
+                  <Badge className={latestBatchStatus.label === 'Confirmed Complete' ? 'bg-green-600' : latestBatchStatus.label === 'Needs Attention' ? 'bg-red-600' : 'bg-blue-600'}>
+                    {latestBatchStatus.label}
+                  </Badge>
+                </div>
+                <div className="grid md:grid-cols-4 gap-3 text-sm">
+                  <div className="p-2 rounded border bg-slate-50">Total files: <span className="font-semibold">{latestBatchStatus.counts.total}</span></div>
+                  <div className="p-2 rounded border bg-green-50">Completed: <span className="font-semibold text-green-700">{latestBatchStatus.counts.complete}</span></div>
+                  <div className="p-2 rounded border bg-blue-50">In progress: <span className="font-semibold text-blue-700">{latestBatchStatus.counts.processing + latestBatchStatus.counts.pending}</span></div>
+                  <div className="p-2 rounded border bg-red-50">Errors: <span className="font-semibold text-red-700">{latestBatchStatus.counts.error}</span></div>
+                </div>
+                <div className="text-xs text-slate-500">
+                  Last update: {latestBatchStatus.latestTimestamp ? new Date(latestBatchStatus.latestTimestamp).toLocaleString() : '-'}
+                </div>
+              </div>
+            ) : (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  No batch upload has been detected yet. Select an O*NET folder to create and track a batch.
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">O*NET Intake Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-3 rounded-lg bg-slate-50 border">
+                <div className="text-xs text-slate-500">Files imported</div>
+                <div className="text-2xl font-semibold text-slate-800">
+                  {completedImports.length}/{TOTAL_ONET_FILES}
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-50 border">
+                <div className="text-xs text-slate-500">Rows imported</div>
+                <div className="text-2xl font-semibold text-slate-800">
+                  {totalImportedRows.toLocaleString()}
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-50 border">
+                <div className="text-xs text-slate-500">Most recent import</div>
+                <div className="text-sm font-semibold text-slate-800">
+                  {completedImports[0]?.[1]?.importedAt
+                    ? new Date(completedImports[0][1].importedAt).toLocaleString()
+                    : 'Not yet imported'}
+                </div>
+              </div>
+            </div>
+
+            {completedImports.length > 0 ? (
+              <div className="border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-12 gap-2 p-3 bg-slate-100 text-xs font-semibold text-slate-600">
+                  <div className="col-span-4">File</div>
+                  <div className="col-span-2">Entity</div>
+                  <div className="col-span-2 text-right">Imported</div>
+                  <div className="col-span-2 text-right">Skipped</div>
+                  <div className="col-span-2">Imported at</div>
+                </div>
+                <div className="max-h-72 overflow-y-auto">
+                  {completedImports.map(([fileName, data]) => (
+                    <div key={fileName} className="grid grid-cols-12 gap-2 p-3 border-t text-xs">
+                      <div className="col-span-4">
+                        <div className="font-medium text-slate-800">{fileName}</div>
+                        <div className="text-slate-500 truncate" title={data.sourceFileName}>
+                          Source: {data.sourceFileName || 'Unknown'}
+                        </div>
+                      </div>
+                      <div className="col-span-2 text-slate-700">{data.entity || '-'}</div>
+                      <div className="col-span-2 text-right text-green-700 font-medium">
+                        {(data.importedCount || 0).toLocaleString()}
+                      </div>
+                      <div className="col-span-2 text-right text-amber-700 font-medium">
+                        {(data.skippedCount || 0).toLocaleString()}
+                      </div>
+                      <div className="col-span-2 text-slate-600">
+                        {data.importedAt ? new Date(data.importedAt).toLocaleString() : '-'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  No completed imports tracked yet. Once files are imported, this section will show exactly what was loaded so you can avoid duplicate uploads.
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Overall Import Progress Bar */}
         {isImporting && (
