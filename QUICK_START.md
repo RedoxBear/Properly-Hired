@@ -55,9 +55,11 @@ completed_at    timestamp
 
 ### Step 2: Implement File Upload (10 minutes)
 
-**Choose one approach**:
+**See**: `FILE_UPLOAD_SETUP.md` for complete implementation guide
 
-**Option A**: Add to Base44 client
+**Quick Summary**:
+
+**Option A**: Add to Base44 client (RECOMMENDED)
 ```javascript
 // In base44Client.ts
 base44.files = {
@@ -74,6 +76,14 @@ POST /api/upload
 Body: FormData with 'file'
 Response: { url: 'https://...' }
 ```
+
+**Option C**: Use mock (testing only)
+```javascript
+// Simulates uploads without real storage
+// See FILE_UPLOAD_SETUP.md for details
+```
+
+> **Having issues?** See `FILE_UPLOAD_SETUP.md` → "Debugging Checklist"
 
 ### Step 3: Update Routing (5 minutes)
 

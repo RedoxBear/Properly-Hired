@@ -404,25 +404,31 @@ console.log(job);
 
 ### File Upload Mechanism
 
-**Current Implementation** (in ONetImportPersistent.jsx):
+**Current Implementation** (in ONetImportPersistent.jsx, line 503):
 ```javascript
 const uploadFileToStorage = async (file) => {
+  // Method 1: base44.files.upload()
   if (base44.files?.upload) {
-    return await base44.files.upload(file);
+    const response = await base44.files.upload(file);
+    return response.url;
   }
 
-  // Fallback to /api/upload endpoint
+  // Method 2: /api/upload endpoint
   const formData = new FormData();
   formData.append('file', file);
   const response = await fetch('/api/upload', {
     method: 'POST',
     body: formData
   });
-  return response.json().url;
+  return (await response.json()).url;
 };
 ```
 
-**Required**: Either implement `base44.files.upload()` or create `/api/upload` endpoint
+**REQUIRED**: Implement one of these:
+1. `base44.files.upload()` method, OR
+2. `/api/upload` endpoint
+
+**Detailed Implementation**: See `FILE_UPLOAD_SETUP.md` for complete code examples and debugging guide
 
 ### Routing
 
@@ -474,11 +480,20 @@ const entities = await base44.entities;
 console.log('ONetImportJob' in entities);
 ```
 
-### Issue: Files don't upload
+### Issue: Files don't upload or show no progress
 
-**Solution**: Check file upload implementation. Verify:
-- `base44.files.upload()` method exists, or
-- `/api/upload` endpoint exists and accepts FormData
+**Solution**: Check browser console (F12) for detailed logs:
+- Look for `[Upload]` prefixed messages
+- Check if base44.files.upload exists
+- Verify /api/upload endpoint is working
+
+**Complete debugging guide**: See `FILE_UPLOAD_SETUP.md`
+
+**Steps**:
+1. Implement file upload: `FILE_UPLOAD_SETUP.md` → Choose Option 1, 2, or 3
+2. Test endpoint: `curl -X POST http://localhost:3000/api/upload -F "file=@test.csv"`
+3. Check browser console: `F12` → Look for `[Upload]` logs
+4. Verify method exists: `console.log(base44.files?.upload)`
 
 ### Issue: Job doesn't persist after refresh
 

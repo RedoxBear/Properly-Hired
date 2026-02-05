@@ -501,16 +501,20 @@ export default function ONetImportPersistent() {
     };
 
     const uploadFileToStorage = async (file) => {
-        // Use Base44's file upload capability
-        // This is a placeholder - actual implementation depends on Base44 API
+        // File upload with detailed diagnostics
+        console.log(`[Upload] Starting upload for: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
         try {
-            // Check if base44 has direct file upload method
+            // Method 1: Check if base44 has direct file upload
             if (base44.files?.upload) {
+                console.log(`[Upload] Using base44.files.upload() for ${file.name}`);
                 const response = await base44.files.upload(file);
+                console.log(`[Upload] ✓ Uploaded via base44.files: ${response.url}`);
                 return response.url;
             }
 
-            // Fallback: Use FormData with fetch
+            // Method 2: Try FormData with /api/upload endpoint
+            console.log(`[Upload] Trying /api/upload endpoint for ${file.name}`);
             const formData = new FormData();
             formData.append('file', file);
 
@@ -522,11 +526,24 @@ export default function ONetImportPersistent() {
                 }
             });
 
-            if (!response.ok) throw new Error(`Upload failed: ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
+            console.log(`[Upload] ✓ Uploaded via /api/upload: ${data.url}`);
             return data.url;
+
         } catch (e) {
-            throw new Error(`Failed to upload file: ${e.message}`);
+            // Provide detailed diagnostics
+            const errorMsg = `Failed to upload ${file.name}: ${e.message}`;
+            console.error(`[Upload] ✗ ${errorMsg}`);
+            console.warn(`[Upload] Available upload methods:`, {
+                'base44.files.upload': base44.files?.upload ? 'YES' : 'NO',
+                'base44.files': base44.files ? 'EXISTS' : 'NOT FOUND',
+                '/api/upload': 'Check if endpoint exists'
+            });
+            throw new Error(errorMsg);
         }
     };
 
@@ -608,7 +625,15 @@ export default function ONetImportPersistent() {
                 {error && (
                     <Alert variant="destructive">
                         <AlertCircle className="w-4 h-4" />
-                        <AlertDescription>{error}</AlertDescription>
+                        <div>
+                            <AlertDescription className="font-semibold mb-2">{error}</AlertDescription>
+                            <div className="text-xs mt-2 space-y-1 bg-red-900/20 p-2 rounded border border-red-300">
+                                <div className="font-mono">Debug Information:</div>
+                                <div>• Check browser console for detailed logs (F12)</div>
+                                <div>• File upload might need configuration</div>
+                                <div>• See QUICK_START.md Step 2 for setup</div>
+                            </div>
+                        </div>
                     </Alert>
                 )}
 
@@ -748,6 +773,37 @@ export default function ONetImportPersistent() {
                                 value={progress.percentage || 0}
                                 className="h-3"
                             />
+
+                            {/* What's Happening */}
+                            <div className="mt-4 p-3 bg-white rounded border border-blue-200 text-xs text-slate-600">
+                                <div className="font-medium text-slate-700 mb-2">
+                                    {importMode === 'uploading_files' && '📤 Phase 1: Uploading CSV Files to Server'}
+                                    {importMode === 'processing' && '⚙️ Phase 2: Processing Files (Background)'}
+                                    {importMode === 'validating' && '✓ Phase 3: Validating Data'}
+                                </div>
+                                {importMode === 'uploading_files' && (
+                                    <div className="space-y-1 text-slate-600">
+                                        <div>• Each CSV file is being uploaded to server storage</div>
+                                        <div>• Files will persist even if you refresh the page</div>
+                                        <div>• Check browser console (F12) for detailed upload logs</div>
+                                        <div>• If stuck, see QUICK_START.md Step 2</div>
+                                    </div>
+                                )}
+                                {importMode === 'processing' && (
+                                    <div className="space-y-1 text-slate-600">
+                                        <div>• CSV files are being parsed and aggregated</div>
+                                        <div>• 1.1M rows being converted to ~1,000 occupation profiles</div>
+                                        <div>• This phase happens in the background (Phase 2)</div>
+                                    </div>
+                                )}
+                                {importMode === 'validating' && (
+                                    <div className="space-y-1 text-slate-600">
+                                        <div>• Data is being validated (Phase 4)</div>
+                                        <div>• Simon and Kyle agents checking data quality</div>
+                                        <div>• Automated tests verifying completeness</div>
+                                    </div>
+                                )}
+                            </div>
 
                             {aggregatorStats && (
                                 <div className="mt-4 grid grid-cols-3 gap-4 text-center">
