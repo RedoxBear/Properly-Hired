@@ -586,22 +586,23 @@ export default function ONetImport() {
                   <Database className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium">Database Status</div>
-                  <div className="text-xs text-slate-500">
-                    {dbStats ? Object.values(dbStats).filter(s => s.status === 'has_data').length : 0}/8 entities
-                  </div>
+                  <div className="font-medium text-sm">Database Status</div>
                   {dbStats && (
-                    <div className="mt-1 space-y-1">
-                      <div className="text-xs font-medium">
-                        <span className={dbStats.overallPercentage >= 80 ? 'text-green-600' : dbStats.overallPercentage >= 40 ? 'text-yellow-600' : 'text-red-600'}>
-                          {dbStats.overallPercentage || 0}% complete
+                    <div className="mt-2 space-y-2">
+                      <div className="w-full bg-slate-200 rounded-full h-2.5">
+                        <div
+                          className={`h-2.5 rounded-full transition-all ${dbStats.overallPercentage >= 80 ? 'bg-green-600' : dbStats.overallPercentage >= 40 ? 'bg-yellow-600' : 'bg-red-600'}`}
+                          style={{ width: `${Math.min(dbStats.overallPercentage, 100)}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium">
+                          {dbStats.overallPercentage}% Complete
+                        </span>
+                        <span className="text-xs text-slate-600">
+                          {dbStats.totalRecords?.toLocaleString() || 0} records
                         </span>
                       </div>
-                      {dbStats.totalRecords > 0 && (
-                        <div className="text-xs text-slate-600">
-                          {dbStats.totalRecords.toLocaleString()} records
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -676,7 +677,7 @@ export default function ONetImport() {
           </Card>
         )}
 
-        {/* Database Integrity Report */}
+        {/* Database Status by Phase */}
         {dbStats && (
           <Card className={dbStats.overallPercentage >= 80 ? 'bg-green-50 border-green-200' : dbStats.overallPercentage >= 40 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}>
             <CardHeader>
@@ -686,45 +687,125 @@ export default function ONetImport() {
                 ) : (
                   <AlertCircle className="w-5 h-5" />
                 )}
-                O*NET Database Status: {dbStats.overallPercentage}% Complete
+                O*NET Database Status: {dbStats.overallPercentage}% Complete ({dbStats.totalRecords?.toLocaleString() || 0} records)
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {Object.entries(dbStats).filter(([key]) => key !== 'overallPercentage' && key !== 'totalRecords').map(([entity, data]) => {
-                    if (data.status === 'error' || !data.count) return null;
-                    return (
-                      <div key={entity} className="p-3 bg-white rounded border">
-                        <div className="font-medium text-sm truncate">{entity}</div>
-                        <div className="mt-1 space-y-1">
-                          <div className="text-xs text-slate-600">
-                            {data.count.toLocaleString()} / {data.expected.toLocaleString()} records
-                          </div>
-                          <div className="w-full bg-slate-200 rounded-full h-1.5">
-                            <div
-                              className={`h-1.5 rounded-full transition-all ${data.percentage >= 80 ? 'bg-green-600' : data.percentage >= 40 ? 'bg-yellow-600' : 'bg-red-600'}`}
-                              style={{ width: `${Math.min(data.percentage, 100)}%` }}
-                            />
-                          </div>
-                          <div className={`text-xs font-medium ${data.percentage >= 80 ? 'text-green-600' : data.percentage >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
-                            {data.percentage}%
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="p-3 bg-white rounded border-l-4" style={{
-                  borderColor: dbStats.overallPercentage >= 80 ? '#16a34a' : dbStats.overallPercentage >= 40 ? '#ca8a04' : '#dc2626'
-                }}>
-                  <div className="text-sm font-medium">
-                    Total: {dbStats.totalRecords?.toLocaleString() || 0} records imported
+              <div className="space-y-4">
+                {/* Summary by Phase */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-slate-700 mb-3">Progress by Phase:</div>
+
+                  {/* Phase 1: Reference */}
+                  <div className="p-3 bg-white rounded border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-sm">Phase 1: Reference Tables</div>
+                      <span className={`text-xs font-bold ${dbStats.ONetReference?.percentage >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {dbStats.ONetReference?.percentage || 0}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${dbStats.ONetReference?.percentage >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
+                        style={{ width: `${Math.min(dbStats.ONetReference?.percentage || 0, 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {dbStats.ONetReference?.count || 0} / {dbStats.ONetReference?.expected || 0} records
+                    </div>
                   </div>
-                  <div className="text-xs text-slate-600 mt-1">
-                    {dbStats.overallPercentage >= 80 ? '✓ Most data present' :
-                     dbStats.overallPercentage >= 40 ? '⚠ Partial data - resume import' :
-                     '✗ Minimal data - start fresh import'}
+
+                  {/* Phase 2: Occupations */}
+                  <div className="p-3 bg-white rounded border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-sm">Phase 2: Occupations</div>
+                      <span className={`text-xs font-bold ${dbStats.ONetOccupation?.percentage >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {dbStats.ONetOccupation?.percentage || 0}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${dbStats.ONetOccupation?.percentage >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
+                        style={{ width: `${Math.min(dbStats.ONetOccupation?.percentage || 0, 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {dbStats.ONetOccupation?.count || 0} / {dbStats.ONetOccupation?.expected || 0} records
+                    </div>
+                  </div>
+
+                  {/* Phase 3: Core Competencies */}
+                  <div className="p-3 bg-white rounded border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-sm">Phase 3: Skills, Abilities, Knowledge</div>
+                      <span className={`text-xs font-bold ${(dbStats.ONetSkill?.percentage + dbStats.ONetAbility?.percentage + dbStats.ONetKnowledge?.percentage) / 3 >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {Math.round((dbStats.ONetSkill?.percentage || 0 + dbStats.ONetAbility?.percentage || 0 + dbStats.ONetKnowledge?.percentage || 0) / 3)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${(dbStats.ONetSkill?.percentage || 0 + dbStats.ONetAbility?.percentage || 0 + dbStats.ONetKnowledge?.percentage || 0) / 3 >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
+                        style={{ width: `${Math.min((dbStats.ONetSkill?.percentage || 0 + dbStats.ONetAbility?.percentage || 0 + dbStats.ONetKnowledge?.percentage || 0) / 3, 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1 space-y-0.5">
+                      <div>Skills: {dbStats.ONetSkill?.count || 0} / {dbStats.ONetSkill?.expected || 0}</div>
+                      <div>Abilities: {dbStats.ONetAbility?.count || 0} / {dbStats.ONetAbility?.expected || 0}</div>
+                      <div>Knowledge: {dbStats.ONetKnowledge?.count || 0} / {dbStats.ONetKnowledge?.expected || 0}</div>
+                    </div>
+                  </div>
+
+                  {/* Phase 4: Tasks */}
+                  <div className="p-3 bg-white rounded border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-sm">Phase 4: Tasks</div>
+                      <span className={`text-xs font-bold ${dbStats.ONetTask?.percentage >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {dbStats.ONetTask?.percentage || 0}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${dbStats.ONetTask?.percentage >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
+                        style={{ width: `${Math.min(dbStats.ONetTask?.percentage || 0, 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {dbStats.ONetTask?.count || 0} / {dbStats.ONetTask?.expected || 0} records
+                    </div>
+                  </div>
+
+                  {/* Phase 5: Work Activities & Context */}
+                  <div className="p-3 bg-white rounded border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-sm">Phase 5: Work Activities & Context</div>
+                      <span className={`text-xs font-bold ${(dbStats.ONetWorkActivity?.percentage + dbStats.ONetWorkContext?.percentage) / 2 >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
+                        {Math.round((dbStats.ONetWorkActivity?.percentage || 0 + dbStats.ONetWorkContext?.percentage || 0) / 2)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all ${(dbStats.ONetWorkActivity?.percentage || 0 + dbStats.ONetWorkContext?.percentage || 0) / 2 >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
+                        style={{ width: `${Math.min((dbStats.ONetWorkActivity?.percentage || 0 + dbStats.ONetWorkContext?.percentage || 0) / 2, 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1 space-y-0.5">
+                      <div>Work Activities: {dbStats.ONetWorkActivity?.count || 0} / {dbStats.ONetWorkActivity?.expected || 0}</div>
+                      <div>Work Context: {dbStats.ONetWorkContext?.count || 0} / {dbStats.ONetWorkContext?.expected || 0}</div>
+                    </div>
+                  </div>
+
+                  {/* Overall Summary */}
+                  <div className="p-3 bg-white rounded border-l-4 mt-2" style={{
+                    borderColor: dbStats.overallPercentage >= 80 ? '#16a34a' : dbStats.overallPercentage >= 40 ? '#ca8a04' : '#dc2626'
+                  }}>
+                    <div className="text-sm font-medium">
+                      Overall: {dbStats.overallPercentage}% Complete
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {dbStats.overallPercentage >= 80 ? '✓ Most phases have sufficient data' :
+                       dbStats.overallPercentage >= 40 ? '⚠ Some phases incomplete - re-upload to complete' :
+                       '✗ Minimal data - start fresh import'}
+                    </div>
                   </div>
                 </div>
               </div>
