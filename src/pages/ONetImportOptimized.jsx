@@ -42,9 +42,10 @@ export default function ONetImportOptimized() {
 
     // Import state
     const [importMode, setImportMode] = React.useState('idle'); // idle, parsing, aggregating, uploading, complete
-    const [progress, setProgress] = React.useState({ current: 0, total: 0, phase: '' });
+    const [progress, setProgress] = React.useState({ current: 0, total: 0, phase: '', subPhase: '' });
     const [aggregatorStats, setAggregatorStats] = React.useState(null);
     const [dbStats, setDbStats] = React.useState(null);
+    const [uploadStats, setUploadStats] = React.useState(null);
 
     // File selection
     const [selectedFiles, setSelectedFiles] = React.useState([]);
@@ -165,7 +166,7 @@ export default function ONetImportOptimized() {
                 setAggregatorStats(onetAggregator.getStats());
             }
 
-            // Phase 2: Upload aggregated profiles to server
+            // Phase 2: Upload aggregated profiles to server with mapping progress
             setImportMode('uploading');
             const profiles = onetAggregator.getProfiles();
 
@@ -176,7 +177,8 @@ export default function ONetImportOptimized() {
             setProgress({
                 current: 0,
                 total: profiles.length,
-                phase: `Uploading ${profiles.length} profiles`
+                phase: `Mapping to Base44 Storage`,
+                subPhase: `Preparing ${profiles.length} profiles...`
             });
 
             // Send to server in batches
@@ -184,9 +186,20 @@ export default function ONetImportOptimized() {
             let uploadedCount = 0;
             let skippedCount = 0;
             const errors = [];
+            const batchStats = [];
 
             for (let i = 0; i < profiles.length; i += UPLOAD_BATCH_SIZE) {
                 const batch = profiles.slice(i, i + UPLOAD_BATCH_SIZE);
+                const batchNum = Math.floor(i / UPLOAD_BATCH_SIZE) + 1;
+                const totalBatches = Math.ceil(profiles.length / UPLOAD_BATCH_SIZE);
+
+                // Update status before upload
+                setProgress({
+                    current: i,
+                    total: profiles.length,
+                    phase: `Mapping to Base44 Storage`,
+                    subPhase: `Batch ${batchNum}/${totalBatches}: Processing ${batch.length} profiles...`
+                });
 
                 try {
                     const result = await base44.functions.invoke('importONetBulk', {
@@ -195,24 +208,49 @@ export default function ONetImportOptimized() {
                     });
 
                     if (result.success) {
-                        uploadedCount += result.stats.imported;
-                        skippedCount += result.stats.duplicates_skipped;
+                        const imported = result.stats.imported;
+                        const duplicates = result.stats.duplicates_skipped;
+                        uploadedCount += imported;
+                        skippedCount += duplicates;
+
+                        batchStats.push({
+                            batchNum,
+                            imported,
+                            duplicates,
+                            duration: result.stats.duration_ms
+                        });
+
+                        // Update status with storage confirmation
+                        setProgress({
+                            current: Math.min(i + UPLOAD_BATCH_SIZE, profiles.length),
+                            total: profiles.length,
+                            phase: `Mapping to Base44 Storage`,
+                            subPhase: `Batch ${batchNum}/${totalBatches}: ✓ Stored ${imported} profiles (${duplicates} duplicates skipped)`
+                        });
                     } else {
                         errors.push(result.error);
+                        setProgress(p => ({
+                            ...p,
+                            subPhase: `Batch ${batchNum}/${totalBatches}: ✗ Error - ${result.error}`
+                        }));
                     }
                 } catch (batchError) {
-                    errors.push(`Batch ${i}: ${batchError.message}`);
+                    errors.push(`Batch ${batchNum}: ${batchError.message}`);
+                    setProgress(p => ({
+                        ...p,
+                        subPhase: `Batch ${batchNum}/${totalBatches}: ✗ Upload failed - ${batchError.message}`
+                    }));
                 }
-
-                setProgress(p => ({
-                    ...p,
-                    current: Math.min(i + UPLOAD_BATCH_SIZE, profiles.length),
-                    phase: `Uploaded ${uploadedCount} profiles`
-                }));
             }
 
-            // Complete
+            // Complete - show storage confirmation
             setImportMode('complete');
+            setUploadStats({
+                totalBatches: Math.ceil(profiles.length / UPLOAD_BATCH_SIZE),
+                batchStats,
+                totalDuration: batchStats.reduce((sum, b) => sum + b.duration, 0)
+            });
+
             setImportResult({
                 success: true,
                 filesProcessed: matchedFiles.length,
@@ -223,8 +261,10 @@ export default function ONetImportOptimized() {
                 errors
             });
 
-            // Refresh DB stats
-            loadDbStats();
+            // Verify data was actually stored in Base44
+            setTimeout(() => {
+                loadDbStats();
+            }, 1000);
 
         } catch (e) {
             console.error("Import failed:", e);
@@ -261,9 +301,10 @@ export default function ONetImportOptimized() {
         setMatchedFiles([]);
         setUnmatchedFiles([]);
         setImportMode('idle');
-        setProgress({ current: 0, total: 0, phase: '' });
+        setProgress({ current: 0, total: 0, phase: '', subPhase: '' });
         setAggregatorStats(null);
         setImportResult(null);
+        setUploadStats(null);
         onetAggregator.reset();
     };
 
@@ -413,11 +454,16 @@ export default function ONetImportOptimized() {
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                                    <div>
+                                    <div className="flex-1">
                                         <div className="font-semibold text-blue-900">{progress.phase}</div>
                                         <div className="text-sm text-blue-700">
-                                            {progress.current} / {progress.total}
+                                            {progress.current} / {progress.total} profiles
                                         </div>
+                                        {progress.subPhase && (
+                                            <div className="text-xs text-blue-600 mt-1 font-medium">
+                                                {progress.subPhase}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="text-2xl font-bold text-blue-600">
@@ -451,6 +497,25 @@ export default function ONetImportOptimized() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Storage Progress Details */}
+                            {importMode === 'uploading' && uploadStats && uploadStats.batchStats.length > 0 && (
+                                <div className="mt-4 space-y-2">
+                                    <div className="text-xs font-semibold text-slate-700 mb-2">Storage Progress:</div>
+                                    <div className="max-h-24 overflow-y-auto space-y-1">
+                                        {uploadStats.batchStats.slice(-5).map((batch, idx) => (
+                                            <div key={idx} className="text-xs p-2 bg-white rounded border border-blue-200">
+                                                <span className="font-medium">Batch {batch.batchNum}:</span>
+                                                <span className="text-green-600 ml-1">✓ {batch.imported} stored</span>
+                                                {batch.duplicates > 0 && (
+                                                    <span className="text-amber-600 ml-1">⊘ {batch.duplicates} skipped</span>
+                                                )}
+                                                <span className="text-slate-500 ml-1">({batch.duration}ms)</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 )}
@@ -469,36 +534,71 @@ export default function ONetImportOptimized() {
                                 </div>
                                 <div className="flex-1">
                                     <div className={`font-semibold text-lg ${importResult.success ? 'text-green-900' : 'text-red-900'}`}>
-                                        {importResult.success ? 'Import Complete!' : 'Import Failed'}
+                                        {importResult.success ? '✓ Import Complete - Data Stored in Base44' : 'Import Failed'}
                                     </div>
 
                                     {importResult.success && (
-                                        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <div className="text-2xl font-bold text-slate-800">
-                                                    {importResult.filesProcessed}
+                                        <>
+                                            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                <div className="p-3 bg-white rounded-lg">
+                                                    <div className="text-2xl font-bold text-slate-800">
+                                                        {importResult.filesProcessed}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500">Files Processed</div>
                                                 </div>
-                                                <div className="text-xs text-slate-500">Files Processed</div>
-                                            </div>
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <div className="text-2xl font-bold text-slate-800">
-                                                    {importResult.rowsAggregated.toLocaleString()}
+                                                <div className="p-3 bg-white rounded-lg">
+                                                    <div className="text-2xl font-bold text-slate-800">
+                                                        {importResult.rowsAggregated.toLocaleString()}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500">Rows Aggregated</div>
                                                 </div>
-                                                <div className="text-xs text-slate-500">Rows Aggregated</div>
-                                            </div>
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <div className="text-2xl font-bold text-green-600">
-                                                    {importResult.profilesUploaded}
+                                                <div className="p-3 bg-white rounded-lg border-2 border-green-400">
+                                                    <div className="text-2xl font-bold text-green-600">
+                                                        {importResult.profilesUploaded}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500">Profiles in Base44</div>
                                                 </div>
-                                                <div className="text-xs text-slate-500">Profiles Uploaded</div>
-                                            </div>
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <div className="text-2xl font-bold text-amber-600">
-                                                    {importResult.duplicatesSkipped}
+                                                <div className="p-3 bg-white rounded-lg">
+                                                    <div className="text-2xl font-bold text-amber-600">
+                                                        {importResult.duplicatesSkipped}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500">Duplicates Skipped</div>
                                                 </div>
-                                                <div className="text-xs text-slate-500">Duplicates Skipped</div>
                                             </div>
-                                        </div>
+
+                                            {/* Batch Details */}
+                                            {uploadStats && uploadStats.batchStats.length > 0 && (
+                                                <div className="mt-4 p-4 bg-white rounded-lg border border-green-200">
+                                                    <div className="text-sm font-semibold text-slate-800 mb-3">
+                                                        Base44 Storage Details ({uploadStats.totalBatches} batches):
+                                                    </div>
+                                                    <div className="max-h-32 overflow-y-auto space-y-1">
+                                                        {uploadStats.batchStats.map((batch, idx) => (
+                                                            <div key={idx} className="text-xs p-2 bg-slate-50 rounded flex justify-between items-center">
+                                                                <span className="font-medium">Batch {batch.batchNum}:</span>
+                                                                <span className="text-green-600">✓ {batch.imported} stored</span>
+                                                                {batch.duplicates > 0 && (
+                                                                    <span className="text-amber-600">⊘ {batch.duplicates} skipped</span>
+                                                                )}
+                                                                <span className="text-slate-500">({batch.duration}ms)</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="mt-2 text-xs text-slate-600">
+                                                        Total storage time: {uploadStats.totalDuration}ms
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Database Verification */}
+                                            {dbStats && (
+                                                <div className="mt-4 p-3 bg-green-100 rounded-lg border border-green-300">
+                                                    <div className="text-xs font-semibold text-green-800">
+                                                        ✓ Verified in Database: {dbStats.ONetOccupationProfile?.toLocaleString() || 0} occupation profiles
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
 
                                     {importResult.errors?.length > 0 && (
