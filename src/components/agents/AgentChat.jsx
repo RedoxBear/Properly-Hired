@@ -25,6 +25,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const [isInitializing, setIsInitializing] = useState(false);
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
+    const [currentUser, setCurrentUser] = useState(null);
 
     // Refs for cleanup
     const isMountedRef = useRef(true);
@@ -66,6 +67,21 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                 subscriptionRef.current();
             }
         };
+    }, []);
+
+    // Fetch current user for message metadata
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await base44.auth.me();
+                if (isMountedRef.current) {
+                    setCurrentUser(user);
+                }
+            } catch (e) {
+                console.error("Failed to fetch current user:", e);
+            }
+        };
+        fetchUser();
     }, []);
 
     // Initialize or retrieve conversation
@@ -225,13 +241,14 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         const originalInput = input;
 
         try {
-            // Send message with minimal metadata - only primitive values
-            // Base44 API rejects complex objects in metadata (causes 422 error)
+            // Send message with required metadata fields for Base44 API
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
             await base44.agents.addMessage(conversation, {
                 role: "user",
                 content: userMessage,
                 metadata: {
-                    timestamp: new Date().toISOString()
+                    created_date: today,
+                    created_by_email: currentUser?.email || "unknown@example.com"
                 }
             });
 
@@ -252,7 +269,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                 setIsLoading(false);
             }
         }
-    }, [input, conversation, appContext, getContextSummary]);
+    }, [input, conversation, appContext, getContextSummary, currentUser]);
 
     // Retry failed message
     const retryMessage = useCallback(() => {
