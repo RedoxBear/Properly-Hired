@@ -37,6 +37,17 @@ const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
 const IMPORTED_RECORDS_KEY = 'onet_imported_record_ids';
 const TOTAL_ONET_FILES = Object.keys(ONET_SCHEMAS).length;
 
+const aggregateImportedCountByEntity = (queue = {}) => {
+  const totals = {};
+
+  Object.values(queue).forEach((entry) => {
+    if (!entry || entry.status !== FILE_STATUS.COMPLETE || !entry.entity) return;
+    totals[entry.entity] = (totals[entry.entity] || 0) + (entry.importedCount || 0);
+  });
+
+  return totals;
+};
+
 // Helper functions for localStorage persistence
 const getUploadQueue = () => {
   try {
@@ -173,26 +184,29 @@ export default function ONetImport() {
       };
 
       // Get actual counts
+      const queueImportedByEntity = aggregateImportedCountByEntity(uploadQueue);
       for (const entityName of entities) {
         try {
           const entity = base44.entities[entityName];
           if (entity) {
             const records = await entity.list('-created_date', 1000);
             const count = records.length;
+            const queueCount = queueImportedByEntity[entityName] || 0;
+            const effectiveCount = Math.max(count, queueCount);
             const expected = expectedRecordCounts[entityName] || 100;
-            const percentage = Math.round((count / expected) * 100);
+            const percentage = Math.round((effectiveCount / expected) * 100);
             const phase = entityPhases[entityName];
 
             stats[entityName] = {
-              status: count > 0 ? 'has_data' : 'empty',
-              count: count,
+              status: effectiveCount > 0 ? 'has_data' : 'empty',
+              count: effectiveCount,
               expected: expected,
               percentage: Math.min(percentage, 100),
               phase: phase,
-              displayString: `${count} / ${expected} = ${Math.min(percentage, 100)}%`
+              displayString: `${effectiveCount} / ${expected} = ${Math.min(percentage, 100)}%`
             };
-            if (count > 0) {
-              totalRecords += count;
+            if (effectiveCount > 0) {
+              totalRecords += effectiveCount;
               entitiesWithData++;
             }
           }
@@ -609,8 +623,13 @@ export default function ONetImport() {
       for (const entityName of entities) {
         try {
           const entity = base44.entities[entityName];
-          if (entity) {
+          if (!entity) continue;
+
+          // Keep deleting in chunks until no records remain.
+          while (true) {
             const records = await entity.list('-created_date', 1000);
+            if (!records.length) break;
+
             for (const record of records) {
               try {
                 await entity.delete(record.id);
@@ -618,6 +637,8 @@ export default function ONetImport() {
                 console.warn(`Failed to delete ${entityName} record:`, e);
               }
             }
+
+            if (records.length < 1000) break;
           }
         } catch (e) {
           console.warn(`Failed to clear ${entityName}:`, e);
@@ -925,25 +946,35 @@ export default function ONetImport() {
                   </div>
 
                   {/* Phase 3: Core Competencies */}
-                  <div className="p-3 bg-white rounded border">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium text-sm">Phase 3: Skills, Abilities, Knowledge</div>
-                      <span className={`text-xs font-bold ${(dbStats.ONetSkill?.percentage + dbStats.ONetAbility?.percentage + dbStats.ONetKnowledge?.percentage) / 3 >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
-                        {Math.round((dbStats.ONetSkill?.percentage || 0 + dbStats.ONetAbility?.percentage || 0 + dbStats.ONetKnowledge?.percentage || 0) / 3)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all ${(dbStats.ONetSkill?.percentage || 0 + dbStats.ONetAbility?.percentage || 0 + dbStats.ONetKnowledge?.percentage || 0) / 3 >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
-                        style={{ width: `${Math.min((dbStats.ONetSkill?.percentage || 0 + dbStats.ONetAbility?.percentage || 0 + dbStats.ONetKnowledge?.percentage || 0) / 3, 100)}%` }}
-                      />
-                    </div>
-                    <div className="text-xs text-slate-600 mt-1 space-y-0.5">
-                      <div>Skills: {dbStats.ONetSkill?.displayString || '0 / 0 = 0%'}</div>
-                      <div>Abilities: {dbStats.ONetAbility?.displayString || '0 / 0 = 0%'}</div>
-                      <div>Knowledge: {dbStats.ONetKnowledge?.displayString || '0 / 0 = 0%'}</div>
-                    </div>
-                  </div>
+                  {(() => {
+                    const phase3Average = Math.round((
+                      (dbStats.ONetSkill?.percentage || 0) +
+                      (dbStats.ONetAbility?.percentage || 0) +
+                      (dbStats.ONetKnowledge?.percentage || 0)
+                    ) / 3);
+
+                    return (
+                      <div className="p-3 bg-white rounded border">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium text-sm">Phase 3: Skills, Abilities, Knowledge</div>
+                          <span className={`text-xs font-bold ${phase3Average >= 80 ? 'text-green-600' : 'text-yellow-600'}`}>
+                            {phase3Average}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all ${phase3Average >= 80 ? 'bg-green-600' : 'bg-yellow-600'}`}
+                            style={{ width: `${Math.min(phase3Average, 100)}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-slate-600 mt-1 space-y-0.5">
+                          <div>Skills: {dbStats.ONetSkill?.displayString || '0 / 0 = 0%'}</div>
+                          <div>Abilities: {dbStats.ONetAbility?.displayString || '0 / 0 = 0%'}</div>
+                          <div>Knowledge: {dbStats.ONetKnowledge?.displayString || '0 / 0 = 0%'}</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Phase 4: Tasks */}
                   <div className="p-3 bg-white rounded border">
