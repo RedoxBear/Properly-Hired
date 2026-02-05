@@ -33,6 +33,45 @@ import {
 } from "@/lib/onetSchemas";
 
 const BATCH_SIZE = 50;
+const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
+const IMPORTED_RECORDS_KEY = 'onet_imported_record_ids';
+
+// Helper functions for localStorage persistence
+const getUploadQueue = () => {
+  try {
+    const stored = localStorage.getItem(UPLOAD_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to read upload queue:", e);
+    return {};
+  }
+};
+
+const saveUploadQueue = (queue) => {
+  try {
+    localStorage.setItem(UPLOAD_STORAGE_KEY, JSON.stringify(queue));
+  } catch (e) {
+    console.error("Failed to save upload queue:", e);
+  }
+};
+
+const getImportedRecordIds = () => {
+  try {
+    const stored = localStorage.getItem(IMPORTED_RECORDS_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    console.error("Failed to read imported records:", e);
+    return {};
+  }
+};
+
+const saveImportedRecordIds = (records) => {
+  try {
+    localStorage.setItem(IMPORTED_RECORDS_KEY, JSON.stringify(records));
+  } catch (e) {
+    console.error("Failed to save imported records:", e);
+  }
+};
 
 export default function ONetImport() {
   const navigate = useNavigate();
@@ -48,6 +87,8 @@ export default function ONetImport() {
   const [previewMode, setPreviewMode] = React.useState(false);
   const [matchedFiles, setMatchedFiles] = React.useState([]);
   const [unmatchedFiles, setUnmatchedFiles] = React.useState([]);
+  const [uploadQueue, setUploadQueue] = React.useState(getUploadQueue());
+  const [importedRecordIds, setImportedRecordIds] = React.useState(getImportedRecordIds());
   const folderInputRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -95,6 +136,16 @@ export default function ONetImport() {
       const stats = {};
       let totalRecords = 0;
       let entitiesWithData = 0;
+      const expectedRecordCounts = {
+        'ONetOccupation': 968,        // Typical O*NET occupation count
+        'ONetSkill': 35,              // Typical skill count
+        'ONetAbility': 52,            // Typical ability count
+        'ONetKnowledge': 34,          // Typical knowledge count
+        'ONetTask': 15000,            // Typical task count (varies)
+        'ONetWorkActivity': 41,       // Typical work activity count
+        'ONetWorkContext': 40,        // Typical work context count
+        'ONetReference': 50           // Typical reference count
+      };
 
       for (const entityName of entities) {
         try {
@@ -103,9 +154,13 @@ export default function ONetImport() {
             // Get count of records (fetch all to get actual count)
             const records = await entity.list('-created_date', 1000);
             const count = records.length;
+            const expected = expectedRecordCounts[entityName] || 100;
+            const percentage = Math.round((count / expected) * 100);
             stats[entityName] = {
               status: count > 0 ? 'has_data' : 'empty',
-              count: count
+              count: count,
+              expected: expected,
+              percentage: Math.min(percentage, 100)
             };
             if (count > 0) {
               totalRecords += count;
@@ -113,12 +168,16 @@ export default function ONetImport() {
             }
           }
         } catch (e) {
-          stats[entityName] = { status: 'error', count: 0, error: e.message };
+          stats[entityName] = { status: 'error', count: 0, expected: 0, percentage: 0, error: e.message };
         }
       }
 
-      setDbStats(stats);
-      return { stats, totalRecords, entitiesWithData, totalEntities: entities.length };
+      // Calculate overall percentage
+      const totalExpected = Object.values(expectedRecordCounts).reduce((a, b) => a + b, 0);
+      const overallPercentage = Math.round((totalRecords / totalExpected) * 100);
+
+      setDbStats({ ...stats, totalRecords, overallPercentage });
+      return { stats, totalRecords, entitiesWithData, totalEntities: entities.length, overallPercentage };
     } catch (e) {
       console.error("Failed to load DB stats:", e);
       return null;
@@ -215,10 +274,16 @@ export default function ONetImport() {
         throw new Error(`Entity ${entityName} not found. Please ensure it exists in Base44.`);
       }
 
+      // Load previously imported records to detect duplicates
+      const importedIds = getImportedRecordIds();
+      const entityImportedIds = importedIds[entityName] || {};
+
       // Batch import using individual creates
       let importedCount = 0;
+      let skippedCount = 0;
       let failedCount = 0;
       const totalRecords = records.length;
+      const newImportedIds = { ...entityImportedIds };
 
       for (let i = 0; i < totalRecords; i += BATCH_SIZE) {
         const batch = records.slice(i, i + BATCH_SIZE);
@@ -226,9 +291,18 @@ export default function ONetImport() {
         // Process each record individually for reliability
         for (let j = 0; j < batch.length; j++) {
           const record = batch[j];
+          const recordId = record.id || record.code || record.title; // Use unique identifier
+
           try {
-            await entity.create(record);
-            importedCount++;
+            // Check if already imported (duplicate detection)
+            if (newImportedIds[recordId]) {
+              skippedCount++;
+              console.log(`Record ${recordId} already imported, skipping`);
+            } else {
+              await entity.create(record);
+              importedCount++;
+              newImportedIds[recordId] = true;
+            }
           } catch (recordError) {
             failedCount++;
             const recordIndex = i + j;
@@ -238,16 +312,24 @@ export default function ONetImport() {
         }
 
         // Update progress after each batch
-        const progress = Math.round((importedCount / totalRecords) * 100);
+        const progress = Math.round(((importedCount + skippedCount) / totalRecords) * 100);
         updateFileState(fileName, {
           progress,
           importedCount,
+          skippedCount,
           failedCount
         });
       }
 
+      // Save imported record IDs to prevent duplicates on resume
+      importedIds[entityName] = newImportedIds;
+      saveImportedRecordIds(importedIds);
+      setImportedRecordIds(importedIds);
+
       const status = failedCount > 0 ? FILE_STATUS.COMPLETE : FILE_STATUS.COMPLETE;
-      const summary = failedCount > 0
+      const summary = skippedCount > 0
+        ? `Imported ${importedCount} new, skipped ${skippedCount} duplicates (${failedCount} failed)`
+        : failedCount > 0
         ? `Imported ${importedCount} of ${totalRecords} records (${failedCount} failed)`
         : `Successfully imported all ${importedCount} records`;
 
@@ -255,6 +337,7 @@ export default function ONetImport() {
         status,
         progress: 100,
         importedCount,
+        skippedCount,
         failedCount,
         summary,
         endTime: Date.now()
@@ -389,7 +472,7 @@ export default function ONetImport() {
   };
 
   const handleClearAllData = async () => {
-    if (!confirm("This will delete ALL O*NET data from the database. Are you sure?")) {
+    if (!confirm("This will delete ALL O*NET data from the database AND reset upload tracking. Are you sure?")) {
       return;
     }
 
@@ -416,7 +499,13 @@ export default function ONetImport() {
         }
       }
 
+      // Clear upload tracking
       setFileStates({});
+      localStorage.removeItem(UPLOAD_STORAGE_KEY);
+      localStorage.removeItem(IMPORTED_RECORDS_KEY);
+      setUploadQueue({});
+      setImportedRecordIds({});
+
       loadDbStats();
     } finally {
       setIsImporting(false);
@@ -497,13 +586,22 @@ export default function ONetImport() {
                   <Database className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium">Local Database</div>
+                  <div className="font-medium">Database Status</div>
                   <div className="text-xs text-slate-500">
                     {dbStats ? Object.values(dbStats).filter(s => s.status === 'has_data').length : 0}/8 entities
                   </div>
-                  {dbStats && importStats?.totalRecords > 0 && (
-                    <div className="text-xs text-green-600 font-medium mt-1">
-                      {importStats.totalRecords.toLocaleString()} records loaded
+                  {dbStats && (
+                    <div className="mt-1 space-y-1">
+                      <div className="text-xs font-medium">
+                        <span className={dbStats.overallPercentage >= 80 ? 'text-green-600' : dbStats.overallPercentage >= 40 ? 'text-yellow-600' : 'text-red-600'}>
+                          {dbStats.overallPercentage || 0}% complete
+                        </span>
+                      </div>
+                      {dbStats.totalRecords > 0 && (
+                        <div className="text-xs text-slate-600">
+                          {dbStats.totalRecords.toLocaleString()} records
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -574,6 +672,62 @@ export default function ONetImport() {
                   Importing files...
                 </div>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Database Integrity Report */}
+        {dbStats && (
+          <Card className={dbStats.overallPercentage >= 80 ? 'bg-green-50 border-green-200' : dbStats.overallPercentage >= 40 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}>
+            <CardHeader>
+              <CardTitle className={`text-base flex items-center gap-2 ${dbStats.overallPercentage >= 80 ? 'text-green-900' : dbStats.overallPercentage >= 40 ? 'text-yellow-900' : 'text-red-900'}`}>
+                {dbStats.overallPercentage >= 80 ? (
+                  <CheckCircle2 className="w-5 h-5" />
+                ) : (
+                  <AlertCircle className="w-5 h-5" />
+                )}
+                O*NET Database Status: {dbStats.overallPercentage}% Complete
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {Object.entries(dbStats).filter(([key]) => key !== 'overallPercentage' && key !== 'totalRecords').map(([entity, data]) => {
+                    if (data.status === 'error' || !data.count) return null;
+                    return (
+                      <div key={entity} className="p-3 bg-white rounded border">
+                        <div className="font-medium text-sm truncate">{entity}</div>
+                        <div className="mt-1 space-y-1">
+                          <div className="text-xs text-slate-600">
+                            {data.count.toLocaleString()} / {data.expected.toLocaleString()} records
+                          </div>
+                          <div className="w-full bg-slate-200 rounded-full h-1.5">
+                            <div
+                              className={`h-1.5 rounded-full transition-all ${data.percentage >= 80 ? 'bg-green-600' : data.percentage >= 40 ? 'bg-yellow-600' : 'bg-red-600'}`}
+                              style={{ width: `${Math.min(data.percentage, 100)}%` }}
+                            />
+                          </div>
+                          <div className={`text-xs font-medium ${data.percentage >= 80 ? 'text-green-600' : data.percentage >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
+                            {data.percentage}%
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="p-3 bg-white rounded border-l-4" style={{
+                  borderColor: dbStats.overallPercentage >= 80 ? '#16a34a' : dbStats.overallPercentage >= 40 ? '#ca8a04' : '#dc2626'
+                }}>
+                  <div className="text-sm font-medium">
+                    Total: {dbStats.totalRecords?.toLocaleString() || 0} records imported
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    {dbStats.overallPercentage >= 80 ? '✓ Most data present' :
+                     dbStats.overallPercentage >= 40 ? '⚠ Partial data - resume import' :
+                     '✗ Minimal data - start fresh import'}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
