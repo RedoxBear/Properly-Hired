@@ -35,6 +35,7 @@ import {
 const BATCH_SIZE = 50;
 const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
 const IMPORTED_RECORDS_KEY = 'onet_imported_record_ids';
+const TOTAL_ONET_FILES = Object.keys(ONET_SCHEMAS).length;
 
 // Helper functions for localStorage persistence
 const getUploadQueue = () => {
@@ -90,6 +91,18 @@ export default function ONetImport() {
   const [uploadQueue, setUploadQueue] = React.useState(getUploadQueue());
   const [importedRecordIds, setImportedRecordIds] = React.useState(getImportedRecordIds());
   const folderInputRef = React.useRef(null);
+
+  const completedImports = React.useMemo(
+    () => Object.entries(uploadQueue)
+      .filter(([, value]) => value?.status === FILE_STATUS.COMPLETE)
+      .sort((a, b) => new Date(b[1].importedAt || 0) - new Date(a[1].importedAt || 0)),
+    [uploadQueue]
+  );
+
+  const totalImportedRows = React.useMemo(
+    () => completedImports.reduce((sum, [, value]) => sum + (value?.importedCount || 0), 0),
+    [completedImports]
+  );
 
   React.useEffect(() => {
     checkAccess();
@@ -214,6 +227,22 @@ export default function ONetImport() {
   };
 
   const handleFileSelect = (fileName, file) => {
+    const nextQueue = {
+      ...uploadQueue,
+      [fileName]: {
+        ...(uploadQueue[fileName] || {}),
+        fileName,
+        sourceFileName: file.name,
+        fileSize: file.size,
+        fileLastModified: file.lastModified,
+        selectedAt: new Date().toISOString(),
+        status: FILE_STATUS.PENDING
+      }
+    };
+
+    saveUploadQueue(nextQueue);
+    setUploadQueue(nextQueue);
+
     updateFileState(fileName, {
       file,
       status: FILE_STATUS.PENDING,
@@ -227,6 +256,19 @@ export default function ONetImport() {
   const importFile = async (fileName) => {
     const state = fileStates[fileName];
     if (!state?.file) return;
+
+    const existingImport = uploadQueue[fileName];
+    if (existingImport?.status === FILE_STATUS.COMPLETE) {
+      updateFileState(fileName, {
+        status: FILE_STATUS.COMPLETE,
+        progress: 100,
+        importedCount: existingImport.importedCount || 0,
+        skippedCount: existingImport.skippedCount || 0,
+        failedCount: existingImport.failedCount || 0,
+        summary: `Already imported on ${new Date(existingImport.importedAt).toLocaleString()}`
+      });
+      return;
+    }
 
     const schema = getSchemaByFileName(fileName);
     if (!schema) {
@@ -343,11 +385,52 @@ export default function ONetImport() {
         endTime: Date.now()
       });
 
+      const completedImport = {
+        ...(uploadQueue[fileName] || {}),
+        fileName,
+        sourceFileName: state.file.name,
+        fileSize: state.file.size,
+        fileLastModified: state.file.lastModified,
+        status,
+        entity: entityName,
+        expectedRows: schema.rowCount,
+        importedCount,
+        skippedCount,
+        failedCount,
+        importedAt: new Date().toISOString(),
+        summary
+      };
+
+      const nextQueue = {
+        ...uploadQueue,
+        [fileName]: completedImport
+      };
+      saveUploadQueue(nextQueue);
+      setUploadQueue(nextQueue);
+
       // Refresh DB stats
       loadDbStats();
 
     } catch (e) {
       console.error(`Import failed for ${fileName}:`, e);
+
+      const failedImport = {
+        ...(uploadQueue[fileName] || {}),
+        fileName,
+        sourceFileName: state.file.name,
+        fileSize: state.file.size,
+        fileLastModified: state.file.lastModified,
+        status: FILE_STATUS.ERROR,
+        error: e.message,
+        failedAt: new Date().toISOString()
+      };
+      const nextQueue = {
+        ...uploadQueue,
+        [fileName]: failedImport
+      };
+      saveUploadQueue(nextQueue);
+      setUploadQueue(nextQueue);
+
       updateFileState(fileName, {
         status: FILE_STATUS.ERROR,
         error: e.message,
@@ -651,6 +734,77 @@ export default function ONetImport() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">O*NET Intake Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-3 rounded-lg bg-slate-50 border">
+                <div className="text-xs text-slate-500">Files imported</div>
+                <div className="text-2xl font-semibold text-slate-800">
+                  {completedImports.length}/{TOTAL_ONET_FILES}
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-50 border">
+                <div className="text-xs text-slate-500">Rows imported</div>
+                <div className="text-2xl font-semibold text-slate-800">
+                  {totalImportedRows.toLocaleString()}
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-slate-50 border">
+                <div className="text-xs text-slate-500">Most recent import</div>
+                <div className="text-sm font-semibold text-slate-800">
+                  {completedImports[0]?.[1]?.importedAt
+                    ? new Date(completedImports[0][1].importedAt).toLocaleString()
+                    : 'Not yet imported'}
+                </div>
+              </div>
+            </div>
+
+            {completedImports.length > 0 ? (
+              <div className="border rounded-lg overflow-hidden">
+                <div className="grid grid-cols-12 gap-2 p-3 bg-slate-100 text-xs font-semibold text-slate-600">
+                  <div className="col-span-4">File</div>
+                  <div className="col-span-2">Entity</div>
+                  <div className="col-span-2 text-right">Imported</div>
+                  <div className="col-span-2 text-right">Skipped</div>
+                  <div className="col-span-2">Imported at</div>
+                </div>
+                <div className="max-h-72 overflow-y-auto">
+                  {completedImports.map(([fileName, data]) => (
+                    <div key={fileName} className="grid grid-cols-12 gap-2 p-3 border-t text-xs">
+                      <div className="col-span-4">
+                        <div className="font-medium text-slate-800">{fileName}</div>
+                        <div className="text-slate-500 truncate" title={data.sourceFileName}>
+                          Source: {data.sourceFileName || 'Unknown'}
+                        </div>
+                      </div>
+                      <div className="col-span-2 text-slate-700">{data.entity || '-'}</div>
+                      <div className="col-span-2 text-right text-green-700 font-medium">
+                        {(data.importedCount || 0).toLocaleString()}
+                      </div>
+                      <div className="col-span-2 text-right text-amber-700 font-medium">
+                        {(data.skippedCount || 0).toLocaleString()}
+                      </div>
+                      <div className="col-span-2 text-slate-600">
+                        {data.importedAt ? new Date(data.importedAt).toLocaleString() : '-'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  No completed imports tracked yet. Once files are imported, this section will show exactly what was loaded so you can avoid duplicate uploads.
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Overall Import Progress Bar */}
         {isImporting && (
