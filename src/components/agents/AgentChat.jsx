@@ -225,20 +225,14 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         const originalInput = input;
 
         try {
-            const messageContent = {
-                userMessage: userMessage,
-                context: {
-                    currentPage: appContext?.currentPage,
-                    currentTask: appContext?.currentTask,
-                    contextSummary: getContextSummary(),
-                    timestamp: new Date().toISOString()
-                }
-            };
-
+            // Send message with minimal metadata - only primitive values
+            // Base44 API rejects complex objects in metadata (causes 422 error)
             await base44.agents.addMessage(conversation, {
                 role: "user",
                 content: userMessage,
-                metadata: messageContent
+                metadata: {
+                    timestamp: new Date().toISOString()
+                }
             });
 
             // Success - clear input
