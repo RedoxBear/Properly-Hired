@@ -4,14 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2 } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
 import ChatErrorBoundary from "./ChatErrorBoundary";
+import { AGENT_CONFIG, generateAgentPrompt, parseAgentFromResponse } from "./agentPrompts";
 
 function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const { context: appContext, getContextSummary } = useAppContext();
+    const [currentAgent, setCurrentAgent] = useState(agentName); // Track active agent
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
     const [conversation, setConversation] = useState(null);
@@ -24,6 +26,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const [isInitializing, setIsInitializing] = useState(false);
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
+    const [handoffNotification, setHandoffNotification] = useState(null); // Agent switch notification
 
     // Refs for cleanup
     const isMountedRef = useRef(true);
@@ -111,16 +114,20 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
             if (!conv) {
                 const mergedContext = {
                     ...context,
-                    appPage: appContext?.currentPage,
-                    appTask: appContext?.currentTask,
+                    currentPage: appContext?.currentPage,
+                    currentTask: appContext?.currentTask,
                     contextSummary: getContextSummary()
                 };
+
+                // Generate multi-agent system prompt
+                const systemPrompt = generateAgentPrompt(agentName, mergedContext);
 
                 conv = await base44.agents.createConversation({
                     agent_name: agentName,
                     metadata: {
                         name: `${agentTitle} Chat`,
                         context: JSON.stringify(mergedContext),
+                        systemPrompt: systemPrompt,
                         appContext: appContext
                     }
                 });
@@ -169,7 +176,38 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
 
         const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
             if (isMountedRef.current) {
-                setMessages(data.messages || []);
+                const newMessages = data.messages || [];
+                setMessages(newMessages);
+
+                // Check last message for agent handoff
+                const lastMessage = newMessages[newMessages.length - 1];
+                if (lastMessage && lastMessage.role !== "user") {
+                    const contentText = typeof lastMessage.content === 'string'
+                        ? lastMessage.content
+                        : lastMessage.content?.text || '';
+
+                    const parsed = parseAgentFromResponse(contentText);
+                    if (parsed && parsed.agent !== currentAgent) {
+                        // Agent handoff detected!
+                        setCurrentAgent(parsed.agent);
+
+                        if (parsed.isHandoff) {
+                            const newAgentConfig = AGENT_CONFIG[parsed.agent];
+                            setHandoffNotification({
+                                from: currentAgent,
+                                to: parsed.agent,
+                                message: `${newAgentConfig?.icon} ${newAgentConfig?.fullName || parsed.agent} is now helping you`
+                            });
+
+                            // Clear notification after 4 seconds
+                            setTimeout(() => {
+                                if (isMountedRef.current) {
+                                    setHandoffNotification(null);
+                                }
+                            }, 4000);
+                        }
+                    }
+                }
             }
         });
 
@@ -196,14 +234,21 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         const originalInput = input;
 
         try {
+            const enhancedContext = {
+                currentPage: appContext?.currentPage,
+                currentTask: appContext?.currentTask,
+                contextSummary: getContextSummary(),
+                timestamp: new Date().toISOString(),
+                currentAgent: currentAgent
+            };
+
+            // Generate updated system prompt with current context
+            const systemPrompt = generateAgentPrompt(currentAgent, enhancedContext);
+
             const messageContent = {
                 userMessage: userMessage,
-                context: {
-                    currentPage: appContext?.currentPage,
-                    currentTask: appContext?.currentTask,
-                    contextSummary: getContextSummary(),
-                    timestamp: new Date().toISOString()
-                }
+                context: enhancedContext,
+                systemPrompt: systemPrompt
             };
 
             await base44.agents.addMessage(conversation, {
@@ -352,6 +397,9 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         };
     }, [voiceListening]);
 
+    // Get current agent config for dynamic styling
+    const agentConfig = AGENT_CONFIG[currentAgent] || AGENT_CONFIG.build;
+
     if (!isOpen) {
         return (
             <motion.div
@@ -361,10 +409,10 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
             >
                 <Button
                     onClick={() => setIsOpen(true)}
-                    className="h-14 w-14 rounded-full shadow-lg bg-orange-600 hover:bg-orange-700"
+                    className={`h-14 w-14 rounded-full shadow-lg ${agentConfig.buttonColor}`}
                     size="icon"
                 >
-                    <Bot className="w-6 h-6" />
+                    <span className="text-2xl">{agentConfig.icon}</span>
                 </Button>
             </motion.div>
         );
@@ -378,13 +426,28 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                 className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-6 right-6'} z-50`}
             >
-                <Card className={`shadow-2xl border-2 border-orange-200 ${isMinimized ? 'w-80' : 'w-96 h-[600px]'} flex flex-col`}>
-                    <CardHeader className="border-b bg-orange-50 py-3 px-4">
+                <Card className={`shadow-2xl border-2 ${agentConfig.headerBorder} ${isMinimized ? 'w-80' : 'w-96 h-[600px]'} flex flex-col`}>
+                    <CardHeader className={`border-b ${agentConfig.headerBg} py-3 px-4 relative`}>
+                        {/* Handoff notification banner */}
+                        <AnimatePresence>
+                            {handoffNotification && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs py-1 px-3 flex items-center justify-center gap-2 rounded-t-lg"
+                                >
+                                    <ArrowRight className="w-3 h-3" />
+                                    <span>{handoffNotification.message}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Bot className="w-5 h-5 text-orange-600" />
-                                <CardTitle className="text-base">{agentTitle}</CardTitle>
-                                <Badge variant="outline" className="text-xs bg-orange-100 text-orange-700 border-orange-300">
+                                <span className="text-xl">{agentConfig.icon}</span>
+                                <CardTitle className="text-base">{agentConfig.fullName}</CardTitle>
+                                <Badge variant="outline" className="text-xs bg-white/50 border-current">
                                     AI
                                 </Badge>
                             </div>
@@ -464,9 +527,17 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
 
                                 {messages.map((msg, idx) => {
                                     // Handle content that might be an object
-                                    const contentText = typeof msg.content === 'string'
+                                    let contentText = typeof msg.content === 'string'
                                         ? msg.content
                                         : msg.content?.text || JSON.stringify(msg.content);
+
+                                    // Clean up agent routing tags for assistant messages
+                                    if (msg.role !== "user") {
+                                        const parsed = parseAgentFromResponse(contentText);
+                                        if (parsed) {
+                                            contentText = parsed.cleanedResponse;
+                                        }
+                                    }
 
                                     // Use message ID if available, otherwise create stable key
                                     const messageKey = msg.id || `msg-${idx}-${msg.timestamp || Date.now()}`;
