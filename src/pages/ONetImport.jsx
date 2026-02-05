@@ -33,6 +33,7 @@ import {
 } from "@/lib/onetSchemas";
 import { generateRecordKey } from "@/lib/onetAggregator";
 import { verifyONetEntities, getONetSetupInstructions } from "@/lib/onetEntitySetup";
+import { diagnoseONetSetup } from "@/lib/onetDebug";
 
 const BATCH_SIZE = 50;
 const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
@@ -135,6 +136,19 @@ export default function ONetImport() {
     } catch (e) {
       console.error("Error checking entities:", e);
       setError("Failed to verify O*NET entities configuration.");
+    }
+  };
+
+  const runDiagnostics = async () => {
+    console.log("\n=== Starting O*NET Diagnostics ===\n");
+    try {
+      const report = await diagnoseONetSetup(base44);
+      console.log("\n=== Diagnostic Report ===");
+      console.log(JSON.stringify(report, null, 2));
+      alert("Diagnostics complete. Check browser console (F12) for detailed report.");
+    } catch (e) {
+      console.error("Diagnostic error:", e);
+      alert("Error running diagnostics. Check console for details.");
     }
   };
 
@@ -744,14 +758,24 @@ export default function ONetImport() {
                   <li>Refresh this page to verify</li>
                 </ol>
               </div>
-              <Button
-                onClick={checkEntities}
-                variant="outline"
-                className="w-full"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh Entity Status
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={checkEntities}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh Status
+                </Button>
+                <Button
+                  onClick={runDiagnostics}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Info className="w-4 h-4 mr-2" />
+                  Diagnostics
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
