@@ -89,12 +89,14 @@ export default function ONetImportOptimized() {
                 setDbStats(result.counts);
             }
         } catch (e) {
-            console.error("Failed to load DB stats:", e);
+            console.warn("Failed to load DB stats via function:", e.message);
             // Fallback to client-side count
             try {
                 const profiles = await base44.entities.ONetOccupationProfile?.list('-created_date', 2000);
                 setDbStats({ ONetOccupationProfile: profiles?.length || 0 });
             } catch (e2) {
+                console.warn("Entities not found yet (will be created during import):", e2.message);
+                // Default: no profiles yet
                 setDbStats({ ONetOccupationProfile: 0 });
             }
         }
