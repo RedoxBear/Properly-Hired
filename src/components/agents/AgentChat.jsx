@@ -283,12 +283,32 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     // Safe content extraction with comprehensive error handling
     const safeExtractContent = useCallback((msg) => {
         try {
-            if (!msg || !msg.content) {
+            if (!msg) {
+                return '';
+            }
+
+            // Debug: Log full message structure for assistant messages
+            if (msg.role === 'assistant') {
+                console.log('[CHATBOT] Assistant message structure:', {
+                    id: msg.id,
+                    content: msg.content,
+                    content_type: typeof msg.content,
+                    keys: Object.keys(msg).slice(0, 10),
+                    full_msg: msg
+                });
+            }
+
+            // Empty or no content - may be waiting for response
+            if (!msg.content) {
+                console.warn('[CHATBOT] No content in message - may still be loading');
                 return '';
             }
 
             // Type 1: String content (simplest case)
             if (typeof msg.content === 'string') {
+                if (msg.content === '') {
+                    console.warn('[CHATBOT] Empty string content for message:', msg.id);
+                }
                 return msg.content;
             }
 
@@ -588,6 +608,12 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                                 {messages.map((msg, idx) => {
                                     // Extract content safely with comprehensive error handling
                                     let contentText = safeExtractContent(msg);
+
+                                    // Skip empty assistant messages - they're still being processed
+                                    if (msg.role === 'assistant' && !contentText) {
+                                        console.log('[CHATBOT] Skipping empty assistant message, waiting for content...');
+                                        return null; // Don't render empty messages
+                                    }
 
                                     // If this is an assistant response, try to parse agent tags
                                     if (msg.role === 'assistant' && typeof contentText === 'string') {
