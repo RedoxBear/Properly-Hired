@@ -285,7 +285,13 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                     </div>
                                 )}
 
-                                {messages.map((msg, idx) => (
+                                {messages.map((msg, idx) => {
+                                    // Handle content that might be an object
+                                    const contentText = typeof msg.content === 'string'
+                                        ? msg.content
+                                        : msg.content?.text || JSON.stringify(msg.content);
+
+                                    return (
                                     <div
                                         key={idx}
                                         className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -298,11 +304,12 @@ export default function AgentChat({ agentName, agentTitle, context = {} }) {
                                             }`}
                                         >
                                             <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                                                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                                <ReactMarkdown>{contentText}</ReactMarkdown>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                                 {isLoading && (
                                     <div className="flex justify-start">
                                         <div className="bg-slate-100 rounded-lg px-4 py-2">
