@@ -35,7 +35,10 @@ import { generateRecordKey } from "@/lib/onetAggregator";
 import { verifyONetEntities, getONetSetupInstructions } from "@/lib/onetEntitySetup";
 import { diagnoseONetSetup } from "@/lib/onetDebug";
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 10; // Reduced from 50 to prevent rate limiting
+const BATCH_DELAY_MS = 2000; // 2 second delay between batches
+const REQUEST_DELAY_MS = 100; // 100ms delay between individual requests
+const MAX_RETRIES = 3; // Maximum retry attempts for rate limit errors
 const UPLOAD_STORAGE_KEY = 'onet_upload_queue';
 const IMPORTED_RECORDS_KEY = 'onet_imported_record_ids';
 const TOTAL_ONET_FILES = Object.keys(ONET_SCHEMAS).length;
@@ -86,6 +89,32 @@ const saveImportedRecordIds = (records) => {
   } catch (e) {
     console.error("Failed to save imported records:", e);
   }
+};
+
+// Rate limiting helpers
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const createRecordWithRetry = async (entity, record, maxRetries = MAX_RETRIES) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await entity.create(record);
+      return { success: true };
+    } catch (error) {
+      // Check if it's a rate limit error (429)
+      if (error.response?.status === 429 || error.message?.includes('Rate limit') || error.message?.includes('429')) {
+        if (attempt < maxRetries) {
+          // Exponential backoff: 2s, 4s, 8s
+          const backoffDelay = Math.pow(2, attempt) * 1000;
+          console.log(`Rate limit hit, retrying in ${backoffDelay}ms... (attempt ${attempt}/${maxRetries})`);
+          await sleep(backoffDelay);
+          continue;
+        }
+      }
+      // For non-rate-limit errors or final retry, return error
+      return { success: false, error: error.message || 'Unknown error' };
+    }
+  }
+  return { success: false, error: 'Max retries exceeded' };
 };
 
 export default function ONetImport() {
@@ -446,11 +475,22 @@ export default function ONetImport() {
                 console.log(`Skipped ${skippedCount} duplicates so far...`);
               }
             } else {
-              await entity.create(record);
-              importedCount++;
-              if (recordId) {
-                newImportedIds[recordId] = true;
+              // Use retry logic for rate limiting
+              const result = await createRecordWithRetry(entity, record);
+
+              if (result.success) {
+                importedCount++;
+                if (recordId) {
+                  newImportedIds[recordId] = true;
+                }
+              } else {
+                failedCount++;
+                const recordIndex = i + j;
+                console.warn(`Record ${recordIndex} insert failed:`, result.error, record);
               }
+
+              // Add small delay between individual requests to prevent rate limiting
+              await sleep(REQUEST_DELAY_MS);
             }
           } catch (recordError) {
             failedCount++;
@@ -468,6 +508,12 @@ export default function ONetImport() {
           skippedCount,
           failedCount
         });
+
+        // Add delay between batches to prevent rate limiting
+        if (i + BATCH_SIZE < totalRecords) {
+          console.log(`Batch complete. Waiting ${BATCH_DELAY_MS}ms before next batch...`);
+          await sleep(BATCH_DELAY_MS);
+        }
       }
 
       // Save imported record IDs to prevent duplicates on resume
