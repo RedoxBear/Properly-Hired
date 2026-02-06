@@ -33,6 +33,7 @@ import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
+import ONetImport from './pages/ONetImport';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +73,7 @@ export const PAGES = {
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
+    "ONetImport": ONetImport,
 }
 
 export const pagesConfig = {
