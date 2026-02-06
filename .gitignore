@@ -1,30 +1,34 @@
-#env
-.env
-.env.*
+# Dependencies
+node_modules/
+package-lock.json
 
-# Logs
-logs
+# O*NET Data (large CSV files)
+data/oNet DB/
+
+# Temporary files
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
+*.tmp
 .env
+.vs/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.python_history
+
+# Build outputs
+dist/
+build/
+*.min.js
+
+# Uploads directory
+upload/
+
+# Old/deprecated files
+**/import-onet*.js
+**/import-onet*.mjs
+**/query-onet*.js
+**/query-onet*.mjs
+**/setup-onet-entities.js
