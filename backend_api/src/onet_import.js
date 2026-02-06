@@ -3,14 +3,41 @@ const fs = require('fs').promises;
 const path = require('path');
 const csv = require('csv-parser');
 const { Readable } = require('stream');
-const { createClient } = require('@base44/sdk');
+const axios = require('axios');
 
-// Initialize Base44 client
-const base44Client = createClient({
-  baseURL: process.env.BASE44_API_URL || 'https://api.base44.com',
-  appId: process.env.BASE44_APP_ID,
-  apiKey: process.env.BASE44_API_KEY
-});
+// Base44 configuration
+const BASE44_API_KEY = process.env.BASE44_API_KEY || 'daadd83830f1405a9ed3b8e030da05b4';
+const BASE44_APP_ID = process.env.BASE44_APP_ID || '68af4e866eafaf5bc320af8a';
+const BASE44_API_URL = process.env.BASE44_API_URL || 'https://app.base44.com/api';
+
+// Base44 API helper
+const base44Request = async (method, entityType, data = null) => {
+  const url = `${BASE44_API_URL}/apps/${BASE44_APP_ID}/entities/${entityType}`;
+
+  try {
+    const config = {
+      method,
+      url,
+      headers: {
+        'api_key': BASE44_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    if (data) {
+      config.data = data;
+    }
+
+    const response = await axios(config);
+    return response.data;
+  } catch (error) {
+    console.error(`[Base44 API Error] ${error.response?.status}: ${error.response?.data?.message || error.message}`);
+    if (error.response?.data) {
+      console.error('Error data:', JSON.stringify(error.response.data, null, 2));
+    }
+    throw error;
+  }
+};
 
 // Configuration
 const BATCH_SIZE = 100; // Larger batches for server-side
@@ -41,10 +68,10 @@ const importJobs = new Map();
 // Helper functions
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const createRecordWithRetry = async (entity, record, maxRetries = MAX_RETRIES) => {
+const createRecordWithRetry = async (entityName, record, maxRetries = MAX_RETRIES) => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await entity.create(record);
+      await base44Request('POST', entityName, record);
       return { success: true };
     } catch (error) {
       const isRateLimitError =
@@ -113,12 +140,6 @@ const importONetFile = async (jobId, fileName, fileBuffer, onProgress) => {
     job.status = 'importing';
     if (onProgress) onProgress(job);
 
-    // Get Base44 entity
-    const entity = base44Client.entities[entityName];
-    if (!entity) {
-      throw new Error(`Entity ${entityName} not found in Base44`);
-    }
-
     // Import records in batches
     let importedCount = 0;
     let failedCount = 0;
@@ -136,7 +157,7 @@ const importONetFile = async (jobId, fileName, fileBuffer, onProgress) => {
       // Process batch records
       for (let j = 0; j < batch.length; j++) {
         const record = batch[j];
-        const result = await createRecordWithRetry(entity, record);
+        const result = await createRecordWithRetry(entityName, record);
 
         if (result.success) {
           importedCount++;
