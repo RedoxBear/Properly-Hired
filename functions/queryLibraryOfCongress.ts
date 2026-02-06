@@ -24,12 +24,19 @@ Deno.serve(async (req) => {
             "personnel management", "workplace", "career development"
         ];
 
+        const apiKey = Deno.env.get("LOC_API_KEY");
         // Query Library of Congress API with simple query
-        const locUrl = `https://www.loc.gov/${endpoint}/?q=${encodeURIComponent(searchQuery)}&fo=json&c=${maxResults}`;
+        const locUrl = new URL(`https://www.loc.gov/${endpoint}/`);
+        locUrl.searchParams.set("q", searchQuery);
+        locUrl.searchParams.set("fo", "json");
+        locUrl.searchParams.set("c", String(maxResults));
+        if (apiKey) {
+            locUrl.searchParams.set("api_key", apiKey);
+        }
         
-        console.log("Querying LoC:", locUrl);
+        console.log("Querying LoC:", locUrl.toString());
         
-        const response = await fetch(locUrl);
+        const response = await fetch(locUrl.toString());
         
         if (!response.ok) {
             throw new Error(`Library of Congress API error: ${response.statusText}`);
@@ -72,7 +79,7 @@ Deno.serve(async (req) => {
             strict_filter_applied: strictFilter,
             results: filteredResults,
             query_used: searchQuery,
-            loc_url: locUrl
+            loc_url: locUrl.toString()
         });
 
     } catch (error) {
