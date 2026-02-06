@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, User, Target, MapPin, DollarSign, Bell, FileText, Settings, CheckCircle2, Plus, X, Crown } from "lucide-react";
 import { motion } from "framer-motion";
-import { TIERS, TIER_LIMITS, PRICING } from "@/components/utils/accessControl";
+import { TIERS, TIER_LIMITS, PRICING, isAdmin } from "@/components/utils/accessControl";
 
 export default function UserProfile() {
     const [user, setUser] = React.useState(null);
@@ -24,20 +24,74 @@ export default function UserProfile() {
     const [newRole, setNewRole] = React.useState("");
     const [newIndustry, setNewIndustry] = React.useState("");
     const [newLocation, setNewLocation] = React.useState("");
+    const [isLocating, setIsLocating] = React.useState(false);
+    const [gpsError, setGpsError] = React.useState("");
 
     React.useEffect(() => {
         loadData();
     }, []);
 
+    const getBillingStatus = (currentUser) =>
+        currentUser?.subscription_status || currentUser?.payment_status || currentUser?.billing_status || "";
+
+    const getBillingTier = (currentUser) => {
+        const tier =
+            currentUser?.paid_tier ||
+            currentUser?.billing_tier ||
+            currentUser?.plan_tier ||
+            currentUser?.subscription_plan ||
+            "";
+        return Object.values(TIERS).includes(tier) ? tier : "";
+    };
+
+    const normalizePreferences = (prefs, tier) => {
+        const normalized = { ...prefs };
+        normalized.analysis_preferences = {
+            ...normalized.analysis_preferences,
+            optimize_mode: "resume_optimizer"
+        };
+        if (tier === TIERS.FREE) {
+            normalized.notification_settings = {
+                ...normalized.notification_settings,
+                email_new_matches: false
+            };
+        }
+        return normalized;
+    };
+
+    const syncTierFromBilling = async (currentUser) => {
+        if (!currentUser || isAdmin(currentUser)) return currentUser;
+
+        const status = getBillingStatus(currentUser).toLowerCase();
+        const billingTier = getBillingTier(currentUser);
+        const currentTier = currentUser.subscription_tier || TIERS.FREE;
+        let nextTier = null;
+
+        if (["active", "paid", "trialing"].includes(status) && billingTier) {
+            nextTier = billingTier;
+        } else if (["canceled", "cancelled", "expired", "past_due", "unpaid", "inactive"].includes(status)) {
+            nextTier = TIERS.FREE;
+        }
+
+        if (nextTier && nextTier !== currentTier) {
+            await base44.entities.User.update(currentUser.id, { subscription_tier: nextTier });
+            return { ...currentUser, subscription_tier: nextTier };
+        }
+
+        return currentUser;
+    };
+
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const [currentUser, masterResumes] = await Promise.all([
+            const [rawUser, masterResumes] = await Promise.all([
                 base44.auth.me(),
                 base44.entities.Resume.filter({ is_master_resume: true }, "-created_date", 50)
             ]);
+            const currentUser = await syncTierFromBilling(rawUser);
             setUser(currentUser);
             setResumes(masterResumes);
+            const currentTier = currentUser?.subscription_tier || TIERS.FREE;
 
             const existingPrefs = await base44.entities.UserPreferences.filter(
                 { created_by: currentUser.email },
@@ -46,14 +100,15 @@ export default function UserProfile() {
             );
 
             if (existingPrefs.length > 0) {
-                setPreferences(existingPrefs[0]);
+                setPreferences(normalizePreferences(existingPrefs[0], currentTier));
             } else {
-                setPreferences({
+                setPreferences(normalizePreferences({
                     career_goals: "",
                     target_roles: [],
                     target_industries: [],
                     location_preferences: {
                         preferred_locations: [],
+                        gps_location: null,
                         open_to_relocation: false,
                         remote_preference: "flexible"
                     },
@@ -63,7 +118,7 @@ export default function UserProfile() {
                         salary_type: "annual"
                     },
                     notification_settings: {
-                        email_new_matches: true,
+                        email_new_matches: currentTier !== TIERS.FREE,
                         email_high_score_matches: true,
                         email_frequency: "daily",
                         match_score_threshold: 70
@@ -71,12 +126,12 @@ export default function UserProfile() {
                     default_resume_id: masterResumes.length > 0 ? masterResumes[0].id : "",
                     analysis_preferences: {
                         auto_analyze_jobs: false,
-                        optimize_mode: "two_page",
+                        optimize_mode: "resume_optimizer",
                         deep_humanize: true,
                         aggressive_match: true
                     },
                     job_search_status: "actively_looking"
-                });
+                }, currentTier));
             }
         } catch (e) {
             console.error("Error loading data:", e);
@@ -134,10 +189,13 @@ export default function UserProfile() {
         setSuccess(false);
 
         try {
+            const currentTier = user?.subscription_tier || TIERS.FREE;
+            const normalized = normalizePreferences(preferences, currentTier);
             if (preferences.id) {
-                await base44.entities.UserPreferences.update(preferences.id, preferences);
+                await base44.entities.UserPreferences.update(preferences.id, normalized);
+                setPreferences(normalized);
             } else {
-                const created = await base44.entities.UserPreferences.create(preferences);
+                const created = await base44.entities.UserPreferences.create(normalized);
                 setPreferences(created);
             }
             setSuccess(true);
@@ -152,6 +210,10 @@ export default function UserProfile() {
 
     const updateSubscriptionTier = async (newTier) => {
         try {
+            if (!isAdmin(user)) {
+                setError("Only admins can modify subscription tiers.");
+                return;
+            }
             // Update user object with new subscription tier
             const updatedUser = { ...user, subscription_tier: newTier };
             await base44.entities.User.update(user.id, { subscription_tier: newTier });
@@ -164,6 +226,34 @@ export default function UserProfile() {
         }
     };
 
+    const handleUseGps = () => {
+        setGpsError("");
+        if (!navigator.geolocation) {
+            setGpsError("Geolocation is not supported by your browser.");
+            return;
+        }
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                const label = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                updatePreference("location_preferences.gps_location", {
+                    latitude,
+                    longitude,
+                    label,
+                    captured_at: new Date().toISOString()
+                });
+                setNewLocation(label);
+                setIsLocating(false);
+            },
+            (err) => {
+                console.error("Geolocation error:", err);
+                setGpsError("Unable to access GPS. Please enable location permissions.");
+                setIsLocating(false);
+            }
+        );
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen p-6 flex items-center justify-center">
@@ -171,6 +261,10 @@ export default function UserProfile() {
             </div>
         );
     }
+
+    const currentTier = user?.subscription_tier || TIERS.FREE;
+    const isTierAdmin = isAdmin(user);
+    const canEmailNewMatches = currentTier !== TIERS.FREE;
 
     return (
         <div className="min-h-screen p-4 md:p-8 bg-gray-50">
@@ -224,8 +318,9 @@ export default function UserProfile() {
                                 Subscription Tier
                             </Label>
                             <Select
-                                value={user?.subscription_tier || TIERS.FREE}
-                                onValueChange={updateSubscriptionTier}
+                                value={currentTier}
+                                onValueChange={isTierAdmin ? updateSubscriptionTier : undefined}
+                                disabled={!isTierAdmin}
                             >
                                 <SelectTrigger className="w-full md:w-64">
                                     <SelectValue />
@@ -265,11 +360,14 @@ export default function UserProfile() {
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
+                            {!isTierAdmin && (
+                                <p className="text-xs text-slate-500 mt-1">Admin-only setting. Contact support to change tiers.</p>
+                            )}
                             <div className="mt-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
                                 <p className="text-xs text-slate-600 font-medium mb-1">Current Plan Benefits:</p>
                                 <ul className="text-xs text-slate-700 space-y-1">
                                     {(() => {
-                                        const tier = user?.subscription_tier || TIERS.FREE;
+                                        const tier = currentTier;
                                         const limits = TIER_LIMITS[tier];
                                         return (
                                             <>
@@ -432,7 +530,20 @@ export default function UserProfile() {
                                 >
                                     <Plus className="w-4 h-4" />
                                 </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={handleUseGps}
+                                    disabled={isLocating}
+                                >
+                                    {isLocating ? "Locating..." : "Use GPS"}
+                                </Button>
                             </div>
+                            {gpsError && <p className="text-xs text-red-600">{gpsError}</p>}
+                            {preferences?.location_preferences?.gps_location?.label && (
+                                <p className="text-xs text-slate-500">
+                                    GPS detected: {preferences.location_preferences.gps_location.label}
+                                </p>
+                            )}
                             <div className="flex flex-wrap gap-2">
                                 {(preferences?.location_preferences?.preferred_locations || []).map((loc, idx) => (
                                     <Badge key={idx} variant="secondary" className="gap-1">
@@ -547,10 +658,18 @@ export default function UserProfile() {
                                 <p className="text-sm text-slate-600">Get notified when new job matches are found</p>
                             </div>
                             <Switch
-                                checked={preferences?.notification_settings?.email_new_matches !== false}
-                                onCheckedChange={(val) => updatePreference("notification_settings.email_new_matches", val)}
+                                checked={canEmailNewMatches ? preferences?.notification_settings?.email_new_matches !== false : false}
+                                onCheckedChange={(val) => {
+                                    if (canEmailNewMatches) {
+                                        updatePreference("notification_settings.email_new_matches", val);
+                                    }
+                                }}
+                                disabled={!canEmailNewMatches}
                             />
                         </div>
+                        {!canEmailNewMatches && (
+                            <p className="text-xs text-slate-500">Available on Pro and above.</p>
+                        )}
 
                         <div className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
                             <div>
@@ -624,19 +743,8 @@ export default function UserProfile() {
 
                         <div>
                             <Label>Default Optimization Mode</Label>
-                            <Select
-                                value={preferences?.analysis_preferences?.optimize_mode || "two_page"}
-                                onValueChange={(val) => updatePreference("analysis_preferences.optimize_mode", val)}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ats_one_page">ATS 1-Page</SelectItem>
-                                    <SelectItem value="two_page">Pro 2-Page</SelectItem>
-                                    <SelectItem value="full_cv">Full CV</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <Input value="Resume Optimizer" disabled />
+                            <p className="text-xs text-slate-500 mt-1">Locked default mode.</p>
                         </div>
 
                         <div className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
