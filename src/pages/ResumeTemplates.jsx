@@ -5,15 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Printer, Download, Palette } from "lucide-react";
+import { Loader2, Printer, Download, Palette, ArrowRight } from "lucide-react";
 import Classic from "@/components/resume/templates/Classic";
 import Modern from "@/components/resume/templates/Modern";
 import Minimal from "@/components/resume/templates/Minimal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { parse, parseISO, isValid, differenceInMonths } from "date-fns";
-import TemplateGallery from "@/components/resume/templates/TemplateGallery";
-import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import TemplateGallery, { DEFAULT_TEMPLATES } from "@/components/resume/templates/TemplateGallery";
+import { hasAccess, TIERS, isAdmin } from "@/components/utils/accessControl";
 import UpgradePrompt from "@/components/subscription/UpgradePrompt";
+import AgentChat from "@/components/agents/AgentChat";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function ResumeTemplates() {
   const [resumes, setResumes] = useState([]);
@@ -24,6 +27,10 @@ export default function ResumeTemplates() {
   const printRef = useRef(null); // NEW: printable area ref
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [templateItems, setTemplateItems] = useState(DEFAULT_TEMPLATES);
+  const [autoRedirectArmed, setAutoRedirectArmed] = useState(false);
+  const redirectTimerRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const init = async () => {
@@ -51,6 +58,37 @@ export default function ResumeTemplates() {
     init();
   }, []);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("resume-template-gallery");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTemplateItems(parsed);
+          return;
+        }
+      } catch (e) {
+        console.warn("Failed to parse stored templates:", e);
+      }
+    }
+    setTemplateItems(DEFAULT_TEMPLATES);
+  }, []);
+
+  const persistTemplates = (items) => {
+    setTemplateItems(items);
+    localStorage.setItem("resume-template-gallery", JSON.stringify(items));
+  };
+
+  const handleAddTemplate = (item) => {
+    const next = [...templateItems, item];
+    persistTemplates(next);
+  };
+
+  const handleDeleteTemplate = (item) => {
+    const next = templateItems.filter(t => (t.id || t.title) !== (item.id || item.title));
+    persistTemplates(next);
+  };
+
   // When switching selected resume, load its saved template if exists
   useEffect(() => {
     const r = resumes.find(x => x.id === selectedResumeId);
@@ -58,6 +96,23 @@ export default function ResumeTemplates() {
       setTemplate(r.template);
     }
   }, [selectedResumeId, resumes]);
+
+  useEffect(() => {
+    if (!selectedResumeId) return;
+    const key = `resume-templates-redirect-${selectedResumeId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    setAutoRedirectArmed(true);
+    redirectTimerRef.current = setTimeout(() => {
+      navigate(`${createPageUrl("ResumeEditor")}?resumeId=${selectedResumeId}`);
+    }, 3500);
+    return () => {
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current);
+        redirectTimerRef.current = null;
+      }
+    };
+  }, [selectedResumeId, navigate]);
 
   // Show loading while checking user access
   if (isLoadingUser) {
@@ -121,6 +176,22 @@ export default function ResumeTemplates() {
     return { start: single, end: single };
   };
 
+  const computeTenureStats = (experience) => {
+    if (!Array.isArray(experience) || experience.length === 0) return null;
+    const tenures = experience.map((e) => {
+      const { start, end } = extractRangeFromDuration(e?.duration);
+      if (!start || !end) return null;
+      const months = Math.max(0, differenceInMonths(end, start));
+      return months;
+    }).filter((m) => typeof m === "number");
+
+    if (tenures.length === 0) return null;
+    const total = tenures.reduce((a, b) => a + b, 0);
+    const avg = Math.round(total / tenures.length);
+    const shortStints = tenures.filter(m => m < 12).length;
+    return { averageMonths: avg, shortStints, totalRoles: tenures.length };
+  };
+
   const computeGapAlerts = (experience) => {
     if (!Array.isArray(experience) || experience.length < 2) return [];
     // Normalize to {start, end, label}
@@ -161,6 +232,8 @@ export default function ResumeTemplates() {
   };
 
   const gapAlerts = resumeData?.experience ? computeGapAlerts(resumeData.experience) : [];
+  const tenureStats = resumeData?.experience ? computeTenureStats(resumeData.experience) : null;
+  const recommendProjectCV = tenureStats ? tenureStats.shortStints >= 2 || tenureStats.averageMonths <= 14 : false;
 
   const renderTemplate = () => {
     const props = { data: resumeData };
@@ -310,6 +383,33 @@ ${el.innerHTML}
             </AlertDescription>
           </Alert>
         )}
+        {recommendProjectCV && (
+          <Alert className="border-blue-200 bg-blue-50 text-blue-900">
+            <AlertDescription>
+              Kyle can help reframe shorter roles into a project-based CV that highlights impact and outcomes.
+            </AlertDescription>
+          </Alert>
+        )}
+        {autoRedirectArmed && selectedResumeId && (
+          <Alert className="border-slate-200 bg-white">
+            <AlertDescription className="flex flex-wrap items-center gap-3">
+              <span>Redirecting to Resume Editor in a few seconds...</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (redirectTimerRef.current) {
+                    clearTimeout(redirectTimerRef.current);
+                    redirectTimerRef.current = null;
+                  }
+                  setAutoRedirectArmed(false);
+                }}
+              >
+                Stay here
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader>
@@ -353,6 +453,16 @@ ${el.innerHTML}
                 <Download className="w-4 h-4" />
                 Download HTML
               </Button>
+              {selectedResumeId && (
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => navigate(`${createPageUrl("ResumeEditor")}?resumeId=${selectedResumeId}`)}
+                >
+                  Open Resume Editor
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -363,7 +473,29 @@ ${el.innerHTML}
         </div>
 
         {/* Gallery */}
-        <TemplateGallery onPick={handleGalleryPick} />
+        <TemplateGallery
+          onPick={handleGalleryPick}
+          items={templateItems}
+          showAdminControls={isAdmin(currentUser)}
+          onAdd={handleAddTemplate}
+          onDelete={handleDeleteTemplate}
+        />
+
+        {/* Kyle Agent Chat */}
+        <AgentChat
+          agentName="kyle"
+          agentTitle="Kyle - CV Expert"
+          autoOpen
+          autoSendInitial
+          initialMessage={`Start by asking me: "Is there anything you'd like to change or optimize further?" Then advise whether a project-based CV would be stronger. Tenure stats: ${tenureStats ? `avg ${tenureStats.averageMonths} months, short stints ${tenureStats.shortStints}/${tenureStats.totalRoles}` : "not available"}.`}
+          context={{
+            page: "ResumeTemplates",
+            resumeId: selectedResumeId,
+            template,
+            tenureStats,
+            recommendProjectCV
+          }}
+        />
       </div>
     </div>
   );

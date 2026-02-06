@@ -11,6 +11,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
+import AgentChat from "@/components/agents/AgentChat";
+import { parse, parseISO, isValid, differenceInMonths } from "date-fns";
 
 export default function ResumeEditor() {
   const [resume, setResume] = React.useState(null);
@@ -140,6 +142,46 @@ export default function ResumeEditor() {
       content: content || null
     };
     return JSON.stringify(payload, null, 2);
+  };
+
+  const tryParseDate = (str) => {
+    if (!str || typeof str !== "string") return null;
+    const s = str.trim().toLowerCase().replace("present", new Date().getFullYear().toString());
+    const formats = ["MMM yyyy", "MMMM yyyy", "yyyy-MM", "yyyy"];
+    for (const f of formats) {
+      const d = parse(s, f, new Date());
+      if (isValid(d)) return d;
+    }
+    const iso = parseISO(str);
+    if (isValid(iso)) return iso;
+    const nd = new Date(str);
+    return isValid(nd) ? nd : null;
+  };
+
+  const extractRangeFromDuration = (duration) => {
+    if (!duration || typeof duration !== "string") return {};
+    const parts = duration.replace("–", "-").split("-").map(p => p.trim());
+    if (parts.length >= 2) {
+      return { start: tryParseDate(parts[0]), end: tryParseDate(parts[1]) };
+    }
+    const single = tryParseDate(duration);
+    return { start: single, end: single };
+  };
+
+  const computeTenureStats = (experience) => {
+    if (!Array.isArray(experience) || experience.length === 0) return null;
+    const tenures = experience.map((e) => {
+      const { start, end } = extractRangeFromDuration(e?.duration);
+      if (!start || !end) return null;
+      const months = Math.max(0, differenceInMonths(end, start));
+      return months;
+    }).filter((m) => typeof m === "number");
+
+    if (tenures.length === 0) return null;
+    const total = tenures.reduce((a, b) => a + b, 0);
+    const avg = Math.round(total / tenures.length);
+    const shortStints = tenures.filter(m => m < 12).length;
+    return { averageMonths: avg, shortStints, totalRoles: tenures.length };
   };
 
   const download = (type) => {
@@ -410,6 +452,9 @@ export default function ResumeEditor() {
       setError("Could not set this resume as Master.");
     }
   };
+
+  const tenureStats = draft?.experience ? computeTenureStats(draft.experience) : null;
+  const recommendProjectCV = tenureStats ? tenureStats.shortStints >= 2 || tenureStats.averageMonths <= 14 : false;
 
   if (loading) {
     return (
@@ -787,6 +832,19 @@ export default function ResumeEditor() {
             </Button>
           </div>
         )}
+
+        <AgentChat
+          agentName="kyle"
+          agentTitle="Kyle - CV Expert"
+          autoOpen={false}
+          autoSendInitial={false}
+          context={{
+            page: "ResumeEditor",
+            resumeId: resume?.id,
+            tenureStats,
+            recommendProjectCV
+          }}
+        />
       </div>
     </div>
   );

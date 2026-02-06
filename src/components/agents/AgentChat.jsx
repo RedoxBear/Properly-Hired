@@ -11,7 +11,7 @@ import { useAppContext } from "@/components/context/AppContextProvider";
 import ChatErrorBoundary from "./ChatErrorBoundary";
 import { AGENT_CONFIG, parseAgentFromResponse } from "./agentPrompts";
 
-function AgentChatComponent({ agentName, agentTitle, context = {} }) {
+function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = false, initialMessage = "", autoSendInitial = false }) {
     const { context: appContext, getContextSummary } = useAppContext();
     const [isOpen, setIsOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
@@ -26,6 +26,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const autoSentRef = useRef(false);
 
     // Refs for cleanup
     const isMountedRef = useRef(true);
@@ -182,6 +183,12 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
         }
     }, [isOpen, conversation, initConversation]);
 
+    useEffect(() => {
+        if (autoOpen) {
+            setIsOpen(true);
+        }
+    }, [autoOpen]);
+
     // Subscribe to conversation updates
     useEffect(() => {
         if (!conversation) return;
@@ -229,23 +236,19 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
     }, [conversation, agentName]);
 
     // Send message
-    const sendMessage = useCallback(async () => {
-        if (!input.trim() || !conversation) return;
+    const sendMessageWithContent = useCallback(async (userMessage) => {
+        if (!userMessage || !conversation) return;
 
-        const userMessage = input.trim();
         setPendingInput(""); // Clear any pending retry
         setError("");
         setIsLoading(true);
-
-        // Don't clear input yet - wait for success
-        const originalInput = input;
 
         try {
             // Send message with required metadata fields for Base44 API
             const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
             await base44.agents.addMessage(conversation, {
                 role: "user",
-                content: userMessage,
+                content: userMessage.trim(),
                 metadata: {
                     created_date: today,
                     created_by_email: currentUser?.email || "unknown@example.com"
@@ -261,7 +264,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
 
             if (isMountedRef.current) {
                 // Save failed message for retry
-                setPendingInput(userMessage);
+                setPendingInput(userMessage.trim());
                 setError(e.message || "Failed to send message. Click retry to try again.");
             }
         } finally {
@@ -269,7 +272,20 @@ function AgentChatComponent({ agentName, agentTitle, context = {} }) {
                 setIsLoading(false);
             }
         }
-    }, [input, conversation, appContext, getContextSummary, currentUser]);
+    }, [conversation, currentUser]);
+
+    const sendMessage = useCallback(async () => {
+        if (!input.trim() || !conversation) return;
+        await sendMessageWithContent(input.trim());
+    }, [input, conversation, sendMessageWithContent]);
+
+    useEffect(() => {
+        if (!autoSendInitial || !initialMessage || !conversation) return;
+        if (autoSentRef.current) return;
+        if (messages.length > 0 || isLoading) return;
+        autoSentRef.current = true;
+        sendMessageWithContent(initialMessage);
+    }, [autoSendInitial, initialMessage, conversation, messages.length, isLoading, sendMessageWithContent]);
 
     // Retry failed message
     const retryMessage = useCallback(() => {
