@@ -105,6 +105,7 @@ export default function ONetImport() {
   const [unmatchedFiles, setUnmatchedFiles] = React.useState([]);
   const [uploadQueue, setUploadQueue] = React.useState(getUploadQueue());
   const [importedRecordIds, setImportedRecordIds] = React.useState(getImportedRecordIds());
+  const [recoveryMessage, setRecoveryMessage] = React.useState('');
   const folderInputRef = React.useRef(null);
 
   const completedImports = React.useMemo(
@@ -124,6 +125,19 @@ export default function ONetImport() {
     checkApiStatus();
     checkEntities();
     loadDbStats();
+
+    // Check for recovered uploads after page refresh
+    const queue = getUploadQueue();
+    const inProgressCount = Object.values(queue).filter(
+      entry => entry?.status === FILE_STATUS.PENDING || entry?.status === FILE_STATUS.PARSING || entry?.status === FILE_STATUS.IMPORTING
+    ).length;
+    const completedCount = Object.values(queue).filter(entry => entry?.status === FILE_STATUS.COMPLETE).length;
+
+    if (inProgressCount > 0 || completedCount > 0) {
+      setRecoveryMessage(
+        `Recovered ${inProgressCount} in-progress + ${completedCount} completed uploads from previous session`
+      );
+    }
   }, []);
 
   const checkEntities = async () => {
@@ -723,6 +737,16 @@ export default function ONetImport() {
           <Alert variant="destructive">
             <AlertCircle className="w-4 h-4" />
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Recovery Message */}
+        {recoveryMessage && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <Info className="w-4 h-4 text-blue-600" />
+            <AlertDescription className="text-blue-700">
+              ℹ️ {recoveryMessage}. Your upload progress has been recovered.
+            </AlertDescription>
           </Alert>
         )}
 
