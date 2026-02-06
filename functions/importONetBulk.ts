@@ -12,42 +12,75 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
     try {
+        console.log("O*NET Import: Request received");
+
         const base44 = createClientFromRequest(req);
+        console.log("O*NET Import: Base44 client created");
+
         const user = await base44.auth.me();
+        console.log("O*NET Import: User authenticated");
 
         // Require admin access
         if (user?.role !== 'admin') {
+            console.warn("O*NET Import: Non-admin access attempt");
             return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
-        const body = await req.json();
+        let body;
+        try {
+            body = await req.json();
+            console.log("O*NET Import: Request body parsed", { action: body.action });
+        } catch (parseError) {
+            console.error("O*NET Import: Failed to parse JSON", parseError);
+            return Response.json({
+                error: 'Failed to parse request body',
+                details: parseError.message
+            }, { status: 400 });
+        }
+
         const { action, profiles, entityName, records } = body;
 
         // Verify required entities exist before processing (except for 'get_counts')
         if (action !== 'get_counts') {
+            console.log("O*NET Import: Checking entity configuration");
+
             const requiredEntities = [
                 'ONetOccupation', 'ONetSkill', 'ONetAbility', 'ONetKnowledge',
                 'ONetTask', 'ONetWorkActivity', 'ONetWorkContext', 'ONetReference'
             ];
 
             const missingEntities: string[] = [];
+            const availableEntities: string[] = [];
+
             for (const ent of requiredEntities) {
                 if (!base44.asServiceRole.entities[ent]) {
                     missingEntities.push(ent);
+                } else {
+                    availableEntities.push(ent);
                 }
             }
 
+            console.log("O*NET Import: Entity check complete", {
+                available: availableEntities.length,
+                missing: missingEntities.length,
+                missingList: missingEntities
+            });
+
             if (missingEntities.length > 0) {
+                console.warn("O*NET Import: Missing entities detected", { missingEntities });
                 return Response.json({
                     error: 'Missing O*NET entity schemas in Base44',
                     missingEntities,
                     totalMissing: missingEntities.length,
-                    message: `${missingEntities.length} required entities are not configured: ${missingEntities.join(', ')}`,
-                    instructions: 'Please create these entities in Base44: Settings → Schema. Each entity must be a Data Entity and exposed in the API.',
-                    createdEntities: requiredEntities.filter(e => base44.asServiceRole.entities[e]),
+                    availableCount: availableEntities.length,
+                    message: `${missingEntities.length} of ${requiredEntities.length} entities are not configured: ${missingEntities.join(', ')}`,
+                    instructions: 'Create these entities in Base44 Settings → Schema. Each must be a Data Entity with API exposure enabled.',
+                    availableEntities,
                     allRequiredEntities: requiredEntities
                 }, { status: 412 }); // 412 Precondition Failed
             }
+
+            console.log("O*NET Import: All entities verified");
         }
 
         // Route to appropriate handler
@@ -68,11 +101,19 @@ Deno.serve(async (req) => {
                 return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });
         }
 
-    } catch (error) {
-        console.error("O*NET Import Error:", error);
+    } catch (error: any) {
+        console.error("O*NET Import Error:", {
+            message: error?.message,
+            stack: error?.stack,
+            name: error?.name,
+            details: JSON.stringify(error)
+        });
+
         return Response.json({
-            error: error.message || "Import failed",
-            stack: error.stack
+            error: error?.message || "Import failed",
+            errorType: error?.name,
+            details: "Check server logs for details",
+            timestamp: new Date().toISOString()
         }, { status: 500 });
     }
 });
