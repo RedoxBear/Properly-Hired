@@ -663,6 +663,152 @@ app.post('/api/analyze', authenticateToken, async (req, res) => {
   }
 });
 
+// ==================== O*NET Import Endpoints ====================
+const {
+  importONetFile,
+  importONetBatch,
+  createImportJob,
+  getImportJob,
+  cancelImportJob,
+  listImportJobs
+} = require('./src/onet_import');
+
+// Configure multer for O*NET imports (allow larger files)
+const onetUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB limit for O*NET files
+    files: 50 // Allow up to 50 files at once
+  }
+});
+
+// Create import job
+app.post('/api/onet/import/create', authenticateToken, (req, res) => {
+  try {
+    const job = createImportJob(req.user.id, req.body.type || 'single');
+    res.json({ success: true, job });
+  } catch (error) {
+    console.error('Failed to create import job:', error);
+    res.status(500).json({ error: 'Failed to create import job', details: error.message });
+  }
+});
+
+// Upload and import single file
+app.post('/api/onet/import/file/:jobId', authenticateToken, onetUpload.single('file'), async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const job = getImportJob(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (job.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Start import in background
+    importONetFile(jobId, req.file.originalname, req.file.buffer, (updatedJob) => {
+      // Progress updates can be sent via SSE or polling
+      console.log(`Job ${jobId} progress: ${updatedJob.progress}%`);
+    }).catch(error => {
+      console.error(`Import job ${jobId} failed:`, error);
+    });
+
+    res.json({ success: true, message: 'Import started', jobId });
+  } catch (error) {
+    console.error('Failed to start import:', error);
+    res.status(500).json({ error: 'Failed to start import', details: error.message });
+  }
+});
+
+// Upload and import multiple files
+app.post('/api/onet/import/batch/:jobId', authenticateToken, onetUpload.array('files', 50), async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const job = getImportJob(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (job.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Start batch import in background
+    importONetBatch(jobId, req.files, (updatedJob) => {
+      console.log(`Batch job ${jobId} progress: ${updatedJob.currentFileIndex}/${updatedJob.totalFiles} files`);
+    }).catch(error => {
+      console.error(`Batch import job ${jobId} failed:`, error);
+    });
+
+    res.json({
+      success: true,
+      message: 'Batch import started',
+      jobId,
+      fileCount: req.files.length
+    });
+  } catch (error) {
+    console.error('Failed to start batch import:', error);
+    res.status(500).json({ error: 'Failed to start batch import', details: error.message });
+  }
+});
+
+// Get job status
+app.get('/api/onet/import/status/:jobId', authenticateToken, (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const job = getImportJob(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (job.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    res.json({ success: true, job });
+  } catch (error) {
+    console.error('Failed to get job status:', error);
+    res.status(500).json({ error: 'Failed to get job status', details: error.message });
+  }
+});
+
+// List user's import jobs
+app.get('/api/onet/import/jobs', authenticateToken, (req, res) => {
+  try {
+    const jobs = listImportJobs(req.user.id);
+    res.json({ success: true, jobs });
+  } catch (error) {
+    console.error('Failed to list import jobs:', error);
+    res.status(500).json({ error: 'Failed to list jobs', details: error.message });
+  }
+});
+
+// Cancel import job
+app.post('/api/onet/import/cancel/:jobId', authenticateToken, (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const job = getImportJob(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    if (job.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const cancelledJob = cancelImportJob(jobId);
+    res.json({ success: true, job: cancelledJob });
+  } catch (error) {
+    console.error('Failed to cancel job:', error);
+    res.status(500).json({ error: 'Failed to cancel job', details: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n🚀 Prague Day API Server`);
   console.log(`   URL: http://localhost:${PORT}`);
@@ -684,5 +830,12 @@ app.listen(PORT, () => {
   console.log(`   GET/POST /api/data/job-matches`);
   console.log(`   GET/POST /api/data/user-preferences`);
   console.log(`   GET/POST /api/data/referrals`);
+  console.log(`\n📊 O*NET Bulk Import Endpoints:`);
+  console.log(`   POST /api/onet/import/create        - Create import job`);
+  console.log(`   POST /api/onet/import/file/:jobId   - Upload single file`);
+  console.log(`   POST /api/onet/import/batch/:jobId  - Upload multiple files`);
+  console.log(`   GET  /api/onet/import/status/:jobId - Get job status`);
+  console.log(`   GET  /api/onet/import/jobs          - List all jobs`);
+  console.log(`   POST /api/onet/import/cancel/:jobId - Cancel job`);
   console.log(`\n✅ Ready for requests\n`);
 });
