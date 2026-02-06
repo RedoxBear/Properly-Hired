@@ -67,7 +67,6 @@ import MyResumes from './pages/MyResumes';
 import NetworkingHub from './pages/NetworkingHub';
 import NetworkingMessages from './pages/NetworkingMessages';
 import ONetImport from './pages/ONetImport';
-import ONetImportOptimized from './pages/ONetImportOptimized';
 import OptimizeResume from './pages/OptimizeResume';
 import PeopleSearch from './pages/PeopleSearch';
 import Pricing from './pages/Pricing';
@@ -110,7 +109,6 @@ export const PAGES = {
     "NetworkingHub": NetworkingHub,
     "NetworkingMessages": NetworkingMessages,
     "ONetImport": ONetImport,
-    "ONetImportOptimized": ONetImportOptimized,
     "OptimizeResume": OptimizeResume,
     "PeopleSearch": PeopleSearch,
     "Pricing": Pricing,
