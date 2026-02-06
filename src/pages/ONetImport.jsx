@@ -1232,31 +1232,6 @@ export default function ONetImport() {
         {/* Import Progress */}
         <ONetImportProgress fileStates={fileStates} schemas={ONET_SCHEMAS} />
 
-        {/* Optimized Import Option */}
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-100">
-                  <Database className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-purple-900">Try Optimized Import (Recommended)</h3>
-                  <p className="text-sm text-purple-700">
-                    Aggregates 1.1M rows → ~1,000 profiles. 10x faster with server-side bulkCreate.
-                  </p>
-                </div>
-              </div>
-              <Button
-                onClick={() => navigate('/ONetImportOptimized')}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                Use Optimized Import
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Instructions */}
         <Card className="bg-amber-50 border-amber-200">
           <CardContent className="p-4">
