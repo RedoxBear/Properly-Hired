@@ -1,0 +1,237 @@
+{
+  "ONetOccupation": {
+    "description": "O*NET Occupation Data",
+    "source_file": "Occupation Data-Occupation_Data.csv",
+    "fields": {
+      "onet_soc_code": {
+        "type": "string",
+        "required": true,
+        "csv_column": "O*NET-SOC Code",
+        "description": "O*NET-SOC occupation code"
+      },
+      "title": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Title",
+        "description": "Occupation title"
+      },
+      "description": {
+        "type": "text",
+        "required": false,
+        "csv_column": "Description",
+        "description": "Occupation description"
+      }
+    }
+  },
+
+  "ONetSkill": {
+    "description": "O*NET Skills Data",
+    "source_file": "Skills-Skills.csv",
+    "fields": {
+      "onet_soc_code": {
+        "type": "string",
+        "required": true,
+        "csv_column": "O*NET-SOC Code"
+      },
+      "title": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Title"
+      },
+      "element_id": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Element ID"
+      },
+      "element_name": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Element Name"
+      },
+      "scale_id": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Scale ID"
+      },
+      "scale_name": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Scale Name"
+      },
+      "data_value": {
+        "type": "float",
+        "required": true,
+        "csv_column": "Data Value"
+      },
+      "n": {
+        "type": "float",
+        "required": false,
+        "csv_column": "N"
+      },
+      "standard_error": {
+        "type": "float",
+        "required": false,
+        "csv_column": "Standard Error"
+      },
+      "lower_ci_bound": {
+        "type": "float",
+        "required": false,
+        "csv_column": "Lower CI Bound"
+      },
+      "upper_ci_bound": {
+        "type": "float",
+        "required": false,
+        "csv_column": "Upper CI Bound"
+      },
+      "recommend_suppress": {
+        "type": "string",
+        "required": false,
+        "csv_column": "Recommend Suppress"
+      },
+      "not_relevant": {
+        "type": "string",
+        "required": false,
+        "csv_column": "Not Relevant"
+      },
+      "date": {
+        "type": "string",
+        "required": false,
+        "csv_column": "Date"
+      },
+      "domain_source": {
+        "type": "string",
+        "required": false,
+        "csv_column": "Domain Source"
+      }
+    }
+  },
+
+  "ONetAbility": {
+    "description": "O*NET Abilities Data",
+    "source_file": "Abilities-Abilities.csv",
+    "fields": {
+      "onet_soc_code": {"type": "string", "required": true, "csv_column": "O*NET-SOC Code"},
+      "title": {"type": "string", "required": true, "csv_column": "Title"},
+      "element_id": {"type": "string", "required": true, "csv_column": "Element ID"},
+      "element_name": {"type": "string", "required": true, "csv_column": "Element Name"},
+      "scale_id": {"type": "string", "required": true, "csv_column": "Scale ID"},
+      "scale_name": {"type": "string", "required": true, "csv_column": "Scale Name"},
+      "data_value": {"type": "float", "required": true, "csv_column": "Data Value"},
+      "n": {"type": "float", "required": false, "csv_column": "N"},
+      "standard_error": {"type": "float", "required": false, "csv_column": "Standard Error"},
+      "lower_ci_bound": {"type": "float", "required": false, "csv_column": "Lower CI Bound"},
+      "upper_ci_bound": {"type": "float", "required": false, "csv_column": "Upper CI Bound"},
+      "recommend_suppress": {"type": "string", "required": false, "csv_column": "Recommend Suppress"},
+      "not_relevant": {"type": "string", "required": false, "csv_column": "Not Relevant"},
+      "date": {"type": "string", "required": false, "csv_column": "Date"},
+      "domain_source": {"type": "string", "required": false, "csv_column": "Domain Source"}
+    }
+  },
+
+  "ONetKnowledge": {
+    "description": "O*NET Knowledge Data",
+    "source_file": "Knowledge-Knowledge.csv",
+    "fields": {
+      "onet_soc_code": {"type": "string", "required": true, "csv_column": "O*NET-SOC Code"},
+      "title": {"type": "string", "required": true, "csv_column": "Title"},
+      "element_id": {"type": "string", "required": true, "csv_column": "Element ID"},
+      "element_name": {"type": "string", "required": true, "csv_column": "Element Name"},
+      "scale_id": {"type": "string", "required": true, "csv_column": "Scale ID"},
+      "scale_name": {"type": "string", "required": true, "csv_column": "Scale Name"},
+      "data_value": {"type": "float", "required": true, "csv_column": "Data Value"},
+      "n": {"type": "float", "required": false, "csv_column": "N"},
+      "standard_error": {"type": "float", "required": false, "csv_column": "Standard Error"},
+      "lower_ci_bound": {"type": "float", "required": false, "csv_column": "Lower CI Bound"},
+      "upper_ci_bound": {"type": "float", "required": false, "csv_column": "Upper CI Bound"},
+      "recommend_suppress": {"type": "string", "required": false, "csv_column": "Recommend Suppress"},
+      "not_relevant": {"type": "string", "required": false, "csv_column": "Not Relevant"},
+      "date": {"type": "string", "required": false, "csv_column": "Date"},
+      "domain_source": {"type": "string", "required": false, "csv_column": "Domain Source"}
+    }
+  },
+
+  "ONetTask": {
+    "description": "O*NET Task Statements",
+    "source_file": "Task Statements-Task_Statements.csv",
+    "fields": {
+      "onet_soc_code": {"type": "string", "required": true, "csv_column": "O*NET-SOC Code"},
+      "title": {"type": "string", "required": true, "csv_column": "Title"},
+      "task_id": {"type": "string", "required": true, "csv_column": "Task ID"},
+      "task": {"type": "text", "required": true, "csv_column": "Task"},
+      "task_type": {"type": "string", "required": false, "csv_column": "Task Type"},
+      "incumbents_responding": {"type": "float", "required": false, "csv_column": "Incumbents Responding"},
+      "date": {"type": "string", "required": false, "csv_column": "Date"},
+      "domain_source": {"type": "string", "required": false, "csv_column": "Domain Source"}
+    }
+  },
+
+  "ONetWorkActivity": {
+    "description": "O*NET Work Activities",
+    "source_file": "Work Activities-Work_Activities.csv",
+    "fields": {
+      "onet_soc_code": {"type": "string", "required": true, "csv_column": "O*NET-SOC Code"},
+      "title": {"type": "string", "required": true, "csv_column": "Title"},
+      "element_id": {"type": "string", "required": true, "csv_column": "Element ID"},
+      "element_name": {"type": "string", "required": true, "csv_column": "Element Name"},
+      "scale_id": {"type": "string", "required": true, "csv_column": "Scale ID"},
+      "scale_name": {"type": "string", "required": true, "csv_column": "Scale Name"},
+      "data_value": {"type": "float", "required": true, "csv_column": "Data Value"},
+      "n": {"type": "float", "required": false, "csv_column": "N"},
+      "standard_error": {"type": "float", "required": false, "csv_column": "Standard Error"},
+      "lower_ci_bound": {"type": "float", "required": false, "csv_column": "Lower CI Bound"},
+      "upper_ci_bound": {"type": "float", "required": false, "csv_column": "Upper CI Bound"},
+      "recommend_suppress": {"type": "string", "required": false, "csv_column": "Recommend Suppress"},
+      "not_relevant": {"type": "string", "required": false, "csv_column": "Not Relevant"},
+      "date": {"type": "string", "required": false, "csv_column": "Date"},
+      "domain_source": {"type": "string", "required": false, "csv_column": "Domain Source"}
+    }
+  },
+
+  "ONetWorkContext": {
+    "description": "O*NET Work Context",
+    "source_file": "Work Context-Work_Context.csv",
+    "fields": {
+      "onet_soc_code": {"type": "string", "required": true, "csv_column": "O*NET-SOC Code"},
+      "title": {"type": "string", "required": true, "csv_column": "Title"},
+      "element_id": {"type": "string", "required": true, "csv_column": "Element ID"},
+      "element_name": {"type": "string", "required": true, "csv_column": "Element Name"},
+      "scale_id": {"type": "string", "required": true, "csv_column": "Scale ID"},
+      "scale_name": {"type": "string", "required": true, "csv_column": "Scale Name"},
+      "category": {"type": "string", "required": false, "csv_column": "Category"},
+      "data_value": {"type": "float", "required": true, "csv_column": "Data Value"},
+      "n": {"type": "float", "required": false, "csv_column": "N"},
+      "standard_error": {"type": "float", "required": false, "csv_column": "Standard Error"},
+      "lower_ci_bound": {"type": "float", "required": false, "csv_column": "Lower CI Bound"},
+      "upper_ci_bound": {"type": "float", "required": false, "csv_column": "Upper CI Bound"},
+      "recommend_suppress": {"type": "string", "required": false, "csv_column": "Recommend Suppress"},
+      "not_relevant": {"type": "string", "required": false, "csv_column": "Not Relevant"},
+      "date": {"type": "string", "required": false, "csv_column": "Date"},
+      "domain_source": {"type": "string", "required": false, "csv_column": "Domain Source"}
+    }
+  },
+
+  "ONetReference": {
+    "description": "O*NET Content Model Reference",
+    "source_file": "Content Model Reference-Content_Model_Reference.csv",
+    "fields": {
+      "element_id": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Element ID",
+        "description": "Unique element identifier"
+      },
+      "element_name": {
+        "type": "string",
+        "required": true,
+        "csv_column": "Element Name",
+        "description": "Element name/title"
+      },
+      "description": {
+        "type": "text",
+        "required": false,
+        "csv_column": "Description",
+        "description": "Element description"
+      }
+    }
+  }
+}
