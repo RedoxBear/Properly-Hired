@@ -10,32 +10,45 @@ Deno.serve(async (req) => {
         }
 
         const { endpoint, params } = await req.json();
-        
-        const username = Deno.env.get("ONET_API_USERNAME");
-        const password = Deno.env.get("ONET_API_PASSWORD");
-        
-        if (!username || !password) {
-            return Response.json({ error: 'O*NET API credentials not configured' }, { status: 500 });
+
+        if (!endpoint) {
+            return Response.json({ error: 'endpoint is required' }, { status: 400 });
         }
 
-        const auth = btoa(`${username}:${password}`);
-        const baseUrl = 'https://services.onetcenter.org/ws';
-        
-        // Build query string
-        const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-        const url = `${baseUrl}${endpoint}${queryString}`;
+        const apiKey = Deno.env.get("ONET_API_KEY");
 
-        const response = await fetch(url, {
+        if (!apiKey) {
+            return Response.json({ error: 'O*NET API key not configured' }, { status: 500 });
+        }
+
+        const baseUrl = 'https://api-v2.onetcenter.org';
+
+        // Normalize endpoint - strip leading slash to avoid double slash
+        const cleanEndpoint = endpoint.replace(/^\//, '');
+        const url = new URL(`${baseUrl}/${cleanEndpoint}`);
+
+        // Append query params
+        if (params && typeof params === 'object') {
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    url.searchParams.set(key, String(value));
+                }
+            });
+        }
+
+        const response = await fetch(url.toString(), {
             headers: {
-                'Authorization': `Basic ${auth}`,
+                'X-API-Key': apiKey,
                 'Accept': 'application/json'
             }
         });
 
         if (!response.ok) {
-            return Response.json({ 
+            const errorBody = await response.text().catch(() => '');
+            return Response.json({
                 error: 'O*NET API request failed',
-                status: response.status 
+                status: response.status,
+                details: errorBody
             }, { status: response.status });
         }
 
