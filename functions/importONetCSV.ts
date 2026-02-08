@@ -13,7 +13,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 const ENTITY_MAP = {
   // ─── ONetOccupation ───
   "Occupation_Data.csv":        { entity: "ONetOccupation", mapper: mapOccupation },
-  "Alternate_Titles.csv":       { entity: "ONetOccupation", mapper: mapAlternateTitle },
+  "Alternate_Titles.csv":       { entity: "ONetReference", mapper: mapAlternateTitle },
   "Job_Zones.csv":              { entity: "ONetOccupation", mapper: mapJobZone },
 
   // ─── ONetSkill ───
@@ -81,10 +81,19 @@ function mapOccupation(row) {
 
 function mapAlternateTitle(row) {
   return {
-    code: row["O*NET-SOC Code"] || "",
-    title: row["Title"] || "",
-    description: `Alternate: ${row["Alternate Title"] || ""}`,
-    tags: [row["Alternate Title"], row["Short Title"]].filter(Boolean),
+    reference_type: "occupation",
+    reference_key:  `alt_title::${row["O*NET-SOC Code"]}::${(row["Alternate Title"] || "").substring(0, 80)}`,
+    reference_name: row["Alternate Title"] || row["Short Title"] || "",
+    version:        "30.1",
+    import_date:    new Date().toISOString(),
+    status:         "completed",
+    notes:          `Alternate title for ${row["O*NET-SOC Code"]} (${row["Title"] || ""})`,
+    metadata:       {
+      occupation_code: row["O*NET-SOC Code"] || "",
+      occupation_title: row["Title"] || "",
+      alternate_title: row["Alternate Title"] || "",
+      short_title: row["Short Title"] || "",
+    },
   };
 }
 
