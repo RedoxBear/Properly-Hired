@@ -358,7 +358,8 @@ Deno.serve(async (req) => {
         const mapped = [];
         for (const row of rows) {
           try {
-            mapped.push(mapping.mapper(row));
+            const result = mapping.mapper(row);
+            if (result) mapped.push(result);
           } catch (e) {
             // skip bad rows
           }
