@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2 } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ChevronRight, ChevronLeft, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
@@ -26,6 +26,9 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [isDocked, setIsDocked] = useState(() => localStorage.getItem("chatDocked") === "true");
+    const [isExpanded, setIsExpanded] = useState(() => localStorage.getItem("chatExpanded") === "true");
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
     const autoSentRef = useRef(false);
 
     // Refs for cleanup
@@ -84,6 +87,26 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         };
         fetchUser();
     }, []);
+
+    useEffect(() => {
+        const onResize = () => {
+            const mobileNow = window.innerWidth < 768;
+            setIsMobile(mobileNow);
+            if (mobileNow && isDocked) {
+                setIsDocked(false);
+            }
+        };
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+    }, [isDocked]);
+
+    useEffect(() => {
+        localStorage.setItem("chatDocked", String(isDocked));
+    }, [isDocked]);
+
+    useEffect(() => {
+        localStorage.setItem("chatExpanded", String(isExpanded));
+    }, [isExpanded]);
 
     // Initialize or retrieve conversation
     const initConversation = useCallback(async () => {
@@ -529,15 +552,27 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         );
     }
 
+    const containerClass = isDocked && !isMobile
+        ? "fixed right-0 top-0 bottom-0 z-50"
+        : isMobile
+            ? "fixed left-0 right-0 bottom-0 z-50"
+            : "fixed bottom-6 right-6 z-50";
+
+    const cardClass = isDocked && !isMobile
+        ? (isMinimized ? "h-16 w-[380px] max-w-[45vw]" : "h-full w-[380px] max-w-[45vw]")
+        : isMobile
+            ? (isMinimized ? "w-full h-16" : (isExpanded ? "w-full h-[85vh]" : "w-full h-[45vh]"))
+            : (isMinimized ? "w-80 h-16" : (isExpanded ? "w-[520px] h-[70vh]" : "w-96 h-[600px]"));
+
     return (
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className={`fixed ${isMinimized ? 'bottom-6 right-6' : 'bottom-6 right-6'} z-50`}
+                className={containerClass}
             >
-                <Card className={`shadow-2xl border-2 ${agentConfig.headerBorder} ${isMinimized ? 'w-80' : 'w-96 h-[600px]'} flex flex-col`}>
+                <Card className={`shadow-2xl border-2 ${agentConfig.headerBorder} ${cardClass} flex flex-col`}>
                     <CardHeader className={`border-b ${agentConfig.headerBg} py-3 px-4`}>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -557,19 +592,41 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
+                                {!isMobile && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={() => setIsDocked(!isDocked)}
+                                        title={isDocked ? "Undock" : "Dock Right"}
+                                    >
+                                        {isDocked ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => setIsExpanded(!isExpanded)}
+                                    title={isExpanded ? "Shrink" : "Expand"}
+                                >
+                                    {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                                </Button>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     className="h-7 w-7"
                                     onClick={() => setIsMinimized(!isMinimized)}
+                                    title={isMinimized ? "Restore" : "Minimize"}
                                 >
-                                    {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                                    {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     className="h-7 w-7"
                                     onClick={() => setIsOpen(false)}
+                                    title="Close"
                                 >
                                     <X className="w-4 h-4" />
                                 </Button>

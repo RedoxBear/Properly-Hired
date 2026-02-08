@@ -16,6 +16,7 @@ CRITICAL RULES:
 1. Maximum 2 sentences per response. Be concise and action-oriented.
 2. ONLY help with CV/resume writing for the current question.
 3. If asked about ANYTHING else, respond: "I'm here to help with your CV! What would you like help with for this section?"
+4. Avoid repeating your prior advice. If similar guidance was just given, rephrase with a new angle or example.
 
 ALLOWED topics:
 - Answering the 8 resume questions
@@ -81,6 +82,7 @@ export default function CVBot({ isOpen, currentQuestion, currentAnswer, onClose,
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [lastAssistantMessage, setLastAssistantMessage] = useState("");
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom
@@ -195,9 +197,9 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
   if (!isOpen) return null;
 
   return (
-    <Card className={`flex flex-col ${embedded ? 'h-[calc(100vh-8rem)] sticky top-4' : 'h-full'} border-2 border-blue-100 bg-white`}>
+    <Card className={`flex flex-col ${embedded ? 'h-[calc(100vh-8rem)] sticky top-4' : 'h-full'} border-2 border-blue-100 bg-white dark:bg-slate-900 dark:border-slate-700`}>
       {/* Header */}
-      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 py-3 px-4 shrink-0">
+      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 py-3 px-4 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
@@ -205,7 +207,7 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
             </div>
             <div>
               <CardTitle className="text-sm font-semibold">CVBot</CardTitle>
-              <p className="text-xs text-slate-500">Your CV assistant</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Your CV assistant</p>
             </div>
           </div>
           {!embedded && (
@@ -221,10 +223,10 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
         {messages.length === 0 && (
           <div className="text-center py-6">
             <Sparkles className="w-10 h-10 mx-auto mb-3 text-blue-300" />
-            <p className="text-sm text-slate-600 mb-1">
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-1">
               Hi! I'm here to help with your CV.
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Ask me for examples, tips, or how to improve your answers.
             </p>
           </div>
@@ -242,7 +244,7 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
                 className={`max-w-[85%] rounded-2xl px-4 py-2 ${
                   msg.role === "user"
                     ? "bg-blue-600 text-white rounded-br-md"
-                    : "bg-slate-100 text-slate-800 rounded-bl-md"
+                    : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100 rounded-bl-md"
                 }`}
               >
                 <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
@@ -282,7 +284,7 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
               variant="outline"
               size="sm"
               onClick={() => handleQuickPrompt(prompt)}
-              className="text-xs h-7 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+              className="text-xs h-7 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
             >
               {prompt}
             </Button>
@@ -298,7 +300,7 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask about this section..."
-            className="resize-none h-10 min-h-0 text-sm"
+            className="resize-none h-10 min-h-0 text-sm dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700"
             disabled={isLoading}
           />
           <Button
