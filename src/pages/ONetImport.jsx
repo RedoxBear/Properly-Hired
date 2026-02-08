@@ -189,23 +189,46 @@ export default function ONetImport() {
           return next;
         });
 
-        // Step 3: Call backend import
-        const res = await importONetCSV({
-          action: "import_csv",
-          file_url,
-          csv_name: f.name,
-        });
+        // Step 3: Call backend import (with chunking for large files)
+        let totalImportedForFile = 0;
+        let totalErrorsForFile = 0;
+        let chunkStart = 0;
+        let hasMore = true;
+        let entityName = "";
+        let totalRows = 0;
 
-        const stats = res.data?.stats;
-        if (stats) {
-          addLog(`  ✅ Done: ${stats.imported} rows imported into ${stats.entity}${stats.errors > 0 ? ` (${stats.errors} errors)` : ""}`, "success");
-        } else {
-          addLog(`  ✅ Done (no stats returned)`, "success");
+        while (hasMore) {
+          const res = await importONetCSV({
+            action: "import_csv",
+            file_url,
+            csv_name: f.name,
+            chunk_start: chunkStart,
+            chunk_size: 5000,
+          });
+
+          const stats = res.data?.stats;
+          if (!stats) {
+            addLog(`  ✅ Done (no stats returned)`, "success");
+            break;
+          }
+
+          totalImportedForFile += stats.imported;
+          totalErrorsForFile += stats.errors;
+          entityName = stats.entity;
+          totalRows = stats.total_rows;
+          hasMore = stats.has_more;
+          chunkStart = stats.next_chunk_start || 0;
+
+          if (hasMore) {
+            addLog(`  ↳ Chunk done: ${totalImportedForFile.toLocaleString()} / ${totalRows.toLocaleString()} rows...`);
+          }
         }
+
+        addLog(`  ✅ Done: ${totalImportedForFile.toLocaleString()} rows imported into ${entityName}${totalErrorsForFile > 0 ? ` (${totalErrorsForFile} errors)` : ""}`, "success");
 
         setFiles(prev => {
           const next = [...prev];
-          next[i] = { ...next[i], status: FILE_STATUS.DONE, stats: stats || { imported: 0, provided: 0, errors: 0 } };
+          next[i] = { ...next[i], status: FILE_STATUS.DONE, stats: { imported: totalImportedForFile, provided: totalRows, errors: totalErrorsForFile, entity: entityName } };
           return next;
         });
       } catch (e) {
