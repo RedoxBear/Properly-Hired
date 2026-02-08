@@ -343,30 +343,40 @@ Deno.serve(async (req) => {
           }
         }
 
-        // BulkCreate in batches of 100
-        const BATCH = 100;
+        // Check if caller wants chunked mode (for large files)
+        const chunkStart = body.chunk_start || 0;
+        const chunkSize = body.chunk_size || 5000; // process 5000 rows per call
+        const isChunked = mapped.length > chunkSize;
+        
+        const sliceEnd = Math.min(chunkStart + chunkSize, mapped.length);
+        const chunk = isChunked ? mapped.slice(chunkStart, sliceEnd) : mapped;
+
+        // BulkCreate in batches of 500
+        const BATCH = 500;
         let imported = 0;
         let errors = 0;
 
-        for (let i = 0; i < mapped.length; i += BATCH) {
-          const batch = mapped.slice(i, i + BATCH);
+        for (let i = 0; i < chunk.length; i += BATCH) {
+          const batch = chunk.slice(i, i + BATCH);
           try {
             await entity.bulkCreate(batch);
             imported += batch.length;
           } catch (e) {
-            // Fallback: individual creates
-            for (const rec of batch) {
+            // Fallback: smaller batches of 50
+            for (let j = 0; j < batch.length; j += 50) {
+              const smallBatch = batch.slice(j, j + 50);
               try {
-                await entity.create(rec);
-                imported++;
+                await entity.bulkCreate(smallBatch);
+                imported += smallBatch.length;
               } catch (_) {
-                errors++;
+                errors += smallBatch.length;
               }
             }
           }
         }
 
-        console.log(`Import done: ${imported} imported, ${errors} errors for ${csv_name}`);
+        const hasMore = isChunked && sliceEnd < mapped.length;
+        console.log(`Import chunk done: ${imported} imported, ${errors} errors for ${csv_name} (rows ${chunkStart}-${sliceEnd} of ${mapped.length})`);
 
         return Response.json({
           success: true,
@@ -376,6 +386,9 @@ Deno.serve(async (req) => {
             provided: mapped.length,
             imported,
             errors,
+            has_more: hasMore,
+            next_chunk_start: hasMore ? sliceEnd : null,
+            total_rows: mapped.length,
           },
         });
       }
