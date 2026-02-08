@@ -41,7 +41,8 @@ const QUICK_PROMPTS = [
   "Give me an example",
   "How can I improve this?",
   "What should I include?",
-  "Is this good enough?"
+  "Help me optimize my resume bullets",
+  "What does the industry expect for this role?"
 ];
 
 // Client-side guardrail check
@@ -50,7 +51,14 @@ function isOnTopic(message) {
     'resume', 'cv', 'experience', 'skill', 'education', 'job', 'career',
     'work', 'example', 'help', 'write', 'answer', 'improve', 'tip',
     'stuck', 'better', 'include', 'achievement', 'qualification',
-    'summary', 'goal', 'quality', 'strength', 'certification', 'award'
+    'summary', 'goal', 'quality', 'strength', 'certification', 'award',
+    // Kyle routing triggers
+    'cover letter', 'bullet', 'optimize', 'rewrite', 'coaching', 'ats',
+    'action verb', 'arc', 'star method', 'interview', 'formatting', 'template',
+    // Simon routing triggers
+    'company', 'industry', 'market', 'trade', 'sector', 'ghost job',
+    'employer', 'hiring', 'trend', 'salary', 'compensation', 'wage',
+    'bls', 'dol', 'labor', 'compliance', 'workforce', 'role'
   ];
 
   const offTopicPatterns = [
