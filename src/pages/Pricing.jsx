@@ -43,7 +43,7 @@ export default function Pricing() {
     const handleUpgrade = async (tier) => {
         if (tier === TIERS.ENTERPRISE) {
             // Open email client for enterprise inquiries
-            window.location.href = "mailto:contact@pragueday.com?subject=Enterprise Plan Inquiry&body=Hi, I'm interested in learning more about the Enterprise plan.";
+            window.location.href = "mailto:contact@properlyhired.com?subject=Enterprise Plan Inquiry&body=Hi, I'm interested in learning more about the Enterprise plan.";
             return;
         }
 

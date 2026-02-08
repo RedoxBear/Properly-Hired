@@ -58,7 +58,7 @@ export default function HowTo() {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-sm font-medium">
             <Compass className="w-4 h-4" />
-            How to use Prague Day
+            How to use Properly Hired
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">Your simple, guided path to better applications</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
