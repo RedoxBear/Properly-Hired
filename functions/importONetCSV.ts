@@ -56,7 +56,7 @@ const ENTITY_MAP = {
   "Skills_to_Work_Activities.csv":                  { entity: "ONetReference", mapper: mapGenericRef("Skills_to_WA") },
   "Skills_to_Work_Context.csv":                     { entity: "ONetReference", mapper: mapGenericRef("Skills_to_WC") },
   "Tasks_to_DWAs.csv":                              { entity: "ONetReference", mapper: mapGenericRef("Tasks_to_DWAs") },
-  "Task_Ratings.csv":                               { entity: "ONetReference", mapper: mapGenericRef("Task_Ratings") },
+  "Task_Ratings.csv":                               { entity: "ONetTask", mapper: mapTaskRating },
   "Task_Categories.csv":                            { entity: "ONetReference", mapper: mapGenericRef("Task_Categories") },
   "Level_Scale_Anchors.csv":                        { entity: "ONetReference", mapper: mapGenericRef("Level_Scale_Anchors") },
   "Occupation_Level_Metadata.csv":                  { entity: "ONetReference", mapper: mapGenericRef("Occupation_Metadata") },
