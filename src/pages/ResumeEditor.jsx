@@ -12,6 +12,7 @@ import { createPageUrl } from "@/utils";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
 import AgentChat from "@/components/agents/AgentChat";
+import AgentHandoffCard from "@/components/agents/AgentHandoffCard";
 import { parse, parseISO, isValid, differenceInMonths } from "date-fns";
 
 export default function ResumeEditor() {
@@ -832,6 +833,8 @@ export default function ResumeEditor() {
             </Button>
           </div>
         )}
+
+        <AgentHandoffCard variant="kyle" />
 
         <AgentChat
           agentName="kyle"

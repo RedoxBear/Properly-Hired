@@ -17,6 +17,7 @@ import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 import AgentChat from "@/components/agents/AgentChat";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { KyleOptimizeBanner, ProjectBasedCVHint, TemplateHelperHint } from "@/components/resume/KyleTemplateBanner";
 
 export default function ResumeTemplates() {
   const [resumes, setResumes] = useState([]);
@@ -383,13 +384,9 @@ ${el.innerHTML}
             </AlertDescription>
           </Alert>
         )}
-        {recommendProjectCV && (
-          <Alert className="border-blue-200 bg-blue-50 text-blue-900">
-            <AlertDescription>
-              Kyle can help reframe shorter roles into a project-based CV that highlights impact and outcomes.
-            </AlertDescription>
-          </Alert>
-        )}
+        {recommendProjectCV && <ProjectBasedCVHint />}
+
+        <KyleOptimizeBanner resumeId={selectedResumeId} />
         {autoRedirectArmed && selectedResumeId && (
           <Alert className="border-slate-200 bg-white">
             <AlertDescription className="flex flex-wrap items-center gap-3">
@@ -471,6 +468,8 @@ ${el.innerHTML}
         <div id="print-area" ref={printRef} className="bg-white rounded-xl shadow">
           {renderTemplate()}
         </div>
+
+        <TemplateHelperHint />
 
         {/* Gallery */}
         <TemplateGallery

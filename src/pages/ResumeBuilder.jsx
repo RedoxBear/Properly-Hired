@@ -7,6 +7,7 @@ import { retryWithBackoff } from "@/components/utils/retry";
 import { analyzeResumeAgainstJD } from "@/components/utils/articulation";
 import { resumeJsonToPlainText } from "@/components/utils/resumeText";
 import CVWizard, { QUESTIONS } from "@/components/builder/CVWizard";
+import AgentHandoffCard from "@/components/agents/AgentHandoffCard";
 
 export default function ResumeBuilder() {
   const [isBuilding, setIsBuilding] = React.useState(false);
@@ -100,9 +101,15 @@ Ensure the JSON is concise, truthful, and structured for resume templates.
   };
 
   return (
-    <CVWizard
-      onBuild={buildWithAI}
-      isBuilding={isBuilding}
-    />
+    <div className="space-y-4">
+      <CVWizard
+        onBuild={buildWithAI}
+        isBuilding={isBuilding}
+      />
+      <div className="max-w-3xl mx-auto px-4 space-y-3 pb-8">
+        <AgentHandoffCard variant="simon" />
+        <AgentHandoffCard variant="editor" />
+      </div>
+    </div>
   );
 }
