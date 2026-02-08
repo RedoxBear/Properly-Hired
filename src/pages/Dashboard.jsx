@@ -366,7 +366,7 @@ export default function Dashboard() {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200 text-base sm:text-lg md:text-xl">
                                     <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                                    Get Started with CareerCraft
+                                    Get Started with Properly Hired
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>

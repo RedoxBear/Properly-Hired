@@ -15,6 +15,7 @@ export default function HeroBanner() {
             
             const LOGO_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/0cf860df6_Prague-DayAcceptedConcept.jpg";
             const LOGO_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/468690cdf_Prague-DayAcceptedConcept-DarkMode.jpg";
+            // TODO: Replace these logos with Properly Hired branded assets when available
             
             setLogoUrl(isDark ? LOGO_DARK : LOGO_LIGHT);
         };
@@ -102,7 +103,7 @@ export default function HeroBanner() {
                                 <img
                                     key={logoUrl}
                                     src={logoUrl}
-                                    alt="Navigate Careers"
+                                    alt="Properly Hired"
                                     className="w-48 md:w-64 h-auto object-contain"
                                 />
                             )}

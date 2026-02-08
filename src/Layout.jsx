@@ -255,19 +255,19 @@ function AppShell({ children, currentPageName }) {
                         <div className="flex items-center justify-between gap-2 md:gap-3">
                             <div className="flex items-center gap-2 md:gap-3">
                                 <img
-                                    src={PRAGUE_DAY_CIRCLE}
-                                    alt="Prague Day"
+                                    src={LOGO_CIRCLE}
+                                    alt="Properly Hired"
                                     className="w-8 h-8 md:w-10 md:h-10 rounded-xl shadow-lg object-contain bg-card"
                                     onError={(e) => {
                                         const el = e.currentTarget;
                                         if (el.dataset.fallback !== "1") {
                                             el.dataset.fallback = "1";
-                                            el.src = PRAGUE_DAY_FULL;
+                                            el.src = LOGO_FULL;
                                         }
                                     }}
                                 />
                                 <div>
-                                    <h2 className="font-bold text-foreground text-base md:text-lg">Prague Day</h2>
+                                    <h2 className="font-bold text-foreground text-base md:text-lg">Properly Hired</h2>
                                     <p className="text-xs text-muted-foreground font-medium hidden sm:block">Career Navigation</p>
                                 </div>
                             </div>
@@ -423,20 +423,20 @@ function AppShell({ children, currentPageName }) {
                         <div className="flex items-center gap-2 md:gap-3">
                             <div className="w-8 h-8 bg-muted rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
                                 <img
-                                    src={PRAGUE_DAY_CIRCLE}
-                                    alt="Prague Day small"
+                                    src={LOGO_CIRCLE}
+                                    alt="Properly Hired"
                                     className="w-8 h-8 object-contain"
                                     onError={(e) => {
                                         const el = e.currentTarget;
                                         if (el.dataset.fallback !== "1") {
                                             el.dataset.fallback = "1";
-                                            el.src = PRAGUE_DAY_FULL;
+                                            el.src = LOGO_FULL;
                                         }
                                     }}
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="font-medium text-foreground text-sm truncate">Prague Day</p>
+                                <p className="font-medium text-foreground text-sm truncate">Properly Hired</p>
                                 <p className="text-xs text-muted-foreground truncate">AI Career Assistant</p>
                             </div>
                         </div>
@@ -478,19 +478,19 @@ function AppShell({ children, currentPageName }) {
                             />
                             <div className="flex items-center gap-2">
                                 <img
-                                    key={PRAGUE_DAY_CIRCLE}
-                                    src={PRAGUE_DAY_CIRCLE}
-                                    alt="Prague Day"
+                                    key={LOGO_CIRCLE}
+                                    src={LOGO_CIRCLE}
+                                    alt="Properly Hired"
                                     className="w-6 h-6 object-contain"
                                     onError={(e) => {
                                         const el = e.currentTarget;
                                         if (el.dataset.fallback !== "1") {
                                             el.dataset.fallback = "1";
-                                            el.src = PRAGUE_DAY_FULL;
+                                            el.src = LOGO_FULL;
                                         }
                                     }}
                                 />
-                                <h1 className="text-base font-bold text-foreground">Prague Day</h1>
+                                <h1 className="text-base font-bold text-foreground">Properly Hired</h1>
                             </div>
                             <div className="flex items-center gap-1">
                                 <ThemeToggle />
