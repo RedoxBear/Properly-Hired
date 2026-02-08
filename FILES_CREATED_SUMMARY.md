@@ -238,7 +238,7 @@ vscode-vfs://github/RedoxBear/Prague-Day/
    - For setup, read [INTEGRATION_GUIDE.md](../INTEGRATION_GUIDE.md)
 
 2. **Prepare Integration Files**
-   - Copy from `F:\Projects\AI_Projects\code\prague-day\integrations\` → `integrations/`
+   - Copy from `F:\Projects\AI_Projects\code\properly-hired\integrations\` → `integrations/`
    - Copy from `F:\Projects\AI_Projects\code\career-coach\agents\` → `agents/`
    - Copy from `F:\Projects\AI_Projects\code\base44-integrations\knowledge\` → `knowledge/`
 

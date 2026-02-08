@@ -344,6 +344,6 @@
 **Last Updated:** 2024  
 **Documentation Version:** 1.0  
 **Status:** Production Ready  
-**Maintained By:** Prague Day Team
+**Maintained By:** Properly Hired Team
 
 🎉 **JobMatcher now features intelligent multi-source job aggregation with AI-powered background-based matching!**

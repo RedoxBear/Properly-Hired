@@ -79,7 +79,7 @@ cat src/components/AIIntegrationExamples.jsx
 
 1. **Copy Integration Files**
    ```
-   FROM: F:\Projects\AI_Projects\code\prague-day\integrations\
+   FROM: F:\Projects\AI_Projects\code\properly-hired\integrations\
    TO:   vscode-vfs://github/RedoxBear/Prague-Day/integrations/
    
    Files to copy:

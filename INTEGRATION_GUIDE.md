@@ -71,7 +71,7 @@ Job Description
 ### Directory Structure
 
 ```
-prague-day/ (Current Repository)
+properly-hired/ (Current Repository)
 ├── src/
 │   ├── api/
 │   │   ├── base44Client.js           # Base44 SDK
@@ -138,7 +138,7 @@ prague-day/ (Current Repository)
 Create the necessary directories in your GitHub repo:
 
 ```bash
-# From your prague-day directory
+# From your properly-hired directory
 mkdir -p integrations agents knowledge/{simon,kyle}
 ```
 
@@ -1085,7 +1085,7 @@ function JobAnalysisPage({ jobData }) {
 
 - [Base44 Documentation](https://base44.com/docs)
 - [Career Coach Repository](https://github.com/your-org/career-coach)
-- [Prague Day Repository](https://github.com/your-org/prague-day)
+- [Properly Hired Repository](https://github.com/your-org/properly-hired)
 
 ---
 
