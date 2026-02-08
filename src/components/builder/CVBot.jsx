@@ -6,7 +6,7 @@ import { Send, Loader2, Bot, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
-import { classifyIntent, delegateToExpert } from "./intentRouter";
+import { classifyIntent, delegateToExpert, getHandoffMessage } from "./intentRouter";
 import ExpertInsightCard from "./ExpertInsightCard";
 
 // CVBot System Prompt - Strict scope restriction
@@ -120,6 +120,10 @@ export default function CVBot({ isOpen, currentQuestion, currentAnswer, onClose,
       const expert = classifyIntent(userMessage);
 
       if (expert) {
+        // Show handoff message first
+        const handoff = getHandoffMessage(expert);
+        addMessage("assistant", handoff);
+
         // Delegate to specialist agent
         const insight = await delegateToExpert(expert, {
           questionId: currentQuestion?.id,
@@ -129,9 +133,28 @@ export default function CVBot({ isOpen, currentQuestion, currentAnswer, onClose,
           resumeDraft: null
         });
 
-        const expertName = expert === "kyle" ? "Kyle" : "Simon";
+        const expertName = expert === "kyle" ? "Career Coach Kyle" : "Simon the Insider";
         const summary = insight?.summary || "Here's what I found.";
-        addMessage("assistant", `**${expertName} says:** ${summary}`, insight);
+        addMessage("assistant", `**${expertName}:** ${summary}`, insight);
+
+        // Handle cross-referral: if the expert suggests the other expert
+        if (insight?.handoff_to && insight.handoff_to !== expert) {
+          const otherExpert = insight.handoff_to;
+          const otherHandoff = getHandoffMessage(otherExpert);
+          addMessage("assistant", otherHandoff);
+
+          const followUp = await delegateToExpert(otherExpert, {
+            questionId: currentQuestion?.id,
+            questionText: currentQuestion?.question,
+            userAnswer: currentAnswer,
+            userMessage,
+            resumeDraft: null
+          });
+
+          const otherName = otherExpert === "kyle" ? "Career Coach Kyle" : "Simon the Insider";
+          const otherSummary = followUp?.summary || "Here's my take.";
+          addMessage("assistant", `**${otherName}:** ${otherSummary}`, followUp);
+        }
       } else {
         // Standard CVBot response
         const contextPrompt = `${SYSTEM_PROMPT}
