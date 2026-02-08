@@ -6,6 +6,8 @@ import { Send, Loader2, Bot, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import ReactMarkdown from "react-markdown";
+import { classifyIntent, delegateToExpert } from "./intentRouter";
+import ExpertInsightCard from "./ExpertInsightCard";
 
 // CVBot System Prompt - Strict scope restriction
 const SYSTEM_PROMPT = `You are CVBot, a friendly CV/resume creation assistant.
@@ -83,8 +85,8 @@ export default function CVBot({ isOpen, currentQuestion, currentAnswer, onClose,
     setMessages([]);
   }, [currentQuestion?.id]);
 
-  const addMessage = (role, content) => {
-    setMessages(prev => [...prev, { role, content, timestamp: Date.now() }]);
+  const addMessage = (role, content, expertInsight = null) => {
+    setMessages(prev => [...prev, { role, content, timestamp: Date.now(), expertInsight }]);
   };
 
   const sendMessage = async (text = input) => {
@@ -106,8 +108,25 @@ export default function CVBot({ isOpen, currentQuestion, currentAnswer, onClose,
     setIsLoading(true);
 
     try {
-      // Build context-aware prompt
-      const contextPrompt = `${SYSTEM_PROMPT}
+      // Check if we should route to Kyle or Simon
+      const expert = classifyIntent(userMessage);
+
+      if (expert) {
+        // Delegate to specialist agent
+        const insight = await delegateToExpert(expert, {
+          questionId: currentQuestion?.id,
+          questionText: currentQuestion?.question,
+          userAnswer: currentAnswer,
+          userMessage,
+          resumeDraft: null
+        });
+
+        const expertName = expert === "kyle" ? "Kyle" : "Simon";
+        const summary = insight?.summary || "Here's what I found.";
+        addMessage("assistant", `**${expertName} says:** ${summary}`, insight);
+      } else {
+        // Standard CVBot response
+        const contextPrompt = `${SYSTEM_PROMPT}
 
 CURRENT CONTEXT:
 - Question ${currentQuestion?.id + 1} of 8: "${currentQuestion?.question}"
@@ -117,11 +136,12 @@ USER ASKS: ${userMessage}
 
 Remember: Maximum 2 sentences. Be specific and helpful.`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: contextPrompt
-      });
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: contextPrompt
+        });
 
-      addMessage("assistant", response || "I'm here to help with your CV! What would you like to know?");
+        addMessage("assistant", response || "I'm here to help with your CV! What would you like to know?");
+      }
     } catch (error) {
       console.error("CVBot error:", error);
       addMessage("assistant", "Sorry, I couldn't process that. Let me know how I can help with your CV!");
@@ -201,6 +221,11 @@ Remember: Maximum 2 sentences. Be specific and helpful.`;
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   )}
                 </div>
+                {msg.expertInsight && (
+                  <div className="mt-2">
+                    <ExpertInsightCard insight={msg.expertInsight} />
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
