@@ -83,16 +83,16 @@ export default function Dashboard() {
         setIsLoading(true);
         setError("");
         try {
-            const [fetchedApplications, fetchedResumes, vaultList, userList] = await Promise.all([
+            const [fetchedApplications, fetchedResumes, vaultList, currentUser] = await Promise.all([
                 JobApplication.list("-created_date", 10),
                 Resume.list("-created_date", 5),
                 AutofillVault.list("-updated_date", 1),
-                base44.entities.User.list()
+                base44.auth.me().catch(() => null)
             ]);
-            setApplications(fetchedApplications);
-            setResumes(fetchedResumes);
+            setApplications(fetchedApplications || []);
+            setResumes(fetchedResumes || []);
             setVaultUpdatedAt(vaultList && vaultList[0] ? vaultList[0].updated_at : null);
-            setUserData(userList && userList[0] ? userList[0] : null);
+            setUserData(currentUser || null);
 
             const masters = fetchedResumes.filter(r => r.is_master_resume);
             if (masters.length > 0 && masters[0].quality_scores) {
