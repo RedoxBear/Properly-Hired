@@ -1,44 +1,65 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
+import { importONetCSV } from "@/functions/importONetCSV";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
-  Database, Loader2, AlertCircle, CheckCircle2, Trash2, RefreshCw, Info
+  Database, Loader2, AlertCircle, CheckCircle2, Trash2,
+  RefreshCw, Upload, FolderOpen, Circle, X, Play, Info
 } from "lucide-react";
 import { isAdmin } from "@/components/utils/accessControl";
 import { useNavigate } from "react-router-dom";
-import { importONetCSV } from "@/functions/importONetCSV";
-import CSVUploadZone from "@/components/onet/CSVUploadZone";
-import CSVImportQueue, { STATUS } from "@/components/onet/CSVImportQueue";
-import ONetAttribution from "@/components/onet/ONetAttribution";
 
 const ENTITY_NAMES = [
   "ONetOccupation", "ONetSkill", "ONetAbility", "ONetKnowledge",
   "ONetTask", "ONetWorkActivity", "ONetWorkContext", "ONetReference",
 ];
 
+const FILE_STATUS = {
+  PENDING: "pending",
+  UPLOADING: "uploading",
+  IMPORTING: "importing",
+  DONE: "done",
+  ERROR: "error",
+  SKIPPED: "skipped",
+};
+
 export default function ONetImport() {
   const navigate = useNavigate();
+  const [authorized, setAuthorized] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [error, setError] = useState("");
   const [files, setFiles] = useState([]);
   const [importing, setImporting] = useState(false);
+  const [globalError, setGlobalError] = useState("");
   const [dbCounts, setDbCounts] = useState(null);
   const [loadingCounts, setLoadingCounts] = useState(false);
+  const [currentFileIndex, setCurrentFileIndex] = useState(-1);
+  const [log, setLog] = useState([]);
+  const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
+  const logEndRef = useRef(null);
 
-  // ── Access check ──────────────────────────────────────────────
+  // Scroll log to bottom
+  useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [log]);
+
+  // Auth check
   useEffect(() => {
     (async () => {
       try {
         const user = await base44.auth.me();
         if (!isAdmin(user)) {
-          setError("Admin access required.");
+          setGlobalError("Admin access required.");
           setTimeout(() => navigate("/Dashboard"), 2000);
+        } else {
+          setAuthorized(true);
         }
       } catch {
-        setError("Auth failed. Redirecting...");
+        setGlobalError("Auth failed. Redirecting...");
         setTimeout(() => navigate("/Dashboard"), 2000);
       } finally {
         setChecking(false);
@@ -47,7 +68,12 @@ export default function ONetImport() {
     refreshCounts();
   }, []);
 
-  // ── Load DB counts ────────────────────────────────────────────
+  const addLog = (msg, type = "info") => {
+    const ts = new Date().toLocaleTimeString();
+    setLog(prev => [...prev, { ts, msg, type }]);
+  };
+
+  // Refresh DB counts
   const refreshCounts = async () => {
     setLoadingCounts(true);
     try {
@@ -57,176 +83,189 @@ export default function ONetImport() {
           const ent = base44.entities[name];
           if (ent) {
             const recs = await ent.list("-created_date", 1);
-            counts[name] = recs.length;
+            counts[name] = recs?.length > 0 ? "✓ has data" : "0";
           } else {
-            counts[name] = -1;
+            counts[name] = "N/A";
           }
         } catch {
-          counts[name] = -1;
+          counts[name] = "error";
         }
       }
       setDbCounts(counts);
-    } catch {
-      // ignore
     } finally {
       setLoadingCounts(false);
     }
   };
 
-  // ── File selection → upload to storage → resolve mapping ──────
-  const handleFilesSelected = useCallback(async (csvFiles) => {
-    setError("");
-    const newFiles = [];
-
-    for (const file of csvFiles) {
-      newFiles.push({
-        file,
-        uploadName: file.name,
-        resolvedName: null,
-        entity: null,
-        supported: null,
-        status: STATUS.PENDING,
-        fileUrl: null,
-        stats: null,
-        error: null,
-      });
+  // Handle file selection
+  const handleFiles = async (fileList) => {
+    setGlobalError("");
+    const csvFiles = Array.from(fileList).filter(f => f.name.toLowerCase().endsWith(".csv"));
+    if (csvFiles.length === 0) {
+      setGlobalError("No CSV files found in selection.");
+      return;
     }
 
-    // Resolve file names server-side
+    addLog(`Selected ${csvFiles.length} CSV files. Resolving mappings...`);
+
+    // Resolve file names via backend
+    const newFiles = csvFiles.map(f => ({
+      file: f,
+      name: f.name,
+      size: f.size,
+      resolvedName: null,
+      entity: null,
+      supported: null,
+      status: FILE_STATUS.PENDING,
+      stats: null,
+      error: null,
+    }));
+
     try {
-      const names = newFiles.map(f => f.uploadName);
-      const res = await importONetCSV({ action: "resolve_files", file_names: names });
+      const res = await importONetCSV({ action: "resolve_files", file_names: csvFiles.map(f => f.name) });
       const resolved = res.data?.files || [];
       for (let i = 0; i < newFiles.length; i++) {
-        const match = resolved.find(r => r.upload_name === newFiles[i].uploadName);
+        const match = resolved.find(r => r.upload_name === newFiles[i].name);
         if (match) {
           newFiles[i].resolvedName = match.resolved_name;
           newFiles[i].entity = match.entity;
           newFiles[i].supported = match.supported;
           if (!match.supported) {
-            newFiles[i].status = STATUS.SKIPPED;
+            newFiles[i].status = FILE_STATUS.SKIPPED;
           }
         } else {
-          newFiles[i].status = STATUS.SKIPPED;
+          newFiles[i].status = FILE_STATUS.SKIPPED;
         }
       }
     } catch (e) {
-      console.error("Resolve failed:", e);
-      // Mark all as pending, we'll try anyway
+      addLog(`Warning: Could not resolve file mappings (${e.message}). Will try import anyway.`, "warn");
     }
 
-    // Sort: supported first, then alphabetical
+    // Sort: supported first
     newFiles.sort((a, b) => {
       if (a.supported && !b.supported) return -1;
       if (!a.supported && b.supported) return 1;
-      return a.uploadName.localeCompare(b.uploadName);
+      return a.name.localeCompare(b.name);
     });
+
+    const supported = newFiles.filter(f => f.status !== FILE_STATUS.SKIPPED).length;
+    const skipped = newFiles.filter(f => f.status === FILE_STATUS.SKIPPED).length;
+    addLog(`✅ ${supported} files mapped to entities, ${skipped} skipped (unsupported).`);
 
     setFiles(prev => [...prev, ...newFiles]);
-  }, []);
+  };
 
-  // ── Import a single file ──────────────────────────────────────
-  const importSingleFile = useCallback(async (idx) => {
-    setFiles(prev => {
-      const next = [...prev];
-      next[idx] = { ...next[idx], status: STATUS.UPLOADING };
-      return next;
-    });
-
-    try {
-      const f = files[idx] || (await new Promise(r => {
-        setFiles(prev => { r(prev[idx]); return prev; });
-      }));
-
-      // Get current file from state
-      let currentFile;
-      setFiles(prev => {
-        currentFile = prev[idx];
-        return prev;
-      });
-      if (!currentFile) return;
-
-      // Upload file to storage
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: currentFile.file });
-
-      setFiles(prev => {
-        const next = [...prev];
-        next[idx] = { ...next[idx], status: STATUS.IMPORTING, fileUrl: file_url };
-        return next;
-      });
-
-      // Call backend to parse & import
-      const res = await importONetCSV({
-        action: "import_csv",
-        file_url,
-        csv_name: currentFile.uploadName,
-      });
-
-      const stats = res.data?.stats;
-
-      setFiles(prev => {
-        const next = [...prev];
-        next[idx] = {
-          ...next[idx],
-          status: STATUS.DONE,
-          stats: stats || { imported: 0, provided: 0, errors: 0 },
-        };
-        return next;
-      });
-    } catch (e) {
-      console.error("Import error:", e);
-      setFiles(prev => {
-        const next = [...prev];
-        next[idx] = { ...next[idx], status: STATUS.ERROR, error: e.message || "Import failed" };
-        return next;
-      });
-    }
-  }, [files]);
-
-  // ── Import all pending files sequentially ─────────────────────
-  const importAll = useCallback(async () => {
+  // Import ALL pending files one at a time
+  const importAll = async () => {
     setImporting(true);
-    // Snapshot the current indices of pending files
-    let currentFiles;
-    setFiles(prev => { currentFiles = prev; return prev; });
+    addLog("━━━ Starting batch import ━━━", "header");
 
-    for (let i = 0; i < currentFiles.length; i++) {
-      if (currentFiles[i].status === STATUS.PENDING) {
-        await importSingleFile(i);
-        // Re-read state after each import
-        setFiles(prev => { currentFiles = prev; return prev; });
+    // Get a snapshot of files
+    let filesCopy = [...files];
+
+    for (let i = 0; i < filesCopy.length; i++) {
+      if (filesCopy[i].status !== FILE_STATUS.PENDING) continue;
+
+      setCurrentFileIndex(i);
+      const f = filesCopy[i];
+      addLog(`[${i + 1}/${filesCopy.length}] Uploading: ${f.name}...`);
+
+      // Update status to uploading
+      setFiles(prev => {
+        const next = [...prev];
+        next[i] = { ...next[i], status: FILE_STATUS.UPLOADING };
+        return next;
+      });
+
+      try {
+        // Step 1: Upload to storage
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: f.file });
+        addLog(`  ↳ Uploaded. Sending to server for parsing...`);
+
+        // Step 2: Update to importing
+        setFiles(prev => {
+          const next = [...prev];
+          next[i] = { ...next[i], status: FILE_STATUS.IMPORTING };
+          return next;
+        });
+
+        // Step 3: Call backend import
+        const res = await importONetCSV({
+          action: "import_csv",
+          file_url,
+          csv_name: f.name,
+        });
+
+        const stats = res.data?.stats;
+        if (stats) {
+          addLog(`  ✅ Done: ${stats.imported} rows imported into ${stats.entity}${stats.errors > 0 ? ` (${stats.errors} errors)` : ""}`, "success");
+        } else {
+          addLog(`  ✅ Done (no stats returned)`, "success");
+        }
+
+        setFiles(prev => {
+          const next = [...prev];
+          next[i] = { ...next[i], status: FILE_STATUS.DONE, stats: stats || { imported: 0, provided: 0, errors: 0 } };
+          return next;
+        });
+      } catch (e) {
+        const errMsg = e?.response?.data?.error || e.message || "Unknown error";
+        addLog(`  ❌ FAILED: ${errMsg}`, "error");
+        setFiles(prev => {
+          const next = [...prev];
+          next[i] = { ...next[i], status: FILE_STATUS.ERROR, error: errMsg };
+          return next;
+        });
       }
-    }
-    setImporting(false);
-    refreshCounts();
-  }, [importSingleFile]);
 
-  // ── Clear all O*NET data ──────────────────────────────────────
+      // Brief pause between files
+      await new Promise(r => setTimeout(r, 500));
+
+      // Re-read filesCopy from state
+      setFiles(prev => { filesCopy = prev; return prev; });
+    }
+
+    setCurrentFileIndex(-1);
+    setImporting(false);
+    addLog("━━━ Batch import complete ━━━", "header");
+    refreshCounts();
+  };
+
+  // Clear all O*NET data
   const handleClear = async () => {
     if (!confirm("Delete ALL O*NET data from all 8 entities? This cannot be undone.")) return;
     setImporting(true);
-    try {
-      for (const name of ENTITY_NAMES) {
-        try {
-          const ent = base44.entities[name];
-          if (!ent) continue;
-          let batch;
-          do {
-            batch = await ent.list("-created_date", 200);
-            for (const r of batch) {
-              try { await ent.delete(r.id); } catch {}
-            }
-          } while (batch.length >= 200);
-        } catch {}
-      }
-      setFiles([]);
-      await refreshCounts();
-    } finally {
-      setImporting(false);
+    addLog("Clearing all O*NET data...", "warn");
+
+    for (const name of ENTITY_NAMES) {
+      try {
+        const ent = base44.entities[name];
+        if (!ent) continue;
+        let batch;
+        do {
+          batch = await ent.list("-created_date", 200);
+          for (const r of batch) {
+            try { await ent.delete(r.id); } catch {}
+          }
+          if (batch.length > 0) addLog(`  Deleted ${batch.length} from ${name}`);
+        } while (batch.length >= 200);
+      } catch {}
     }
+
+    setFiles([]);
+    setLog([]);
+    addLog("All O*NET data cleared.", "success");
+    await refreshCounts();
+    setImporting(false);
   };
 
-  // ── Render ────────────────────────────────────────────────────
+  // Calculate stats
+  const pendingCount = files.filter(f => f.status === FILE_STATUS.PENDING).length;
+  const doneCount = files.filter(f => f.status === FILE_STATUS.DONE).length;
+  const errorCount = files.filter(f => f.status === FILE_STATUS.ERROR).length;
+  const totalImported = files.filter(f => f.status === FILE_STATUS.DONE)
+    .reduce((sum, f) => sum + (f.stats?.imported || 0), 0);
+
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -235,41 +274,47 @@ export default function ONetImport() {
     );
   }
 
-  const totalImported = files.filter(f => f.status === STATUS.DONE)
-    .reduce((sum, f) => sum + (f.stats?.imported || 0), 0);
+  if (!authorized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Alert variant="destructive"><AlertDescription>{globalError}</AlertDescription></Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center">
-          <Badge className="mb-3 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-            <Database className="w-3.5 h-3.5 mr-1" /> Admin Only
-          </Badge>
-          <h1 className="text-2xl font-bold text-foreground">O*NET 30.1 CSV Import</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Upload CSV files → server parses & imports into entity tables
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Database className="w-6 h-6" /> O*NET 30.1 Import
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Upload CSV files → auto-maps → server imports into database
+            </p>
+          </div>
+          <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Admin Only</Badge>
         </div>
 
-        {error && (
+        {globalError && (
           <Alert variant="destructive">
             <AlertCircle className="w-4 h-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{globalError}</AlertDescription>
           </Alert>
         )}
 
-        {/* DB Status */}
+        {/* Step 1: DB Status */}
         <Card>
           <CardHeader className="py-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Database className="w-4 h-4" /> Entity Record Counts
+                Step 1: Current Database Status
               </CardTitle>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={refreshCounts} disabled={loadingCounts}>
-                  <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loadingCounts ? "animate-spin" : ""}`} />
-                  Refresh
+                  <RefreshCw className={`w-3.5 h-3.5 mr-1 ${loadingCounts ? "animate-spin" : ""}`} /> Refresh
                 </Button>
                 <Button size="sm" variant="destructive" onClick={handleClear} disabled={importing}>
                   <Trash2 className="w-3.5 h-3.5 mr-1" /> Clear All
@@ -281,67 +326,174 @@ export default function ONetImport() {
             {dbCounts ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {ENTITY_NAMES.map(name => (
-                  <div key={name} className="p-2.5 rounded-lg border bg-muted/30">
-                    <div className="text-xs font-medium text-foreground truncate">{name}</div>
-                    <div className={`text-lg font-bold ${
-                      dbCounts[name] === -1 ? "text-red-500" :
-                      dbCounts[name] > 0 ? "text-green-600" : "text-muted-foreground"
+                  <div key={name} className="p-2.5 rounded-lg border bg-muted/30 text-center">
+                    <div className="text-xs font-medium text-foreground truncate">{name.replace("ONet", "")}</div>
+                    <div className={`text-sm font-bold ${
+                      dbCounts[name] === "error" ? "text-red-500" :
+                      dbCounts[name] === "N/A" ? "text-red-500" :
+                      dbCounts[name] === "✓ has data" ? "text-green-600" : "text-muted-foreground"
                     }`}>
-                      {dbCounts[name] === -1 ? "N/A" : dbCounts[name] > 0 ? "✓" : "0"}
+                      {dbCounts[name]}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-xs text-muted-foreground text-center py-4">Loading counts...</div>
+              <div className="text-xs text-muted-foreground text-center py-4">
+                {loadingCounts ? "Loading..." : "Click Refresh to check"}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Upload Zone */}
-        <CSVUploadZone onFilesSelected={handleFilesSelected} disabled={importing} />
+        {/* Step 2: Upload */}
+        <Card>
+          <CardHeader className="py-3">
+            <CardTitle className="text-sm">Step 2: Select CSV Files</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={(e) => { e.preventDefault(); if (!importing) handleFiles(e.dataTransfer.files); }}
+              className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
+                importing ? "opacity-50 pointer-events-none border-border" : "border-border hover:border-blue-400"
+              }`}
+            >
+              <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+              <p className="font-medium text-foreground text-sm mb-1">Drop O*NET CSV files here</p>
+              <p className="text-xs text-muted-foreground mb-3">Or use buttons below</p>
+              <div className="flex gap-2 justify-center">
+                <input ref={fileInputRef} type="file" multiple accept=".csv" className="hidden"
+                  onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }} />
+                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={importing}>
+                  <Upload className="w-3.5 h-3.5 mr-1.5" /> Choose Files
+                </Button>
+                <input ref={folderInputRef} type="file" multiple webkitdirectory="true" className="hidden"
+                  onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }} />
+                <Button variant="outline" size="sm" onClick={() => folderInputRef.current?.click()} disabled={importing}>
+                  <FolderOpen className="w-3.5 h-3.5 mr-1.5" /> Choose Folder
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Session stats */}
-        {files.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <CardContent className="p-3 text-center">
-                <div className="text-2xl font-bold text-foreground">{files.length}</div>
-                <div className="text-xs text-muted-foreground">Files Queued</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3 text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {files.filter(f => f.status === STATUS.DONE).length}
-                </div>
-                <div className="text-xs text-muted-foreground">Completed</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-3 text-center">
-                <div className="text-2xl font-bold text-foreground">
-                  {totalImported >= 1000 ? `${(totalImported / 1000).toFixed(1)}K` : totalImported}
-                </div>
-                <div className="text-xs text-muted-foreground">Rows Imported</div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Import Queue */}
+        {/* Step 3: File Queue & Import */}
         {files.length > 0 && (
           <Card>
             <CardHeader className="py-3">
-              <CardTitle className="text-sm">Import Queue</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm">Step 3: Import Queue ({files.length} files)</CardTitle>
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-3 text-xs">
+                    <span className="text-green-600 font-medium">{doneCount} done</span>
+                    <span className="text-muted-foreground">{pendingCount} pending</span>
+                    {errorCount > 0 && <span className="text-red-600 font-medium">{errorCount} failed</span>}
+                  </div>
+                  {pendingCount > 0 && (
+                    <Button size="sm" onClick={importAll} disabled={importing}>
+                      {importing ? (
+                        <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Importing...</>
+                      ) : (
+                        <><Play className="w-3.5 h-3.5 mr-1.5" /> Import All ({pendingCount})</>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <CSVImportQueue
-                files={files}
-                onImportFile={importSingleFile}
-                onImportAll={importAll}
-                disabled={importing}
-              />
+              {/* Progress bar */}
+              {importing && files.length > 0 && (
+                <div className="mb-3">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <span>Overall Progress</span>
+                    <span>{doneCount + errorCount} / {files.filter(f => f.status !== FILE_STATUS.SKIPPED).length}</span>
+                  </div>
+                  <Progress
+                    value={((doneCount + errorCount) / Math.max(files.filter(f => f.status !== FILE_STATUS.SKIPPED).length, 1)) * 100}
+                    className="h-2"
+                  />
+                </div>
+              )}
+
+              {/* File list */}
+              <div className="space-y-1 max-h-[400px] overflow-y-auto">
+                {files.map((f, idx) => (
+                  <div key={idx} className={`flex items-center gap-2 p-2 rounded-lg border text-xs transition-colors ${
+                    f.status === FILE_STATUS.DONE ? "bg-green-50/60 dark:bg-green-950/20 border-green-200 dark:border-green-800" :
+                    f.status === FILE_STATUS.ERROR ? "bg-red-50/60 dark:bg-red-950/20 border-red-200 dark:border-red-800" :
+                    f.status === FILE_STATUS.IMPORTING || f.status === FILE_STATUS.UPLOADING ? "bg-blue-50/60 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800" :
+                    f.status === FILE_STATUS.SKIPPED ? "bg-muted/30 border-border/50 opacity-50" :
+                    "bg-card border-border"
+                  }`}>
+                    {/* Status icon */}
+                    {f.status === FILE_STATUS.DONE && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
+                    {f.status === FILE_STATUS.ERROR && <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />}
+                    {(f.status === FILE_STATUS.UPLOADING || f.status === FILE_STATUS.IMPORTING) && <Loader2 className="w-4 h-4 text-blue-600 animate-spin shrink-0" />}
+                    {f.status === FILE_STATUS.SKIPPED && <X className="w-4 h-4 text-slate-400 shrink-0" />}
+                    {f.status === FILE_STATUS.PENDING && <Circle className="w-4 h-4 text-slate-300 shrink-0" />}
+
+                    {/* File info */}
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium truncate block">{f.name}</span>
+                      {f.status === FILE_STATUS.UPLOADING && <span className="text-blue-600">Uploading to storage...</span>}
+                      {f.status === FILE_STATUS.IMPORTING && <span className="text-blue-600">Server parsing & importing...</span>}
+                      {f.status === FILE_STATUS.DONE && f.stats && (
+                        <span className="text-green-700 dark:text-green-400">
+                          {f.stats.imported.toLocaleString()} rows → {f.stats.entity}
+                          {f.stats.errors > 0 && ` (${f.stats.errors} errors)`}
+                        </span>
+                      )}
+                      {f.status === FILE_STATUS.ERROR && <span className="text-red-600 truncate block">{f.error}</span>}
+                      {f.status === FILE_STATUS.SKIPPED && <span className="text-muted-foreground">Unsupported file</span>}
+                    </div>
+
+                    {/* Entity badge */}
+                    {f.entity && (
+                      <Badge variant="secondary" className="text-[10px] shrink-0">
+                        {f.entity.replace("ONet", "")}
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary stats */}
+              {doneCount > 0 && (
+                <div className="mt-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-800 dark:text-green-200">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Total imported: {totalImported.toLocaleString()} rows across {doneCount} files
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 4: Live Log */}
+        {log.length > 0 && (
+          <Card>
+            <CardHeader className="py-3">
+              <CardTitle className="text-sm">Import Log</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="bg-slate-950 text-slate-200 rounded-lg p-3 font-mono text-xs max-h-[300px] overflow-y-auto">
+                {log.map((entry, idx) => (
+                  <div key={idx} className={`py-0.5 ${
+                    entry.type === "error" ? "text-red-400" :
+                    entry.type === "success" ? "text-green-400" :
+                    entry.type === "warn" ? "text-yellow-400" :
+                    entry.type === "header" ? "text-blue-400 font-bold" :
+                    "text-slate-300"
+                  }`}>
+                    <span className="text-slate-500 mr-2">[{entry.ts}]</span>
+                    {entry.msg}
+                  </div>
+                ))}
+                <div ref={logEndRef} />
+              </div>
             </CardContent>
           </Card>
         )}
@@ -350,62 +502,35 @@ export default function ONetImport() {
         <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
           <CardContent className="p-4">
             <h3 className="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2 text-sm">
-              <Info className="w-4 h-4" /> How it works
+              <Info className="w-4 h-4" /> Step-by-Step Instructions
             </h3>
-            <ol className="text-xs text-amber-700 dark:text-amber-300 space-y-1 list-decimal list-inside">
-              <li>Drop or select your O*NET 30.1 CSV files (supports split parts like Abilities__part001.csv)</li>
-              <li>Files are auto-matched to entity tables (ONetSkill, ONetAbility, etc.)</li>
-              <li>Each file is uploaded to storage, then the server parses and bulk-imports rows</li>
-              <li>Large files (90K+ rows) take 1-3 minutes each — the server handles everything</li>
-              <li>Unrecognized files are marked "Skipped" and ignored</li>
+            <ol className="text-xs text-amber-700 dark:text-amber-300 space-y-1.5 list-decimal list-inside">
+              <li><strong>Check DB Status</strong> — Click "Refresh" to see what's already imported. Use "Clear All" to start fresh.</li>
+              <li><strong>Select Files</strong> — Drop your O*NET CSV files or click "Choose Files" / "Choose Folder".</li>
+              <li><strong>Review Queue</strong> — Green = supported, gray = skipped. Each file shows its target entity.</li>
+              <li><strong>Click "Import All"</strong> — Files are uploaded one at a time, parsed on the server, and bulk-inserted.</li>
+              <li><strong>Watch the Log</strong> — Real-time progress shows exactly what's happening. Errors are logged individually.</li>
+              <li><strong>After completion</strong> — Click "Refresh" on DB Status to confirm all entities have data.</li>
             </ol>
-          </CardContent>
-        </Card>
-
-        {/* Entity Mapping */}
-        <Card>
-          <CardHeader className="py-3">
-            <CardTitle className="text-xs">Entity Mapping Reference</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid md:grid-cols-2 gap-3 text-xs">
-              <div>
-                <Badge className="mb-1 bg-blue-600 text-white">ONetOccupation</Badge>
-                <p className="text-muted-foreground">Occupation_Data, Alternate_Titles, Job_Zones</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-green-600 text-white">ONetSkill</Badge>
-                <p className="text-muted-foreground">Skills.csv</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-purple-600 text-white">ONetAbility</Badge>
-                <p className="text-muted-foreground">Abilities.csv</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-amber-600 text-white">ONetKnowledge</Badge>
-                <p className="text-muted-foreground">Knowledge.csv</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-red-600 text-white">ONetTask</Badge>
-                <p className="text-muted-foreground">Task_Statements, Emerging_Tasks</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-cyan-600 text-white">ONetWorkActivity</Badge>
-                <p className="text-muted-foreground">Work_Activities.csv</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-indigo-600 text-white">ONetWorkContext</Badge>
-                <p className="text-muted-foreground">Work_Context.csv</p>
-              </div>
-              <div>
-                <Badge className="mb-1 bg-slate-600 text-white">ONetReference</Badge>
-                <p className="text-muted-foreground">All remaining reference/crosswalk tables (~25 files)</p>
-              </div>
+            <div className="mt-3 p-2 bg-amber-100 dark:bg-amber-900/30 rounded text-xs text-amber-800 dark:text-amber-200">
+              <strong>Tip:</strong> For large files (90K+ rows), each takes 1-3 minutes. Total for 40 files: ~15-30 minutes.
+              Keep this tab open and let it run. Do NOT close the browser.
             </div>
           </CardContent>
         </Card>
 
-        <ONetAttribution />
+        {/* Attribution */}
+        <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <CardContent className="p-4 text-center">
+            <a href="https://www.onetcenter.org/database.html" target="_blank" rel="noopener noreferrer">
+              <img src="https://www.onetcenter.org/image/link/onet-in-it.svg" alt="O*NET" className="w-28 mx-auto mb-2 border-0" />
+            </a>
+            <p className="text-xs text-muted-foreground">
+              O*NET 30.1 Database by U.S. Department of Labor/ETA. Used under{" "}
+              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">CC BY 4.0</a>.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
