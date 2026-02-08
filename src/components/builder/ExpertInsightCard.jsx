@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, Search, Lightbulb, ChevronRight } from "lucide-react";
+import { FileText, Search, Lightbulb, ChevronRight, ArrowRightLeft } from "lucide-react";
 
 export default function ExpertInsightCard({ insight }) {
   if (!insight) return null;
@@ -45,6 +45,17 @@ export default function ExpertInsightCard({ insight }) {
         <div className={`flex items-start gap-1.5 text-xs italic ${textColor} opacity-80 pt-1 border-t border-current/10`}>
           <Lightbulb className="w-3 h-3 mt-0.5 shrink-0" />
           <span>{insight.rewrite_suggestion}</span>
+        </div>
+      )}
+
+      {insight.handoff_to && insight.handoff_to !== insight.expert && (
+        <div className="flex items-center gap-1.5 text-xs text-purple-700 dark:text-purple-300 pt-1 border-t border-current/10">
+          <ArrowRightLeft className="w-3 h-3 shrink-0" />
+          <span className="font-medium">
+            {insight.handoff_to === "kyle"
+              ? "Career Coach Kyle is following up..."
+              : "Simon the Insider is following up..."}
+          </span>
         </div>
       )}
     </div>
