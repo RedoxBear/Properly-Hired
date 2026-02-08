@@ -145,6 +145,27 @@ function mapEmergingTask(row) {
   };
 }
 
+function mapTaskRating(row) {
+  // Task_Ratings.csv has: O*NET-SOC Code, Title, Task ID, Task, Scale ID, Scale Name, Category, Data Value, ...
+  // We merge ratings into ONetTask. The IM scale gives importance, RT gives relevance (frequency proxy).
+  const scaleId = row["Scale ID"] || "";
+  const dataValue = parseFloat(row["Data Value"]) || 0;
+  
+  // Only import IM (importance) and RT (relevance) scales — skip FT frequency categories
+  if (scaleId !== "IM" && scaleId !== "RT") return null;
+
+  return {
+    occupation_code:  row["O*NET-SOC Code"] || "",
+    occupation_title: row["Title"] || "",
+    task_name:        row["Task"] || "",
+    task_type:        "Core",
+    importance:       scaleId === "IM" ? dataValue : null,
+    frequency:        scaleId === "RT" ? dataValue : null,
+    description:      `${row["Task"]} (${row["Scale Name"]}: ${dataValue})`,
+    keywords:         [row["Title"], `Task ID ${row["Task ID"]}`].filter(Boolean),
+  };
+}
+
 function mapWorkContext(row) {
   return {
     occupation_code:  row["O*NET-SOC Code"] || "",
