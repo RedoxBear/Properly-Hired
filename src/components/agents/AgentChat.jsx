@@ -29,6 +29,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const [handoffContext, setHandoffContext] = useState(null);
     const [feedbackState, setFeedbackState] = useState({});
     const [feedbackComment, setFeedbackComment] = useState("");
+    const [externalResources, setExternalResources] = useState([]);
     const dockKey = `chatDocked_${agentName}`;
     const expandKey = `chatExpanded_${agentName}`;
     const [isDocked, setIsDocked] = useState(() => localStorage.getItem(dockKey) === "true");
@@ -218,6 +219,24 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             setIsOpen(true);
         }
     }, [autoOpen]);
+
+    useEffect(() => {
+        const loadResources = async () => {
+            try {
+                const entity = base44.entities?.AgentExternalResource;
+                if (entity) {
+                    const data = await entity.filter({}, "-created_date", 200);
+                    setExternalResources(data || []);
+                    return;
+                }
+                const local = JSON.parse(localStorage.getItem("agent-external-resources") || "[]");
+                setExternalResources(local);
+            } catch (e) {
+                console.error("Failed to load external resources:", e);
+            }
+        };
+        loadResources();
+    }, []);
 
     useEffect(() => {
         const stored = sessionStorage.getItem(`agent-handoff-${agentName}`);
@@ -661,6 +680,26 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         }
         return null;
     }, [displayedMessages]);
+
+    const lastUserMessage = useMemo(() => {
+        for (let i = displayedMessages.length - 1; i >= 0; i--) {
+            const item = displayedMessages[i];
+            if (item.msg?.role === "user") return item.contentText || "";
+        }
+        return "";
+    }, [displayedMessages]);
+
+    const suggestedResources = useMemo(() => {
+        if (!lastUserMessage || externalResources.length === 0) return [];
+        const tokens = lastUserMessage.toLowerCase().split(/\W+/).filter(Boolean);
+        return externalResources
+            .filter((resource) => {
+                if (resource.audience && resource.audience !== "all" && resource.audience !== agentName) return false;
+                const haystack = `${resource.title} ${resource.description || ""} ${(resource.tags || []).join(" ")}`.toLowerCase();
+                return tokens.some((token) => haystack.includes(token));
+            })
+            .slice(0, 3);
+    }, [lastUserMessage, externalResources, agentName]);
 
     const buildContextPack = useCallback(() => {
         const recent = displayedMessages.slice(-6);
@@ -1107,6 +1146,26 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                         </Button>
                                         <span className="text-[11px]">Transfers last 6 messages as context.</span>
                                     </div>
+                                    {suggestedResources.length > 0 && (
+                                        <div className="border rounded-lg p-2 bg-white dark:bg-slate-900 dark:border-slate-700">
+                                            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Suggested resources</p>
+                                            <div className="space-y-1 text-xs">
+                                                {suggestedResources.map((resource) => (
+                                                    <div key={resource.id} className="flex flex-col">
+                                                        <span className="font-semibold text-slate-700 dark:text-slate-200">{resource.title}</span>
+                                                        <a
+                                                            href={resource.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="text-blue-600 dark:text-blue-400 break-all"
+                                                        >
+                                                            {resource.url}
+                                                        </a>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </>

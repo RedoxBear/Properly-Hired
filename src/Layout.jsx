@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { base44 } from "@/api/base44Client";
 import { isAdmin, isSuperAdmin } from "@/components/utils/accessControl";
 import { AppContextProvider } from "@/components/context/AppContextProvider";
+import GuidedTour from "@/components/GuidedTour";
 import {
     LayoutDashboard,
     Search,
@@ -34,7 +35,8 @@ import {
     Settings,
     Compass,
     Shield,
-    Upload
+    Upload,
+    Link2
 } from "lucide-react";
 import {
     Sidebar,
@@ -127,6 +129,7 @@ function AppShell({ children, currentPageName }) {
                 { title: "Search Hub", url: createPageUrl("SearchHub"), icon: SearchIcon, description: "Search all agent data", badge: "Pro" },
                 { title: "Training Center", url: createPageUrl("AgentTraining"), icon: Brain, description: "Upload docs & fine-tune", badge: "Pro" },
                 { title: "Team Workspace", url: createPageUrl("TeamWorkspace"), icon: UsersIcon, description: "Multi-user agent chat", badge: "Pro" },
+                { title: "External Resources", url: createPageUrl("ExternalResources"), icon: Link2, description: "Link knowledge bases", badge: "Pro" },
             ]
         },
         {
@@ -481,6 +484,13 @@ function AppShell({ children, currentPageName }) {
                                             <span>Profile & Settings</span>
                                         </RouterLink>
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => window.dispatchEvent(new CustomEvent("guided-tour:start"))}
+                                        className="flex items-center gap-2 cursor-pointer"
+                                    >
+                                        <Sparkles className="w-4 h-4" />
+                                        <span>Start Guided Tour</span>
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -524,6 +534,13 @@ function AppShell({ children, currentPageName }) {
                                                 <span>Profile & Settings</span>
                                             </RouterLink>
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => window.dispatchEvent(new CustomEvent("guided-tour:start"))}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Sparkles className="w-4 h-4" />
+                                            <span>Start Guided Tour</span>
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -535,6 +552,7 @@ function AppShell({ children, currentPageName }) {
                     </div>
                 </main>
             </div>
+            <GuidedTour />
         </SidebarProvider>
     );
 }
