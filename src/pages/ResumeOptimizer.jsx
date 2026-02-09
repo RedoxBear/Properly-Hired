@@ -1194,17 +1194,6 @@ Return JSON:
           hasResults: !!optimizationResults
         }}
       />
-
-      <AgentChat
-        agentName="simon"
-        agentTitle="Simon - Recruiting Expert"
-        context={{
-          selectedJob: selectedJobId ? jobApplications.find(j => j.id === selectedJobId)?.job_title : "",
-          selectedResume: selectedResumeId ? masterResumes.find(r => r.id === selectedResumeId)?.version_name : "",
-          optimizationMode: optimizeMode,
-          hasResults: !!optimizationResults
-        }}
-      />
     </div>
   );
 }

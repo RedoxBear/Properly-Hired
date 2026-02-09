@@ -1544,16 +1544,6 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                     analysisComplete: !!analysisResult
                 }}
             />
-
-            <AgentChat
-                agentName="kyle"
-                agentTitle="Kyle - CV Expert"
-                context={{
-                    jobTitle: jobTitle || "",
-                    companyName: companyName || "",
-                    analysisComplete: !!analysisResult
-                }}
-            />
         </div>
     );
 }
