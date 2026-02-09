@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ChevronRight, ChevronLeft, Minus } from "lucide-react";
+import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ChevronRight, ChevronLeft, Minus, ThumbsUp, ThumbsDown, AtSign, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
@@ -26,6 +26,9 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [handoffContext, setHandoffContext] = useState(null);
+    const [feedbackState, setFeedbackState] = useState({});
+    const [feedbackComment, setFeedbackComment] = useState("");
     const dockKey = `chatDocked_${agentName}`;
     const expandKey = `chatExpanded_${agentName}`;
     const [isDocked, setIsDocked] = useState(() => localStorage.getItem(dockKey) === "true");
@@ -39,6 +42,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const messagesEndRef = useRef(null);
     const initTimeoutRef = useRef(null);
     const subscriptionRef = useRef(null);
+    const handoffSentRef = useRef(false);
 
     // Scroll to bottom when messages update
     useEffect(() => {
@@ -166,7 +170,8 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                     metadata: {
                         name: `${agentTitle} Chat`,
                         context: mergedContext,
-                        appContext: appContext
+                        appContext: appContext,
+                        handoff_context: handoffContext || null
                     }
                 });
 
@@ -213,6 +218,29 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             setIsOpen(true);
         }
     }, [autoOpen]);
+
+    useEffect(() => {
+        const stored = sessionStorage.getItem(`agent-handoff-${agentName}`);
+        if (stored) {
+            try {
+                setHandoffContext(JSON.parse(stored));
+                setIsOpen(true);
+            } catch (e) {
+                console.warn("Failed to parse handoff context:", e);
+            }
+        }
+    }, [agentName]);
+
+    useEffect(() => {
+        const handler = (event) => {
+            if (event?.detail?.target !== agentName) return;
+            setHandoffContext(event.detail);
+            setIsOpen(true);
+            sessionStorage.setItem(`agent-handoff-${agentName}`, JSON.stringify(event.detail));
+        };
+        window.addEventListener("agent-handoff", handler);
+        return () => window.removeEventListener("agent-handoff", handler);
+    }, [agentName]);
 
     // Subscribe to conversation updates
     useEffect(() => {
@@ -298,6 +326,23 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             }
         }
     }, [conversation, currentUser]);
+
+    useEffect(() => {
+        if (!conversation || !handoffContext || handoffSentRef.current) return;
+        const from = handoffContext.fromAgent || "another agent";
+        const summary = handoffContext.summary || handoffContext.context?.summary || "";
+        const highlights = handoffContext.context?.highlights || [];
+        const payload = [
+            `Handoff from ${from}:`,
+            summary ? `Summary: ${summary}` : "",
+            highlights.length ? `Key points: ${highlights.join("; ")}` : ""
+        ].filter(Boolean).join("\n");
+
+        if (payload) {
+            handoffSentRef.current = true;
+            sendMessageWithContent(payload);
+        }
+    }, [conversation, handoffContext, sendMessageWithContent]);
 
     const sendMessage = useCallback(async () => {
         if (!input.trim() || !conversation) return;
@@ -591,6 +636,115 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         [filteredMessages]
     );
 
+    const lastAssistant = useMemo(() => {
+        for (let i = displayedMessages.length - 1; i >= 0; i--) {
+            const item = displayedMessages[i];
+            if (item.msg?.role === "assistant") return item;
+        }
+        return null;
+    }, [displayedMessages]);
+
+    const buildContextPack = useCallback(() => {
+        const recent = displayedMessages.slice(-6);
+        const summary = recent
+            .map((item) => `${item.msg?.role || "assistant"}: ${item.contentText}`)
+            .join(" | ")
+            .slice(0, 700);
+        const highlights = recent
+            .filter((item) => item.msg?.role === "assistant")
+            .slice(-3)
+            .map((item) => item.contentText)
+            .filter(Boolean);
+        return {
+            summary,
+            highlights,
+            messages: recent.map((item) => ({
+                role: item.msg?.role,
+                content: item.contentText
+            }))
+        };
+    }, [displayedMessages]);
+
+    const persistFeedback = useCallback(async (payload) => {
+        const entity = base44.entities?.AgentFeedback;
+        if (entity) {
+            await entity.create(payload);
+            return;
+        }
+        const key = "agent-feedback-store";
+        const existing = JSON.parse(localStorage.getItem(key) || "[]");
+        existing.push(payload);
+        localStorage.setItem(key, JSON.stringify(existing));
+    }, []);
+
+    const submitFeedback = useCallback(async (rating) => {
+        if (!lastAssistant?.msg) return;
+        const messageId = lastAssistant.msg.id || lastAssistant.msg.timestamp || `msg-${Date.now()}`;
+        const payload = {
+            agent_name: agentName,
+            conversation_id: conversation?.id || "",
+            message_id: messageId,
+            rating,
+            comment: feedbackComment.trim(),
+            created_at: new Date().toISOString(),
+            user_email: currentUser?.email || ""
+        };
+
+        try {
+            await persistFeedback(payload);
+            setFeedbackState((prev) => ({ ...prev, [messageId]: { rating, comment: payload.comment } }));
+            setFeedbackComment("");
+        } catch (e) {
+            console.error("Failed to save feedback:", e);
+            setError("Could not save feedback. Please try again.");
+        }
+    }, [agentName, conversation?.id, currentUser?.email, feedbackComment, lastAssistant, persistFeedback]);
+
+    const createInboxItem = useCallback(async (targetAgent) => {
+        const contextPack = buildContextPack();
+        const payload = {
+            id: `inbox-${Date.now()}`,
+            from_agent: agentName,
+            to_agent: targetAgent,
+            conversation_id: conversation?.id || "",
+            summary: contextPack.summary,
+            highlights: contextPack.highlights,
+            messages: contextPack.messages,
+            status: "open",
+            created_at: new Date().toISOString(),
+            created_by: currentUser?.email || ""
+        };
+
+        try {
+            const entity = base44.entities?.AgentCollabInbox;
+            if (entity) {
+                await entity.create(payload);
+                return;
+            }
+            const key = "agent-collab-inbox";
+            const existing = JSON.parse(localStorage.getItem(key) || "[]");
+            existing.unshift(payload);
+            localStorage.setItem(key, JSON.stringify(existing));
+        } catch (e) {
+            console.error("Failed to add inbox item:", e);
+            setError("Could not tag agent. Please try again.");
+        }
+    }, [agentName, buildContextPack, conversation?.id, currentUser?.email]);
+
+    const handoffToAgent = useCallback((targetAgent) => {
+        const contextPack = buildContextPack();
+        const payload = {
+            target: targetAgent,
+            fromAgent: agentName,
+            summary: contextPack.summary,
+            context: contextPack,
+            conversationId: conversation?.id || "",
+            createdAt: new Date().toISOString()
+        };
+        sessionStorage.setItem(`agent-handoff-${targetAgent}`, JSON.stringify(payload));
+        window.dispatchEvent(new CustomEvent("agent-handoff", { detail: payload }));
+    }, [agentName, buildContextPack, conversation?.id]);
+
     // Get agent config for styling
     const agentConfig = AGENT_CONFIG[agentName] || AGENT_CONFIG.build;
 
@@ -845,6 +999,70 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                             <Send className="w-4 h-4" />
                                         )}
                                     </Button>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {lastAssistant && (() => {
+                                        const messageId = lastAssistant.msg.id || lastAssistant.msg.timestamp || "last";
+                                        const feedback = feedbackState[messageId];
+                                        return (
+                                            <div className="border rounded-lg p-2 bg-slate-50 dark:bg-slate-900 dark:border-slate-700">
+                                                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+                                                    <span className="font-medium">Was this helpful?</span>
+                                                    <Button
+                                                        size="sm"
+                                                        variant={feedback?.rating === 1 ? "default" : "outline"}
+                                                        className="h-7 px-2"
+                                                        onClick={() => submitFeedback(1)}
+                                                    >
+                                                        <ThumbsUp className="w-3 h-3 mr-1" />
+                                                        Yes
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant={feedback?.rating === -1 ? "default" : "outline"}
+                                                        className="h-7 px-2"
+                                                        onClick={() => submitFeedback(-1)}
+                                                    >
+                                                        <ThumbsDown className="w-3 h-3 mr-1" />
+                                                        No
+                                                    </Button>
+                                                    {feedback?.rating && (
+                                                        <span className="text-emerald-600 dark:text-emerald-300">Thanks for the feedback.</span>
+                                                    )}
+                                                </div>
+                                                {!feedback?.rating && (
+                                                    <Input
+                                                        value={feedbackComment}
+                                                        onChange={(e) => setFeedbackComment(e.target.value)}
+                                                        placeholder="Optional: short note to improve future responses"
+                                                        className="mt-2 h-8 text-xs dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700"
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+                                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                        <span className="font-medium">Collaborate:</span>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-7 px-2"
+                                            onClick={() => createInboxItem(agentName === "kyle" ? "simon" : "kyle")}
+                                        >
+                                            <AtSign className="w-3 h-3 mr-1" />
+                                            Tag {agentName === "kyle" ? "Simon" : "Kyle"}
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-7 px-2"
+                                            onClick={() => handoffToAgent(agentName === "kyle" ? "simon" : "kyle")}
+                                        >
+                                            <Share2 className="w-3 h-3 mr-1" />
+                                            Handoff
+                                        </Button>
+                                        <span className="text-[11px]">Transfers last 6 messages as context.</span>
+                                    </div>
                                 </div>
                             </div>
                         </>

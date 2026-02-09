@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, User, Target, MapPin, DollarSign, Bell, FileText, Settings, CheckCircle2, Plus, X, Crown } from "lucide-react";
+import { Loader2, User, Target, MapPin, DollarSign, Bell, FileText, Settings, CheckCircle2, Plus, X, Crown, Camera, Sparkles, ImagePlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { TIERS, TIER_LIMITS, PRICING, isAdmin } from "@/components/utils/accessControl";
 
@@ -24,8 +25,20 @@ export default function UserProfile() {
     const [newRole, setNewRole] = React.useState("");
     const [newIndustry, setNewIndustry] = React.useState("");
     const [newLocation, setNewLocation] = React.useState("");
+    const [newKeyword, setNewKeyword] = React.useState("");
+    const [newValue, setNewValue] = React.useState("");
     const [isLocating, setIsLocating] = React.useState(false);
     const [gpsError, setGpsError] = React.useState("");
+    const [avatarError, setAvatarError] = React.useState("");
+
+    const avatarPresets = [
+        { label: "Sunrise", bg: "from-amber-400 to-pink-500", emoji: "🌅" },
+        { label: "Ocean", bg: "from-sky-400 to-blue-600", emoji: "🌊" },
+        { label: "Forest", bg: "from-emerald-400 to-lime-500", emoji: "🌿" },
+        { label: "Midnight", bg: "from-slate-700 to-indigo-900", emoji: "🌙" },
+        { label: "Cherry", bg: "from-rose-500 to-red-600", emoji: "🍒" },
+        { label: "Lavender", bg: "from-purple-400 to-fuchsia-500", emoji: "💜" }
+    ];
 
     React.useEffect(() => {
         loadData();
@@ -49,6 +62,29 @@ export default function UserProfile() {
         normalized.analysis_preferences = {
             ...normalized.analysis_preferences,
             optimize_mode: "resume_optimizer"
+        };
+        normalized.profile = {
+            ...normalized.profile,
+            avatar_style: normalized.profile?.avatar_style || avatarPresets[0],
+            avatar_photo: normalized.profile?.avatar_photo || "",
+            headline: normalized.profile?.headline || "",
+            pronouns: normalized.profile?.pronouns || "",
+            portfolio_url: normalized.profile?.portfolio_url || "",
+            linkedin_url: normalized.profile?.linkedin_url || "",
+            github_url: normalized.profile?.github_url || ""
+        };
+        normalized.cv_preferences = {
+            tone: normalized.cv_preferences?.tone || "confident",
+            style: normalized.cv_preferences?.style || "achievement-focused",
+            focus: normalized.cv_preferences?.focus || "balanced",
+            highlight_projects: normalized.cv_preferences?.highlight_projects ?? true,
+            target_keywords: normalized.cv_preferences?.target_keywords || []
+        };
+        normalized.job_match_preferences = {
+            work_style: normalized.job_match_preferences?.work_style || "hybrid",
+            team_size: normalized.job_match_preferences?.team_size || "flexible",
+            company_stage: normalized.job_match_preferences?.company_stage || "any",
+            values: normalized.job_match_preferences?.values || []
         };
         if (tier === TIERS.FREE) {
             normalized.notification_settings = {
@@ -103,6 +139,15 @@ export default function UserProfile() {
                 setPreferences(normalizePreferences(existingPrefs[0], currentTier));
             } else {
                 setPreferences(normalizePreferences({
+                    profile: {
+                        avatar_style: avatarPresets[0],
+                        avatar_photo: "",
+                        headline: "",
+                        pronouns: "",
+                        portfolio_url: "",
+                        linkedin_url: "",
+                        github_url: ""
+                    },
                     career_goals: "",
                     target_roles: [],
                     target_industries: [],
@@ -129,6 +174,19 @@ export default function UserProfile() {
                         optimize_mode: "resume_optimizer",
                         deep_humanize: true,
                         aggressive_match: true
+                    },
+                    cv_preferences: {
+                        tone: "confident",
+                        style: "achievement-focused",
+                        focus: "balanced",
+                        highlight_projects: true,
+                        target_keywords: []
+                    },
+                    job_match_preferences: {
+                        work_style: "hybrid",
+                        team_size: "flexible",
+                        company_stage: "any",
+                        values: []
                     },
                     job_search_status: "actively_looking"
                 }, currentTier));
@@ -252,6 +310,37 @@ export default function UserProfile() {
                 setIsLocating(false);
             }
         );
+    };
+
+    const handleAvatarUpload = (event) => {
+        setAvatarError("");
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const allowed = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+        if (!allowed.includes(file.type)) {
+            setAvatarError("Please upload a PNG, JPG, or WebP image.");
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            setAvatarError("Image too large. Please keep it under 2MB.");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            updatePreference("profile.avatar_photo", reader.result);
+        };
+        reader.onerror = () => setAvatarError("Could not read image file.");
+        reader.readAsDataURL(file);
+    };
+
+    const applyAvatarPreset = (preset) => {
+        updatePreference("profile.avatar_style", preset);
+        setAvatarError("");
+    };
+
+    const randomizeAvatar = () => {
+        const pick = avatarPresets[Math.floor(Math.random() * avatarPresets.length)];
+        applyAvatarPreset(pick);
     };
 
     if (isLoading) {
@@ -399,6 +488,98 @@ export default function UserProfile() {
                                     <SelectItem value="not_looking">Not Looking</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Profile Identity */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-pink-500" />
+                            Profile Identity & Avatar
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                            <div className="flex items-center gap-4">
+                                <Avatar className="w-20 h-20">
+                                    <AvatarImage src={preferences?.profile?.avatar_photo || ""} />
+                                    <AvatarFallback className={`bg-gradient-to-br ${preferences?.profile?.avatar_style?.bg || "from-slate-400 to-slate-600"} text-white text-2xl`}>
+                                        {preferences?.profile?.avatar_style?.emoji || "🙂"}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="space-y-2">
+                                    <div className="flex gap-2 flex-wrap">
+                                        <Button size="sm" variant="outline" className="gap-2" onClick={randomizeAvatar}>
+                                            <Sparkles className="w-4 h-4" />
+                                            Surprise Me
+                                        </Button>
+                                        <label className="inline-flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                                            <ImagePlus className="w-4 h-4" />
+                                            Upload Photo
+                                            <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp" className="hidden" onChange={handleAvatarUpload} />
+                                        </label>
+                                    </div>
+                                    {avatarError && <p className="text-xs text-red-600">{avatarError}</p>}
+                                    <p className="text-xs text-slate-500">Keep it professional and respectful.</p>
+                                </div>
+                            </div>
+                            <div className="flex-1 grid gap-4 md:grid-cols-2">
+                                <div>
+                                    <Label>Headline</Label>
+                                    <Input
+                                        value={preferences?.profile?.headline || ""}
+                                        onChange={(e) => updatePreference("profile.headline", e.target.value)}
+                                        placeholder="e.g. Product Designer focused on fintech"
+                                    />
+                                </div>
+                                <div>
+                                    <Label>Pronouns</Label>
+                                    <Input
+                                        value={preferences?.profile?.pronouns || ""}
+                                        onChange={(e) => updatePreference("profile.pronouns", e.target.value)}
+                                        placeholder="e.g. she/her"
+                                    />
+                                </div>
+                                <div>
+                                    <Label>Portfolio URL</Label>
+                                    <Input
+                                        value={preferences?.profile?.portfolio_url || ""}
+                                        onChange={(e) => updatePreference("profile.portfolio_url", e.target.value)}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                                <div>
+                                    <Label>LinkedIn URL</Label>
+                                    <Input
+                                        value={preferences?.profile?.linkedin_url || ""}
+                                        onChange={(e) => updatePreference("profile.linkedin_url", e.target.value)}
+                                        placeholder="https://linkedin.com/in/..."
+                                    />
+                                </div>
+                                <div>
+                                    <Label>GitHub URL</Label>
+                                    <Input
+                                        value={preferences?.profile?.github_url || ""}
+                                        onChange={(e) => updatePreference("profile.github_url", e.target.value)}
+                                        placeholder="https://github.com/..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid gap-2 md:grid-cols-3">
+                            {avatarPresets.map((preset) => (
+                                <button
+                                    key={preset.label}
+                                    type="button"
+                                    onClick={() => applyAvatarPreset(preset)}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${preferences?.profile?.avatar_style?.label === preset.label ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}
+                                >
+                                    <span className={`w-6 h-6 rounded-full bg-gradient-to-br ${preset.bg} flex items-center justify-center text-white`}>{preset.emoji}</span>
+                                    {preset.label}
+                                </button>
+                            ))}
                         </div>
                     </CardContent>
                 </Card>
@@ -638,6 +819,211 @@ export default function UserProfile() {
                                         <SelectItem value="hourly">Hourly</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* CV + Matching Preferences */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Settings className="w-5 h-5 text-indigo-600" />
+                            CV & Job Match Preferences
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-5">
+                        <div className="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <Label>Resume Tone</Label>
+                                <Select
+                                    value={preferences?.cv_preferences?.tone || "confident"}
+                                    onValueChange={(val) => updatePreference("cv_preferences.tone", val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="confident">Confident</SelectItem>
+                                        <SelectItem value="friendly">Friendly</SelectItem>
+                                        <SelectItem value="direct">Direct</SelectItem>
+                                        <SelectItem value="analytical">Analytical</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Resume Style</Label>
+                                <Select
+                                    value={preferences?.cv_preferences?.style || "achievement-focused"}
+                                    onValueChange={(val) => updatePreference("cv_preferences.style", val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="achievement-focused">Achievement Focused</SelectItem>
+                                        <SelectItem value="skills-forward">Skills Forward</SelectItem>
+                                        <SelectItem value="project-centric">Project Centric</SelectItem>
+                                        <SelectItem value="leadership">Leadership</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Resume Focus</Label>
+                                <Select
+                                    value={preferences?.cv_preferences?.focus || "balanced"}
+                                    onValueChange={(val) => updatePreference("cv_preferences.focus", val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="balanced">Balanced</SelectItem>
+                                        <SelectItem value="impact">Impact Metrics</SelectItem>
+                                        <SelectItem value="keywords">Keyword Heavy</SelectItem>
+                                        <SelectItem value="storytelling">Storytelling</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between rounded-lg border p-3 bg-slate-50">
+                            <div>
+                                <div className="font-medium text-slate-800">Highlight Projects</div>
+                                <p className="text-sm text-slate-600">Emphasize project-based achievements in CV</p>
+                            </div>
+                            <Switch
+                                checked={preferences?.cv_preferences?.highlight_projects ?? true}
+                                onCheckedChange={(val) => updatePreference("cv_preferences.highlight_projects", val)}
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Target Keywords for CV</Label>
+                            <div className="flex gap-2 mb-2">
+                                <Input
+                                    value={newKeyword}
+                                    onChange={(e) => setNewKeyword(e.target.value)}
+                                    placeholder="e.g. SQL, stakeholder management"
+                                    onKeyPress={(e) => {
+                                        if (e.key === "Enter") {
+                                            addItem("cv_preferences.target_keywords", newKeyword);
+                                            setNewKeyword("");
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        addItem("cv_preferences.target_keywords", newKeyword);
+                                        setNewKeyword("");
+                                    }}
+                                    size="icon"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {(preferences?.cv_preferences?.target_keywords || []).map((kw, idx) => (
+                                    <Badge key={idx} variant="secondary" className="gap-1">
+                                        {kw}
+                                        <X
+                                            className="w-3 h-3 cursor-pointer hover:text-red-600"
+                                            onClick={() => removeItem("cv_preferences.target_keywords", idx)}
+                                        />
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label>Job Match Work Style</Label>
+                            <Select
+                                value={preferences?.job_match_preferences?.work_style || "hybrid"}
+                                onValueChange={(val) => updatePreference("job_match_preferences.work_style", val)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="remote">Remote</SelectItem>
+                                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                                    <SelectItem value="onsite">On-site</SelectItem>
+                                    <SelectItem value="flexible">Flexible</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <Label>Preferred Team Size</Label>
+                                <Select
+                                    value={preferences?.job_match_preferences?.team_size || "flexible"}
+                                    onValueChange={(val) => updatePreference("job_match_preferences.team_size", val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="small">Small (1-10)</SelectItem>
+                                        <SelectItem value="medium">Medium (10-50)</SelectItem>
+                                        <SelectItem value="large">Large (50+)</SelectItem>
+                                        <SelectItem value="flexible">Flexible</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Company Stage</Label>
+                                <Select
+                                    value={preferences?.job_match_preferences?.company_stage || "any"}
+                                    onValueChange={(val) => updatePreference("job_match_preferences.company_stage", val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="startup">Startup</SelectItem>
+                                        <SelectItem value="growth">Growth</SelectItem>
+                                        <SelectItem value="enterprise">Enterprise</SelectItem>
+                                        <SelectItem value="any">Any</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label>Company Values You Care About</Label>
+                            <div className="flex gap-2 mb-2">
+                                <Input
+                                    value={newValue}
+                                    onChange={(e) => setNewValue(e.target.value)}
+                                    placeholder="e.g. mentorship, innovation, transparency"
+                                    onKeyPress={(e) => {
+                                        if (e.key === "Enter") {
+                                            addItem("job_match_preferences.values", newValue);
+                                            setNewValue("");
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        addItem("job_match_preferences.values", newValue);
+                                        setNewValue("");
+                                    }}
+                                    size="icon"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                                {(preferences?.job_match_preferences?.values || []).map((val, idx) => (
+                                    <Badge key={idx} variant="secondary" className="gap-1">
+                                        {val}
+                                        <X
+                                            className="w-3 h-3 cursor-pointer hover:text-red-600"
+                                            onClick={() => removeItem("job_match_preferences.values", idx)}
+                                        />
+                                    </Badge>
+                                ))}
                             </div>
                         </div>
                     </CardContent>

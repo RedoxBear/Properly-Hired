@@ -20,6 +20,8 @@ import {
     Palette,
     ArrowRightLeft,
     TrendingUp,
+    BarChart3,
+    Inbox,
     Boxes,
     Crown,
     Target,
@@ -134,6 +136,7 @@ function AppShell({ children, currentPageName }) {
                 { title: "Application Q&A", url: createPageUrl("ApplicationQnA"), icon: MessageCircleQuestion, description: "Prepare portal answers", badge: "Pro" },
                 { title: "Resume Templates", url: createPageUrl("ResumeTemplates"), icon: Palette, description: "Choose & Print Templates", badge: "Pro" },
                 { title: "Insights", url: createPageUrl("ActivityInsights"), icon: TrendingUp, description: "Activity & Timing Insights", badge: "Pro" },
+                { title: "O*NET Insights", url: createPageUrl("ONetInsights"), icon: BarChart3, description: "Explore skills & job zones", badge: "Pro" },
                 { title: "Networking Hub", url: createPageUrl("NetworkingHub"), icon: Users, description: "Professional Networking", badge: "Pro" },
             ]
         },
@@ -363,6 +366,31 @@ function AppShell({ children, currentPageName }) {
                                 </SidebarGroupLabel>
                                 <SidebarGroupContent>
                                     <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton
+                                                asChild
+                                                className={`hover:bg-accent transition-all duration-200 rounded-xl group min-h-[40px] text-xs ${
+                                                    location.pathname === createPageUrl("AgentWorkspace")
+                                                        ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 border shadow-sm'
+                                                        : 'hover:shadow-sm'
+                                                }`}
+                                            >
+                                                <RouterLink
+                                                    to={createPageUrl("AgentWorkspace")}
+                                                    className="flex items-center gap-2 px-3 py-2"
+                                                    onClick={() => setIsSidebarOpen(false)}
+                                                >
+                                                    <Inbox className={`w-4 h-4 transition-colors flex-shrink-0 ${
+                                                        location.pathname === createPageUrl("AgentWorkspace")
+                                                            ? 'text-red-600 dark:text-red-400'
+                                                            : 'text-muted-foreground group-hover:text-foreground'
+                                                    }`} />
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="font-medium text-xs">Agent Workspace</div>
+                                                    </div>
+                                                </RouterLink>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton
                                                 asChild
