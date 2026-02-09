@@ -10,7 +10,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import { ThemeProvider, useTheme } from 'next-themes';
+import { ThemeProvider } from 'next-themes';
 import { AppContextProvider } from '@/context/AppContextProvider';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -20,21 +20,6 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
-
-const SystemThemeListener = () => {
-  const { setTheme } = useTheme();
-
-  React.useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const syncTheme = () => setTheme('system');
-
-    syncTheme();
-    media.addEventListener('change', syncTheme);
-    return () => media.removeEventListener('change', syncTheme);
-  }, [setTheme]);
-
-  return null;
-};
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
@@ -89,7 +74,6 @@ function App() {
   return (
     <AppContextProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <SystemThemeListener />
         <AuthProvider>
           <QueryClientProvider client={queryClientInstance}>
             <Router>
