@@ -6,9 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Inbox, RefreshCcw, Tag, MessageSquare } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { InvokeLLM } from "@/integrations/Core";
+import { Inbox, RefreshCcw, Tag, MessageSquare, Sparkles, AlertTriangle } from "lucide-react";
 
 const LOCAL_KEY = "agent-collab-inbox";
+const RULES_KEY = "agent-collab-rules";
+const NOTIFY_KEY = "agent-collab-notified";
 
 function loadLocalInbox() {
     try {
@@ -22,6 +26,30 @@ function saveLocalInbox(items) {
     localStorage.setItem(LOCAL_KEY, JSON.stringify(items));
 }
 
+function loadRules() {
+    try {
+        return JSON.parse(localStorage.getItem(RULES_KEY) || "[]");
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveRules(rules) {
+    localStorage.setItem(RULES_KEY, JSON.stringify(rules));
+}
+
+function loadNotified() {
+    try {
+        return new Set(JSON.parse(localStorage.getItem(NOTIFY_KEY) || "[]"));
+    } catch (e) {
+        return new Set();
+    }
+}
+
+function saveNotified(set) {
+    localStorage.setItem(NOTIFY_KEY, JSON.stringify(Array.from(set)));
+}
+
 export default function AgentWorkspace() {
     const [items, setItems] = React.useState([]);
     const [filterAgent, setFilterAgent] = React.useState("all");
@@ -30,6 +58,11 @@ export default function AgentWorkspace() {
     const [selectedId, setSelectedId] = React.useState("");
     const [error, setError] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(false);
+    const [rules, setRules] = React.useState([]);
+    const [ruleKeyword, setRuleKeyword] = React.useState("");
+    const [ruleAgent, setRuleAgent] = React.useState("kyle");
+    const [isRouting, setIsRouting] = React.useState(false);
+    const [summarizingId, setSummarizingId] = React.useState("");
 
     const loadInbox = React.useCallback(async () => {
         setIsLoading(true);
@@ -54,6 +87,48 @@ export default function AgentWorkspace() {
         loadInbox();
     }, [loadInbox]);
 
+    React.useEffect(() => {
+        setRules(loadRules());
+    }, []);
+
+    const notifyHighPriority = React.useCallback(async (data) => {
+        const notified = loadNotified();
+        const entity = base44.entities?.AgentNotification;
+        for (const item of data) {
+            if (item.priority !== "high") continue;
+            if (notified.has(item.id)) continue;
+            const message = `High priority inbox item for ${item.to_agent}: ${item.summary || "New request"}`;
+            const payload = {
+                id: `note-${Date.now()}-${item.id}`,
+                type: "inbox",
+                message,
+                target_agent: item.to_agent || "",
+                created_at: new Date().toISOString(),
+                created_by: item.created_by || ""
+            };
+            try {
+                if (entity) {
+                    await entity.create(payload);
+                } else {
+                    const key = "agent-notifications";
+                    const existing = JSON.parse(localStorage.getItem(key) || "[]");
+                    existing.unshift(payload);
+                    localStorage.setItem(key, JSON.stringify(existing));
+                }
+                notified.add(item.id);
+            } catch (e) {
+                console.warn("Failed to create notification:", e);
+            }
+        }
+        saveNotified(notified);
+    }, []);
+
+    React.useEffect(() => {
+        if (items.length) {
+            notifyHighPriority(items);
+        }
+    }, [items, notifyHighPriority]);
+
     const filteredItems = items.filter((item) => {
         const agentMatch = filterAgent === "all" || item.to_agent === filterAgent;
         const statusMatch = filterStatus === "all" || item.status === filterStatus;
@@ -75,6 +150,90 @@ export default function AgentWorkspace() {
             console.error("Failed to update inbox item:", e);
             setError("Could not update inbox status. Try again.");
         }
+    };
+
+    const workloadByAgent = React.useMemo(() => {
+        const counts = { kyle: 0, simon: 0, cv_assistant: 0 };
+        for (const item of items) {
+            if (item.status !== "open") continue;
+            if (counts[item.to_agent] !== undefined) counts[item.to_agent] += 1;
+        }
+        return counts;
+    }, [items]);
+
+    const applyRouting = async () => {
+        setIsRouting(true);
+        try {
+            const entity = base44.entities?.AgentCollabInbox;
+            const next = [...items];
+            for (const item of next) {
+                if (item.status !== "open") continue;
+                const text = `${item.summary || ""} ${(item.highlights || []).join(" ")}`.toLowerCase();
+                let assigned = null;
+                for (const rule of rules) {
+                    if (!rule.keyword) continue;
+                    if (text.includes(rule.keyword.toLowerCase())) {
+                        assigned = rule.agent;
+                        break;
+                    }
+                }
+                if (!assigned) {
+                    const entries = Object.entries(workloadByAgent);
+                    entries.sort((a, b) => a[1] - b[1]);
+                    assigned = entries[0]?.[0] || item.to_agent;
+                }
+                if (assigned && assigned !== item.to_agent) {
+                    item.to_agent = assigned;
+                    item.routed_by = "auto";
+                    if (entity) {
+                        await entity.update(item.id, { to_agent: assigned, routed_by: "auto" });
+                    }
+                }
+            }
+            if (!entity) saveLocalInbox(next);
+            setItems(next);
+        } catch (e) {
+            console.error("Routing failed:", e);
+            setError("Auto-routing failed. Try again.");
+        }
+        setIsRouting(false);
+    };
+
+    const addRule = () => {
+        if (!ruleKeyword.trim()) return;
+        const next = [...rules, { id: `rule-${Date.now()}`, keyword: ruleKeyword.trim(), agent: ruleAgent }];
+        setRules(next);
+        saveRules(next);
+        setRuleKeyword("");
+    };
+
+    const summarizeItem = async (item) => {
+        setSummarizingId(item.id);
+        try {
+            const prompt = `
+Summarize this agent handoff into 2-3 bullet points for quick triage.
+Include the ask, urgency, and any requested actions.
+
+Summary: ${item.summary || ""}
+Highlights: ${(item.highlights || []).join("; ")}
+Messages: ${(item.messages || []).map((m) => `${m.role}: ${m.content}`).join(" | ").slice(0, 1200)}
+            `;
+            const res = await InvokeLLM({ prompt, add_context_from_internet: false });
+            const aiSummary = res?.response || res?.content || res?.text || "";
+            const entity = base44.entities?.AgentCollabInbox;
+            if (entity) {
+                await entity.update(item.id, { ai_summary: aiSummary });
+                await loadInbox();
+            } else {
+                const next = items.map((it) => (it.id === item.id ? { ...it, ai_summary: aiSummary } : it));
+                setItems(next);
+                saveLocalInbox(next);
+            }
+        } catch (e) {
+            console.error("Summarization failed:", e);
+            setError("Could not summarize this item.");
+        }
+        setSummarizingId("");
     };
 
     const addNote = async () => {
@@ -129,6 +288,50 @@ export default function AgentWorkspace() {
                     </Alert>
                 )}
 
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Tag className="w-5 h-5 text-indigo-600" />
+                            Routing Rules
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <div className="flex flex-wrap gap-2 items-center">
+                            <Input
+                                value={ruleKeyword}
+                                onChange={(e) => setRuleKeyword(e.target.value)}
+                                placeholder="Keyword (e.g. interview, salary, tech stack)"
+                                className="w-full md:w-64"
+                            />
+                            <Select value={ruleAgent} onValueChange={setRuleAgent}>
+                                <SelectTrigger className="w-36">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="kyle">Kyle</SelectItem>
+                                    <SelectItem value="simon">Simon</SelectItem>
+                                    <SelectItem value="cv_assistant">CV Assistant</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Button onClick={addRule} variant="outline">Add Rule</Button>
+                            <Button onClick={applyRouting} disabled={isRouting} className="gap-2">
+                                <Sparkles className="w-4 h-4" />
+                                {isRouting ? "Routing..." : "Auto-route by Workload"}
+                            </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+                            {rules.map((rule) => (
+                                <span key={rule.id} className="px-2 py-1 rounded-full bg-slate-100">
+                                    {rule.keyword} → {rule.agent}
+                                </span>
+                            ))}
+                            {!rules.length && (
+                                <span className="text-slate-400">No rules yet. Add keywords to direct routing.</span>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <div className="grid gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader>
@@ -145,6 +348,7 @@ export default function AgentWorkspace() {
                                         <SelectItem value="all">All</SelectItem>
                                         <SelectItem value="kyle">Kyle</SelectItem>
                                         <SelectItem value="simon">Simon</SelectItem>
+                                        <SelectItem value="cv_assistant">CV Assistant</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -191,12 +395,24 @@ export default function AgentWorkspace() {
                                         </div>
                                     </div>
                                     <p className="text-xs text-slate-600 mt-2">{item.summary || "No summary provided."}</p>
+                                    {item.priority === "high" && (
+                                        <div className="flex items-center gap-1 text-xs text-amber-700 mt-1">
+                                            <AlertTriangle className="w-3 h-3" />
+                                            High priority
+                                        </div>
+                                    )}
                                     {item.highlights?.length > 0 && (
                                         <ul className="text-xs text-slate-500 list-disc pl-5 mt-2">
                                             {item.highlights.map((h, idx) => (
                                                 <li key={idx}>{h}</li>
                                             ))}
                                         </ul>
+                                    )}
+                                    {item.ai_summary && (
+                                        <div className="text-xs text-slate-700 bg-slate-50 border rounded p-2 mt-2">
+                                            <span className="font-semibold">AI Summary: </span>
+                                            {item.ai_summary}
+                                        </div>
                                     )}
                                     <div className="mt-3 text-xs text-slate-500 flex items-center gap-2">
                                         <MessageSquare className="w-3 h-3" />
@@ -219,6 +435,15 @@ export default function AgentWorkspace() {
                                         onClick={() => setSelectedId(item.id)}
                                     >
                                         {selectedId === item.id ? "Selected" : "Add Note"}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="mt-3 ml-2"
+                                        onClick={() => summarizeItem(item)}
+                                        disabled={summarizingId === item.id}
+                                    >
+                                        {summarizingId === item.id ? "Summarizing..." : "Summarize"}
                                     </Button>
                                 </div>
                             ))}

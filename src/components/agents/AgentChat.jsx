@@ -879,6 +879,8 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
     const createInboxItem = useCallback(async (targetAgent) => {
         const contextPack = buildContextPack();
+        const lower = (contextPack.summary || "").toLowerCase();
+        const priority = /urgent|asap|deadline|high priority|immediately/.test(lower) ? "high" : "normal";
         const payload = {
             id: `inbox-${Date.now()}`,
             from_agent: agentName,
@@ -886,6 +888,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             conversation_id: conversation?.id || "",
             summary: contextPack.summary,
             highlights: contextPack.highlights,
+            priority,
             messages: contextPack.messages,
             status: "open",
             created_at: new Date().toISOString(),

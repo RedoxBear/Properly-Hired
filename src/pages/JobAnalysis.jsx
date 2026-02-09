@@ -215,6 +215,13 @@ URL: ${jobUrl}
         setError("");
         try {
             const targetUrl = jobUrl || "";
+            const origin = (() => {
+                try { return new URL(jobUrl).origin; } catch { return ""; }
+            })();
+            const careerUrl = origin ? `${origin}/careers` : "";
+            const glassdoorUrl = companyName
+                ? `https://www.glassdoor.com/Search/results.htm?keyword=${encodeURIComponent(companyName)}`
+                : "";
             const firecrawlRes = targetUrl
                 ? await base44.functions.invoke("firecrawlScrape", {
                     action: "extract",
@@ -230,6 +237,34 @@ URL: ${jobUrl}
                 })
                 : null;
 
+            const careerRes = careerUrl
+                ? await base44.functions.invoke("firecrawlScrape", {
+                    action: "extract",
+                    url: careerUrl,
+                    json_schema: {
+                        type: "object",
+                        properties: {
+                            culture_signals: { type: "string" },
+                            open_roles: { type: "array", items: { type: "string" } }
+                        }
+                    }
+                })
+                : null;
+
+            const glassdoorRes = glassdoorUrl
+                ? await base44.functions.invoke("firecrawlScrape", {
+                    action: "extract",
+                    url: glassdoorUrl,
+                    json_schema: {
+                        type: "object",
+                        properties: {
+                            review_summary: { type: "string" },
+                            ratings: { type: "array", items: { type: "string" } }
+                        }
+                    }
+                })
+                : null;
+
             const githubRes = companyName
                 ? await base44.functions.invoke("githubQuery", {
                     action: "search_repos",
@@ -238,32 +273,71 @@ URL: ${jobUrl}
                 })
                 : null;
 
-            const companyOrigin = (() => {
-                try { return new URL(jobUrl).origin; } catch { return ""; }
-            })();
-
-            const brightDataRes = companyOrigin
+            const brightDataRes = origin
                 ? await base44.functions.invoke("brightdataCollect", {
                     action: "collect_company",
-                    company_url: companyOrigin
+                    company_url: origin
                 })
                 : null;
 
             const structured = {
                 firecrawl: firecrawlRes?.data?.extracted || firecrawlRes || null,
+                career_page: careerRes?.data?.extracted || careerRes || null,
+                glassdoor: glassdoorRes?.data?.extracted || glassdoorRes || null,
                 github: githubRes || null,
                 brightdata: brightDataRes || null,
                 generated_at: new Date().toISOString()
             };
             setCompanyResearch(structured);
             if (base44.entities?.CompanyResearch) {
-                await base44.entities.CompanyResearch.create({
+                const existing = await base44.entities.CompanyResearch.filter(
+                    companyName ? { company_name: companyName } : {},
+                    "-created_date",
+                    20
+                );
+                const relatedIds = existing?.map((item) => item.id).filter(Boolean) || [];
+                const created = await base44.entities.CompanyResearch.create({
                     company_name: companyName || "",
                     job_url: jobUrl || "",
+                    career_page_url: careerUrl,
+                    glassdoor_url: glassdoorUrl,
+                    related_ids: relatedIds,
                     research_payload: JSON.stringify(structured),
                     created_at: new Date().toISOString(),
                     created_by: currentUser?.email || ""
                 });
+                if (created?.id && relatedIds.length) {
+                    await Promise.all(
+                        relatedIds.map((id) =>
+                            base44.entities.CompanyResearch.update(id, {
+                                related_ids: Array.from(new Set([...(existing.find((item) => item.id === id)?.related_ids || []), created.id]))
+                            })
+                        )
+                    );
+                }
+                const inboxPayload = {
+                    id: `inbox-${Date.now()}`,
+                    from_agent: "system",
+                    to_agent: "simon",
+                    summary: `Review company research for ${companyName || "target company"}`,
+                    highlights: [
+                        "Assess culture and Glassdoor sentiment",
+                        "Summarize hiring signal and risks",
+                        "Provide recommendation to Kyle"
+                    ],
+                    priority: "normal",
+                    status: "open",
+                    created_at: new Date().toISOString(),
+                    created_by: currentUser?.email || ""
+                };
+                if (base44.entities?.AgentCollabInbox) {
+                    await base44.entities.AgentCollabInbox.create(inboxPayload);
+                } else {
+                    const key = "agent-collab-inbox";
+                    const existingInbox = JSON.parse(localStorage.getItem(key) || "[]");
+                    existingInbox.unshift(inboxPayload);
+                    localStorage.setItem(key, JSON.stringify(existingInbox));
+                }
             }
         } catch (e) {
             console.error("Company research failed:", e);

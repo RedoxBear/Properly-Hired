@@ -7,10 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { UploadCloud, Brain, ShieldCheck, FileText, Save, Sparkles } from "lucide-react";
+import { InvokeLLM } from "@/integrations/Core";
+import { readEvents } from "@/components/utils/telemetry";
+import { UploadCloud, Brain, ShieldCheck, FileText, Save, Sparkles, HelpCircle, Wand2 } from "lucide-react";
 
 const DOC_KEY = "agent-training-docs";
 const CONFIG_KEY = "agent-training-config";
+const QUIZ_KEY = "agent-training-quizzes";
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 const loadLocal = (key) => {
@@ -32,6 +35,10 @@ export default function AgentTraining() {
     const [isSaving, setIsSaving] = React.useState(false);
     const [error, setError] = React.useState("");
     const [success, setSuccess] = React.useState("");
+    const [isGenerating, setIsGenerating] = React.useState(false);
+    const [isQuizGenerating, setIsQuizGenerating] = React.useState(false);
+    const [isFeedbackSyncing, setIsFeedbackSyncing] = React.useState(false);
+    const [quizzes, setQuizzes] = React.useState([]);
 
     const [useCase, setUseCase] = React.useState("");
     const [behavior, setBehavior] = React.useState("");
@@ -44,22 +51,27 @@ export default function AgentTraining() {
         try {
             const docEntity = base44.entities?.AgentTrainingDoc;
             const configEntity = base44.entities?.AgentTrainingConfig;
+            const quizEntity = base44.entities?.AgentTrainingQuiz;
             if (docEntity && configEntity) {
-                const [docData, configData] = await Promise.all([
+                const [docData, configData, quizData] = await Promise.all([
                     docEntity.filter({}, "-created_date", 200),
-                    configEntity.filter({}, "-created_date", 200)
+                    configEntity.filter({}, "-created_date", 200),
+                    quizEntity ? quizEntity.filter({}, "-created_date", 200) : Promise.resolve([])
                 ]);
                 setDocuments(docData || []);
                 setConfigs(configData || []);
+                setQuizzes(quizData || []);
                 return;
             }
             setDocuments(loadLocal(DOC_KEY));
             setConfigs(loadLocal(CONFIG_KEY));
+            setQuizzes(loadLocal(QUIZ_KEY));
         } catch (e) {
             console.error("Failed to load training data:", e);
             setError("Could not load training data. Using local cache.");
             setDocuments(loadLocal(DOC_KEY));
             setConfigs(loadLocal(CONFIG_KEY));
+            setQuizzes(loadLocal(QUIZ_KEY));
         }
     }, []);
 
@@ -156,6 +168,174 @@ export default function AgentTraining() {
         setIsSaving(false);
     };
 
+    const generateDocFromLogs = async () => {
+        setIsGenerating(true);
+        setError("");
+        setSuccess("");
+        try {
+            const events = await readEvents();
+            const relevant = events.filter((ev) => ev.type && String(ev.type).includes("agent"));
+            const prompt = `
+You are creating an internal training memo for agent: ${agent}.
+Summarize recurring user needs, failure patterns, and high-value behaviors.
+Return a short title and a concise training doc (200-400 words).
+
+Behavior logs:
+${JSON.stringify(relevant.slice(-120))}
+            `;
+            const res = await InvokeLLM({ prompt, add_context_from_internet: false });
+            const content = res?.response || res?.content || res?.text || "";
+            const payload = {
+                id: `doc-${Date.now()}`,
+                agent,
+                title: `Auto Training Memo (${new Date().toLocaleDateString()})`,
+                doc_type: "auto-generated",
+                extracted_text: content,
+                summary: content.slice(0, 280),
+                created_at: new Date().toISOString()
+            };
+            const entity = base44.entities?.AgentTrainingDoc;
+            if (entity) {
+                await entity.create(payload);
+                await loadData();
+            } else {
+                const next = [payload, ...documents];
+                setDocuments(next);
+                saveLocal(DOC_KEY, next);
+            }
+            setSuccess("Auto-generated training memo created from behavior logs.");
+        } catch (e) {
+            console.error("Auto-doc failed:", e);
+            setError("Could not generate training memo from logs.");
+        }
+        setIsGenerating(false);
+    };
+
+    const generateQuiz = async () => {
+        if (!documents.length) {
+            setError("Upload or generate a training document first.");
+            return;
+        }
+        setIsQuizGenerating(true);
+        setError("");
+        setSuccess("");
+        try {
+            const doc = documents.find((d) => d.agent === agent) || documents[0];
+            const prompt = `
+Create a short quiz (5 questions) for agent: ${agent}.
+Questions should validate understanding of this training doc.
+Return JSON with fields: title, questions (array with question + 3 options + correct_index).
+
+Doc:
+${doc.extracted_text || doc.summary || ""}
+            `;
+            const res = await InvokeLLM({
+                prompt,
+                add_context_from_internet: false,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string" },
+                        questions: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    question: { type: "string" },
+                                    options: { type: "array", items: { type: "string" } },
+                                    correct_index: { type: "number" }
+                                },
+                                required: ["question", "options", "correct_index"]
+                            }
+                        }
+                    },
+                    required: ["title", "questions"]
+                }
+            });
+            const payload = {
+                id: `quiz-${Date.now()}`,
+                agent,
+                title: res?.title || `Quiz for ${doc.title || "Training Doc"}`,
+                questions: JSON.stringify(res?.questions || []),
+                source_doc_id: doc.id,
+                created_at: new Date().toISOString()
+            };
+            const entity = base44.entities?.AgentTrainingQuiz;
+            if (entity) {
+                await entity.create(payload);
+                await loadData();
+            } else {
+                const next = [payload, ...quizzes];
+                setQuizzes(next);
+                saveLocal(QUIZ_KEY, next);
+            }
+            setSuccess("Quiz generated from training doc.");
+        } catch (e) {
+            console.error("Quiz generation failed:", e);
+            setError("Could not generate quiz.");
+        }
+        setIsQuizGenerating(false);
+    };
+
+    const syncFeedbackToConfig = async () => {
+        setIsFeedbackSyncing(true);
+        setError("");
+        setSuccess("");
+        try {
+            const feedbackEntity = base44.entities?.AgentFeedback;
+            const feedback = feedbackEntity
+                ? await feedbackEntity.filter({ agent_name: agent }, "-created_date", 200)
+                : loadLocal("agent-feedback-store").filter((f) => f.agent_name === agent);
+
+            const prompt = `
+You are an agent trainer. Use this feedback to update training behavior.
+Provide a concise behavior summary, a do list, and a don't list.
+
+Feedback:
+${JSON.stringify(feedback.slice(0, 120))}
+            `;
+            const res = await InvokeLLM({
+                prompt,
+                add_context_from_internet: false,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        behavior_summary: { type: "string" },
+                        do_list: { type: "array", items: { type: "string" } },
+                        dont_list: { type: "array", items: { type: "string" } }
+                    },
+                    required: ["behavior_summary", "do_list", "dont_list"]
+                }
+            });
+
+            const payload = {
+                id: `cfg-${Date.now()}`,
+                agent,
+                use_case: "Feedback-driven refinement",
+                desired_behavior: res?.behavior_summary || "",
+                feedback_summary: res?.behavior_summary || "",
+                do_list: res?.do_list || [],
+                dont_list: res?.dont_list || [],
+                created_at: new Date().toISOString()
+            };
+
+            const entity = base44.entities?.AgentTrainingConfig;
+            if (entity) {
+                await entity.create(payload);
+                await loadData();
+            } else {
+                const next = [payload, ...configs];
+                setConfigs(next);
+                saveLocal(CONFIG_KEY, next);
+            }
+            setSuccess("Training configuration updated from feedback.");
+        } catch (e) {
+            console.error("Feedback sync failed:", e);
+            setError("Could not update config from feedback.");
+        }
+        setIsFeedbackSyncing(false);
+    };
+
     return (
         <div className="min-h-screen p-4 md:p-8 bg-gray-50">
             <div className="max-w-6xl mx-auto space-y-6">
@@ -222,6 +402,20 @@ export default function AgentTraining() {
                                     </div>
                                 ))}
                             </div>
+                            <div className="flex flex-wrap gap-2">
+                                <Button onClick={generateDocFromLogs} disabled={isGenerating} variant="outline" className="gap-2">
+                                    <Wand2 className="w-4 h-4" />
+                                    {isGenerating ? "Generating..." : "Auto-Generate from Logs"}
+                                </Button>
+                                <Button onClick={generateQuiz} disabled={isQuizGenerating} variant="outline" className="gap-2">
+                                    <HelpCircle className="w-4 h-4" />
+                                    {isQuizGenerating ? "Building Quiz..." : "Generate Quiz"}
+                                </Button>
+                                <Button onClick={syncFeedbackToConfig} disabled={isFeedbackSyncing} variant="outline" className="gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    {isFeedbackSyncing ? "Syncing..." : "Update from Feedback"}
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -283,6 +477,26 @@ export default function AgentTraining() {
                         ))}
                         {configs.filter((c) => c.agent === agent).length === 0 && (
                             <p className="text-sm text-slate-500">No training configurations yet.</p>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Recent Quizzes</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {quizzes.filter((q) => q.agent === agent).slice(0, 5).map((quiz) => (
+                            <div key={quiz.id} className="border rounded-lg p-3 bg-white">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Badge variant="outline" className="text-xs">{quiz.agent}</Badge>
+                                    <span className="text-sm font-semibold text-slate-700">{quiz.title || "Quiz"}</span>
+                                </div>
+                                <p className="text-xs text-slate-600">Questions: {JSON.parse(quiz.questions || "[]").length}</p>
+                            </div>
+                        ))}
+                        {quizzes.filter((q) => q.agent === agent).length === 0 && (
+                            <p className="text-sm text-slate-500">No quizzes generated yet.</p>
                         )}
                     </CardContent>
                 </Card>
