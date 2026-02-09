@@ -82,9 +82,12 @@ import ResumeQuality from './pages/ResumeQuality';
 import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
+import SearchHub from './pages/SearchHub';
+import TeamWorkspace from './pages/TeamWorkspace';
 import TransferableSkills from './pages/TransferableSkills';
 import Users from './pages/Users';
 import AgentWorkspace from './pages/AgentWorkspace';
+import AgentTraining from './pages/AgentTraining';
 import ONetInsights from './pages/ONetInsights';
 import UserProfile from './pages/UserProfile';
 import __Layout from './Layout.jsx';
@@ -126,9 +129,12 @@ export const PAGES = {
     "ResumeReview": ResumeReview,
     "ResumeTemplates": ResumeTemplates,
     "ResumeViewer": ResumeViewer,
+    "SearchHub": SearchHub,
+    "TeamWorkspace": TeamWorkspace,
     "TransferableSkills": TransferableSkills,
     "Users": Users,
     "AgentWorkspace": AgentWorkspace,
+    "AgentTraining": AgentTraining,
     "ONetInsights": ONetInsights,
     "UserProfile": UserProfile,
 }

@@ -636,6 +636,24 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         [filteredMessages]
     );
 
+    useEffect(() => {
+        if (!conversation?.id || displayedMessages.length === 0) return;
+        const key = "agent-search-index";
+        const existing = JSON.parse(localStorage.getItem(key) || "[]");
+        const summary = displayedMessages.slice(-4).map((item) => item.contentText).join(" | ").slice(0, 700);
+        const payload = {
+            id: `conv-${conversation.id}`,
+            type: "conversation",
+            agent: agentName,
+            message: summary,
+            created_at: new Date().toISOString(),
+            conversation_id: conversation.id
+        };
+        const next = existing.filter((item) => item.id !== payload.id);
+        next.unshift(payload);
+        localStorage.setItem(key, JSON.stringify(next.slice(0, 200)));
+    }, [agentName, conversation?.id, displayedMessages]);
+
     const lastAssistant = useMemo(() => {
         for (let i = displayedMessages.length - 1; i >= 0; i--) {
             const item = displayedMessages[i];
@@ -677,6 +695,29 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         localStorage.setItem(key, JSON.stringify(existing));
     }, []);
 
+    const notifyAdmin = useCallback(async (message, type = "feedback") => {
+        const payload = {
+            id: `note-${Date.now()}`,
+            type,
+            message,
+            created_at: new Date().toISOString(),
+            created_by: currentUser?.email || ""
+        };
+        try {
+            const entity = base44.entities?.AgentNotification;
+            if (entity) {
+                await entity.create(payload);
+                return;
+            }
+            const key = "agent-notifications";
+            const existing = JSON.parse(localStorage.getItem(key) || "[]");
+            existing.unshift(payload);
+            localStorage.setItem(key, JSON.stringify(existing));
+        } catch (e) {
+            console.error("Failed to create notification:", e);
+        }
+    }, [currentUser?.email]);
+
     const submitFeedback = useCallback(async (rating) => {
         if (!lastAssistant?.msg) return;
         const messageId = lastAssistant.msg.id || lastAssistant.msg.timestamp || `msg-${Date.now()}`;
@@ -692,6 +733,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
         try {
             await persistFeedback(payload);
+            await notifyAdmin(`Feedback received for ${agentName}: ${rating > 0 ? "helpful" : "not helpful"}.`, "feedback");
             setFeedbackState((prev) => ({ ...prev, [messageId]: { rating, comment: payload.comment } }));
             setFeedbackComment("");
         } catch (e) {
@@ -719,17 +761,19 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             const entity = base44.entities?.AgentCollabInbox;
             if (entity) {
                 await entity.create(payload);
+                await notifyAdmin(`${agentName} tagged ${targetAgent} in shared inbox.`, "collab");
                 return;
             }
             const key = "agent-collab-inbox";
             const existing = JSON.parse(localStorage.getItem(key) || "[]");
             existing.unshift(payload);
             localStorage.setItem(key, JSON.stringify(existing));
+            await notifyAdmin(`${agentName} tagged ${targetAgent} in shared inbox.`, "collab");
         } catch (e) {
             console.error("Failed to add inbox item:", e);
             setError("Could not tag agent. Please try again.");
         }
-    }, [agentName, buildContextPack, conversation?.id, currentUser?.email]);
+    }, [agentName, buildContextPack, conversation?.id, currentUser?.email, notifyAdmin]);
 
     const handoffToAgent = useCallback((targetAgent) => {
         const contextPack = buildContextPack();

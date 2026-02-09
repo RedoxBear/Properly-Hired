@@ -22,6 +22,9 @@ import {
     TrendingUp,
     BarChart3,
     Inbox,
+    Search as SearchIcon,
+    Brain,
+    Users as UsersIcon,
     Boxes,
     Crown,
     Target,
@@ -116,6 +119,14 @@ function AppShell({ children, currentPageName }) {
                 { title: "Insights", url: createPageUrl("ActivityInsights"), icon: TrendingUp, description: "Activity & Timing Insights", badge: "Pro" },
                 { title: "O*NET Insights", url: createPageUrl("ONetInsights"), icon: BarChart3, description: "Explore skills & job zones", badge: "Pro" },
                 { title: "Networking Hub", url: createPageUrl("NetworkingHub"), icon: Users, description: "Professional Networking", badge: "Pro" },
+            ]
+        },
+        {
+            label: "Intelligence",
+            items: [
+                { title: "Search Hub", url: createPageUrl("SearchHub"), icon: SearchIcon, description: "Search all agent data", badge: "Pro" },
+                { title: "Training Center", url: createPageUrl("AgentTraining"), icon: Brain, description: "Upload docs & fine-tune", badge: "Pro" },
+                { title: "Team Workspace", url: createPageUrl("TeamWorkspace"), icon: UsersIcon, description: "Multi-user agent chat", badge: "Pro" },
             ]
         },
         {
