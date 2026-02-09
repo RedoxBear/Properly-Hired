@@ -26,8 +26,10 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const [voiceListening, setVoiceListening] = useState(false);
     const [voiceSupported, setVoiceSupported] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
-    const [isDocked, setIsDocked] = useState(() => localStorage.getItem("chatDocked") === "true");
-    const [isExpanded, setIsExpanded] = useState(() => localStorage.getItem("chatExpanded") === "true");
+    const dockKey = `chatDocked_${agentName}`;
+    const expandKey = `chatExpanded_${agentName}`;
+    const [isDocked, setIsDocked] = useState(() => localStorage.getItem(dockKey) === "true");
+    const [isExpanded, setIsExpanded] = useState(() => localStorage.getItem(expandKey) === "true");
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
     const autoSentRef = useRef(false);
 
@@ -101,12 +103,12 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     }, [isDocked]);
 
     useEffect(() => {
-        localStorage.setItem("chatDocked", String(isDocked));
-    }, [isDocked]);
+        localStorage.setItem(dockKey, String(isDocked));
+    }, [dockKey, isDocked]);
 
     useEffect(() => {
-        localStorage.setItem("chatExpanded", String(isExpanded));
-    }, [isExpanded]);
+        localStorage.setItem(expandKey, String(isExpanded));
+    }, [expandKey, isExpanded]);
 
     // Initialize or retrieve conversation
     const initConversation = useCallback(async () => {
@@ -572,13 +574,13 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                 className={containerClass}
             >
-                <Card className={`shadow-2xl border-2 ${agentConfig.headerBorder} ${cardClass} flex flex-col`}>
-                    <CardHeader className={`border-b ${agentConfig.headerBg} py-3 px-4`}>
+                <Card className={`shadow-2xl border-2 ${agentConfig.headerBorder} ${cardClass} flex flex-col dark:bg-slate-900 dark:border-slate-700`}>
+                    <CardHeader className={`border-b ${agentConfig.headerBg} py-3 px-4 dark:border-slate-700`}>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">{agentConfig.icon}</span>
-                                <CardTitle className="text-base">{agentConfig.fullName}</CardTitle>
-                                <Badge variant="outline" className="text-xs bg-white/50 border-current">
+                                <CardTitle className="text-base dark:text-slate-100">{agentConfig.fullName}</CardTitle>
+                                <Badge variant="outline" className="text-xs bg-white/50 border-current dark:bg-slate-800">
                                     AI
                                 </Badge>
                             </div>
@@ -589,6 +591,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     className="h-7 w-7"
                                     onClick={clearHistory}
                                     title="Clear conversation history"
+                                    aria-label="Clear conversation history"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -599,6 +602,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                         className="h-7 w-7"
                                         onClick={() => setIsDocked(!isDocked)}
                                         title={isDocked ? "Undock" : "Dock Right"}
+                                        aria-label={isDocked ? "Undock" : "Dock Right"}
                                     >
                                         {isDocked ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
                                     </Button>
@@ -609,6 +613,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     className="h-7 w-7"
                                     onClick={() => setIsExpanded(!isExpanded)}
                                     title={isExpanded ? "Shrink" : "Expand"}
+                                    aria-label={isExpanded ? "Shrink" : "Expand"}
                                 >
                                     {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                                 </Button>
@@ -618,6 +623,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     className="h-7 w-7"
                                     onClick={() => setIsMinimized(!isMinimized)}
                                     title={isMinimized ? "Restore" : "Minimize"}
+                                    aria-label={isMinimized ? "Restore" : "Minimize"}
                                 >
                                     {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
                                 </Button>
@@ -627,6 +633,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     className="h-7 w-7"
                                     onClick={() => setIsOpen(false)}
                                     title="Close"
+                                    aria-label="Close"
                                 >
                                     <X className="w-4 h-4" />
                                 </Button>
@@ -636,9 +643,9 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
                     {!isMinimized && (
                         <>
-                            <CardContent className="flex-1 overflow-y-auto p-4 space-y-3">
+                            <CardContent className="flex-1 overflow-y-auto p-4 space-y-3 dark:text-slate-100">
                                 {initError && (
-                                    <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+                                    <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700 dark:bg-red-950 dark:border-red-900 dark:text-red-200">
                                         <p className="font-medium mb-2">{initError}</p>
                                         <Button
                                             size="sm"
@@ -659,15 +666,15 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                 )}
 
                                 {isInitializing && !initError && (
-                                    <div className="flex items-center justify-center py-8 text-slate-500">
+                                    <div className="flex items-center justify-center py-8 text-slate-500 dark:text-slate-400">
                                         <Loader2 className="w-5 h-5 animate-spin mr-2" />
                                         <span className="text-sm">Initializing chat...</span>
                                     </div>
                                 )}
 
                                 {messages.length === 0 && !isInitializing && !initError && (
-                                    <div className="text-center text-slate-500 text-sm mt-8">
-                                        <Bot className="w-12 h-12 mx-auto mb-3 text-slate-300" />
+                                    <div className="text-center text-slate-500 dark:text-slate-400 text-sm mt-8">
+                                        <Bot className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
                                         <p>
                                             {agentName === 'kyle'
                                                 ? "Ask Kyle, your Resume Expert!"
@@ -721,7 +728,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                                 className={`max-w-[85%] rounded-lg px-4 py-2 ${
                                                     msg.role === "user"
                                                         ? "bg-orange-600 text-white"
-                                                        : "bg-slate-100 text-slate-800"
+                                                        : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100"
                                                 }`}
                                             >
                                                 <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
@@ -733,17 +740,17 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                 })}
                                 {isLoading && (
                                     <div className="flex justify-start">
-                                        <div className="bg-slate-100 rounded-lg px-4 py-2">
-                                            <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                                        <div className="bg-slate-100 dark:bg-slate-800 rounded-lg px-4 py-2">
+                                            <Loader2 className="w-4 h-4 animate-spin text-slate-600 dark:text-slate-300" />
                                         </div>
                                     </div>
                                 )}
                                 <div ref={messagesEndRef} />
                             </CardContent>
 
-                            <div className="border-t p-3 space-y-2">
+                            <div className="border-t p-3 space-y-2 dark:border-slate-700">
                                 {error && (
-                                    <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center justify-between">
+                                    <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center justify-between dark:bg-red-950 dark:border-red-900 dark:text-red-200">
                                         <span>{error}</span>
                                         {pendingInput && (
                                             <Button
@@ -770,7 +777,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                                 ? "Ask Simon, insider Recruiter for the Company!"
                                                 : "Type your message..."
                                         }
-                                        className="resize-none h-10 min-h-0"
+                                        className="resize-none h-10 min-h-0 dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700"
                                         disabled={isLoading || !conversation}
                                     />
                                     {voiceSupported && (
@@ -780,6 +787,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                             size="icon"
                                             variant={voiceListening ? "destructive" : "outline"}
                                             title={voiceListening ? "Stop voice input" : "Start voice input"}
+                                            aria-label={voiceListening ? "Stop voice input" : "Start voice input"}
                                         >
                                             {voiceListening ? (
                                                 <MicOff className="w-4 h-4" />
@@ -793,6 +801,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                         disabled={!input.trim() || isLoading || !conversation}
                                         size="icon"
                                         className="bg-orange-600 hover:bg-orange-700"
+                                        aria-label="Send message"
                                     >
                                         {isLoading ? (
                                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -807,7 +816,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
                     {isMinimized && (
                         <CardContent className="p-3">
-                            <p className="text-xs text-slate-600 text-center">
+                            <p className="text-xs text-slate-600 dark:text-slate-300 text-center">
                                 Click to expand chat
                             </p>
                         </CardContent>
