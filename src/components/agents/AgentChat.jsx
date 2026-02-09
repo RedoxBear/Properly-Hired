@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -533,6 +533,34 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         };
     }, [voiceListening]);
 
+    const filteredMessages = useMemo(() => {
+        if (!messages.length) return [];
+        const result = [];
+        let lastAssistantContent = null;
+
+        for (const msg of messages) {
+            if (msg.role !== "assistant") {
+                result.push(msg);
+                continue;
+            }
+
+            const contentText = safeExtractContent(msg);
+            const normalized = typeof contentText === "string" ? contentText.trim() : "";
+
+            if (normalized && normalized === lastAssistantContent) {
+                continue;
+            }
+
+            if (normalized) {
+                lastAssistantContent = normalized;
+            }
+
+            result.push(msg);
+        }
+
+        return result;
+    }, [messages, safeExtractContent]);
+
     // Get agent config for styling
     const agentConfig = AGENT_CONFIG[agentName] || AGENT_CONFIG.build;
 
@@ -547,6 +575,8 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                     onClick={() => setIsOpen(true)}
                     className={`h-14 w-14 rounded-full shadow-lg ${agentConfig.buttonColor}`}
                     size="icon"
+                    title={`Open ${agentConfig.fullName} chat`}
+                    aria-label={`Open ${agentConfig.fullName} chat`}
                 >
                     <span className="text-2xl">{agentConfig.icon}</span>
                 </Button>
@@ -579,7 +609,13 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">{agentConfig.icon}</span>
-                                <CardTitle className="text-base dark:text-slate-100">{agentConfig.fullName}</CardTitle>
+                                <CardTitle
+                                    className="text-base dark:text-slate-100"
+                                    title={`Chatting with ${agentConfig.fullName}`}
+                                    aria-label={`Chatting with ${agentConfig.fullName}`}
+                                >
+                                    {agentConfig.fullName}
+                                </CardTitle>
                                 <Badge variant="outline" className="text-xs bg-white/50 border-current dark:bg-slate-800">
                                     AI
                                 </Badge>
@@ -672,7 +708,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     </div>
                                 )}
 
-                                {messages.length === 0 && !isInitializing && !initError && (
+                                {filteredMessages.length === 0 && !isInitializing && !initError && (
                                     <div className="text-center text-slate-500 dark:text-slate-400 text-sm mt-8">
                                         <Bot className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
                                         <p>
@@ -685,7 +721,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     </div>
                                 )}
 
-                                {messages.map((msg, idx) => {
+                                {filteredMessages.map((msg, idx) => {
                                     // Extract content safely with comprehensive error handling
                                     let contentText = safeExtractContent(msg);
 
@@ -812,14 +848,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                 </div>
                             </div>
                         </>
-                    )}
-
-                    {isMinimized && (
-                        <CardContent className="p-3">
-                            <p className="text-xs text-slate-600 dark:text-slate-300 text-center">
-                                Click to expand chat
-                            </p>
-                        </CardContent>
                     )}
                 </Card>
             </motion.div>
