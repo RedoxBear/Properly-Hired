@@ -230,6 +230,15 @@ URL: ${jobUrl}
                 generated_at: new Date().toISOString()
             };
             setCompanyResearch(structured);
+            if (base44.entities?.CompanyResearch) {
+                await base44.entities.CompanyResearch.create({
+                    company_name: companyName || "",
+                    job_url: jobUrl || "",
+                    research_payload: JSON.stringify(structured),
+                    created_at: new Date().toISOString(),
+                    created_by: currentUser?.email || ""
+                });
+            }
         } catch (e) {
             console.error("Company research failed:", e);
             setError("Company research failed. Ensure MCP tools are configured.");
@@ -701,8 +710,24 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
             ? Math.min(40, Math.round(savedApp.llm_analysis_result.simon_ghost_score / 2))
             : 0;
         const onetBonus = onetBenchmark?.overlap_score ? Math.min(20, Math.round(onetBenchmark.overlap_score / 5)) : 0;
-        return Math.max(0, Math.min(100, Math.round(base - ghostPenalty + onetBonus)));
+        const resumeBoost = resumeMatch?.match_score ? Math.min(15, Math.round(resumeMatch.match_score / 8)) : 0;
+        return Math.max(0, Math.min(100, Math.round(base - ghostPenalty + onetBonus + resumeBoost)));
     })() : null;
+
+    const gradeFromScore = (score) => {
+        if (score >= 98) return "A++";
+        if (score >= 95) return "A+";
+        if (score >= 90) return "A";
+        if (score >= 85) return "A-";
+        if (score >= 80) return "B+";
+        if (score >= 75) return "B";
+        if (score >= 70) return "B-";
+        if (score >= 65) return "C+";
+        if (score >= 60) return "C";
+        if (score >= 55) return "C-";
+        if (score >= 50) return "D";
+        return "F";
+    };
 
     return (
         <div className="min-h-screen p-4 md:p-8">
@@ -987,9 +1012,14 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                        </Badge>
                                     )}
                                     {typeof recommendationScore === "number" && (
-                                        <Badge variant="outline" className="mt-2 text-sm text-blue-700 bg-blue-50 border-blue-200">
-                                            Recommendation Score: {recommendationScore}/100
-                                        </Badge>
+                                        <div className="mt-2 flex flex-wrap gap-2 items-center">
+                                            <Badge variant="outline" className="text-sm text-blue-700 bg-blue-50 border-blue-200">
+                                                Recommendation Score: {recommendationScore}/100
+                                            </Badge>
+                                            <Badge variant="outline" className="text-sm text-emerald-700 bg-emerald-50 border-emerald-200">
+                                                Grade: {gradeFromScore(recommendationScore)}
+                                            </Badge>
+                                        </div>
                                     )}
                                     {savedApp?.llm_analysis_result?.simon_ghost_score !== undefined && (
                                        <div className="mt-3 space-y-2">
