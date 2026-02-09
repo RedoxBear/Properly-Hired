@@ -24,6 +24,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const [pendingInput, setPendingInput] = useState(""); // For failed message retry
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [info, setInfo] = useState("");
     const [initError, setInitError] = useState("");
     const [isInitializing, setIsInitializing] = useState(false);
     const [voiceListening, setVoiceListening] = useState(false);
@@ -48,6 +49,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const initTimeoutRef = useRef(null);
     const subscriptionRef = useRef(null);
     const handoffSentRef = useRef(false);
+    const infoTimeoutRef = useRef(null);
 
     // Scroll to bottom when messages update
     useEffect(() => {
@@ -80,6 +82,10 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             // Unsubscribe from conversation
             if (subscriptionRef.current) {
                 subscriptionRef.current();
+            }
+
+            if (infoTimeoutRef.current) {
+                clearTimeout(infoTimeoutRef.current);
             }
         };
     }, []);
@@ -124,6 +130,35 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         window.addEventListener("resize", onResize);
         return () => window.removeEventListener("resize", onResize);
     }, [isDocked]);
+
+    useEffect(() => {
+        const mountedKey = "agent-chat-mounted";
+        try {
+            const list = JSON.parse(sessionStorage.getItem(mountedKey) || "[]");
+            if (!list.includes(agentName)) {
+                list.push(agentName);
+                sessionStorage.setItem(mountedKey, JSON.stringify(list));
+            }
+        } catch (e) {
+            console.warn("Failed to register mounted agent:", e);
+        }
+
+        const autoKey = "agent-chat-autopen";
+        if (localStorage.getItem(autoKey) === agentName) {
+            localStorage.removeItem(autoKey);
+            setIsOpen(true);
+        }
+
+        return () => {
+            try {
+                const list = JSON.parse(sessionStorage.getItem(mountedKey) || "[]");
+                const next = list.filter((item) => item !== agentName);
+                sessionStorage.setItem(mountedKey, JSON.stringify(next));
+            } catch (e) {
+                // ignore
+            }
+        };
+    }, [agentName]);
 
     useEffect(() => {
         localStorage.setItem(dockKey, String(isDocked));
@@ -348,6 +383,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
         setPendingInput(""); // Clear any pending retry
         setError("");
+        setInfo("");
         setIsLoading(true);
 
         try {
@@ -410,6 +446,18 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             sendMessageWithContent(payload);
         }
     }, [conversation, handoffContext, sendMessageWithContent]);
+
+    useEffect(() => {
+        if (!info) return;
+        if (infoTimeoutRef.current) {
+            clearTimeout(infoTimeoutRef.current);
+        }
+        infoTimeoutRef.current = setTimeout(() => {
+            if (isMountedRef.current) {
+                setInfo("");
+            }
+        }, 3500);
+    }, [info]);
 
     const sendMessage = useCallback(async () => {
         if (!input.trim() || !conversation) return;
@@ -669,11 +717,10 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
             if (!contentText || (typeof contentText === "string" && contentText.includes("[object Object]"))) {
                 if (msg.role === "assistant") {
-                    console.error("[CHATBOT] Failed to extract text from message:", msg);
+                    console.warn("[CHATBOT] Skipping non-text assistant message:", msg);
+                    continue;
                 }
-                contentText = msg.role === "assistant"
-                    ? "Sorry, I encountered an error processing that response. Please try again."
-                    : contentText;
+                contentText = contentText || "";
             }
 
             const normalized = typeof contentText === "string"
@@ -823,6 +870,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             await notifyAdmin(`Feedback received for ${agentName}: ${rating > 0 ? "helpful" : "not helpful"}.`, "feedback");
             setFeedbackState((prev) => ({ ...prev, [messageId]: { rating, comment: payload.comment } }));
             setFeedbackComment("");
+            setInfo("Thanks for the feedback.");
         } catch (e) {
             console.error("Failed to save feedback:", e);
             setError("Could not save feedback. Please try again.");
@@ -849,6 +897,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             if (entity) {
                 await entity.create(payload);
                 await notifyAdmin(`${agentName} tagged ${targetAgent} in shared inbox.`, "collab");
+                setInfo(`Tagged ${targetAgent} in shared inbox.`);
                 return;
             }
             const key = "agent-collab-inbox";
@@ -856,6 +905,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             existing.unshift(payload);
             localStorage.setItem(key, JSON.stringify(existing));
             await notifyAdmin(`${agentName} tagged ${targetAgent} in shared inbox.`, "collab");
+            setInfo(`Tagged ${targetAgent} in shared inbox.`);
         } catch (e) {
             console.error("Failed to add inbox item:", e);
             setError("Could not tag agent. Please try again.");
@@ -863,6 +913,14 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     }, [agentName, buildContextPack, conversation?.id, currentUser?.email, notifyAdmin]);
 
     const handoffToAgent = useCallback((targetAgent) => {
+        const mountedKey = "agent-chat-mounted";
+        let isMounted = false;
+        try {
+            const list = JSON.parse(sessionStorage.getItem(mountedKey) || "[]");
+            isMounted = list.includes(targetAgent);
+        } catch (e) {
+            isMounted = false;
+        }
         const contextPack = buildContextPack();
         const payload = {
             target: targetAgent,
@@ -874,6 +932,12 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         };
         sessionStorage.setItem(`agent-handoff-${targetAgent}`, JSON.stringify(payload));
         window.dispatchEvent(new CustomEvent("agent-handoff", { detail: payload }));
+        if (!isMounted) {
+            localStorage.setItem("agent-chat-autopen", targetAgent);
+            setInfo(`${targetAgent} chat isn't open on this page. Open it to receive the handoff.`);
+        } else {
+            setInfo(`Handoff sent to ${targetAgent}.`);
+        }
     }, [agentName, buildContextPack, conversation?.id]);
 
     // Get agent config for styling
@@ -1086,6 +1150,11 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                         )}
                                     </div>
                                 )}
+                                {info && (
+                                    <div className="p-2 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-700 dark:bg-emerald-950 dark:border-emerald-900 dark:text-emerald-200">
+                                        {info}
+                                    </div>
+                                )}
                                 <div className="flex gap-2">
                                     <Textarea
                                         value={input}
@@ -1132,9 +1201,12 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     </Button>
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    {lastAssistant && (() => {
+                                    {lastAssistant && !isLoading && (() => {
                                         const messageId = lastAssistant.msg.id || lastAssistant.msg.timestamp || "last";
                                         const feedback = feedbackState[messageId];
+                                        if (!lastAssistant.contentText || !String(lastAssistant.contentText).trim()) {
+                                            return null;
+                                        }
                                         return (
                                             <div className="border rounded-lg p-2 bg-slate-50 dark:bg-slate-900 dark:border-slate-700">
                                                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
