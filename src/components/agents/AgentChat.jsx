@@ -259,26 +259,36 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     useEffect(() => {
         if (!conversation) return;
 
+        if (!base44.agents?.subscribeToConversation) {
+            console.warn("[CHATBOT] subscribeToConversation not available in SDK.");
+            return;
+        }
+
         const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
             // DEBUG: Log raw response structure to diagnose [object Object] issues
             if (data?.messages && data.messages.length > 0) {
                 const firstMsg = data.messages[data.messages.length - 1]; // Last message (most recent)
-                console.log('[CHATBOT] SDK Response:', {
-                    timestamp: new Date().toISOString(),
-                    agentName: agentName,
-                    messageCount: data.messages.length,
-                    latestMessage: {
-                        role: firstMsg?.role,
-                        contentType: typeof firstMsg?.content,
-                        contentIsArray: Array.isArray(firstMsg?.content),
-                        contentKeys: firstMsg?.content ? Object.keys(firstMsg.content).slice(0, 5) : [],
-                        contentPreview: typeof firstMsg?.content === 'string'
-                            ? firstMsg.content.substring(0, 100)
-                            : Array.isArray(firstMsg?.content)
-                            ? `[Array: ${firstMsg.content.length} items]`
-                            : JSON.stringify(firstMsg?.content).substring(0, 100)
-                    }
-                });
+                try {
+                    const preview = typeof firstMsg?.content === "string"
+                        ? firstMsg.content.substring(0, 100)
+                        : Array.isArray(firstMsg?.content)
+                        ? `[Array: ${firstMsg.content.length} items]`
+                        : `[${typeof firstMsg?.content}]`;
+                    console.log('[CHATBOT] SDK Response:', {
+                        timestamp: new Date().toISOString(),
+                        agentName: agentName,
+                        messageCount: data.messages.length,
+                        latestMessage: {
+                            role: firstMsg?.role,
+                            contentType: typeof firstMsg?.content,
+                            contentIsArray: Array.isArray(firstMsg?.content),
+                            contentKeys: firstMsg?.content ? Object.keys(firstMsg.content).slice(0, 5) : [],
+                            contentPreview: preview
+                        }
+                    });
+                } catch (logErr) {
+                    console.warn("[CHATBOT] Failed to log debug payload:", logErr);
+                }
             }
 
             if (isMountedRef.current) {
