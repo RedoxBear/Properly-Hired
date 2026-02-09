@@ -71,6 +71,9 @@ export default function JobMatcher() {
     const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
     const [sourceFilter, setSourceFilter] = React.useState("all");
     const [jobSourceStats, setJobSourceStats] = React.useState({});
+    const [isFetchingJob, setIsFetchingJob] = React.useState(false);
+    const [resumeOverrideText, setResumeOverrideText] = React.useState("");
+    const [isParsingResume, setIsParsingResume] = React.useState(false);
     const [jobInput, setJobInput] = React.useState({
         job_url: "",
         job_title: "",
@@ -288,9 +291,54 @@ export default function JobMatcher() {
         setIsLoading(false);
     };
 
+    const fetchJobFromUrl = async () => {
+        if (!jobInput.job_url?.trim()) {
+            setError("Add a job URL to fetch.");
+            return;
+        }
+        setIsFetchingJob(true);
+        setError("");
+        try {
+            const res = await base44.functions.invoke("firecrawlScrape", {
+                url: jobInput.job_url,
+                formats: ["markdown"],
+                only_main_content: true
+            });
+            const extracted = res?.content || res?.markdown || res?.text || "";
+            if (extracted) {
+                setJobInput((prev) => ({ ...prev, job_description: extracted }));
+            } else {
+                setError("Could not extract job description from URL.");
+            }
+        } catch (e) {
+            console.error("Job URL fetch failed:", e);
+            setError("Job URL fetch failed. Check Firecrawl MCP configuration.");
+        }
+        setIsFetchingJob(false);
+    };
+
+    const parseResumeUpload = async (file) => {
+        if (!file) return;
+        setIsParsingResume(true);
+        setError("");
+        try {
+            const res = await base44.functions.invoke("extractDocumentText", { file });
+            if (res?.text) {
+                setResumeOverrideText(res.text);
+            } else {
+                setError("Could not extract resume text.");
+            }
+        } catch (e) {
+            console.error("Resume parse failed:", e);
+            setError("Resume parsing failed. Check extractDocumentText.");
+        }
+        setIsParsingResume(false);
+    };
+
     const analyzeJobFit = async (jobData, resumeId) => {
         const resume = resumes.find(r => r.id === resumeId);
         if (!resume) throw new Error("Resume not found");
+        const resumeText = resumeOverrideText || resume.parsed_content;
 
         const analysisPrompt = `You are an expert career advisor and ATS specialist. Analyze how well this candidate's resume matches the job posting using a **FUZZY MATCHING** approach.
 
@@ -321,7 +369,7 @@ Description:
 ${jobData.job_description}
 
 **CANDIDATE RESUME:**
-${resume.parsed_content}
+${resumeText}
 
 **Your Task:**
 Provide a comprehensive fit analysis with actionable insights that are TRUTHFUL and GROUNDED in their actual background.
@@ -1077,12 +1125,32 @@ Return JSON with:
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium">Job URL</label>
-                                                <Input
-                                                    value={jobInput.job_url}
-                                                    onChange={(e) => setJobInput({...jobInput, job_url: e.target.value})}
-                                                    placeholder="https://..."
-                                                    disabled={resumes.length === 0}
-                                                />
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        value={jobInput.job_url}
+                                                        onChange={(e) => setJobInput({...jobInput, job_url: e.target.value})}
+                                                        placeholder="https://..."
+                                                        disabled={resumes.length === 0}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        onClick={fetchJobFromUrl}
+                                                        disabled={isFetchingJob || resumes.length === 0}
+                                                    >
+                                                        {isFetchingJob ? (
+                                                            <>
+                                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                                Fetching
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Search className="w-4 h-4 mr-2" />
+                                                                Fetch
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                </div>
                                             </div>
                                             <div className="grid md:grid-cols-2 gap-4">
                                                 <div>
@@ -1113,6 +1181,27 @@ Return JSON with:
                                                     className="min-h-[200px]"
                                                     disabled={resumes.length === 0}
                                                 />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm font-medium">Optional Resume Upload</label>
+                                                <div className="flex flex-col gap-2">
+                                                    <Input
+                                                        type="file"
+                                                        onChange={(e) => parseResumeUpload(e.target.files?.[0])}
+                                                        disabled={resumes.length === 0}
+                                                    />
+                                                    {isParsingResume && (
+                                                        <div className="text-xs text-slate-500 flex items-center gap-2">
+                                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                                            Parsing resume...
+                                                        </div>
+                                                    )}
+                                                    {resumeOverrideText && (
+                                                        <div className="text-xs text-emerald-600">
+                                                            Using uploaded resume text for matching.
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                             <Alert className="border-blue-200 bg-blue-50">
                                                 <AlertDescription className="text-blue-800 text-sm">

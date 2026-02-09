@@ -21,13 +21,16 @@ import {
     Globe,
     FileText,
     Bot,
-    ExternalLink
+    ExternalLink,
+    Link2,
+    Save
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { retryWithBackoff } from "@/components/utils/retry";
 import CareerArticulationPanel from "@/components/CareerArticulationPanel";
 import { Resume } from "@/entities/Resume";
+import { ONetDataService } from "@/components/onet/ONetDataService";
 import { composeResume } from "@/components/utils/cvCompose";
 import { Link } from 'react-router-dom';
 import { scoreAlignment } from "@/components/utils/alignment";
@@ -55,6 +58,12 @@ export default function JobAnalysis() {
     const [prefillInfo, setPrefillInfo] = React.useState("");
     const [masterResumeRecord, setMasterResumeRecord] = React.useState(null);
     const [savedApp, setSavedApp] = React.useState(null);
+    const [companyResearch, setCompanyResearch] = React.useState(null);
+    const [isCompanyResearching, setIsCompanyResearching] = React.useState(false);
+    const [onetBenchmark, setOnetBenchmark] = React.useState(null);
+    const [isOnetLoading, setIsOnetLoading] = React.useState(false);
+    const [resumeMatch, setResumeMatch] = React.useState(null);
+    const [isMatching, setIsMatching] = React.useState(false);
 
     // NEW: URL fetch state and editable lock for JD
     const [isFetchingFromUrl, setIsFetchingFromUrl] = React.useState(false);
@@ -66,6 +75,7 @@ export default function JobAnalysis() {
     // Tier limit enforcement
     const [currentUser, setCurrentUser] = React.useState(null);
     const [analysisCount, setAnalysisCount] = React.useState(0);
+    const onetServiceRef = React.useRef(new ONetDataService());
 
     React.useEffect(() => {
         (async () => {
@@ -185,6 +195,126 @@ URL: ${jobUrl}
             setIsFetchingFromUrl(false);
         }
     }, [companyName, jobTitle, jobUrl]);
+
+    const runCompanyResearch = async () => {
+        if (!companyName && !jobUrl) {
+            setError("Add a company name or job URL to research.");
+            return;
+        }
+        setIsCompanyResearching(true);
+        setError("");
+        try {
+            const targetUrl = jobUrl || "";
+            const firecrawlRes = targetUrl
+                ? await base44.functions.invoke("firecrawlScrape", {
+                    url: targetUrl,
+                    formats: ["markdown"],
+                    only_main_content: true
+                })
+                : null;
+
+            const githubRes = await base44.functions.invoke("githubQuery", {
+                query: companyName || "",
+                type: "org"
+            });
+
+            const brightDataRes = await base44.functions.invoke("brightDataCompanyProfile", {
+                company: companyName || "",
+                url: jobUrl || ""
+            });
+
+            const structured = {
+                firecrawl: firecrawlRes || null,
+                github: githubRes || null,
+                brightdata: brightDataRes || null,
+                generated_at: new Date().toISOString()
+            };
+            setCompanyResearch(structured);
+        } catch (e) {
+            console.error("Company research failed:", e);
+            setError("Company research failed. Ensure MCP tools are configured.");
+        }
+        setIsCompanyResearching(false);
+    };
+
+    const saveResearchToNotion = async () => {
+        if (!companyResearch) return;
+        try {
+            await base44.functions.invoke("notionCreatePage", {
+                title: `${companyName || "Company"} Research`,
+                content: JSON.stringify(companyResearch, null, 2)
+            });
+        } catch (e) {
+            console.error("Notion save failed:", e);
+            setError("Could not save to Notion. Check Notion MCP config.");
+        }
+    };
+
+    const runOnetBenchmark = async (requirements = []) => {
+        if (!jobTitle.trim()) return;
+        setIsOnetLoading(true);
+        try {
+            const occRes = await onetServiceRef.current.query("Occupation", { keyword: jobTitle });
+            const occupation = Array.isArray(occRes?.data) ? occRes.data[0] : occRes?.data;
+            if (!occupation?.code && !occupation?.soc_code) {
+                setOnetBenchmark({ status: "no_match" });
+                setIsOnetLoading(false);
+                return;
+            }
+            const socCode = occupation.code || occupation.soc_code;
+            const skillRes = await onetServiceRef.current.query("Skill", { socCode });
+            const skills = (skillRes?.data || []).map((item) => ({
+                name: item.element_name || item.name || "",
+                value: item.data_value || item.importance?.data_value || item.level?.data_value || 0
+            })).filter((item) => item.name).sort((a, b) => b.value - a.value).slice(0, 12);
+
+            const requirementSet = new Set(requirements.map((r) => r.toLowerCase()));
+            const overlap = skills.filter((s) => requirementSet.has(s.name.toLowerCase()));
+            const overlapScore = skills.length > 0 ? Math.round((overlap.length / skills.length) * 100) : 0;
+            const ghostIndicator = overlapScore < 30 ? "High mismatch with O*NET benchmarks" : "Aligned with O*NET benchmarks";
+
+            setOnetBenchmark({
+                occupation: occupation.title || occupation.name || jobTitle,
+                soc_code: socCode,
+                top_skills: skills,
+                overlap_score: overlapScore,
+                ghost_indicator: ghostIndicator
+            });
+        } catch (e) {
+            console.error("O*NET benchmark failed:", e);
+            setOnetBenchmark({ status: "error" });
+        }
+        setIsOnetLoading(false);
+    };
+
+    const runResumeMatch = async () => {
+        if (!resumeTextForReview || !jobDescription) {
+            setError("Need both resume text and job description to match.");
+            return;
+        }
+        setIsMatching(true);
+        setError("");
+        try {
+            const prompt = `Compare the resume to the job description and return JSON with match_score (0-100), strengths[], gaps[], alignment_summary (string). Resume: ${resumeTextForReview} Job: ${jobDescription}`;
+            const res = await InvokeLLM({
+                prompt,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        match_score: { type: "number" },
+                        strengths: { type: "array", items: { type: "string" } },
+                        gaps: { type: "array", items: { type: "string" } },
+                        alignment_summary: { type: "string" }
+                    }
+                }
+            });
+            setResumeMatch(res);
+        } catch (e) {
+            console.error("Resume match failed:", e);
+            setError("Resume match failed.");
+        }
+        setIsMatching(false);
+    };
 
     // NEW: Auto-try once when user pastes a URL and title/company/JD are empty
     React.useEffect(() => {
@@ -530,6 +660,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                 ...response,
                 applicationId: savedApplication.id
             });
+            runOnetBenchmark(response.key_requirements || []);
 
             // NEW: small success cue
             setPrefillInfo("Saved analysis and summary. Open Resume Optimizer or Q&A next.");
@@ -564,6 +695,14 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
         };
     };
     const { indeed, linkedin } = buildSearchLinks();
+    const recommendationScore = analysisResult ? (() => {
+        const base = analysisResult.optimization_score || 0;
+        const ghostPenalty = savedApp?.llm_analysis_result?.simon_ghost_score
+            ? Math.min(40, Math.round(savedApp.llm_analysis_result.simon_ghost_score / 2))
+            : 0;
+        const onetBonus = onetBenchmark?.overlap_score ? Math.min(20, Math.round(onetBenchmark.overlap_score / 5)) : 0;
+        return Math.max(0, Math.min(100, Math.round(base - ghostPenalty + onetBonus)));
+    })() : null;
 
     return (
         <div className="min-h-screen p-4 md:p-8">
@@ -735,6 +874,69 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                         </div>
                                     )}
 
+                                    <div className="rounded-lg border bg-slate-50 p-4 space-y-3">
+                                        <h4 className="text-sm font-semibold text-slate-700">Research & Matching</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={runCompanyResearch}
+                                                disabled={isCompanyResearching}
+                                            >
+                                                {isCompanyResearching ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                        Researching...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Building className="w-4 h-4 mr-2" />
+                                                        Company Research
+                                                    </>
+                                                )}
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => runOnetBenchmark(analysisResult?.key_requirements || [])}
+                                                disabled={isOnetLoading}
+                                            >
+                                                {isOnetLoading ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                        Benchmarking...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Target className="w-4 h-4 mr-2" />
+                                                        O*NET Benchmark
+                                                    </>
+                                                )}
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={runResumeMatch}
+                                                disabled={isMatching}
+                                            >
+                                                {isMatching ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                        Matching...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Sparkles className="w-4 h-4 mr-2" />
+                                                        Resume Match
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                        <p className="text-xs text-slate-500">
+                                            Company Research uses Firecrawl + GitHub + Bright Data MCP tools. Resume Match uses your master resume.
+                                        </p>
+                                    </div>
+
                                     {/* Submit Button */}
                                     <Button
                                         onClick={analyzeJobPosting}
@@ -783,6 +985,11 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                            <Bot className="w-3 h-3 mr-1" />
                                            AI-Generated Likelihood: {analysisResult.ai_generated_likelihood}%
                                        </Badge>
+                                    )}
+                                    {typeof recommendationScore === "number" && (
+                                        <Badge variant="outline" className="mt-2 text-sm text-blue-700 bg-blue-50 border-blue-200">
+                                            Recommendation Score: {recommendationScore}/100
+                                        </Badge>
                                     )}
                                     {savedApp?.llm_analysis_result?.simon_ghost_score !== undefined && (
                                        <div className="mt-3 space-y-2">
@@ -839,6 +1046,102 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                             {analysisResult.company_culture}
                                         </p>
                                     </div>
+
+                                    {companyResearch && (
+                                        <div>
+                                            <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                                                <Link2 className="w-4 h-4" />
+                                                External Company Research
+                                            </h3>
+                                            <div className="grid md:grid-cols-3 gap-3">
+                                                <div className="p-3 rounded-lg border bg-white">
+                                                    <p className="text-xs font-semibold text-slate-600">Firecrawl</p>
+                                                    <p className="text-xs text-slate-500 mt-1 break-words">
+                                                        {companyResearch.firecrawl?.summary || companyResearch.firecrawl?.content?.slice?.(0, 180) || "No crawl data"}
+                                                    </p>
+                                                </div>
+                                                <div className="p-3 rounded-lg border bg-white">
+                                                    <p className="text-xs font-semibold text-slate-600">GitHub</p>
+                                                    <p className="text-xs text-slate-500 mt-1 break-words">
+                                                        {companyResearch.github?.summary || "No GitHub insights"}
+                                                    </p>
+                                                </div>
+                                                <div className="p-3 rounded-lg border bg-white">
+                                                    <p className="text-xs font-semibold text-slate-600">Bright Data</p>
+                                                    <p className="text-xs text-slate-500 mt-1 break-words">
+                                                        {companyResearch.brightdata?.summary || "No Bright Data profile"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-3">
+                                                <Button variant="outline" size="sm" onClick={saveResearchToNotion}>
+                                                    <Save className="w-4 h-4 mr-2" />
+                                                    Save to Notion
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {onetBenchmark && (
+                                        <div>
+                                            <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                                                <Target className="w-4 h-4" />
+                                                O*NET Benchmark
+                                            </h3>
+                                            {onetBenchmark.status === "error" ? (
+                                                <p className="text-sm text-red-600">O*NET benchmark failed.</p>
+                                            ) : (
+                                                <div className="rounded-lg border bg-white p-4 space-y-2">
+                                                    <p className="text-sm text-slate-700">
+                                                        {onetBenchmark.occupation} ({onetBenchmark.soc_code})
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {onetBenchmark.top_skills?.map((skill, idx) => (
+                                                            <Badge key={idx} variant="secondary" className="bg-amber-50 text-amber-800 border-amber-200">
+                                                                {skill.name}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-xs text-slate-500">
+                                                        Overlap score: {onetBenchmark.overlap_score || 0}% · {onetBenchmark.ghost_indicator}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {resumeMatch && (
+                                        <div>
+                                            <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                                                <Sparkles className="w-4 h-4" />
+                                                Resume Match
+                                            </h3>
+                                            <div className="rounded-lg border bg-white p-4 space-y-2">
+                                                <p className="text-sm text-slate-700">
+                                                    Match score: <strong>{resumeMatch.match_score ?? "N/A"}%</strong>
+                                                </p>
+                                                <p className="text-xs text-slate-500">{resumeMatch.alignment_summary}</p>
+                                                <div className="grid md:grid-cols-2 gap-2 text-xs">
+                                                    <div>
+                                                        <p className="font-semibold text-slate-600 mb-1">Strengths</p>
+                                                        <ul className="list-disc pl-4 space-y-1">
+                                                            {(resumeMatch.strengths || []).map((s, idx) => (
+                                                                <li key={idx}>{s}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-slate-600 mb-1">Gaps</p>
+                                                        <ul className="list-disc pl-4 space-y-1">
+                                                            {(resumeMatch.gaps || []).map((g, idx) => (
+                                                                <li key={idx}>{g}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Required Qualifications */}
                                     <div>
