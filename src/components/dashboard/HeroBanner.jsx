@@ -3,46 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Target, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useTheme } from "next-themes";
 
 export default function HeroBanner() {
-    const [logoUrl, setLogoUrl] = React.useState("");
-
-    React.useEffect(() => {
-        const updateLogo = () => {
-            const hasDarkClass = document.documentElement.classList.contains('dark');
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isDark = hasDarkClass || prefersDark;
-            
-            const LOGO_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/0cf860df6_Prague-DayAcceptedConcept.jpg";
-            const LOGO_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/468690cdf_Prague-DayAcceptedConcept-DarkMode.jpg";
-            // TODO: Replace these logos with Properly Hired branded assets when available
-            
-            setLogoUrl(isDark ? LOGO_DARK : LOGO_LIGHT);
-        };
-        
-        // Update immediately
-        updateLogo();
-        
-        // Watch for class changes on documentElement
-        const observer = new MutationObserver(updateLogo);
-        observer.observe(document.documentElement, { 
-            attributes: true, 
-            attributeFilter: ['class'] 
-        });
-        
-        // Watch for system theme changes
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener('change', updateLogo);
-        }
-        
-        return () => {
-            observer.disconnect();
-            if (mediaQuery.removeEventListener) {
-                mediaQuery.removeEventListener('change', updateLogo);
-            }
-        };
-    }, []);
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
+    const LOGO_LIGHT = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/0cf860df6_Prague-DayAcceptedConcept.jpg";
+    const LOGO_DARK = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68af4e866eafaf5bc320af8a/468690cdf_Prague-DayAcceptedConcept-DarkMode.jpg";
+    // TODO: Replace these logos with Properly Hired branded assets when available
+    const logoUrl = isDark ? LOGO_DARK : LOGO_LIGHT;
 
     return (
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:from-blue-900 dark:via-indigo-900 dark:to-slate-900 p-8 md:p-12 shadow-2xl mb-8">

@@ -3,8 +3,8 @@ import { Link as RouterLink, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useDeviceDetection } from "@/components/utils/deviceDetection";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useTheme } from "next-themes";
 import { base44 } from "@/api/base44Client";
 import { isAdmin, isSuperAdmin } from "@/components/utils/accessControl";
 import { AppContextProvider } from "@/components/context/AppContextProvider";
@@ -66,8 +66,8 @@ function AppShell({ children, currentPageName }) {
     const location = useLocation();
     const { isMobile } = useDeviceDetection();
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-    const [isDarkMode, setIsDarkMode] = React.useState(false);
     const [currentUser, setCurrentUser] = React.useState(null);
+    const { resolvedTheme } = useTheme();
 
     React.useEffect(() => {
         loadCurrentUser();
@@ -82,29 +82,7 @@ function AppShell({ children, currentPageName }) {
         }
     };
 
-    React.useEffect(() => {
-        const checkDarkMode = () => {
-            const hasDarkClass = document.documentElement.classList.contains('dark');
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            setIsDarkMode(hasDarkClass || prefersDark);
-        };
-        checkDarkMode();
-        
-        // Watch for class changes
-        const observer = new MutationObserver(checkDarkMode);
-        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-        
-        // Watch for system theme changes
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => checkDarkMode();
-        mediaQuery.addEventListener('change', handleChange);
-        
-        return () => {
-            observer.disconnect();
-            mediaQuery.removeEventListener('change', handleChange);
-        };
-    }, []);
-
+    const isDarkMode = resolvedTheme === "dark";
     const LOGO_CIRCLE = isDarkMode ? LOGO_CIRCLE_DARK : LOGO_CIRCLE_LIGHT;
     const LOGO_FULL = isDarkMode ? LOGO_FULL_DARK : LOGO_FULL_LIGHT;
 
@@ -552,10 +530,8 @@ function AppShell({ children, currentPageName }) {
 
 export default function Layout({ children, currentPageName }) {
     return (
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-            <AppContextProvider>
-                <AppShell currentPageName={currentPageName}>{children}</AppShell>
-            </AppContextProvider>
-        </ThemeProvider>
+        <AppContextProvider>
+            <AppShell currentPageName={currentPageName}>{children}</AppShell>
+        </AppContextProvider>
     );
 }
