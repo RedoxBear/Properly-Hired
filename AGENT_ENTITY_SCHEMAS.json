@@ -1,0 +1,81 @@
+{
+  "entities": [
+    {
+      "name": "AgentFeedback",
+      "display_name": "Agent Feedback",
+      "fields": [
+        { "name": "agent_name", "type": "string", "required": true },
+        { "name": "conversation_id", "type": "string" },
+        { "name": "message_id", "type": "string" },
+        { "name": "rating", "type": "number", "required": true },
+        { "name": "comment", "type": "string", "max_length": 280 },
+        { "name": "summary", "type": "string", "max_length": 200 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
+    },
+    {
+      "name": "AgentTrainingDoc",
+      "display_name": "Agent Training Doc",
+      "fields": [
+        { "name": "agent", "type": "string", "required": true },
+        { "name": "title", "type": "string", "max_length": 120 },
+        { "name": "doc_type", "type": "string", "max_length": 40 },
+        { "name": "summary", "type": "string", "max_length": 300 },
+        { "name": "tags", "type": "string_list", "max_items": 10, "max_length": 24 },
+        { "name": "source_url", "type": "string", "max_length": 300 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
+    },
+    {
+      "name": "AgentTrainingConfig",
+      "display_name": "Agent Training Config",
+      "fields": [
+        { "name": "agent", "type": "string", "required": true },
+        { "name": "use_case", "type": "string", "max_length": 120 },
+        { "name": "behavior_summary", "type": "string", "max_length": 240 },
+        { "name": "do_list", "type": "string_list", "max_items": 8, "max_length": 80 },
+        { "name": "dont_list", "type": "string_list", "max_items": 8, "max_length": 80 },
+        { "name": "company_context", "type": "string", "max_length": 300 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
+    },
+    {
+      "name": "AgentCollabInbox",
+      "display_name": "Agent Collaboration Inbox",
+      "fields": [
+        { "name": "from_agent", "type": "string", "required": true },
+        { "name": "to_agent", "type": "string", "required": true },
+        { "name": "conversation_id", "type": "string" },
+        { "name": "summary", "type": "string", "max_length": 280 },
+        { "name": "highlights", "type": "string_list", "max_items": 5, "max_length": 120 },
+        { "name": "status", "type": "string", "max_length": 20 },
+        { "name": "notes", "type": "string_list", "max_items": 10, "max_length": 160 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
+    },
+    {
+      "name": "AgentTeamChat",
+      "display_name": "Agent Team Chat",
+      "fields": [
+        { "name": "channel", "type": "string", "required": true },
+        { "name": "message", "type": "string", "max_length": 500 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
+    },
+    {
+      "name": "AgentNotification",
+      "display_name": "Agent Notification",
+      "fields": [
+        { "name": "type", "type": "string", "max_length": 30 },
+        { "name": "message", "type": "string", "max_length": 200 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
+    }
+  ]
+}
