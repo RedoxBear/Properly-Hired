@@ -17,21 +17,20 @@ export default function ExternalResources() {
     const [description, setDescription] = React.useState("");
     const [audience, setAudience] = React.useState("all");
     const [error, setError] = React.useState("");
+    const [loading, setLoading] = React.useState(false);
+    const [saving, setSaving] = React.useState(false);
 
     const loadResources = React.useCallback(async () => {
         setError("");
+        setLoading(true);
         try {
-            const entity = base44.entities?.AgentExternalResource;
-            if (entity) {
-                const data = await entity.filter({}, "-created_date", 200);
-                setResources(data);
-                return;
-            }
-            setResources(loadLocal());
+            const data = await base44.entities.AgentExternalResource.filter({}, "-created_date", 200);
+            setResources(data);
         } catch (e) {
             console.error("Failed to load resources:", e);
-            setError("Could not load resources. Using local cache.");
-            setResources(loadLocal());
+            setError("Could not load resources.");
+        } finally {
+            setLoading(false);
         }
     }, []);
 
@@ -44,33 +43,55 @@ export default function ExternalResources() {
             setError("Title and URL are required.");
             return;
         }
-        const payload = {
-            id: `resource-${Date.now()}`,
-            title: title.trim(),
-            url: url.trim(),
-            tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-            description: description.trim(),
-            audience,
-            created_at: new Date().toISOString()
-        };
+        if (title.trim().length > 120) {
+            setError("Title must be 120 characters or less.");
+            return;
+        }
+        if (url.trim().length > 300) {
+            setError("URL must be 300 characters or less.");
+            return;
+        }
+        const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean).slice(0, 10);
+        if (tagList.some(t => t.length > 24)) {
+            setError("Each tag must be 24 characters or less.");
+            return;
+        }
+        if (description.trim().length > 400) {
+            setError("Description must be 400 characters or less.");
+            return;
+        }
 
+        setSaving(true);
+        setError("");
         try {
-            const entity = base44.entities?.AgentExternalResource;
-            if (entity) {
-                await entity.create(payload);
-                await loadResources();
-            } else {
-                const next = [payload, ...resources];
-                setResources(next);
-                saveLocal(next);
-            }
+            await base44.entities.AgentExternalResource.create({
+                title: title.trim(),
+                url: url.trim(),
+                tags: tagList,
+                description: description.trim(),
+                audience,
+            });
             setTitle("");
             setUrl("");
             setTags("");
             setDescription("");
+            setAudience("all");
+            await loadResources();
         } catch (e) {
             console.error("Failed to add resource:", e);
             setError("Could not add resource. Try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const deleteResource = async (id) => {
+        try {
+            await base44.entities.AgentExternalResource.delete(id);
+            setResources((prev) => prev.filter((r) => r.id !== id));
+        } catch (e) {
+            console.error("Failed to delete resource:", e);
+            setError("Could not delete resource.");
         }
     };
 
