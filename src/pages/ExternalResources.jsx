@@ -96,15 +96,15 @@ export default function ExternalResources() {
     };
 
     return (
-        <div className="min-h-screen p-4 md:p-8 bg-gray-50">
+        <div className="min-h-screen p-4 md:p-8">
             <div className="max-w-6xl mx-auto space-y-6">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium mb-3">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium mb-3">
                         <BookOpen className="w-4 h-4" />
                         External Knowledge
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-800">External Resources</h1>
-                    <p className="text-slate-600">Link documentation, policies, or references for agents to use.</p>
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">External Resources</h1>
+                    <p className="text-muted-foreground">Link documentation, policies, or references for agents (Kyle, Simon, CV Assistant) to suggest during chat.</p>
                 </div>
 
                 {error && (
@@ -121,30 +121,36 @@ export default function ExternalResources() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-3 md:grid-cols-2">
-                        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-                        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" />
-                        <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags (comma separated)" />
+                        <div>
+                            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (max 120 chars)" maxLength={120} />
+                            <p className="text-xs text-muted-foreground mt-1">{title.length}/120</p>
+                        </div>
+                        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." maxLength={300} />
+                        <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags (comma separated, max 10)" />
                         <Select value={audience} onValueChange={setAudience}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Agents</SelectItem>
-                                <SelectItem value="kyle">Kyle</SelectItem>
-                                <SelectItem value="simon">Simon</SelectItem>
-                                <SelectItem value="cv_assistant">CV Assistant</SelectItem>
+                                <SelectItem value="kyle">Kyle only</SelectItem>
+                                <SelectItem value="simon">Simon only</SelectItem>
+                                <SelectItem value="cv_assistant">CV Assistant only</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Describe when to use this resource"
-                            className="md:col-span-2"
-                        />
                         <div className="md:col-span-2">
-                            <Button onClick={addResource} className="gap-2">
-                                <Plus className="w-4 h-4" />
-                                Add Resource
+                            <Textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Describe when agents should reference this resource (max 400 chars)"
+                                maxLength={400}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">{description.length}/400</p>
+                        </div>
+                        <div className="md:col-span-2">
+                            <Button onClick={addResource} disabled={saving} className="gap-2">
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                {saving ? "Saving..." : "Add Resource"}
                             </Button>
                         </div>
                     </CardContent>
@@ -152,28 +158,44 @@ export default function ExternalResources() {
 
                 <Card>
                     <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                        <CardTitle>Saved Resources</CardTitle>
-                        <Button variant="outline" size="sm" onClick={loadResources} className="gap-2">
-                            <RefreshCcw className="w-4 h-4" />
+                        <CardTitle>Saved Resources ({resources.length})</CardTitle>
+                        <Button variant="outline" size="sm" onClick={loadResources} disabled={loading} className="gap-2">
+                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
                             Refresh
                         </Button>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        {resources.length === 0 && (
-                            <p className="text-sm text-slate-500">No resources yet.</p>
+                        {loading && resources.length === 0 && (
+                            <div className="flex items-center gap-2 text-muted-foreground text-sm py-4">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+                            </div>
+                        )}
+                        {!loading && resources.length === 0 && (
+                            <p className="text-sm text-muted-foreground">No resources yet. Add one above to get started.</p>
                         )}
                         {resources.map((item) => (
-                            <div key={item.id} className="border rounded-lg p-3 bg-white">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="font-semibold text-slate-800">{item.title}</span>
-                                    <Badge variant="outline">{item.audience || "all"}</Badge>
+                            <div key={item.id} className="border rounded-lg p-3 bg-card">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-semibold text-foreground">{item.title}</span>
+                                        <Badge variant="outline" className="capitalize">{item.audience || "all"}</Badge>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                                        onClick={() => deleteResource(item.id)}
+                                        title="Delete resource"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
                                 </div>
-                                <p className="text-xs text-slate-500 break-all">{item.url}</p>
-                                {item.description && <p className="text-sm text-slate-600 mt-2">{item.description}</p>}
+                                <a href={item.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 break-all hover:underline">{item.url}</a>
+                                {item.description && <p className="text-sm text-muted-foreground mt-2">{item.description}</p>}
                                 {item.tags?.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
                                         {item.tags.map((tag, idx) => (
-                                            <Badge key={`${item.id}-${idx}`} variant="secondary">{tag}</Badge>
+                                            <Badge key={`${item.id}-${idx}`} variant="secondary" className="text-xs">{tag}</Badge>
                                         ))}
                                     </div>
                                 )}
