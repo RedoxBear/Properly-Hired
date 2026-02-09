@@ -76,6 +76,17 @@
         { "name": "created_at", "type": "datetime" },
         { "name": "created_by", "type": "string" }
       ]
+    },
+    {
+      "name": "CompanyResearch",
+      "display_name": "Company Research",
+      "fields": [
+        { "name": "company_name", "type": "string", "max_length": 120 },
+        { "name": "job_url", "type": "string", "max_length": 300 },
+        { "name": "research_payload", "type": "string", "max_length": 4000 },
+        { "name": "created_at", "type": "datetime" },
+        { "name": "created_by", "type": "string" }
+      ]
     }
   ]
 }
