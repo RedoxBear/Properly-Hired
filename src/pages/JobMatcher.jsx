@@ -300,11 +300,11 @@ export default function JobMatcher() {
         setError("");
         try {
             const res = await base44.functions.invoke("firecrawlScrape", {
+                action: "scrape",
                 url: jobInput.job_url,
-                formats: ["markdown"],
-                only_main_content: true
+                formats: ["markdown"]
             });
-            const extracted = res?.content || res?.markdown || res?.text || "";
+            const extracted = res?.data?.markdown || res?.markdown || res?.text || "";
             if (extracted) {
                 setJobInput((prev) => ({ ...prev, job_description: extracted }));
             } else {

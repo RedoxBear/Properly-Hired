@@ -60,6 +60,7 @@ export default function JobAnalysis() {
     const [savedApp, setSavedApp] = React.useState(null);
     const [companyResearch, setCompanyResearch] = React.useState(null);
     const [isCompanyResearching, setIsCompanyResearching] = React.useState(false);
+    const [notionDbId, setNotionDbId] = React.useState(() => localStorage.getItem("notion_db_id") || "");
     const [onetBenchmark, setOnetBenchmark] = React.useState(null);
     const [isOnetLoading, setIsOnetLoading] = React.useState(false);
     const [resumeMatch, setResumeMatch] = React.useState(null);
@@ -207,24 +208,40 @@ URL: ${jobUrl}
             const targetUrl = jobUrl || "";
             const firecrawlRes = targetUrl
                 ? await base44.functions.invoke("firecrawlScrape", {
+                    action: "extract",
                     url: targetUrl,
-                    formats: ["markdown"],
-                    only_main_content: true
+                    json_schema: {
+                        type: "object",
+                        properties: {
+                            company_culture: { type: "string" },
+                            values: { type: "array", items: { type: "string" } },
+                            open_positions: { type: "array", items: { type: "string" } }
+                        }
+                    }
                 })
                 : null;
 
-            const githubRes = await base44.functions.invoke("githubQuery", {
-                query: companyName || "",
-                type: "org"
-            });
+            const githubRes = companyName
+                ? await base44.functions.invoke("githubQuery", {
+                    action: "search_repos",
+                    query: `${companyName} org`,
+                    per_page: 5
+                })
+                : null;
 
-            const brightDataRes = await base44.functions.invoke("brightDataCompanyProfile", {
-                company: companyName || "",
-                url: jobUrl || ""
-            });
+            const companyOrigin = (() => {
+                try { return new URL(jobUrl).origin; } catch { return ""; }
+            })();
+
+            const brightDataRes = companyOrigin
+                ? await base44.functions.invoke("brightdataCollect", {
+                    action: "collect_company",
+                    company_url: companyOrigin
+                })
+                : null;
 
             const structured = {
-                firecrawl: firecrawlRes || null,
+                firecrawl: firecrawlRes?.data?.extracted || firecrawlRes || null,
                 github: githubRes || null,
                 brightdata: brightDataRes || null,
                 generated_at: new Date().toISOString()
@@ -248,9 +265,21 @@ URL: ${jobUrl}
 
     const saveResearchToNotion = async () => {
         if (!companyResearch) return;
+        if (!notionDbId) {
+            setError("Notion database ID not configured. Add it in the field below.");
+            return;
+        }
         try {
-            await base44.functions.invoke("notionCreatePage", {
-                title: `${companyName || "Company"} Research`,
+            await base44.functions.invoke("notionSync", {
+                action: "create_page",
+                database_id: notionDbId,
+                properties: {
+                    Name: {
+                        title: [
+                            { text: { content: `${companyName || "Company"} Research` } }
+                        ]
+                    }
+                },
                 content: JSON.stringify(companyResearch, null, 2)
             });
         } catch (e) {
@@ -1084,18 +1113,18 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                 External Company Research
                                             </h3>
                                             <div className="grid md:grid-cols-3 gap-3">
-                                                <div className="p-3 rounded-lg border bg-white">
-                                                    <p className="text-xs font-semibold text-slate-600">Firecrawl</p>
-                                                    <p className="text-xs text-slate-500 mt-1 break-words">
-                                                        {companyResearch.firecrawl?.summary || companyResearch.firecrawl?.content?.slice?.(0, 180) || "No crawl data"}
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 rounded-lg border bg-white">
-                                                    <p className="text-xs font-semibold text-slate-600">GitHub</p>
-                                                    <p className="text-xs text-slate-500 mt-1 break-words">
-                                                        {companyResearch.github?.summary || "No GitHub insights"}
-                                                    </p>
-                                                </div>
+                                            <div className="p-3 rounded-lg border bg-white">
+                                                <p className="text-xs font-semibold text-slate-600">Firecrawl</p>
+                                                <p className="text-xs text-slate-500 mt-1 break-words">
+                                                    {companyResearch.firecrawl?.company_culture || companyResearch.firecrawl?.summary || "No crawl data"}
+                                                </p>
+                                            </div>
+                                            <div className="p-3 rounded-lg border bg-white">
+                                                <p className="text-xs font-semibold text-slate-600">GitHub</p>
+                                                <p className="text-xs text-slate-500 mt-1 break-words">
+                                                    {companyResearch.github?.repos?.[0]?.description || companyResearch.github?.summary || "No GitHub insights"}
+                                                </p>
+                                            </div>
                                                 <div className="p-3 rounded-lg border bg-white">
                                                     <p className="text-xs font-semibold text-slate-600">Bright Data</p>
                                                     <p className="text-xs text-slate-500 mt-1 break-words">
@@ -1103,7 +1132,15 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="mt-3">
+                                            <div className="mt-3 space-y-2">
+                                                <Input
+                                                    placeholder="Notion Database ID (save for reuse)"
+                                                    value={notionDbId}
+                                                    onChange={(e) => {
+                                                        setNotionDbId(e.target.value);
+                                                        localStorage.setItem("notion_db_id", e.target.value);
+                                                    }}
+                                                />
                                                 <Button variant="outline" size="sm" onClick={saveResearchToNotion}>
                                                     <Save className="w-4 h-4 mr-2" />
                                                     Save to Notion
