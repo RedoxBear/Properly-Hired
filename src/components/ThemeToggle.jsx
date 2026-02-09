@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/components/ThemeProvider'
 import { Moon, Sun, Monitor } from 'lucide-react'
 
 export function ThemeToggle() {

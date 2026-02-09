@@ -48,7 +48,6 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ActivityInsights from './pages/ActivityInsights';
-import AgentWorkspace from './pages/AgentWorkspace';
 import ApplicationQnA from './pages/ApplicationQnA';
 import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
@@ -68,7 +67,6 @@ import MyResumes from './pages/MyResumes';
 import NetworkingHub from './pages/NetworkingHub';
 import NetworkingMessages from './pages/NetworkingMessages';
 import ONetImport from './pages/ONetImport';
-import ONetInsights from './pages/ONetInsights';
 import OptimizeResume from './pages/OptimizeResume';
 import PeopleSearch from './pages/PeopleSearch';
 import Pricing from './pages/Pricing';
@@ -85,14 +83,15 @@ import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import TransferableSkills from './pages/TransferableSkills';
-import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
+import AgentWorkspace from './pages/AgentWorkspace';
+import ONetInsights from './pages/ONetInsights';
+import UserProfile from './pages/UserProfile';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActivityInsights": ActivityInsights,
-    "AgentWorkspace": AgentWorkspace,
     "ApplicationQnA": ApplicationQnA,
     "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
@@ -112,7 +111,6 @@ export const PAGES = {
     "NetworkingHub": NetworkingHub,
     "NetworkingMessages": NetworkingMessages,
     "ONetImport": ONetImport,
-    "ONetInsights": ONetInsights,
     "OptimizeResume": OptimizeResume,
     "PeopleSearch": PeopleSearch,
     "Pricing": Pricing,
@@ -129,8 +127,10 @@ export const PAGES = {
     "ResumeTemplates": ResumeTemplates,
     "ResumeViewer": ResumeViewer,
     "TransferableSkills": TransferableSkills,
-    "UserProfile": UserProfile,
     "Users": Users,
+    "AgentWorkspace": AgentWorkspace,
+    "ONetInsights": ONetInsights,
+    "UserProfile": UserProfile,
 }
 
 export const pagesConfig = {

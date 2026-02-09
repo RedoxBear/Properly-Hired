@@ -3,7 +3,7 @@ import { Link as RouterLink, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { useDeviceDetection } from "@/components/utils/deviceDetection";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { base44 } from "@/api/base44Client";
 import { isAdmin, isSuperAdmin } from "@/components/utils/accessControl";
