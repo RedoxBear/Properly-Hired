@@ -79,6 +79,15 @@ export default function JobAnalysis() {
     const onetServiceRef = React.useRef(new ONetDataService());
 
     React.useEffect(() => {
+        const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
+        if (dismissed) return;
+        const sessionKey = "guided-tour-job-analysis-shown";
+        if (sessionStorage.getItem(sessionKey) === "true") return;
+        sessionStorage.setItem(sessionKey, "true");
+        window.dispatchEvent(new CustomEvent("guided-tour:start"));
+    }, []);
+
+    React.useEffect(() => {
         (async () => {
             try {
                 const masters = await Resume.filter({ is_master_resume: true }, "-created_date", 1);

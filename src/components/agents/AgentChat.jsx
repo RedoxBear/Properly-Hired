@@ -4,10 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ChevronRight, ChevronLeft, Minus, ThumbsUp, ThumbsDown, AtSign, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { useAppContext } from "@/components/context/AppContextProvider";
+import { canPerformAction, getTierLimit, getWeekStart } from "@/components/utils/accessControl";
+import { readEvents, logEvent } from "@/components/utils/telemetry";
 import ChatErrorBoundary from "./ChatErrorBoundary";
 import { AGENT_CONFIG, parseAgentFromResponse } from "./agentPrompts";
 
@@ -30,6 +33,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const [feedbackState, setFeedbackState] = useState({});
     const [feedbackComment, setFeedbackComment] = useState("");
     const [externalResources, setExternalResources] = useState([]);
+    const [chatUsageCount, setChatUsageCount] = useState(0);
     const dockKey = `chatDocked_${agentName}`;
     const expandKey = `chatExpanded_${agentName}`;
     const [isDocked, setIsDocked] = useState(() => localStorage.getItem(dockKey) === "true");
@@ -93,6 +97,20 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
             }
         };
         fetchUser();
+    }, []);
+
+    useEffect(() => {
+        const loadUsage = async () => {
+            try {
+                const weekStart = getWeekStart();
+                const events = await readEvents();
+                const count = events.filter((ev) => ev.type === "agent_chat_used" && new Date(ev.ts) >= weekStart).length;
+                setChatUsageCount(count);
+            } catch (e) {
+                console.warn("Failed to load chat usage:", e);
+            }
+        };
+        loadUsage();
     }, []);
 
     useEffect(() => {
@@ -315,6 +333,19 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     const sendMessageWithContent = useCallback(async (userMessage) => {
         if (!userMessage || !conversation) return;
 
+        if (currentUser) {
+            const allowed = canPerformAction(currentUser, "agent_chat", chatUsageCount);
+            if (!allowed) {
+                const limit = getTierLimit(currentUser, "agent_chat");
+                setError(
+                    limit === -1
+                        ? "Agent chat is currently unavailable. Please try again later."
+                        : `You've used all ${limit} AI agent chat credits this week. Upgrade for more.`
+                );
+                return;
+            }
+        }
+
         setPendingInput(""); // Clear any pending retry
         setError("");
         setIsLoading(true);
@@ -330,6 +361,19 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                     created_by_email: currentUser?.email || "unknown@example.com"
                 }
             });
+
+            try {
+                await logEvent({
+                    type: "agent_chat_used",
+                    ts: new Date().toISOString(),
+                    agent: agentName
+                });
+                if (isMountedRef.current) {
+                    setChatUsageCount((prev) => prev + 1);
+                }
+            } catch (logErr) {
+                console.warn("Failed to log chat usage:", logErr);
+            }
 
             // Success - clear input
             if (isMountedRef.current) {
