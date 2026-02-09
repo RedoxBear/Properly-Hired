@@ -32,17 +32,23 @@ Deno.serve(async (req) => {
     };
 
     if (action === "scrape_url") {
-      const { url, country } = body;
+      const { url, country, zone } = body;
       if (!url) {
         return Response.json({ error: "url is required" }, { status: 400 });
       }
 
-      // Use Web Unlocker API for general page scraping
+      if (!zone) {
+        return Response.json({
+          error: "zone is required. Create a Web Unlocker API zone in your Bright Data Control Panel (https://brightdata.com/cp/web_access/new) and provide its name.",
+          help: "Go to Bright Data → Web Access APIs → Create API → Web Unlocker API → name it → then pass that name as 'zone'.",
+        }, { status: 400 });
+      }
+
       const resp = await fetch(`${BD_API_BASE}/request`, {
         method: "POST",
         headers,
         body: JSON.stringify({
-          zone: "web_unlocker1",
+          zone,
           url,
           country: country || "us",
           format: "raw",
@@ -58,7 +64,7 @@ Deno.serve(async (req) => {
       return Response.json({
         success: true,
         data: {
-          html: html.substring(0, 100000), // Cap at 100KB
+          html: html.substring(0, 100000),
           url,
           content_length: html.length,
         },
