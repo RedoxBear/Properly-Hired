@@ -539,27 +539,57 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         let lastAssistantContent = null;
 
         for (const msg of messages) {
-            if (msg.role !== "assistant") {
-                result.push(msg);
-                continue;
+            let contentText = safeExtractContent(msg);
+
+            if (msg.role === "assistant" && typeof contentText === "string") {
+                try {
+                    const parsed = parseAgentFromResponse(contentText);
+                    if (parsed?.cleanedResponse) {
+                        contentText = parsed.cleanedResponse;
+                        if (parsed.agent) {
+                            console.log("[CHATBOT] Parsed agent response:", parsed.agent);
+                        }
+                    }
+                } catch (parseErr) {
+                    console.warn("[CHATBOT] Failed to parse agent from response:", parseErr);
+                }
             }
 
-            const contentText = safeExtractContent(msg);
-            const normalized = typeof contentText === "string" ? contentText.trim() : "";
-
-            if (normalized && normalized === lastAssistantContent) {
-                continue;
+            if (!contentText || (typeof contentText === "string" && contentText.includes("[object Object]"))) {
+                if (msg.role === "assistant") {
+                    console.error("[CHATBOT] Failed to extract text from message:", msg);
+                }
+                contentText = msg.role === "assistant"
+                    ? "Sorry, I encountered an error processing that response. Please try again."
+                    : contentText;
             }
 
-            if (normalized) {
+            const normalized = typeof contentText === "string"
+                ? contentText.replace(/\s+/g, " ").trim()
+                : "";
+
+            if (msg.role === "assistant") {
+                if (!normalized) {
+                    console.log("[CHATBOT] Skipping empty assistant message, waiting for content...");
+                    continue;
+                }
+                if (normalized === lastAssistantContent) {
+                    continue;
+                }
                 lastAssistantContent = normalized;
             }
 
-            result.push(msg);
+            result.push({ msg, contentText });
         }
 
         return result;
     }, [messages, safeExtractContent]);
+
+    const MAX_RENDERED_MESSAGES = 80;
+    const displayedMessages = useMemo(
+        () => filteredMessages.slice(-MAX_RENDERED_MESSAGES),
+        [filteredMessages]
+    );
 
     // Get agent config for styling
     const agentConfig = AGENT_CONFIG[agentName] || AGENT_CONFIG.build;
@@ -721,37 +751,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                     </div>
                                 )}
 
-                                {filteredMessages.map((msg, idx) => {
-                                    // Extract content safely with comprehensive error handling
-                                    let contentText = safeExtractContent(msg);
-
-                                    // Skip empty assistant messages - they're still being processed
-                                    if (msg.role === 'assistant' && !contentText) {
-                                        console.log('[CHATBOT] Skipping empty assistant message, waiting for content...');
-                                        return null; // Don't render empty messages
-                                    }
-
-                                    // If this is an assistant response, try to parse agent tags
-                                    if (msg.role === 'assistant' && typeof contentText === 'string') {
-                                        try {
-                                            const parsed = parseAgentFromResponse(contentText);
-                                            if (parsed?.cleanedResponse) {
-                                                contentText = parsed.cleanedResponse;
-                                                if (parsed.agent) {
-                                                    console.log('[CHATBOT] Parsed agent response:', parsed.agent);
-                                                }
-                                            }
-                                        } catch (parseErr) {
-                                            console.warn('[CHATBOT] Failed to parse agent from response:', parseErr);
-                                        }
-                                    }
-
-                                    // Final safety check for [object Object]
-                                    if (!contentText || contentText.includes('[object Object]')) {
-                                        console.error("[CHATBOT] Failed to extract text from message:", msg);
-                                        contentText = "Sorry, I encountered an error processing that response. Please try again.";
-                                    }
-
+                                {displayedMessages.map(({ msg, contentText }, idx) => {
                                     // Use message ID if available, otherwise create stable key
                                     const messageKey = msg.id || `msg-${idx}-${msg.timestamp || Date.now()}`;
 
