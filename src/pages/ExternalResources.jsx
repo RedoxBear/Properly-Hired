@@ -7,21 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Link2, Plus, RefreshCcw, BookOpen } from "lucide-react";
-
-const LOCAL_KEY = "agent-external-resources";
-
-const loadLocal = () => {
-    try {
-        return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
-    } catch (e) {
-        return [];
-    }
-};
-
-const saveLocal = (data) => {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
-};
+import { Link2, Plus, RefreshCcw, BookOpen, Trash2, Loader2 } from "lucide-react";
 
 export default function ExternalResources() {
     const [resources, setResources] = React.useState([]);

@@ -48,6 +48,8 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ActivityInsights from './pages/ActivityInsights';
+import AgentTraining from './pages/AgentTraining';
+import AgentWorkspace from './pages/AgentWorkspace';
 import ApplicationQnA from './pages/ApplicationQnA';
 import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
@@ -67,6 +69,7 @@ import MyResumes from './pages/MyResumes';
 import NetworkingHub from './pages/NetworkingHub';
 import NetworkingMessages from './pages/NetworkingMessages';
 import ONetImport from './pages/ONetImport';
+import ONetInsights from './pages/ONetInsights';
 import OptimizeResume from './pages/OptimizeResume';
 import PeopleSearch from './pages/PeopleSearch';
 import Pricing from './pages/Pricing';
@@ -82,20 +85,19 @@ import ResumeQuality from './pages/ResumeQuality';
 import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
-import ExternalResources from './pages/ExternalResources';
 import SearchHub from './pages/SearchHub';
 import TeamWorkspace from './pages/TeamWorkspace';
 import TransferableSkills from './pages/TransferableSkills';
-import Users from './pages/Users';
-import AgentWorkspace from './pages/AgentWorkspace';
-import AgentTraining from './pages/AgentTraining';
-import ONetInsights from './pages/ONetInsights';
 import UserProfile from './pages/UserProfile';
+import Users from './pages/Users';
+import ExternalResources from './pages/ExternalResources';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ActivityInsights": ActivityInsights,
+    "AgentTraining": AgentTraining,
+    "AgentWorkspace": AgentWorkspace,
     "ApplicationQnA": ApplicationQnA,
     "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
@@ -115,6 +117,7 @@ export const PAGES = {
     "NetworkingHub": NetworkingHub,
     "NetworkingMessages": NetworkingMessages,
     "ONetImport": ONetImport,
+    "ONetInsights": ONetInsights,
     "OptimizeResume": OptimizeResume,
     "PeopleSearch": PeopleSearch,
     "Pricing": Pricing,
@@ -130,15 +133,12 @@ export const PAGES = {
     "ResumeReview": ResumeReview,
     "ResumeTemplates": ResumeTemplates,
     "ResumeViewer": ResumeViewer,
-    "ExternalResources": ExternalResources,
     "SearchHub": SearchHub,
     "TeamWorkspace": TeamWorkspace,
     "TransferableSkills": TransferableSkills,
-    "Users": Users,
-    "AgentWorkspace": AgentWorkspace,
-    "AgentTraining": AgentTraining,
-    "ONetInsights": ONetInsights,
     "UserProfile": UserProfile,
+    "Users": Users,
+    "ExternalResources": ExternalResources,
 }
 
 export const pagesConfig = {
