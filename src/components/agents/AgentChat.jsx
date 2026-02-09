@@ -223,14 +223,8 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
     useEffect(() => {
         const loadResources = async () => {
             try {
-                const entity = base44.entities?.AgentExternalResource;
-                if (entity) {
-                    const data = await entity.filter({}, "-created_date", 200);
-                    setExternalResources(data || []);
-                    return;
-                }
-                const local = JSON.parse(localStorage.getItem("agent-external-resources") || "[]");
-                setExternalResources(local);
+                const data = await base44.entities.AgentExternalResource.filter({}, "-created_date", 200);
+                setExternalResources(data || []);
             } catch (e) {
                 console.error("Failed to load external resources:", e);
             }
