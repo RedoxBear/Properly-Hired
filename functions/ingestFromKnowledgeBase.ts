@@ -29,49 +29,58 @@ Deno.serve(async (req) => {
     const { action = 'ingest_one' } = body;
 
     // ── LIST ──────────────────────────────────────────────
+    // Fetches KB records ONE AT A TIME to avoid memory issues with huge content fields
     if (action === 'list') {
-      // Fetch KB records in pages — use list() without filter since boolean filter may not work
-      let allKB = [];
-      let listOffset = 0;
-      while (listOffset < 200) {
-        const page = await retryOp(() =>
-          base44.asServiceRole.entities.KnowledgeBase.list('created_date', 20, listOffset)
-        );
-        if (!page || !Array.isArray(page) || page.length === 0) break;
-        allKB = allKB.concat(page.filter(r => r.is_active !== false));
-        listOffset += page.length;
-        if (page.length < 20) break;
-        await sleep(500);
-      }
-      
-      // Fetch existing sources
+      // Fetch existing sources first (small records)
       let existingSources = [];
       try {
         const srcResult = await retryOp(() =>
-          base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
+          base44.asServiceRole.entities.KnowledgeSource.list('-created_date', 500)
         );
         if (Array.isArray(srcResult)) existingSources = srcResult;
-      } catch (_) { /* no sources yet */ }
+      } catch (_) {}
       const sourceMap = {};
       existingSources.forEach(s => { sourceMap[s.source_path] = s; });
 
-      const records = allKB.map((kb, i) => {
+      // Fetch KB records one at a time to avoid pulling huge payloads
+      const records = [];
+      let offset = 0;
+      while (offset < 100) {
+        let page;
+        try {
+          page = await retryOp(() =>
+            base44.asServiceRole.entities.KnowledgeBase.list('created_date', 1, offset)
+          );
+        } catch (err) {
+          // If even a single record is too large, skip it
+          offset++;
+          continue;
+        }
+        if (!page || !Array.isArray(page) || page.length === 0) break;
+        
+        const kb = page[0];
+        if (kb.is_active === false) { offset++; continue; }
+
         const title = kb.title || `kb-${kb.id}`;
         let agent = 'both';
         if (title.toLowerCase().startsWith('kyle/')) agent = 'kyle';
         else if (title.toLowerCase().startsWith('simon/')) agent = 'simon';
         else if (kb.agent_access?.length === 1) agent = kb.agent_access[0];
         const src = sourceMap[title];
-        return {
-          index: i, id: kb.id, title, agent, category: kb.category,
+        
+        records.push({
+          index: offset, id: kb.id, title, agent, category: kb.category,
           content_length: (kb.content || '').length,
           estimated_chunks: Math.ceil((kb.content || '').length / 850),
           already_ingested: src?.status === 'completed',
           ingestion_status: src?.status || null,
           chunk_count: src?.chunk_count || 0,
           source_id: src?.id || null
-        };
-      });
+        });
+        
+        offset++;
+        await sleep(200); // small delay between fetches
+      }
 
       return Response.json({
         total_records: records.length,
@@ -81,48 +90,46 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── RESET ONE ────────────────────────────────────────
-    // Reset a stuck/partial source so it can be re-ingested cleanly
+    // ── RESET ────────────────────────────────────────────
     if (action === 'reset') {
       const { source_id } = body;
       if (!source_id) return Response.json({ error: 'source_id required' }, { status: 400 });
       
-      // Delete all chunks for this source
-      const chunks = await retryOp(() =>
-        base44.asServiceRole.entities.KnowledgeChunk.filter({ source_id }, 'created_date', 500)
-      );
-      for (const c of chunks) {
-        await retryOp(() => base44.asServiceRole.entities.KnowledgeChunk.delete(c.id));
-        await sleep(200);
+      // Delete chunks in pages
+      let deleted = 0;
+      while (true) {
+        const chunks = await retryOp(() =>
+          base44.asServiceRole.entities.KnowledgeChunk.filter({ source_id }, 'created_date', 50)
+        );
+        if (!chunks || !Array.isArray(chunks) || chunks.length === 0) break;
+        for (const c of chunks) {
+          await retryOp(() => base44.asServiceRole.entities.KnowledgeChunk.delete(c.id));
+          deleted++;
+          await sleep(200);
+        }
       }
-      // Delete the source itself
       await retryOp(() => base44.asServiceRole.entities.KnowledgeSource.delete(source_id));
-      return Response.json({ success: true, deleted_chunks: chunks.length });
+      return Response.json({ success: true, deleted_chunks: deleted });
     }
 
     // ── INGEST ONE ───────────────────────────────────────
     const { kb_id, chunk_start = 0 } = body;
-    
-    if (!kb_id) {
-      return Response.json({ error: 'kb_id is required' }, { status: 400 });
-    }
+    if (!kb_id) return Response.json({ error: 'kb_id required' }, { status: 400 });
 
-    // Fetch the specific KB record by ID — paginate to find it
+    // Fetch the specific KB record — scan one at a time by offset
     let kb = null;
-    let searchOffset = 0;
-    while (!kb && searchOffset < 200) {
+    let scanOffset = 0;
+    while (!kb && scanOffset < 100) {
       const page = await retryOp(() =>
-        base44.asServiceRole.entities.KnowledgeBase.list('created_date', 20, searchOffset)
+        base44.asServiceRole.entities.KnowledgeBase.list('created_date', 1, scanOffset)
       );
       if (!page || !Array.isArray(page) || page.length === 0) break;
-      kb = page.find(r => r.id === kb_id && r.is_active !== false);
-      searchOffset += page.length;
-      if (!kb && page.length < 20) break;
-      if (!kb) await sleep(300);
+      if (page[0].id === kb_id) { kb = page[0]; break; }
+      scanOffset++;
+      await sleep(100);
     }
-    if (!kb) {
-      return Response.json({ error: `KB record ${kb_id} not found` }, { status: 404 });
-    }
+    
+    if (!kb) return Response.json({ error: `KB record ${kb_id} not found` }, { status: 404 });
 
     const title = kb.title || `kb-${kb.id}`;
     const content = kb.content || '';
@@ -140,10 +147,10 @@ Deno.serve(async (req) => {
     let existingSources = [];
     try {
       const srcResult = await retryOp(() =>
-        base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
+        base44.asServiceRole.entities.KnowledgeSource.list('-created_date', 500)
       );
       if (Array.isArray(srcResult)) existingSources = srcResult;
-    } catch (_) { /* no sources yet */ }
+    } catch (_) {}
     let source = existingSources.find(s => s.source_path === title);
 
     if (source?.status === 'completed') {
@@ -161,10 +168,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Chunk content from chunk_start position
+    // Chunk content — keep batches SMALL to avoid rate limits
     const CHUNK_SIZE = 1000;
     const OVERLAP = 150;
-    const MAX_CHUNKS = 20; // Keep small to avoid rate limits
+    const MAX_CHUNKS = 15;
     const chunks = [];
     let pos = chunk_start;
 
@@ -172,42 +179,40 @@ Deno.serve(async (req) => {
       let end = Math.min(pos + CHUNK_SIZE, content.length);
       if (end < content.length) {
         const slice = content.substring(pos, Math.min(pos + CHUNK_SIZE + 200, content.length));
-        const breakPoints = ['\n\n', '.\n', '. ', '\n'];
-        for (const bp of breakPoints) {
+        for (const bp of ['\n\n', '.\n', '. ', '\n']) {
           const idx = slice.lastIndexOf(bp, CHUNK_SIZE + 100);
           if (idx >= CHUNK_SIZE * 0.7) { end = pos + idx + bp.length; break; }
         }
       }
       const chunkText = content.substring(pos, end).trim();
-      if (chunkText.length > 20) chunks.push({ text: chunkText, index: chunks.length });
+      if (chunkText.length > 20) chunks.push({ text: chunkText, idx: chunks.length });
       pos = end - OVERLAP;
       if (pos >= content.length) break;
     }
 
     const allTags = [...new Set([agent, kb.category || 'general'])];
 
-    // Insert chunks one small batch at a time with generous delays
-    if (chunks.length > 0) {
-      const BATCH = 5;
-      for (let i = 0; i < chunks.length; i += BATCH) {
-        const batchData = chunks.slice(i, i + BATCH).map(c => {
-          const words = c.text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
-          const freq = {};
-          words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
-          const topKW = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([w]) => w);
-          return {
-            source_id: source.id, agent, content: c.text,
-            chunk_index: (source.chunk_count || 0) + chunk_start + c.index,
-            tags: allTags, keywords: topKW, query_count: 0
-          };
-        });
-        await retryOp(() => base44.asServiceRole.entities.KnowledgeChunk.bulkCreate(batchData));
-        await sleep(1000); // 1s between batches
-      }
+    // Insert chunks one at a time with delays (safest against rate limits)
+    let insertedCount = 0;
+    for (const c of chunks) {
+      const words = c.text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+      const freq = {};
+      words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+      const topKW = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([w]) => w);
+      
+      await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeChunk.create({
+          source_id: source.id, agent, content: c.text,
+          chunk_index: (source.chunk_count || 0) + c.idx,
+          tags: allTags, keywords: topKW, query_count: 0
+        })
+      );
+      insertedCount++;
+      await sleep(500); // 500ms between each individual create
     }
 
     const hasMore = pos < content.length;
-    const newChunkCount = (source.chunk_count || 0) + chunks.length;
+    const newChunkCount = (source.chunk_count || 0) + insertedCount;
 
     if (!hasMore) {
       await retryOp(() =>
@@ -217,7 +222,7 @@ Deno.serve(async (req) => {
       );
       return Response.json({
         success: true, title, agent, status: 'completed',
-        chunks_this_call: chunks.length, total_chunks: newChunkCount
+        chunks_this_call: insertedCount, total_chunks: newChunkCount
       });
     } else {
       await retryOp(() =>
@@ -225,7 +230,7 @@ Deno.serve(async (req) => {
       );
       return Response.json({
         success: true, title, agent, status: 'partial',
-        chunks_this_call: chunks.length, next_chunk_start: pos,
+        chunks_this_call: insertedCount, next_chunk_start: pos,
         content_total: content.length, progress_pct: Math.round((pos / content.length) * 100),
         total_chunks_so_far: newChunkCount
       });
