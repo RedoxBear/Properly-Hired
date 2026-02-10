@@ -68,7 +68,6 @@ import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
 import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
-import KnowledgeIngest from './pages/KnowledgeIngest';
 import MyNetwork from './pages/MyNetwork';
 import MyResumes from './pages/MyResumes';
 import NetworkingHub from './pages/NetworkingHub';
@@ -120,7 +119,6 @@ export const PAGES = {
     "JobLibrary": JobLibrary,
     "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
-    "KnowledgeIngest": KnowledgeIngest,
     "MyNetwork": MyNetwork,
     "MyResumes": MyResumes,
     "NetworkingHub": NetworkingHub,
