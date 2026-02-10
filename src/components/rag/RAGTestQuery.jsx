@@ -75,7 +75,7 @@ export default function RAGTestQuery() {
             {result.expanded_terms?.length > 0 && (
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Brain className="w-3 h-3" /> Expanded:
+                  <Brain className="w-3 h-3" /> LLM expanded:
                 </span>
                 {result.expanded_terms.map((t, i) => (
                   <Badge key={i} variant="outline" className="text-[10px] bg-blue-50 dark:bg-blue-950/30">
@@ -83,6 +83,12 @@ export default function RAGTestQuery() {
                   </Badge>
                 ))}
               </div>
+            )}
+            
+            {!result.expanded_terms?.length && result.chunks?.length > 0 && (
+              <p className="text-[10px] text-muted-foreground italic">
+                Test uses keyword scoring only. Live queries also use LLM expansion + reranking.
+              </p>
             )}
 
             <div className="space-y-2">
