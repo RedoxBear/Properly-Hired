@@ -48,18 +48,19 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ActivityInsights from './pages/ActivityInsights';
+import AgentFeedbackInsights from './pages/AgentFeedbackInsights';
 import AgentTraining from './pages/AgentTraining';
 import AgentWorkspace from './pages/AgentWorkspace';
-import AgentFeedbackInsights from './pages/AgentFeedbackInsights';
 import ApplicationQnA from './pages/ApplicationQnA';
 import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
 import CollaborationDashboard from './pages/CollaborationDashboard';
+import CompanyResearchTool from './pages/CompanyResearchTool';
 import CoverLetter from './pages/CoverLetter';
 import CoverLetters from './pages/CoverLetters';
-import CompanyResearchTool from './pages/CompanyResearchTool';
 import Dashboard from './pages/Dashboard';
 import ExtensionGuide from './pages/ExtensionGuide';
+import ExternalResources from './pages/ExternalResources';
 import Home from './pages/Home';
 import HowTo from './pages/HowTo';
 import JobAnalysis from './pages/JobAnalysis';
@@ -93,7 +94,7 @@ import TeamWorkspace from './pages/TeamWorkspace';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
-import ExternalResources from './pages/ExternalResources';
+import RAGMonitor from './pages/RAGMonitor';
 import __Layout from './Layout.jsx';
 
 
@@ -106,11 +107,12 @@ export const PAGES = {
     "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
     "CollaborationDashboard": CollaborationDashboard,
+    "CompanyResearchTool": CompanyResearchTool,
     "CoverLetter": CoverLetter,
     "CoverLetters": CoverLetters,
-    "CompanyResearchTool": CompanyResearchTool,
     "Dashboard": Dashboard,
     "ExtensionGuide": ExtensionGuide,
+    "ExternalResources": ExternalResources,
     "Home": Home,
     "HowTo": HowTo,
     "JobAnalysis": JobAnalysis,
@@ -144,7 +146,7 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
-    "ExternalResources": ExternalResources,
+    "RAGMonitor": RAGMonitor,
 }
 
 export const pagesConfig = {
