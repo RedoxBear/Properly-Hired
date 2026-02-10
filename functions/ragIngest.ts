@@ -437,25 +437,54 @@ Deno.serve(async (req) => {
     // TEST_RETRIEVE: Run a test query and show results
     // ════════════════════════════════════════════════════════
     if (action === 'test_retrieve') {
+      // Inline retrieval test — doesn't go through ragRetrieve function
       const { query: testQuery, test_agent = 'kyle', test_top_k = 5 } = body;
       if (!testQuery) return Response.json({ error: 'query required' }, { status: 400 });
       
-      // Call ragRetrieve via the user's own auth (forwarding the original request auth)
       const start = Date.now();
-      const result = await base44.functions.invoke('ragRetrieve', {
-        query: testQuery, agent: test_agent, top_k: test_top_k
-      });
-      const data = result?.data || result || {};
+      
+      // Fetch candidate chunks directly
+      const [agChunks, sharedChunks] = await Promise.all([
+        retry(() => base44.asServiceRole.entities.KnowledgeChunk.filter(
+          { agent: test_agent }, '-created_date', 500
+        )).catch(() => []),
+        test_agent !== 'both'
+          ? retry(() => base44.asServiceRole.entities.KnowledgeChunk.filter(
+              { agent: 'both' }, '-created_date', 200
+            )).catch(() => [])
+          : Promise.resolve([])
+      ]);
+      const allCandidates = [...(agChunks || []), ...(sharedChunks || [])];
+
+      // Simple keyword scoring for test
+      const queryTerms = testQuery.toLowerCase().match(/\b[a-z]{3,}\b/g)?.filter(w => w.length > 2) || [];
+      const seenH = new Set();
+      const scored = [];
+      for (const chunk of allCandidates) {
+        const ct = (chunk.content || '').toLowerCase();
+        const sm = (chunk.summary || '').toLowerCase();
+        const hash = (chunk.content_hash || ct.substring(0, 200)).replace(/\s+/g, '');
+        if (seenH.has(hash)) continue;
+        seenH.add(hash);
+        if (ct.length < 40) continue;
+        let score = 0;
+        for (const term of queryTerms) {
+          if (ct.includes(term)) score += 2;
+          if (sm.includes(term)) score += 3;
+          if ((chunk.keywords || []).some(k => k.includes(term))) score += 1.5;
+        }
+        if (score > 0) scored.push({ ...chunk, _score: score });
+      }
+      scored.sort((a, b) => b._score - a._score);
+      const top = scored.slice(0, test_top_k);
       
       return Response.json({
         query: testQuery, agent: test_agent,
         retrieval_ms: Date.now() - start,
-        expanded_terms: data.expanded_terms || data.query_terms || [],
-        total_candidates: data.total_candidates || 0,
-        chunks: (data.chunks || []).map(c => ({
+        total_candidates: allCandidates.length,
+        chunks: top.map(c => ({
           id: c.id,
-          score: c.relevance_score,
-          coverage: c.coverage,
+          score: c._score,
           summary: c.summary,
           heading: c.heading_context,
           content_preview: (c.content || '').substring(0, 200),
