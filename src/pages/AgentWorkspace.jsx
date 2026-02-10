@@ -129,6 +129,11 @@ export default function AgentWorkspace() {
         }
     }, [items, notifyHighPriority]);
 
+    React.useEffect(() => {
+        if (!items.length) return;
+        autoNormalize(items);
+    }, [items, autoNormalize]);
+
     const filteredItems = items.filter((item) => {
         const agentMatch = filterAgent === "all" || item.to_agent === filterAgent;
         const statusMatch = filterStatus === "all" || item.status === filterStatus;
@@ -160,6 +165,61 @@ export default function AgentWorkspace() {
         }
         return counts;
     }, [items]);
+
+    const inferPriority = (item) => {
+        if (item.priority) return item.priority;
+        const text = `${item.summary || ""} ${(item.highlights || []).join(" ")}`.toLowerCase();
+        if (/urgent|asap|deadline|offer|interview|time-sensitive|today|tomorrow/.test(text)) return "high";
+        if (/fyi|optional|low priority|nice to have/.test(text)) return "low";
+        return "normal";
+    };
+
+    const autoNormalize = React.useCallback(async (data) => {
+        const entity = base44.entities?.AgentCollabInbox;
+        const next = data.map((item) => ({ ...item }));
+        let changed = false;
+
+        // Priority inference
+        for (const item of next) {
+            const inferred = inferPriority(item);
+            if (inferred && inferred !== item.priority) {
+                item.priority = inferred;
+                changed = true;
+                if (entity) {
+                    await entity.update(item.id, { priority: inferred });
+                }
+            }
+        }
+
+        // Routing by rules if present
+        if (rules.length) {
+            for (const item of next) {
+                if (item.status !== "open") continue;
+                const text = `${item.summary || ""} ${(item.highlights || []).join(" ")}`.toLowerCase();
+                let assigned = null;
+                for (const rule of rules) {
+                    if (!rule.keyword) continue;
+                    if (text.includes(rule.keyword.toLowerCase())) {
+                        assigned = rule.agent;
+                        break;
+                    }
+                }
+                if (assigned && assigned !== item.to_agent) {
+                    item.to_agent = assigned;
+                    item.routed_by = "auto";
+                    changed = true;
+                    if (entity) {
+                        await entity.update(item.id, { to_agent: assigned, routed_by: "auto" });
+                    }
+                }
+            }
+        }
+
+        if (changed && !entity) {
+            saveLocalInbox(next);
+        }
+        if (changed) setItems(next);
+    }, [rules]);
 
     const applyRouting = async () => {
         setIsRouting(true);
