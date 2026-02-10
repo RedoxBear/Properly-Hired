@@ -127,17 +127,19 @@ Deno.serve(async (req) => {
       const sourceMap = {};
       for (const s of sources) sourceMap[s.source_path] = s;
 
-      // Fetch KB records ONE AT A TIME to avoid memory issues with huge content
+      // Fetch KB records ONE AT A TIME, immediately discard content to save memory
       const records = [];
       let offset = 0;
-      while (offset < 200) {
+      let consecutiveErrors = 0;
+      while (offset < 200 && consecutiveErrors < 3) {
         let page;
         try {
           page = await retry(() =>
             base44.asServiceRole.entities.KnowledgeBase.list('created_date', 1, offset)
           );
-        } catch (_) { offset++; continue; }
+        } catch (_) { offset++; consecutiveErrors++; continue; }
         if (!page?.length) break;
+        consecutiveErrors = 0;
 
         const kb = page[0];
         const title = kb.title || `kb-${kb.id}`;
@@ -146,15 +148,19 @@ Deno.serve(async (req) => {
         else if (title.toLowerCase().startsWith('simon/')) agent = 'simon';
         else if (kb.agent_access?.length === 1) agent = kb.agent_access[0];
         const src = sourceMap[title];
+        // Only store metadata — never hold content in memory during list
+        const contentLen = typeof kb.content === 'string' ? kb.content.length : 0;
         records.push({
           id: kb.id, title, agent, category: kb.category,
-          content_length: (kb.content || '').length,
+          content_length: contentLen,
           status: src?.status || 'not_started',
           chunk_count: src?.chunk_count || 0,
           source_id: src?.id || null
         });
+        // Explicitly null out content reference to help GC
+        page[0] = null;
         offset++;
-        await sleep(200);
+        await sleep(250);
       }
 
       return Response.json({
