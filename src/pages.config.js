@@ -68,6 +68,7 @@ import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
 import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
+import KnowledgeIngest from './pages/KnowledgeIngest';
 import MyNetwork from './pages/MyNetwork';
 import MyResumes from './pages/MyResumes';
 import NetworkingHub from './pages/NetworkingHub';
@@ -78,6 +79,7 @@ import OptimizeResume from './pages/OptimizeResume';
 import PeopleSearch from './pages/PeopleSearch';
 import Pricing from './pages/Pricing';
 import QAAssistant from './pages/QAAssistant';
+import RAGMonitor from './pages/RAGMonitor';
 import RecruiterConnect from './pages/RecruiterConnect';
 import ReferralProgram from './pages/ReferralProgram';
 import ResumeBuilder from './pages/ResumeBuilder';
@@ -94,8 +96,6 @@ import TeamWorkspace from './pages/TeamWorkspace';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
-import RAGMonitor from './pages/RAGMonitor';
-import KnowledgeIngest from './pages/KnowledgeIngest';
 import __Layout from './Layout.jsx';
 
 
@@ -121,6 +121,7 @@ export const PAGES = {
     "JobLibrary": JobLibrary,
     "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
+    "KnowledgeIngest": KnowledgeIngest,
     "MyNetwork": MyNetwork,
     "MyResumes": MyResumes,
     "NetworkingHub": NetworkingHub,
@@ -131,6 +132,7 @@ export const PAGES = {
     "PeopleSearch": PeopleSearch,
     "Pricing": Pricing,
     "QAAssistant": QAAssistant,
+    "RAGMonitor": RAGMonitor,
     "RecruiterConnect": RecruiterConnect,
     "ReferralProgram": ReferralProgram,
     "ResumeBuilder": ResumeBuilder,
@@ -147,8 +149,6 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
-    "RAGMonitor": RAGMonitor,
-    "KnowledgeIngest": KnowledgeIngest,
 }
 
 export const pagesConfig = {
