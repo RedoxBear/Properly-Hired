@@ -92,7 +92,6 @@ import ResumeReview from './pages/ResumeReview';
 import ResumeTemplates from './pages/ResumeTemplates';
 import ResumeViewer from './pages/ResumeViewer';
 import SearchHub from './pages/SearchHub';
-import TeamWorkspace from './pages/TeamWorkspace';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
@@ -145,7 +144,6 @@ export const PAGES = {
     "ResumeTemplates": ResumeTemplates,
     "ResumeViewer": ResumeViewer,
     "SearchHub": SearchHub,
-    "TeamWorkspace": TeamWorkspace,
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
