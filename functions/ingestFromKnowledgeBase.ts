@@ -107,11 +107,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'kb_id is required' }, { status: 400 });
     }
 
-    // Fetch the specific KB record by ID
-    const allMatches = await retryOp(() =>
-      base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 100)
-    );
-    const kb = allMatches.find(r => r.id === kb_id);
+    // Fetch the specific KB record by ID — paginate to find it
+    let kb = null;
+    let searchOffset = 0;
+    while (!kb && searchOffset < 200) {
+      const page = await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 20, searchOffset)
+      );
+      if (!page || !Array.isArray(page) || page.length === 0) break;
+      kb = page.find(r => r.id === kb_id);
+      searchOffset += page.length;
+      if (!kb && page.length < 20) break;
+      if (!kb) await sleep(300);
+    }
     if (!kb) {
       return Response.json({ error: `KB record ${kb_id} not found` }, { status: 404 });
     }
@@ -129,9 +137,13 @@ Deno.serve(async (req) => {
     }
 
     // Find or create source
-    const existingSources = await retryOp(() =>
-      base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
-    );
+    let existingSources = [];
+    try {
+      const srcResult = await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
+      );
+      if (Array.isArray(srcResult)) existingSources = srcResult;
+    } catch (_) { /* no sources yet */ }
     let source = existingSources.find(s => s.source_path === title);
 
     if (source?.status === 'completed') {
