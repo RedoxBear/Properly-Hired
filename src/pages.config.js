@@ -50,11 +50,14 @@
 import ActivityInsights from './pages/ActivityInsights';
 import AgentTraining from './pages/AgentTraining';
 import AgentWorkspace from './pages/AgentWorkspace';
+import AgentFeedbackInsights from './pages/AgentFeedbackInsights';
 import ApplicationQnA from './pages/ApplicationQnA';
 import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
+import CollaborationDashboard from './pages/CollaborationDashboard';
 import CoverLetter from './pages/CoverLetter';
 import CoverLetters from './pages/CoverLetters';
+import CompanyResearchTool from './pages/CompanyResearchTool';
 import Dashboard from './pages/Dashboard';
 import ExtensionGuide from './pages/ExtensionGuide';
 import Home from './pages/Home';
@@ -96,13 +99,16 @@ import __Layout from './Layout.jsx';
 
 export const PAGES = {
     "ActivityInsights": ActivityInsights,
+    "AgentFeedbackInsights": AgentFeedbackInsights,
     "AgentTraining": AgentTraining,
     "AgentWorkspace": AgentWorkspace,
     "ApplicationQnA": ApplicationQnA,
     "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
+    "CollaborationDashboard": CollaborationDashboard,
     "CoverLetter": CoverLetter,
     "CoverLetters": CoverLetters,
+    "CompanyResearchTool": CompanyResearchTool,
     "Dashboard": Dashboard,
     "ExtensionGuide": ExtensionGuide,
     "Home": Home,
