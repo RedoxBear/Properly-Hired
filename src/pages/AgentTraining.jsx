@@ -39,6 +39,8 @@ export default function AgentTraining() {
     const [isQuizGenerating, setIsQuizGenerating] = React.useState(false);
     const [isFeedbackSyncing, setIsFeedbackSyncing] = React.useState(false);
     const [quizzes, setQuizzes] = React.useState([]);
+    const [isAutoDocFromConvo, setIsAutoDocFromConvo] = React.useState(false);
+    const [isAutoDocFromDocs, setIsAutoDocFromDocs] = React.useState(false);
 
     const [useCase, setUseCase] = React.useState("");
     const [behavior, setBehavior] = React.useState("");
@@ -178,20 +180,34 @@ export default function AgentTraining() {
             const prompt = `
 You are creating an internal training memo for agent: ${agent}.
 Summarize recurring user needs, failure patterns, and high-value behaviors.
-Return a short title and a concise training doc (200-400 words).
+Return JSON with: title, summary (<= 280 chars), tags (3-6), doc (200-400 words).
 
 Behavior logs:
 ${JSON.stringify(relevant.slice(-120))}
             `;
-            const res = await InvokeLLM({ prompt, add_context_from_internet: false });
-            const content = res?.response || res?.content || res?.text || "";
+            const res = await InvokeLLM({
+                prompt,
+                add_context_from_internet: false,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string" },
+                        summary: { type: "string" },
+                        tags: { type: "array", items: { type: "string" } },
+                        doc: { type: "string" }
+                    },
+                    required: ["title", "summary", "tags", "doc"]
+                }
+            });
+            const content = res?.doc || "";
             const payload = {
                 id: `doc-${Date.now()}`,
                 agent,
-                title: `Auto Training Memo (${new Date().toLocaleDateString()})`,
+                title: res?.title || `Auto Training Memo (${new Date().toLocaleDateString()})`,
                 doc_type: "auto-generated",
                 extracted_text: content,
-                summary: content.slice(0, 280),
+                summary: res?.summary || content.slice(0, 280),
+                tags: res?.tags || [],
                 created_at: new Date().toISOString()
             };
             const entity = base44.entities?.AgentTrainingDoc;
@@ -209,6 +225,121 @@ ${JSON.stringify(relevant.slice(-120))}
             setError("Could not generate training memo from logs.");
         }
         setIsGenerating(false);
+    };
+
+    const generateDocFromConversations = async () => {
+        setIsAutoDocFromConvo(true);
+        setError("");
+        setSuccess("");
+        try {
+            const convKey = "agent-search-index";
+            const conv = loadLocal(convKey).filter((item) => item.type === "conversation");
+            const sample = conv.slice(0, 20);
+            const prompt = `
+Create an AgentTrainingDoc for ${agent} based on recent conversation summaries.
+Identify key recurring needs and best responses. Return JSON with: title, summary (<= 280 chars), tags (3-6), doc (200-400 words).
+
+Conversations:
+${JSON.stringify(sample)}
+            `;
+            const res = await InvokeLLM({
+                prompt,
+                add_context_from_internet: false,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string" },
+                        summary: { type: "string" },
+                        tags: { type: "array", items: { type: "string" } },
+                        doc: { type: "string" }
+                    },
+                    required: ["title", "summary", "tags", "doc"]
+                }
+            });
+            const payload = {
+                id: `doc-${Date.now()}`,
+                agent,
+                title: res?.title || `Conversation Memo (${new Date().toLocaleDateString()})`,
+                doc_type: "auto-conversations",
+                extracted_text: res?.doc || "",
+                summary: res?.summary || "",
+                tags: res?.tags || [],
+                created_at: new Date().toISOString()
+            };
+            const entity = base44.entities?.AgentTrainingDoc;
+            if (entity) {
+                await entity.create(payload);
+                await loadData();
+            } else {
+                const next = [payload, ...documents];
+                setDocuments(next);
+                saveLocal(DOC_KEY, next);
+            }
+            setSuccess("Generated training doc from conversations.");
+        } catch (e) {
+            console.error("Conversation auto-doc failed:", e);
+            setError("Could not generate from conversations.");
+        }
+        setIsAutoDocFromConvo(false);
+    };
+
+    const generateDocFromExistingDocs = async () => {
+        setIsAutoDocFromDocs(true);
+        setError("");
+        setSuccess("");
+        try {
+            const docSet = documents.filter((d) => d.agent === agent).slice(0, 10);
+            if (!docSet.length) {
+                setError("No existing docs to summarize.");
+                setIsAutoDocFromDocs(false);
+                return;
+            }
+            const prompt = `
+Summarize these internal documents into a unified training doc for ${agent}.
+Return JSON with: title, summary (<= 280 chars), tags (3-6), doc (200-400 words).
+
+Docs:
+${JSON.stringify(docSet.map((d) => ({ title: d.title, summary: d.summary, extracted_text: d.extracted_text })).slice(0, 6))}
+            `;
+            const res = await InvokeLLM({
+                prompt,
+                add_context_from_internet: false,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        title: { type: "string" },
+                        summary: { type: "string" },
+                        tags: { type: "array", items: { type: "string" } },
+                        doc: { type: "string" }
+                    },
+                    required: ["title", "summary", "tags", "doc"]
+                }
+            });
+            const payload = {
+                id: `doc-${Date.now()}`,
+                agent,
+                title: res?.title || `Unified Training Doc (${new Date().toLocaleDateString()})`,
+                doc_type: "auto-docs",
+                extracted_text: res?.doc || "",
+                summary: res?.summary || "",
+                tags: res?.tags || [],
+                created_at: new Date().toISOString()
+            };
+            const entity = base44.entities?.AgentTrainingDoc;
+            if (entity) {
+                await entity.create(payload);
+                await loadData();
+            } else {
+                const next = [payload, ...documents];
+                setDocuments(next);
+                saveLocal(DOC_KEY, next);
+            }
+            setSuccess("Generated training doc from existing docs.");
+        } catch (e) {
+            console.error("Doc merge failed:", e);
+            setError("Could not generate from existing docs.");
+        }
+        setIsAutoDocFromDocs(false);
     };
 
     const generateQuiz = async () => {
@@ -406,6 +537,14 @@ ${JSON.stringify(feedback.slice(0, 120))}
                                 <Button onClick={generateDocFromLogs} disabled={isGenerating} variant="outline" className="gap-2">
                                     <Wand2 className="w-4 h-4" />
                                     {isGenerating ? "Generating..." : "Auto-Generate from Logs"}
+                                </Button>
+                                <Button onClick={generateDocFromConversations} disabled={isAutoDocFromConvo} variant="outline" className="gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    {isAutoDocFromConvo ? "Generating..." : "From Conversations"}
+                                </Button>
+                                <Button onClick={generateDocFromExistingDocs} disabled={isAutoDocFromDocs} variant="outline" className="gap-2">
+                                    <FileText className="w-4 h-4" />
+                                    {isAutoDocFromDocs ? "Generating..." : "From Existing Docs"}
                                 </Button>
                                 <Button onClick={generateQuiz} disabled={isQuizGenerating} variant="outline" className="gap-2">
                                     <HelpCircle className="w-4 h-4" />
