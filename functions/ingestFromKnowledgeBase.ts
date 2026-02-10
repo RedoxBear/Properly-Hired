@@ -30,15 +30,15 @@ Deno.serve(async (req) => {
 
     // ── LIST ──────────────────────────────────────────────
     if (action === 'list') {
-      // Fetch KB records in pages to avoid large payload issues
+      // Fetch KB records in pages — use list() without filter since boolean filter may not work
       let allKB = [];
       let listOffset = 0;
       while (listOffset < 200) {
         const page = await retryOp(() =>
-          base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 20, listOffset)
+          base44.asServiceRole.entities.KnowledgeBase.list('created_date', 20, listOffset)
         );
         if (!page || !Array.isArray(page) || page.length === 0) break;
-        allKB = allKB.concat(page);
+        allKB = allKB.concat(page.filter(r => r.is_active !== false));
         listOffset += page.length;
         if (page.length < 20) break;
         await sleep(500);
@@ -112,10 +112,10 @@ Deno.serve(async (req) => {
     let searchOffset = 0;
     while (!kb && searchOffset < 200) {
       const page = await retryOp(() =>
-        base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 20, searchOffset)
+        base44.asServiceRole.entities.KnowledgeBase.list('created_date', 20, searchOffset)
       );
       if (!page || !Array.isArray(page) || page.length === 0) break;
-      kb = page.find(r => r.id === kb_id);
+      kb = page.find(r => r.id === kb_id && r.is_active !== false);
       searchOffset += page.length;
       if (!kb && page.length < 20) break;
       if (!kb) await sleep(300);
