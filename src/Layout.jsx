@@ -130,8 +130,6 @@ function AppShell({ children, currentPageName }) {
             label: "Intelligence",
             items: [
                 { title: "Search Hub", url: createPageUrl("SearchHub"), icon: SearchIcon, description: "Search all agent data", badge: "Pro" },
-                { title: "Training Center", url: createPageUrl("AgentTraining"), icon: Brain, description: "Upload docs & fine-tune", badge: "Pro" },
-                { title: "Team Workspace", url: createPageUrl("TeamWorkspace"), icon: UsersIcon, description: "Multi-user agent chat", badge: "Pro" },
                 { title: "External Resources", url: createPageUrl("ExternalResources"), icon: Link2, description: "Link knowledge bases", badge: "Pro" },
             ]
         },
@@ -382,6 +380,31 @@ function AppShell({ children, currentPageName }) {
                                                     }`} />
                                                     <div className="min-w-0 flex-1">
                                                         <div className="font-medium text-xs">Agent Workspace</div>
+                                                    </div>
+                                                </RouterLink>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton
+                                                asChild
+                                                className={`hover:bg-accent transition-all duration-200 rounded-xl group min-h-[40px] text-xs ${
+                                                    location.pathname === createPageUrl("AgentTraining")
+                                                        ? 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 border shadow-sm'
+                                                        : 'hover:shadow-sm'
+                                                }`}
+                                            >
+                                                <RouterLink
+                                                    to={createPageUrl("AgentTraining")}
+                                                    className="flex items-center gap-2 px-3 py-2"
+                                                    onClick={() => setIsSidebarOpen(false)}
+                                                >
+                                                    <Brain className={`w-4 h-4 transition-colors flex-shrink-0 ${
+                                                        location.pathname === createPageUrl("AgentTraining")
+                                                            ? 'text-red-600 dark:text-red-400'
+                                                            : 'text-muted-foreground group-hover:text-foreground'
+                                                    }`} />
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="font-medium text-xs">Training Center</div>
                                                     </div>
                                                 </RouterLink>
                                             </SidebarMenuButton>

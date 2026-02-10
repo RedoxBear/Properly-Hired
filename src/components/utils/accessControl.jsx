@@ -230,6 +230,8 @@ export function getUpgradeMessage(feature) {
     application_qna: "Get AI-powered Q&A assistance with Pro or Premium",
     resume_templates: "Access professional resume templates with Pro or Premium",
     networking_hub: "Unlock full Networking Hub features with Pro or Premium"
+    ,
+    external_resources: "Link external resources with Pro or Premium"
   };
 
   return messages[feature] || "Upgrade to Pro or Premium to unlock this feature";

@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link2, Plus, RefreshCcw, BookOpen, Trash2, Loader2 } from "lucide-react";
+import { hasAccess, TIERS } from "@/components/utils/accessControl";
+import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
 export default function ExternalResources() {
     const [resources, setResources] = React.useState([]);
@@ -19,6 +21,39 @@ export default function ExternalResources() {
     const [error, setError] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
+    const [currentUser, setCurrentUser] = React.useState(null);
+    const [isAccessLoading, setIsAccessLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const user = await base44.auth.me();
+                setCurrentUser(user);
+            } catch (e) {
+                setCurrentUser(null);
+            } finally {
+                setIsAccessLoading(false);
+            }
+        })();
+    }, []);
+
+    const isProOrAbove = currentUser && currentUser.subscription_tier && currentUser.subscription_tier !== TIERS.FREE;
+
+    const validatePublicUrl = (raw) => {
+        try {
+            const parsed = new URL(raw);
+            if (!["http:", "https:"].includes(parsed.protocol)) return "Only http/https URLs are allowed.";
+            const host = parsed.hostname.toLowerCase();
+            if (host === "localhost" || host === "127.0.0.1") return "Localhost links are not allowed.";
+            if (/^10\./.test(host) || /^192\.168\./.test(host) || /^172\.(1[6-9]|2\\d|3[0-1])\\./.test(host)) {
+                return "Private network links are not allowed.";
+            }
+            if (parsed.protocol === "file:") return "File links are not allowed.";
+            return null;
+        } catch (e) {
+            return "Invalid URL format.";
+        }
+    };
 
     const loadResources = React.useCallback(async () => {
         setError("");
@@ -39,6 +74,10 @@ export default function ExternalResources() {
     }, [loadResources]);
 
     const addResource = async () => {
+        if (!isProOrAbove) {
+            setError("Pro plan required to add external resources.");
+            return;
+        }
         if (!title.trim() || !url.trim()) {
             setError("Title and URL are required.");
             return;
@@ -58,6 +97,11 @@ export default function ExternalResources() {
         }
         if (description.trim().length > 400) {
             setError("Description must be 400 characters or less.");
+            return;
+        }
+        const urlError = validatePublicUrl(url.trim());
+        if (urlError) {
+            setError(urlError);
             return;
         }
 
@@ -112,8 +156,14 @@ export default function ExternalResources() {
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
+                {!isAccessLoading && !isProOrAbove && (
+                    <UpgradePrompt
+                        feature="external_resources"
+                        currentTier={currentUser?.subscription_tier || TIERS.FREE}
+                    />
+                )}
 
-                <Card>
+                <Card className={!isProOrAbove ? "opacity-50 pointer-events-none" : ""}>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Link2 className="w-5 h-5 text-blue-600" />
@@ -146,6 +196,7 @@ export default function ExternalResources() {
                                 maxLength={400}
                             />
                             <p className="text-xs text-muted-foreground mt-1">{description.length}/400</p>
+                            <p className="text-xs text-muted-foreground mt-1">Public links only. No private files or internal network URLs.</p>
                         </div>
                         <div className="md:col-span-2">
                             <Button onClick={addResource} disabled={saving} className="gap-2">

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { isAdmin } from "@/components/utils/accessControl";
 import { InvokeLLM } from "@/integrations/Core";
 import { readEvents } from "@/components/utils/telemetry";
 import { UploadCloud, Brain, ShieldCheck, FileText, Save, Sparkles, HelpCircle, Wand2 } from "lucide-react";
@@ -35,6 +36,8 @@ export default function AgentTraining() {
     const [isSaving, setIsSaving] = React.useState(false);
     const [error, setError] = React.useState("");
     const [success, setSuccess] = React.useState("");
+    const [currentUser, setCurrentUser] = React.useState(null);
+    const [isAccessLoading, setIsAccessLoading] = React.useState(true);
     const [isGenerating, setIsGenerating] = React.useState(false);
     const [isQuizGenerating, setIsQuizGenerating] = React.useState(false);
     const [isFeedbackSyncing, setIsFeedbackSyncing] = React.useState(false);
@@ -80,6 +83,19 @@ export default function AgentTraining() {
     React.useEffect(() => {
         loadData();
     }, [loadData]);
+
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const user = await base44.auth.me();
+                setCurrentUser(user);
+            } catch (e) {
+                setCurrentUser(null);
+            } finally {
+                setIsAccessLoading(false);
+            }
+        })();
+    }, []);
 
     const handleUpload = async (event) => {
         const file = event.target.files?.[0];
@@ -479,6 +495,16 @@ ${JSON.stringify(feedback.slice(0, 120))}
                     <p className="text-slate-600">Upload knowledge, configure behavior, and fine-tune agent responses.</p>
                 </div>
 
+                {isAccessLoading && (
+                    <Alert>
+                        <AlertDescription>Checking access...</AlertDescription>
+                    </Alert>
+                )}
+                {!isAccessLoading && !isAdmin(currentUser) && (
+                    <Alert variant="destructive">
+                        <AlertDescription>Admin access only. Contact support if you need training tools.</AlertDescription>
+                    </Alert>
+                )}
                 {error && (
                     <Alert variant="destructive">
                         <AlertDescription>{error}</AlertDescription>
@@ -490,29 +516,30 @@ ${JSON.stringify(feedback.slice(0, 120))}
                     </Alert>
                 )}
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ShieldCheck className="w-5 h-5 text-purple-600" />
-                            Select Agent
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Select value={agent} onValueChange={setAgent}>
-                            <SelectTrigger className="w-full md:w-64">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="kyle">Kyle</SelectItem>
-                                <SelectItem value="simon">Simon</SelectItem>
-                                <SelectItem value="cv_assistant">CV Assistant</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </CardContent>
-                </Card>
-
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className={!isAdmin(currentUser) ? "opacity-50 pointer-events-none space-y-6" : "space-y-6"}>
                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <ShieldCheck className="w-5 h-5 text-purple-600" />
+                                Select Agent
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Select value={agent} onValueChange={setAgent}>
+                                <SelectTrigger className="w-full md:w-64">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="kyle">Kyle</SelectItem>
+                                    <SelectItem value="simon">Simon</SelectItem>
+                                    <SelectItem value="cv_assistant">CV Assistant</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </CardContent>
+                    </Card>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <UploadCloud className="w-5 h-5 text-blue-600" />
@@ -558,7 +585,7 @@ ${JSON.stringify(feedback.slice(0, 120))}
                         </CardContent>
                     </Card>
 
-                    <Card>
+                        <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-emerald-600" />
@@ -598,9 +625,9 @@ ${JSON.stringify(feedback.slice(0, 120))}
                             </Button>
                         </CardContent>
                     </Card>
-                </div>
+                    </div>
 
-                <Card>
+                    <Card>
                     <CardHeader>
                         <CardTitle>Recent Training Configurations</CardTitle>
                     </CardHeader>
@@ -620,7 +647,7 @@ ${JSON.stringify(feedback.slice(0, 120))}
                     </CardContent>
                 </Card>
 
-                <Card>
+                    <Card>
                     <CardHeader>
                         <CardTitle>Recent Quizzes</CardTitle>
                     </CardHeader>
@@ -638,7 +665,8 @@ ${JSON.stringify(feedback.slice(0, 120))}
                             <p className="text-sm text-slate-500">No quizzes generated yet.</p>
                         )}
                     </CardContent>
-                </Card>
+                    </Card>
+                </div>
             </div>
         </div>
     );
