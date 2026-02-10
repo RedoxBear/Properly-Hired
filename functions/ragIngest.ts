@@ -440,8 +440,9 @@ Deno.serve(async (req) => {
       const { query: testQuery, test_agent = 'kyle', test_top_k = 5 } = body;
       if (!testQuery) return Response.json({ error: 'query required' }, { status: 400 });
       
+      // Call ragRetrieve via the user's own auth (forwarding the original request auth)
       const start = Date.now();
-      const result = await base44.asServiceRole.functions.invoke('ragRetrieve', {
+      const result = await base44.functions.invoke('ragRetrieve', {
         query: testQuery, agent: test_agent, top_k: test_top_k
       });
       const data = result?.data || result || {};
