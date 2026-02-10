@@ -38,7 +38,8 @@ import {
     Upload,
     Link2,
     AlertTriangle,
-    Building2
+    Building2,
+    Database
 } from "lucide-react";
 import {
     Sidebar,
