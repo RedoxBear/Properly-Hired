@@ -95,6 +95,7 @@ import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
 import RAGMonitor from './pages/RAGMonitor';
+import KnowledgeIngest from './pages/KnowledgeIngest';
 import __Layout from './Layout.jsx';
 
 
@@ -147,6 +148,7 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Users": Users,
     "RAGMonitor": RAGMonitor,
+    "KnowledgeIngest": KnowledgeIngest,
 }
 
 export const pagesConfig = {
