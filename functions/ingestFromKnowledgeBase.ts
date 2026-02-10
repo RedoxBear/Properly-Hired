@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
     // Process max ~50 chunks per call (~50K chars) to stay under memory limits
     const CHUNK_SIZE = 1000;
     const OVERLAP = 150;
-    const MAX_CHUNKS_PER_CALL = 50;
+    const MAX_CHUNKS_PER_CALL = 100;
     const chunks = [];
     let pos = chunk_start;
 
