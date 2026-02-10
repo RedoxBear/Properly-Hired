@@ -272,16 +272,20 @@ Deno.serve(async (req) => {
       const { kb_id, chunk_start = 0, use_ai = true } = body;
       if (!kb_id) return Response.json({ error: 'kb_id required' }, { status: 400 });
 
-      // Find the KB record
+      // Find the KB record — fetch one at a time to avoid memory issues
       let kb = null;
       let scanOffset = 0;
       while (!kb && scanOffset < 200) {
-        const page = await retry(() =>
-          base44.asServiceRole.entities.KnowledgeBase.list('created_date', 5, scanOffset)
-        ).catch(() => []);
+        let page;
+        try {
+          page = await retry(() =>
+            base44.asServiceRole.entities.KnowledgeBase.list('created_date', 1, scanOffset)
+          );
+        } catch (_) { scanOffset++; continue; }
         if (!page?.length) break;
-        kb = page.find(r => r.id === kb_id);
-        if (!kb) { scanOffset += 5; await sleep(100); }
+        if (page[0].id === kb_id) { kb = page[0]; break; }
+        scanOffset++;
+        await sleep(100);
       }
       if (!kb) return Response.json({ error: 'KB record not found' }, { status: 404 });
 
