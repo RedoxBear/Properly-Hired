@@ -60,6 +60,8 @@ export default function JobAnalysis() {
     const [savedApp, setSavedApp] = React.useState(null);
     const [companyResearch, setCompanyResearch] = React.useState(null);
     const [isCompanyResearching, setIsCompanyResearching] = React.useState(false);
+    const [companyResearchSummary, setCompanyResearchSummary] = React.useState("");
+    const [companyResearchId, setCompanyResearchId] = React.useState("");
     const [notionDbId, setNotionDbId] = React.useState(() => localStorage.getItem("notion_db_id") || "");
     const [onetBenchmark, setOnetBenchmark] = React.useState(null);
     const [isOnetLoading, setIsOnetLoading] = React.useState(false);
@@ -288,7 +290,21 @@ URL: ${jobUrl}
                 brightdata: brightDataRes || null,
                 generated_at: new Date().toISOString()
             };
+
+            const summaryPrompt = `
+Summarize the following company research in 3-5 concise bullet points.
+Focus on culture, hiring signals, reputation risks, and tech signals.
+
+Research:
+${JSON.stringify(structured)}
+            `;
+            const summaryRes = await InvokeLLM({
+                prompt: summaryPrompt,
+                add_context_from_internet: false
+            });
+            const summaryText = summaryRes?.response || summaryRes?.content || summaryRes?.text || "";
             setCompanyResearch(structured);
+            setCompanyResearchSummary(summaryText);
             if (base44.entities?.CompanyResearch) {
                 const existing = await base44.entities.CompanyResearch.filter(
                     companyName ? { company_name: companyName } : {},
@@ -302,10 +318,12 @@ URL: ${jobUrl}
                     career_page_url: careerUrl,
                     glassdoor_url: glassdoorUrl,
                     related_ids: relatedIds,
+                    summary: summaryText,
                     research_payload: JSON.stringify(structured),
                     created_at: new Date().toISOString(),
                     created_by: currentUser?.email || ""
                 });
+                setCompanyResearchId(created?.id || "");
                 if (created?.id && relatedIds.length) {
                     await Promise.all(
                         relatedIds.map((id) =>
@@ -338,12 +356,51 @@ URL: ${jobUrl}
                     existingInbox.unshift(inboxPayload);
                     localStorage.setItem(key, JSON.stringify(existingInbox));
                 }
+            } else {
+                const key = "company-research";
+                const existingLocal = JSON.parse(localStorage.getItem(key) || "[]");
+                const payload = {
+                    id: `cr-${Date.now()}`,
+                    company_name: companyName || "",
+                    job_url: jobUrl || "",
+                    career_page_url: careerUrl,
+                    glassdoor_url: glassdoorUrl,
+                    summary: summaryText,
+                    research_payload: JSON.stringify(structured),
+                    created_at: new Date().toISOString(),
+                    created_by: currentUser?.email || ""
+                };
+                existingLocal.unshift(payload);
+                localStorage.setItem(key, JSON.stringify(existingLocal));
+                setCompanyResearchId(payload.id);
             }
         } catch (e) {
             console.error("Company research failed:", e);
             setError("Company research failed. Ensure MCP tools are configured.");
         }
         setIsCompanyResearching(false);
+    };
+
+    const saveCompanyResearchSummary = async () => {
+        if (!companyResearchId) return;
+        try {
+            if (base44.entities?.CompanyResearch) {
+                await base44.entities.CompanyResearch.update(companyResearchId, {
+                    summary: companyResearchSummary
+                });
+            } else {
+                const key = "company-research";
+                const existingLocal = JSON.parse(localStorage.getItem(key) || "[]");
+                const next = existingLocal.map((item) =>
+                    item.id === companyResearchId ? { ...item, summary: companyResearchSummary } : item
+                );
+                localStorage.setItem(key, JSON.stringify(next));
+            }
+            setPrefillInfo("Company research summary updated.");
+        } catch (e) {
+            console.error("Failed to update summary:", e);
+            setError("Could not update summary.");
+        }
     };
 
     const saveResearchToNotion = async () => {
@@ -1213,6 +1270,21 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                     <p className="text-xs text-slate-500 mt-1 break-words">
                                                         {companyResearch.brightdata?.summary || "No Bright Data profile"}
                                                     </p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4">
+                                                <Label className="text-xs text-slate-500">Summary</Label>
+                                                <Textarea
+                                                    value={companyResearchSummary}
+                                                    onChange={(e) => setCompanyResearchSummary(e.target.value)}
+                                                    placeholder="Add or refine the research summary..."
+                                                    className="mt-2 min-h-[110px]"
+                                                />
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    <Button variant="outline" size="sm" onClick={saveCompanyResearchSummary}>
+                                                        <Save className="w-4 h-4 mr-2" />
+                                                        Save Summary
+                                                    </Button>
                                                 </div>
                                             </div>
                                             <div className="mt-3 space-y-2">

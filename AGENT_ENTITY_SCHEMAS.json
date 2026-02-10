@@ -105,6 +105,7 @@
         { "name": "career_page_url", "type": "string", "max_length": 300 },
         { "name": "glassdoor_url", "type": "string", "max_length": 300 },
         { "name": "related_ids", "type": "string_list", "max_items": 10, "max_length": 60 },
+        { "name": "summary", "type": "string", "max_length": 600 },
         { "name": "research_payload", "type": "string", "max_length": 4000 },
         { "name": "created_at", "type": "datetime" },
         { "name": "created_by", "type": "string" }
