@@ -35,16 +35,12 @@ export default function GuidedTour() {
     const [index, setIndex] = React.useState(0);
 
     React.useEffect(() => {
-        const dismissed = localStorage.getItem(STORAGE_KEY) === "true";
-        const version = localStorage.getItem(VERSION_KEY);
-        if (!dismissed || version !== VERSION) {
-            setOpen(true);
-            localStorage.setItem(VERSION_KEY, VERSION);
-        }
-    }, []);
-
-    React.useEffect(() => {
         const handler = () => {
+            const dismissed = localStorage.getItem(STORAGE_KEY) === "true";
+            const version = localStorage.getItem(VERSION_KEY);
+            if (!dismissed || version !== VERSION) {
+                localStorage.setItem(VERSION_KEY, VERSION);
+            }
             setIndex(0);
             setOpen(true);
         };

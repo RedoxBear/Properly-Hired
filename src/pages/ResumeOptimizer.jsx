@@ -93,6 +93,15 @@ export default function ResumeOptimizer() {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [optimizationCount, setOptimizationCount] = React.useState(0);
 
+  React.useEffect(() => {
+    const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
+    if (dismissed) return;
+    const sessionKey = "guided-tour-resume-optimizer-shown";
+    if (sessionStorage.getItem(sessionKey) === "true") return;
+    sessionStorage.setItem(sessionKey, "true");
+    window.dispatchEvent(new CustomEvent("guided-tour:start"));
+  }, []);
+
   const loadInitialData = React.useCallback(async () => {
     setIsProcessing(true);
     setError("");

@@ -29,6 +29,15 @@ export default function CoverLetters() {
     const [currentUser, setCurrentUser] = React.useState(null);
 
     React.useEffect(() => {
+        const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
+        if (dismissed) return;
+        const sessionKey = "guided-tour-cover-letters-shown";
+        if (sessionStorage.getItem(sessionKey) === "true") return;
+        sessionStorage.setItem(sessionKey, "true");
+        window.dispatchEvent(new CustomEvent("guided-tour:start"));
+    }, []);
+
+    React.useEffect(() => {
         loadJobApplications();
     }, []);
 
