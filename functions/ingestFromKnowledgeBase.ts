@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
     // Process max ~50 chunks per call (~50K chars) to stay under memory limits
     const CHUNK_SIZE = 1000;
     const OVERLAP = 150;
-    const MAX_CHUNKS_PER_CALL = 100;
+    const MAX_CHUNKS_PER_CALL = 40;
     const chunks = [];
     let pos = chunk_start;
 
@@ -107,9 +107,26 @@ Deno.serve(async (req) => {
 
     const allTags = [...new Set([agent, kb.category || 'general'])];
 
-    // Bulk create this window of chunks
+    // Bulk create chunks with retry + delay to avoid rate limits
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    const retryCreate = async (data, retries = 3) => {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          await base44.asServiceRole.entities.KnowledgeChunk.bulkCreate(data);
+          return;
+        } catch (err) {
+          if (attempt < retries && (err.message?.includes('429') || err.message?.includes('Rate limit'))) {
+            await sleep(2000 * attempt);
+          } else {
+            throw err;
+          }
+        }
+      }
+    };
+
     if (chunks.length > 0) {
-      const BATCH = 25;
+      const BATCH = 10;
       for (let i = 0; i < chunks.length; i += BATCH) {
         const batchData = chunks.slice(i, i + BATCH).map(c => {
           const words = c.text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
@@ -121,7 +138,8 @@ Deno.serve(async (req) => {
             chunk_index: chunk_start + c.index, tags: allTags, keywords: topKW, query_count: 0
           };
         });
-        await base44.asServiceRole.entities.KnowledgeChunk.bulkCreate(batchData);
+        await retryCreate(batchData);
+        if (i + BATCH < chunks.length) await sleep(500);
       }
     }
 
