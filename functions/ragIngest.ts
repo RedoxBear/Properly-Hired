@@ -127,34 +127,34 @@ Deno.serve(async (req) => {
       const sourceMap = {};
       for (const s of sources) sourceMap[s.source_path] = s;
 
+      // Fetch KB records ONE AT A TIME to avoid memory issues with huge content
       const records = [];
       let offset = 0;
       while (offset < 200) {
         let page;
         try {
           page = await retry(() =>
-            base44.asServiceRole.entities.KnowledgeBase.list('created_date', 5, offset)
+            base44.asServiceRole.entities.KnowledgeBase.list('created_date', 1, offset)
           );
-        } catch (_) { break; }
+        } catch (_) { offset++; continue; }
         if (!page?.length) break;
 
-        for (const kb of page) {
-          const title = kb.title || `kb-${kb.id}`;
-          let agent = 'both';
-          if (title.toLowerCase().startsWith('kyle/')) agent = 'kyle';
-          else if (title.toLowerCase().startsWith('simon/')) agent = 'simon';
-          else if (kb.agent_access?.length === 1) agent = kb.agent_access[0];
-          const src = sourceMap[title];
-          records.push({
-            id: kb.id, title, agent, category: kb.category,
-            content_length: (kb.content || '').length,
-            status: src?.status || 'not_started',
-            chunk_count: src?.chunk_count || 0,
-            source_id: src?.id || null
-          });
-        }
-        offset += 5;
-        await sleep(150);
+        const kb = page[0];
+        const title = kb.title || `kb-${kb.id}`;
+        let agent = 'both';
+        if (title.toLowerCase().startsWith('kyle/')) agent = 'kyle';
+        else if (title.toLowerCase().startsWith('simon/')) agent = 'simon';
+        else if (kb.agent_access?.length === 1) agent = kb.agent_access[0];
+        const src = sourceMap[title];
+        records.push({
+          id: kb.id, title, agent, category: kb.category,
+          content_length: (kb.content || '').length,
+          status: src?.status || 'not_started',
+          chunk_count: src?.chunk_count || 0,
+          source_id: src?.id || null
+        });
+        offset++;
+        await sleep(200);
       }
 
       return Response.json({
