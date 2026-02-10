@@ -30,15 +30,28 @@ Deno.serve(async (req) => {
 
     // ── LIST ──────────────────────────────────────────────
     if (action === 'list') {
-      // Fetch all KB records in one bulk call (just metadata, no content needed for list)
-      const allKB = await retryOp(() =>
-        base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 100)
-      );
+      // Fetch KB records in pages to avoid large payload issues
+      let allKB = [];
+      let listOffset = 0;
+      while (listOffset < 200) {
+        const page = await retryOp(() =>
+          base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 20, listOffset)
+        );
+        if (!page || !Array.isArray(page) || page.length === 0) break;
+        allKB = allKB.concat(page);
+        listOffset += page.length;
+        if (page.length < 20) break;
+        await sleep(500);
+      }
       
-      // Fetch existing sources in one call
-      const existingSources = await retryOp(() =>
-        base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
-      );
+      // Fetch existing sources
+      let existingSources = [];
+      try {
+        const srcResult = await retryOp(() =>
+          base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
+        );
+        if (Array.isArray(srcResult)) existingSources = srcResult;
+      } catch (_) { /* no sources yet */ }
       const sourceMap = {};
       existingSources.forEach(s => { sourceMap[s.source_path] = s; });
 
