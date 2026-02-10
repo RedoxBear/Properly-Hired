@@ -1,44 +1,65 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function retryOp(fn, retries = 4) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const is429 = err.message?.includes('429') || err.message?.includes('Rate limit');
+      if (attempt < retries && is429) {
+        await sleep(3000 * attempt);
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { action = 'ingest_one', offset = 0, chunk_start = 0 } = await req.json();
+    const body = await req.json();
+    const { action = 'ingest_one' } = body;
 
-    // Check existing sources
-    const existingSources = await base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500);
-    const existingPathMap = {};
-    existingSources.forEach(s => { existingPathMap[s.source_path] = s; });
-
+    // ── LIST ──────────────────────────────────────────────
     if (action === 'list') {
-      const records = [];
-      let currentOffset = 0;
-      let hasMore = true;
-      while (hasMore && currentOffset < 100) {
-        const batch = await base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 1, currentOffset);
-        if (batch.length === 0) { hasMore = false; break; }
-        const kb = batch[0];
+      // Fetch all KB records in one bulk call (just metadata, no content needed for list)
+      const allKB = await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 100)
+      );
+      
+      // Fetch existing sources in one call
+      const existingSources = await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
+      );
+      const sourceMap = {};
+      existingSources.forEach(s => { sourceMap[s.source_path] = s; });
+
+      const records = allKB.map((kb, i) => {
         const title = kb.title || `kb-${kb.id}`;
         let agent = 'both';
         if (title.toLowerCase().startsWith('kyle/')) agent = 'kyle';
         else if (title.toLowerCase().startsWith('simon/')) agent = 'simon';
         else if (kb.agent_access?.length === 1) agent = kb.agent_access[0];
-        const existing = existingPathMap[title];
-        records.push({
-          index: currentOffset, title, agent, category: kb.category,
+        const src = sourceMap[title];
+        return {
+          index: i, id: kb.id, title, agent, category: kb.category,
           content_length: (kb.content || '').length,
           estimated_chunks: Math.ceil((kb.content || '').length / 850),
-          already_ingested: !!existing,
-          ingestion_status: existing?.status || null,
-          chunk_count: existing?.chunk_count || 0
-        });
-        currentOffset++;
-      }
+          already_ingested: src?.status === 'completed',
+          ingestion_status: src?.status || null,
+          chunk_count: src?.chunk_count || 0,
+          source_id: src?.id || null
+        };
+      });
+
       return Response.json({
         total_records: records.length,
         already_ingested: records.filter(r => r.already_ingested).length,
@@ -47,49 +68,82 @@ Deno.serve(async (req) => {
       });
     }
 
-    // action === 'ingest_one': ingest a window of chunks from a single KB record
-    const batch = await base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 1, offset);
-    if (batch.length === 0) {
-      return Response.json({ success: true, message: 'No more records', done: true });
+    // ── RESET ONE ────────────────────────────────────────
+    // Reset a stuck/partial source so it can be re-ingested cleanly
+    if (action === 'reset') {
+      const { source_id } = body;
+      if (!source_id) return Response.json({ error: 'source_id required' }, { status: 400 });
+      
+      // Delete all chunks for this source
+      const chunks = await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeChunk.filter({ source_id }, 'created_date', 500)
+      );
+      for (const c of chunks) {
+        await retryOp(() => base44.asServiceRole.entities.KnowledgeChunk.delete(c.id));
+        await sleep(200);
+      }
+      // Delete the source itself
+      await retryOp(() => base44.asServiceRole.entities.KnowledgeSource.delete(source_id));
+      return Response.json({ success: true, deleted_chunks: chunks.length });
     }
 
-    const kb = batch[0];
+    // ── INGEST ONE ───────────────────────────────────────
+    const { kb_id, chunk_start = 0 } = body;
+    
+    if (!kb_id) {
+      return Response.json({ error: 'kb_id is required' }, { status: 400 });
+    }
+
+    // Fetch the specific KB record by ID
+    const allMatches = await retryOp(() =>
+      base44.asServiceRole.entities.KnowledgeBase.filter({ is_active: true }, 'created_date', 100)
+    );
+    const kb = allMatches.find(r => r.id === kb_id);
+    if (!kb) {
+      return Response.json({ error: `KB record ${kb_id} not found` }, { status: 404 });
+    }
+
     const title = kb.title || `kb-${kb.id}`;
     const content = kb.content || '';
 
-    // Determine agent
     let agent = 'both';
     if (title.toLowerCase().startsWith('kyle/')) agent = 'kyle';
     else if (title.toLowerCase().startsWith('simon/')) agent = 'simon';
     else if (kb.agent_access?.length === 1) agent = kb.agent_access[0];
 
-    // Skip too-short content
     if (content.trim().length < 50) {
-      return Response.json({ success: true, title, status: 'skipped', reason: 'Too short', next_offset: offset + 1, chunk_start: 0 });
+      return Response.json({ success: true, title, status: 'skipped', reason: 'Too short' });
     }
 
-    // Find or create KnowledgeSource
-    let source = existingPathMap[title];
+    // Find or create source
+    const existingSources = await retryOp(() =>
+      base44.asServiceRole.entities.KnowledgeSource.filter({}, '-created_date', 500)
+    );
+    let source = existingSources.find(s => s.source_path === title);
+
+    if (source?.status === 'completed') {
+      return Response.json({ success: true, title, status: 'skipped', reason: 'Already completed' });
+    }
+
     if (!source) {
-      const fileKeywords = title.replace(/\.[^.]+$/, '').replace(/[_\-\/]/g, ' ').split(/\s+/).filter(w => w.length > 2).map(w => w.toLowerCase());
-      source = await base44.asServiceRole.entities.KnowledgeSource.create({
-        agent, source_path: title, file_type: 'knowledgebase',
-        tags: [...new Set([agent, kb.category || 'general', ...fileKeywords, ...(kb.keywords || [])])].filter(Boolean),
-        status: 'processing'
-      });
-    } else if (source.status === 'completed') {
-      return Response.json({ success: true, title, status: 'skipped', reason: 'Already completed', next_offset: offset + 1, chunk_start: 0 });
+      const keywords = title.replace(/\.[^.]+$/, '').replace(/[_\-\/]/g, ' ').split(/\s+/).filter(w => w.length > 2).map(w => w.toLowerCase());
+      source = await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeSource.create({
+          agent, source_path: title, file_type: 'knowledgebase',
+          tags: [...new Set([agent, kb.category || 'general', ...keywords, ...(kb.keywords || [])])].filter(Boolean),
+          status: 'processing', chunk_count: 0
+        })
+      );
     }
 
-    // Chunk a WINDOW of content starting at chunk_start character position
-    // Process max ~50 chunks per call (~50K chars) to stay under memory limits
+    // Chunk content from chunk_start position
     const CHUNK_SIZE = 1000;
     const OVERLAP = 150;
-    const MAX_CHUNKS_PER_CALL = 40;
+    const MAX_CHUNKS = 20; // Keep small to avoid rate limits
     const chunks = [];
     let pos = chunk_start;
 
-    while (pos < content.length && chunks.length < MAX_CHUNKS_PER_CALL) {
+    while (pos < content.length && chunks.length < MAX_CHUNKS) {
       let end = Math.min(pos + CHUNK_SIZE, content.length);
       if (end < content.length) {
         const slice = content.substring(pos, Math.min(pos + CHUNK_SIZE + 200, content.length));
@@ -107,26 +161,9 @@ Deno.serve(async (req) => {
 
     const allTags = [...new Set([agent, kb.category || 'general'])];
 
-    // Bulk create chunks with retry + delay to avoid rate limits
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-    const retryCreate = async (data, retries = 3) => {
-      for (let attempt = 1; attempt <= retries; attempt++) {
-        try {
-          await base44.asServiceRole.entities.KnowledgeChunk.bulkCreate(data);
-          return;
-        } catch (err) {
-          if (attempt < retries && (err.message?.includes('429') || err.message?.includes('Rate limit'))) {
-            await sleep(2000 * attempt);
-          } else {
-            throw err;
-          }
-        }
-      }
-    };
-
+    // Insert chunks one small batch at a time with generous delays
     if (chunks.length > 0) {
-      const BATCH = 10;
+      const BATCH = 5;
       for (let i = 0; i < chunks.length; i += BATCH) {
         const batchData = chunks.slice(i, i + BATCH).map(c => {
           const words = c.text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
@@ -135,43 +172,41 @@ Deno.serve(async (req) => {
           const topKW = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 15).map(([w]) => w);
           return {
             source_id: source.id, agent, content: c.text,
-            chunk_index: chunk_start + c.index, tags: allTags, keywords: topKW, query_count: 0
+            chunk_index: (source.chunk_count || 0) + chunk_start + c.index,
+            tags: allTags, keywords: topKW, query_count: 0
           };
         });
-        await retryCreate(batchData);
-        if (i + BATCH < chunks.length) await sleep(500);
+        await retryOp(() => base44.asServiceRole.entities.KnowledgeChunk.bulkCreate(batchData));
+        await sleep(1000); // 1s between batches
       }
     }
 
-    const hasMoreContent = pos < content.length;
+    const hasMore = pos < content.length;
+    const newChunkCount = (source.chunk_count || 0) + chunks.length;
 
-    if (!hasMoreContent) {
-      // This file is done — count all chunks and update source
-      const totalChunks = (source.chunk_count || 0) + chunks.length;
-      await base44.asServiceRole.entities.KnowledgeSource.update(source.id, {
-        status: 'completed',
-        chunk_count: totalChunks,
-        ingested_at: new Date().toISOString()
-      });
+    if (!hasMore) {
+      await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeSource.update(source.id, {
+          status: 'completed', chunk_count: newChunkCount, ingested_at: new Date().toISOString()
+        })
+      );
       return Response.json({
         success: true, title, agent, status: 'completed',
-        chunks_this_call: chunks.length, total_chunk_count: totalChunks,
-        next_offset: offset + 1, chunk_start: 0
+        chunks_this_call: chunks.length, total_chunks: newChunkCount
       });
     } else {
-      // More content to process — update partial count
-      await base44.asServiceRole.entities.KnowledgeSource.update(source.id, {
-        chunk_count: (source.chunk_count || 0) + chunks.length
-      });
+      await retryOp(() =>
+        base44.asServiceRole.entities.KnowledgeSource.update(source.id, { chunk_count: newChunkCount })
+      );
       return Response.json({
         success: true, title, agent, status: 'partial',
-        chunks_this_call: chunks.length, content_position: pos, content_total: content.length,
-        progress_pct: Math.round((pos / content.length) * 100),
-        next_offset: offset, chunk_start: pos
+        chunks_this_call: chunks.length, next_chunk_start: pos,
+        content_total: content.length, progress_pct: Math.round((pos / content.length) * 100),
+        total_chunks_so_far: newChunkCount
       });
     }
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message, stack: error.stack?.substring(0, 300) }, { status: 500 });
   }
 });
