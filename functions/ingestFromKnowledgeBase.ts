@@ -8,13 +8,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { dry_run = false } = await req.json();
+    const { dry_run = false, batch_size = 3, offset = 0 } = await req.json();
 
-    // Fetch all active KnowledgeBase records
+    // Fetch KnowledgeBase records in small batches (they can be huge)
     const allKB = await base44.asServiceRole.entities.KnowledgeBase.filter(
       { is_active: true },
-      '-created_date',
-      500
+      'created_date',
+      batch_size,
+      offset
     );
 
     // Check what's already ingested to avoid duplicates
@@ -173,7 +174,10 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       dry_run,
-      total_kb_records: allKB.length,
+      batch_size,
+      offset,
+      records_in_batch: allKB.length,
+      next_offset: allKB.length === batch_size ? offset + batch_size : null,
       files_ingested: totalFiles,
       total_chunks_created: totalChunks,
       skipped,
