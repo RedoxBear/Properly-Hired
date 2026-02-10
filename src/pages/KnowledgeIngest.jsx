@@ -50,6 +50,8 @@ export default function KnowledgeIngest() {
 
     addLog("Starting ingestion...");
 
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
     while (!stopRef.current) {
       try {
         const res = await ingestFromKnowledgeBase({ action: "ingest_one", offset, chunk_start: chunkStart });
@@ -95,10 +97,25 @@ export default function KnowledgeIngest() {
 
       } catch (err) {
         addLog(`Error at offset ${offset}: ${err.message}`, "error");
-        // Try to continue with next file
-        offset++;
-        chunkStart = 0;
+        addLog("Waiting 5s before retrying...", "warn");
+        await sleep(5000);
+        // Retry same position once, then skip
+        try {
+          const retry = await ingestFromKnowledgeBase({ action: "ingest_one", offset, chunk_start: chunkStart });
+          const rd = retry.data || retry;
+          if (rd.status === "partial") { offset = rd.next_offset; chunkStart = rd.chunk_start; }
+          else if (rd.status === "completed") { offset = rd.next_offset; chunkStart = 0; filesCompleted++; }
+          else { offset++; chunkStart = 0; }
+          addLog("Retry succeeded", "success");
+        } catch (retryErr) {
+          addLog(`Retry failed, skipping: ${retryErr.message}`, "error");
+          offset++;
+          chunkStart = 0;
+        }
       }
+
+      // Small delay between calls to avoid rate limits
+      await sleep(1000);
     }
 
     addLog(`Done. Files: ${filesCompleted}, Total chunks: ${totalChunks}`);
