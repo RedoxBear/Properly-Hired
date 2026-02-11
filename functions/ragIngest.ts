@@ -267,12 +267,13 @@ Deno.serve(async (req) => {
 
     // ════════════════════════════════════════════════════════
     // INGEST_ONE: Process a single KB record with AI summaries
+    // chunk_start is now a CHUNK INDEX (not char position)
     // ════════════════════════════════════════════════════════
     if (action === 'ingest_one') {
       const { kb_id, chunk_start = 0, use_ai = true } = body;
       if (!kb_id) return Response.json({ error: 'kb_id required' }, { status: 400 });
 
-      // Find the KB record — scan one at a time to keep memory low
+      // Fetch the KB record directly by scanning
       let kb = null;
       let scanOffset = 0;
       while (!kb && scanOffset < 500) {
@@ -284,7 +285,6 @@ Deno.serve(async (req) => {
         } catch (_) { scanOffset++; continue; }
         if (!page?.length) break;
         if (page[0].id === kb_id) { kb = page[0]; break; }
-        // Null out to help GC before next iteration
         page[0] = null;
         scanOffset++;
         await sleep(80);
@@ -324,17 +324,37 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Get existing hashes to avoid dupes
+      // Get existing content hashes to avoid dupes
       const existingChunks = await retry(() =>
         base44.asServiceRole.entities.KnowledgeChunk.filter({ source_id: source.id }, 'created_date', 500)
       ).catch(() => []);
       const existingHashes = new Set((existingChunks || []).map(c => c.content_hash).filter(Boolean));
 
-      // Smart-chunk from chunk_start
-      const remaining = content.substring(chunk_start);
-      const MAX_PER_CALL = 8; // fewer per call to leave room for AI summaries
-      const allChunks = smartChunk(remaining, 1200);
-      const batch = allChunks.slice(0, MAX_PER_CALL);
+      // Chunk the ENTIRE content once, then use chunk_start as an index into the array
+      const allChunks = smartChunk(content, 1200);
+      const totalChunkCount = allChunks.length;
+
+      if (totalChunkCount === 0) {
+        return Response.json({ success: true, title, status: 'skipped', reason: 'No valid chunks produced' });
+      }
+
+      // Slice the batch from chunk_start index
+      const MAX_PER_CALL = 10;
+      const batch = allChunks.slice(chunk_start, chunk_start + MAX_PER_CALL);
+
+      if (batch.length === 0) {
+        // chunk_start is past all chunks — mark complete
+        await retry(() =>
+          base44.asServiceRole.entities.KnowledgeSource.update(source.id, {
+            status: 'completed', chunk_count: source.chunk_count || existingChunks.length,
+            ingested_at: new Date().toISOString()
+          })
+        );
+        return Response.json({
+          success: true, title, agent, status: 'completed',
+          chunks_created: 0, total_chunks: source.chunk_count || existingChunks.length
+        });
+      }
 
       // Dedup + filter
       const uniqueChunks = [];
@@ -346,18 +366,10 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Calculate next position
-      let charsConsumed = 0;
-      for (let i = 0; i < Math.min(allChunks.length, MAX_PER_CALL); i++) {
-        charsConsumed += allChunks[i].text.length;
-      }
-      const nextStart = chunk_start + Math.max(charsConsumed * 0.92, charsConsumed - 150);
-
       // Generate AI summaries in batch if enabled
       let summaries = {};
       if (use_ai && uniqueChunks.length > 0) {
         try {
-          // Build a single LLM call for all chunks to save tokens
           const chunkTexts = uniqueChunks.map((c, i) => 
             `--- CHUNK ${i} ---\n${c.text.substring(0, 500)}`
           ).join('\n\n');
@@ -380,7 +392,6 @@ Deno.serve(async (req) => {
             aiResult.summaries.forEach((s, i) => { summaries[i] = s; });
           }
         } catch (aiErr) {
-          // AI failed — continue without summaries, not a blocker
           console.error('AI summary failed:', aiErr.message);
         }
       }
@@ -396,16 +407,17 @@ Deno.serve(async (req) => {
             summary: summaries[i] || null,
             content_hash: c.hash,
             heading_context: c.heading || null,
-            chunk_index: (source.chunk_count || 0) + created,
+            chunk_index: chunk_start + i,
             tags: allTags, keywords, query_count: 0
           })
         );
         created++;
-        await sleep(400);
+        await sleep(300);
       }
 
       const newTotal = (source.chunk_count || 0) + created;
-      const hasMore = allChunks.length > MAX_PER_CALL;
+      const nextChunkIdx = chunk_start + batch.length;
+      const hasMore = nextChunkIdx < totalChunkCount;
 
       if (!hasMore) {
         await retry(() =>
@@ -416,7 +428,8 @@ Deno.serve(async (req) => {
         return Response.json({
           success: true, title, agent, status: 'completed',
           chunks_created: created, deduped: batch.length - uniqueChunks.length,
-          ai_summaries: Object.keys(summaries).length, total_chunks: newTotal
+          ai_summaries: Object.keys(summaries).length, total_chunks: newTotal,
+          total_in_document: totalChunkCount
         });
       }
 
@@ -427,9 +440,9 @@ Deno.serve(async (req) => {
         success: true, title, agent, status: 'partial',
         chunks_created: created, deduped: batch.length - uniqueChunks.length,
         ai_summaries: Object.keys(summaries).length, total_so_far: newTotal,
-        next_chunk_start: Math.round(nextStart),
-        progress_pct: Math.min(99, Math.round((nextStart / content.length) * 100)),
-        content_length: content.length
+        next_chunk_start: nextChunkIdx,
+        progress_pct: Math.min(99, Math.round((nextChunkIdx / totalChunkCount) * 100)),
+        total_in_document: totalChunkCount
       });
     }
 
