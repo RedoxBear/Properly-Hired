@@ -7,13 +7,6 @@ Rules:
 - Do not ingest legacy prose/templates from source files.
 - Keep provenance and similarity QA reports with each generation.
 
-Regenerate with:
-
-```bash
-python3 tools/cvbuilder_derived/build_cvbuilder_derived.py \
-  --source-root /mnt/f/Projects/Career/CV_Builder/DATA \
-  --output-root /tmp/cvbuilder_derived_output
-```
 
 Then copy:
 - JSON to `knowledge/derived_cvbuilder/json/`
