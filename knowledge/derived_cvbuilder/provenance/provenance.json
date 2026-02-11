@@ -1,0 +1,44 @@
+{
+  "generated_at_utc": "2026-02-11T18:12:04.365819+00:00",
+  "generator": "build_cvbuilder_derived.py",
+  "source_root": "/mnt/f/Projects/Career/CV_Builder/DATA",
+  "sources": [
+    {
+      "path": "/mnt/f/Projects/Career/CV_Builder/DATA/VirtInt.Dat",
+      "bytes": 179884,
+      "sha256": "c8d4258cfdb2a535b243c2a5e3e580fe61f0732f93418a1f9e3f87e86043cb64"
+    },
+    {
+      "path": "/mnt/f/Projects/Career/CV_Builder/DATA/ResReview.xml",
+      "bytes": 8389,
+      "sha256": "057a670b0d5edbc2b91c29d1d79ed18e000b01c57de7f78a9468a620087f92d7"
+    },
+    {
+      "path": "/mnt/f/Projects/Career/CV_Builder/DATA/jobtitle.dat",
+      "bytes": 9601,
+      "sha256": "52ae091e79a1c9bd2c59dbf5bc3185afe87508038079cd9f76b2d8cc8fbbfbf6"
+    },
+    {
+      "path": "/mnt/f/Projects/Career/CV_Builder/DATA/GRPI.xml",
+      "bytes": 554742,
+      "sha256": "1f163b27ce841109cc40e6e5e996f7ec40c40b4c923812c3e2be970164881782"
+    },
+    {
+      "path": "/mnt/f/Projects/Career/CV_Builder/DATA/GRP.xml",
+      "bytes": 1306965,
+      "sha256": "ef12040c67e0f4cfc7991ef22e12bf15a759c538d4f3589483cc2eb8a18c4d28"
+    }
+  ],
+  "artifacts": [
+    "interview_taxonomy",
+    "pattern_specs",
+    "resume_review_rubric",
+    "role_taxonomy"
+  ],
+  "similarity_guard": {
+    "status": "passed",
+    "threshold": 0.88,
+    "violations": []
+  },
+  "license_note": "Derived artifacts contain structural metadata only. No direct legacy prose/templates should be reused."
+}

@@ -1,0 +1,1293 @@
+{
+  "version": "1.0.0",
+  "artifact": "role_taxonomy",
+  "title_inventory": {
+    "raw_title_count": 502,
+    "unique_title_count": 494,
+    "family_distribution": {
+      "other": 232,
+      "management": 100,
+      "technology": 41,
+      "executive": 36,
+      "healthcare": 25,
+      "sales_marketing": 24,
+      "finance_accounting": 15,
+      "legal_compliance": 10,
+      "operations": 8,
+      "education_training": 7,
+      "human_resources": 4
+    },
+    "normalized_title_samples": [
+      "a/p",
+      "a/r",
+      "academic advisor",
+      "account executive",
+      "account manager",
+      "accountant",
+      "accounting assistant",
+      "accounting clerk",
+      "accounting intern",
+      "accounts payable",
+      "accounts receivable",
+      "administrative assistant",
+      "administrative service manager",
+      "administrator",
+      "advertising agent",
+      "advertising executive",
+      "advertising sales manager",
+      "advisor",
+      "aerobics",
+      "aircraft maintenance",
+      "aircraft mechanic",
+      "aircraft repair",
+      "airline customer service",
+      "airlines reservations manager",
+      "anthropologist",
+      "archaeologist",
+      "arranger",
+      "assembly",
+      "assistant product manager",
+      "associate",
+      "athletic trainer",
+      "attorney",
+      "audio video technician",
+      "audit manager",
+      "auditor",
+      "auto maintenance",
+      "auto parts professional",
+      "auto parts specialist",
+      "automotive mechanic",
+      "automotive service manager",
+      "aviation technician",
+      "bank executive",
+      "bank teller",
+      "banking associate",
+      "bartender",
+      "benefits coordinator",
+      "benefits manager",
+      "biochemist",
+      "biological chemist",
+      "biologist",
+      "biomedical researcher",
+      "biomedical technician",
+      "bookkeeper",
+      "brand manager",
+      "brand strategist",
+      "broadcast journalist",
+      "broadcast operations manager",
+      "broadcaster",
+      "budget manager",
+      "business analyst",
+      "business consultant",
+      "business development",
+      "business machine specialist",
+      "business manager",
+      "buyer",
+      "c e o",
+      "c f o",
+      "c i o",
+      "c++",
+      "cad technician",
+      "call center",
+      "camera operator",
+      "care giver",
+      "carpenter",
+      "case administrator",
+      "cashier",
+      "caterer",
+      "ceo",
+      "certified public accountant",
+      "cfo",
+      "channel sales manager",
+      "chemical engineer",
+      "chemical lab technician",
+      "chemical technologist",
+      "chief auditor",
+      "chief executive officer",
+      "chief financial officer",
+      "chief information officer",
+      "chief operating officer",
+      "chief technology officer",
+      "choreographer",
+      "cio",
+      "civil engineer",
+      "claim management",
+      "claim professional",
+      "clerical",
+      "clerk",
+      "clinical applications specialist",
+      "clinical research associate",
+      "coach",
+      "collections",
+      "commercial loan officer",
+      "communications administrator",
+      "communications director",
+      "communications specialist",
+      "community service worker",
+      "composer",
+      "computer applications support",
+      "computer consultant",
+      "computer customer support",
+      "computer electronics technician",
+      "computer engineer",
+      "computer hardware technician",
+      "computer information systems",
+      "computer maintenance",
+      "computer operator",
+      "computer programmer",
+      "computer scientist",
+      "computer service repair",
+      "computer specialist",
+      "computer systems analyst",
+      "computer technician",
+      "construction foreman",
+      "consultant",
+      "contract administrator",
+      "contract specialist",
+      "controller",
+      "coo",
+      "copywriter",
+      "corporate attorney",
+      "corporate executive",
+      "corrections officer",
+      "counselor",
+      "courseware developer",
+      "cpa",
+      "credit analyst",
+      "credit manager",
+      "cto",
+      "customer relations specialist",
+      "customer service",
+      "customer service agent",
+      "customer service manager",
+      "customer service representative",
+      "customer service specialist",
+      "dance instructor",
+      "data analyst",
+      "data entry",
+      "data processing",
+      "data processor",
+      "database administrator",
+      "day care worker",
+      "dba",
+      "dental assistant",
+      "dental hygienist",
+      "department store manager",
+      "designer",
+      "desktop publisher",
+      "desktop support specialist",
+      "desktop technical support",
+      "direct marketing executive",
+      "director",
+      "director marketing sales",
+      "director of technology",
+      "distribution manager",
+      "doctor",
+      "drafter",
+      "e m t",
+      "economic analyst",
+      "editor",
+      "educator",
+      "electrical engineer",
+      "electrical maintenance supervisor",
+      "electrical technician electrician",
+      "electromechanical",
+      "electronic engineer",
+      "electronic technician",
+      "elementary teacher",
+      "emergency medical technician",
+      "emergency medicine",
+      "employee and labor relations specialist",
+      "employment counselor",
+      "emt",
+      "engineer",
+      "engineering manager",
+      "engineering project manager",
+      "engineering technician",
+      "environmental engineer",
+      "environmental health inspector",
+      "environmental professional",
+      "environmental program manager",
+      "environmental specialist",
+      "environmentalist",
+      "equity analyst",
+      "esl instructor",
+      "executive",
+      "executive administrator",
+      "executive assistant",
+      "executive recruiter",
+      "executive secretary",
+      "executive vice president",
+      "facilities manager",
+      "family physician",
+      "federal law enforcement",
+      "field service engineer",
+      "field service manager",
+      "field service technician",
+      "finance manager",
+      "financial analyst",
+      "flight attendant",
+      "food server",
+      "food service manager",
+      "foreman",
+      "fraud control specialist",
+      "freelance",
+      "general manager",
+      "geographer",
+      "geographic specialist",
+      "geologist",
+      "government administrator",
+      "graphic artist",
+      "graphic designer",
+      "h r",
+      "hazardous materials technician",
+      "health and safety manager",
+      "health care administrator",
+      "health care counselor",
+      "health care professional",
+      "health care provider",
+      "health consultant",
+      "health education specialist",
+      "health educator",
+      "healthcare",
+      "help desk",
+      "home health aide",
+      "hospitality executive",
+      "hotel manager",
+      "human resource manager",
+      "human resources professional",
+      "human service professional",
+      "industrial electrician",
+      "industrial engineer",
+      "information system",
+      "information systems administrator",
+      "information systems analyst",
+      "information systems coordinator",
+      "information technology consultant",
+      "inside sales representative",
+      "instructor",
+      "insurance claims adjuster",
+      "insurance claims manager"
+    ]
+  },
+  "soc_taxonomy": {
+    "major_groups": [
+      {
+        "id": "11-0000",
+        "group_key": "soc_group_11",
+        "total_job_titles": 325
+      },
+      {
+        "id": "13-0000",
+        "group_key": "soc_group_13",
+        "total_job_titles": 104
+      },
+      {
+        "id": "15-0000",
+        "group_key": "soc_group_15",
+        "total_job_titles": 28
+      },
+      {
+        "id": "17-0000",
+        "group_key": "soc_group_17",
+        "total_job_titles": 238
+      },
+      {
+        "id": "19-0000",
+        "group_key": "soc_group_19",
+        "total_job_titles": 156
+      },
+      {
+        "id": "21-0000",
+        "group_key": "soc_group_21",
+        "total_job_titles": 38
+      },
+      {
+        "id": "23-0000",
+        "group_key": "soc_group_23",
+        "total_job_titles": 29
+      },
+      {
+        "id": "25-0000",
+        "group_key": "soc_group_25",
+        "total_job_titles": 116
+      },
+      {
+        "id": "27-0000",
+        "group_key": "soc_group_27",
+        "total_job_titles": 237
+      },
+      {
+        "id": "29-0000",
+        "group_key": "soc_group_29",
+        "total_job_titles": 146
+      },
+      {
+        "id": "31-0000",
+        "group_key": "soc_group_31",
+        "total_job_titles": 19
+      },
+      {
+        "id": "33-0000",
+        "group_key": "soc_group_33",
+        "total_job_titles": 122
+      },
+      {
+        "id": "35-0000",
+        "group_key": "soc_group_35",
+        "total_job_titles": 82
+      },
+      {
+        "id": "37-0000",
+        "group_key": "soc_group_37",
+        "total_job_titles": 71
+      },
+      {
+        "id": "39-0000",
+        "group_key": "soc_group_39",
+        "total_job_titles": 145
+      },
+      {
+        "id": "41-0000",
+        "group_key": "soc_group_41",
+        "total_job_titles": 259
+      },
+      {
+        "id": "43-0000",
+        "group_key": "soc_group_43",
+        "total_job_titles": 633
+      },
+      {
+        "id": "45-0000",
+        "group_key": "soc_group_45",
+        "total_job_titles": 173
+      },
+      {
+        "id": "47-0000",
+        "group_key": "soc_group_47",
+        "total_job_titles": 377
+      },
+      {
+        "id": "49-0000",
+        "group_key": "soc_group_49",
+        "total_job_titles": 571
+      },
+      {
+        "id": "51-0000",
+        "group_key": "soc_group_51",
+        "total_job_titles": 5350
+      },
+      {
+        "id": "53-0000",
+        "group_key": "soc_group_53",
+        "total_job_titles": 748
+      }
+    ],
+    "major_group_count": 22
+  },
+  "phrase_density": {
+    "jobcode_count": 900,
+    "top_jobcodes_by_phrase_density": [
+      {
+        "jobcode": "11-1011.01",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "11-3040.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "11-3041.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "11-9031.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "11-9032.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "11-9033.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "17-2112.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "21-1093.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "29-1111.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "43-5111.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "43-6014.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "45-2093.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "49-9044.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "51-4041.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "51-4072.02",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "51-4194.00",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "51-6031.01",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "51-9041.01",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "51-9198.01",
+        "phrase_count": 20
+      },
+      {
+        "jobcode": "11-3031.02",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "21-1021.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "29-2031.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "33-1012.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "37-2011.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "37-2012.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "41-2031.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "41-9011.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "43-1011.02",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "43-4171.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "45-2091.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "47-2061.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "47-4031.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "47-4071.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "47-5031.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "49-2022.03",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "49-2092.02",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "49-9021.01",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "49-9043.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-4023.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-6061.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-7041.02",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-9011.01",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-9061.05",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-9083.01",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "51-9195.07",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "53-1031.00",
+        "phrase_count": 19
+      },
+      {
+        "jobcode": "11-1011.02",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "11-2011.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "17-1022.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "17-2161.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "17-3027.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "19-1032.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "23-1011.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "37-1011.01",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "39-3091.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "41-9022.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "43-4131.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "43-5081.03",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "43-9022.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "45-3011.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "47-5013.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "49-2092.03",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "49-3021.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-4011.01",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-4072.04",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-4111.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-4191.03",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-5011.02",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-5023.01",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-5023.09",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-9071.04",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "51-9131.02",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "53-7061.00",
+        "phrase_count": 18
+      },
+      {
+        "jobcode": "11-9012.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "11-9141.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "17-2072.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "17-2141.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "19-4051.02",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "25-4013.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "25-9031.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "27-3011.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "29-2011.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "31-2021.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "31-2022.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "33-3051.01",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "39-3093.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "39-9032.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "41-3011.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "41-4012.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "43-4121.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "47-2051.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "47-2053.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "49-3093.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "49-9045.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-1011.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-3093.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-4035.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-4061.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-4193.04",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-5022.06",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-6093.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-9031.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "51-9111.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "53-4031.00",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "53-6051.04",
+        "phrase_count": 17
+      },
+      {
+        "jobcode": "11-2022.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "11-3071.01",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "13-2011.02",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "17-2071.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "17-2121.01",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "17-3012.01",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "17-3013.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "19-3031.02",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "19-4051.01",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "23-1021.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "23-1022.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "25-1194.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "25-3011.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "29-1021.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "29-2061.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "31-9092.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "35-3031.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "39-2021.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "43-4151.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "45-1011.02",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "47-2011.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "47-2031.03",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "47-2142.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "47-3013.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "49-2094.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "49-3023.02",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "49-3043.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "49-9021.02",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "49-9051.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-2022.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-3091.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-6011.03",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-6031.02",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-6092.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-8093.03",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-9032.04",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-9141.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "51-9193.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "53-7063.00",
+        "phrase_count": 16
+      },
+      {
+        "jobcode": "11-9011.02",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "13-2011.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "17-2151.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "19-1020.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "19-3031.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "19-3041.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "21-1092.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "27-1024.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "29-2021.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "31-1012.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "33-3021.04",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "35-1012.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "35-3022.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "41-1011.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "41-2022.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "43-1011.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "45-1011.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "45-4021.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "47-1011.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "47-2141.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "47-3011.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "49-9042.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "49-9061.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-3092.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-4031.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-4033.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-4051.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-5011.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-5022.10",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-7021.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9011.02",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9012.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9021.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9023.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9061.04",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9071.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9071.05",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9191.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9194.01",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "51-9198.02",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "53-5011.02",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "53-6011.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "53-7011.00",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "53-7062.03",
+        "phrase_count": 15
+      },
+      {
+        "jobcode": "11-3071.02",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "11-9081.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "11-9151.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "13-1071.02",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "13-2071.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "13-2072.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "15-1021.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "15-1031.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "15-1032.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "15-1061.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "17-2061.00",
+        "phrase_count": 14
+      },
+      {
+        "jobcode": "17-2111.01",
+        "phrase_count": 14
+      }
+    ],
+    "leading_action_tokens": {
+      "prepared": 314,
+      "examined": 230,
+      "inspected": 226,
+      "cleaned": 188,
+      "directed": 186,
+      "conferred": 160,
+      "planned": 159,
+      "observed": 156,
+      "recorded": 155,
+      "conducted": 151,
+      "operated": 151,
+      "reviewed": 145,
+      "analyzed": 142,
+      "removed": 142,
+      "selected": 135,
+      "read": 132,
+      "measured": 131,
+      "developed": 119,
+      "repaired": 116,
+      "adjusted": 112,
+      "installed": 112,
+      "studied": 111,
+      "maintained": 111,
+      "positioned": 109,
+      "cut": 109,
+      "assisted": 108,
+      "tested": 108,
+      "set": 106,
+      "determined": 100,
+      "monitored": 98,
+      "evaluated": 95,
+      "compiled": 90,
+      "collected": 82,
+      "started": 82,
+      "advised": 74,
+      "assembled": 72,
+      "applied": 65,
+      "mixed": 63,
+      "drove": 61,
+      "computed": 60,
+      "wrote": 59,
+      "placed": 59,
+      "moved": 59,
+      "performed": 55,
+      "consulted": 53,
+      "investigated": 53,
+      "coordinated": 52,
+      "interviewed": 52,
+      "designed": 52,
+      "administered": 51,
+      "arranged": 51,
+      "instructed": 51,
+      "loaded": 51,
+      "recommended": 49,
+      "trained": 48,
+      "filled": 48,
+      "verified": 46,
+      "replaced": 46,
+      "supervised": 43,
+      "disassembled": 43
+    }
+  },
+  "normalization_rules": [
+    {
+      "pattern": "^cfo$",
+      "canonical": "chief financial officer"
+    },
+    {
+      "pattern": "^ceo$",
+      "canonical": "chief executive officer"
+    },
+    {
+      "pattern": "^coo$",
+      "canonical": "chief operating officer"
+    },
+    {
+      "pattern": "^cto$",
+      "canonical": "chief technology officer"
+    },
+    {
+      "pattern": "^cio$",
+      "canonical": "chief information officer"
+    },
+    {
+      "pattern": "\\bvp\\b",
+      "canonical": "vice president"
+    },
+    {
+      "pattern": "\\bhr\\b",
+      "canonical": "human resources"
+    },
+    {
+      "pattern": "\\ba/r\\b",
+      "canonical": "accounts receivable"
+    },
+    {
+      "pattern": "\\ba/p\\b",
+      "canonical": "accounts payable"
+    }
+  ]
+}
