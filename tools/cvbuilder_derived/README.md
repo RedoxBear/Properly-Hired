@@ -17,13 +17,6 @@ data into structural artifacts only.
 - It does not preserve interview answer text from source.
 - It does not output legacy sentence libraries for generation.
 
-## Run
-
-```bash
-python3 build_cvbuilder_derived.py \
-  --source-root /mnt/f/Projects/Career/CV_Builder/DATA \
-  --output-root /tmp/cvbuilder_derived_output
-```
 
 ## QA Guard
 
