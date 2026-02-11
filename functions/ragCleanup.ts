@@ -274,22 +274,23 @@ Deno.serve(async (req) => {
             base44.asServiceRole.entities.KnowledgeBase.delete(items[i].id)
           );
           kbDeleted++;
-          await sleep(300);
+          await sleep(1500); // Slower to avoid rate limits
         }
       }
 
-      // Step 2: Nuke all chunks
+      // Step 2: Nuke all chunks (in smaller batches with longer delays)
       let dc = 0;
       while (true) {
         const batch = await retry(() =>
-          base44.asServiceRole.entities.KnowledgeChunk.list('created_date', 50)
+          base44.asServiceRole.entities.KnowledgeChunk.list('created_date', 20)
         ).catch(() => []);
         if (!batch?.length) break;
         for (const c of batch) {
           await retry(() => base44.asServiceRole.entities.KnowledgeChunk.delete(c.id));
           dc++;
+          await sleep(300); // Delay between each delete
         }
-        await sleep(500);
+        await sleep(2000); // Longer pause between batches
       }
 
       // Step 3: Nuke all sources
@@ -300,7 +301,7 @@ Deno.serve(async (req) => {
       for (const s of (srcs || [])) {
         await retry(() => base44.asServiceRole.entities.KnowledgeSource.delete(s.id));
         ds++;
-        await sleep(200);
+        await sleep(1000); // Slower to avoid rate limits
       }
 
       return Response.json({
