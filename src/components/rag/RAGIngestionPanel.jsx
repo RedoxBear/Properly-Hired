@@ -55,33 +55,25 @@ export default function RAGIngestionPanel({ onRefreshStats }) {
     }
   };
 
-  const runIngestion = async () => {
+  const ingestRecords = async (toIngest) => {
     stopRef.current = false;
     setRunning(true);
-    setLog([]);
 
-    const pending = records.filter(r => r.status !== 'completed');
-    if (!pending.length) {
-      addLog("All records already ingested.");
-      setRunning(false);
-      return;
-    }
-
-    addLog(`Starting ingestion of ${pending.length} records (AI summaries: ${useAI ? 'ON' : 'OFF'})...`);
+    addLog(`Starting ingestion of ${toIngest.length} records (AI summaries: ${useAI ? 'ON' : 'OFF'})...`);
     let done = 0, totalChunks = 0, totalDeduped = 0, totalSummaries = 0;
 
-    for (const record of pending) {
+    for (const record of toIngest) {
       if (stopRef.current) { addLog("Stopped by user.", "warn"); break; }
       addLog(`▶ ${record.title} (${Math.round(record.content_length / 1024)}KB)`);
       setCurrentFile(record.title);
       setProgress(0);
 
-      let chunkStart = 0;
+      let chunkStart = 0; // This is now a chunk INDEX, not char position
       let errors = 0;
 
       while (!stopRef.current) {
         try {
-          await sleep(2500);
+          await sleep(2000);
           const res = await ragIngest({
             action: "ingest_one", kb_id: record.id,
             chunk_start: chunkStart, use_ai: useAI
@@ -108,14 +100,16 @@ export default function RAGIngestionPanel({ onRefreshStats }) {
 
           if (d.status === 'partial') {
             setProgress(d.progress_pct || 0);
-            addLog(`  ${d.progress_pct}% — +${d.chunks_created} chunks, ${d.deduped || 0} deduped, ${d.ai_summaries || 0} summaries`);
+            const docInfo = d.total_in_document ? ` (${d.next_chunk_start}/${d.total_in_document} chunks)` : '';
+            addLog(`  ${d.progress_pct}% — +${d.chunks_created} chunks, ${d.deduped || 0} deduped${docInfo}`);
             chunkStart = d.next_chunk_start;
             continue;
           }
 
           if (d.status === 'completed') {
             done++;
-            addLog(`  ✓ Done — ${d.total_chunks} total chunks`, "success");
+            const docInfo = d.total_in_document ? ` (${d.total_in_document} in doc)` : '';
+            addLog(`  ✓ Done — ${d.total_chunks} chunks stored${docInfo}`, "success");
             break;
           }
 
@@ -136,6 +130,47 @@ export default function RAGIngestionPanel({ onRefreshStats }) {
     await sleep(2000);
     loadList();
     onRefreshStats?.();
+  };
+
+  const runIngestion = async () => {
+    setLog([]);
+    const pending = records.filter(r => r.status !== 'completed');
+    if (!pending.length) {
+      addLog("All records already ingested.");
+      return;
+    }
+    await ingestRecords(pending);
+  };
+
+  const nukeAndReingest = async () => {
+    if (!window.confirm("This will DELETE all chunks & sources, then re-ingest everything from scratch. Continue?")) return;
+    setLog([]);
+    setRunning(true);
+    addLog("Nuking all existing chunks and sources...", "warn");
+    try {
+      const res = await ragIngest({ action: "nuke" });
+      const d = res.data || res;
+      addLog(`Deleted ${d.deleted_chunks} chunks and ${d.deleted_sources} sources`, "success");
+    } catch (err) {
+      addLog(`Nuke failed: ${err.message}`, "error");
+      setRunning(false);
+      return;
+    }
+    await sleep(2000);
+    addLog("Refreshing record list...");
+    await loadList();
+    // After nuke, ALL records are pending — re-fetch and ingest all
+    try {
+      const res = await ragIngest({ action: "list" });
+      const d = res.data || res;
+      const allRecords = d.records || [];
+      addLog(`Found ${allRecords.length} records to re-ingest`);
+      setRecords(allRecords);
+      await ingestRecords(allRecords);
+    } catch (err) {
+      addLog(`List failed: ${err.message}`, "error");
+      setRunning(false);
+    }
   };
 
   const pending = records.filter(r => r.status !== 'completed').length;
