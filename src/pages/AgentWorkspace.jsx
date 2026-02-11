@@ -129,11 +129,6 @@ export default function AgentWorkspace() {
         }
     }, [items, notifyHighPriority]);
 
-    React.useEffect(() => {
-        if (!items.length) return;
-        autoNormalize(items);
-    }, [items, autoNormalize]);
-
     const filteredItems = items.filter((item) => {
         const agentMatch = filterAgent === "all" || item.to_agent === filterAgent;
         const statusMatch = filterStatus === "all" || item.status === filterStatus;
