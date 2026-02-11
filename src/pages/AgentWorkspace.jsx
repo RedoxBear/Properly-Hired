@@ -216,6 +216,11 @@ export default function AgentWorkspace() {
         if (changed) setItems(next);
     }, [rules]);
 
+    React.useEffect(() => {
+        if (!items.length) return;
+        autoNormalize(items);
+    }, [items, autoNormalize]);
+
     const applyRouting = async () => {
         setIsRouting(true);
         try {
