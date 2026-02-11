@@ -13,7 +13,7 @@ export default function ExtensionGuide() {
         <div className="text-center mb-2">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-50 text-cyan-700 rounded-full text-sm font-medium mb-3">
             <Compass className="w-4 h-4" />
-            Prague Day Browser Extension
+            Properly Hired Browser Extension
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Track Jobs from Any Site</h1>
           <p className="text-slate-600 mt-2">Capture roles on LinkedIn, Indeed, Greenhouse, Lever, Workday, and deep-link straight into Job Analysis.</p>
@@ -50,10 +50,10 @@ export default function ExtensionGuide() {
           <CardContent>
             <pre className="bg-slate-900 text-slate-100 p-3 rounded-lg text-xs overflow-auto">{`{
   "manifest_version": 3,
-  "name": "Prague Day – Job Tracker",
+  "name": "Properly Hired – Job Tracker",
   "version": "1.0.0",
-  "description": "Track job applications across the web. Send to Prague Day and schedule follow-ups.",
-  "action": { "default_title": "Prague Day", "default_popup": "popup.html" },
+  "description": "Track job applications across the web. Send to Properly Hired and schedule follow-ups.",
+  "action": { "default_title": "Properly Hired", "default_popup": "popup.html" },
   "background": { "service_worker": "background.js", "type": "module" },
   "host_permissions": ["*://*.linkedin.com/*","*://*.indeed.com/*","*://*.workdayjobs.com/*","*://*.myworkdayjobs.com/*","*://*.greenhouse.io/*","*://*.lever.co/*"],
   "permissions": ["storage","contextMenus","scripting","activeTab"],
@@ -68,7 +68,7 @@ export default function ExtensionGuide() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-emerald-600" />
-              Content Script: Inject “Track with Prague Day”
+              Content Script: Inject “Track with Properly Hired”
             </CardTitle>
           </CardHeader>
           <CardContent>

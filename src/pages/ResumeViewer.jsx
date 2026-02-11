@@ -218,7 +218,7 @@ export default function ResumeViewer() {
                 exported_at: new Date().toISOString(),
                 _meta: {
                     description: "Full Resume Repository Backup",
-                    app: "Prague Day"
+                    app: "Properly Hired"
                 }
             };
             const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });

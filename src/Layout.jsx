@@ -251,7 +251,11 @@ function AppShell({ children, currentPageName }) {
                         <div className="flex items-center justify-between gap-2 md:gap-3">
                             <div className="flex items-center gap-2 md:gap-3">
                                 <img
+<<<<<<< HEAD
                                     src={LOGO_CIRCLE}
+=======
+                                    src={PRAGUE_DAY_CIRCLE}
+>>>>>>> 159eae0 (Update all source code branding to Properly Hired)
                                     alt="Properly Hired"
                                     className="w-8 h-8 md:w-10 md:h-10 rounded-xl shadow-lg object-contain bg-card"
                                     onError={(e) => {
@@ -570,8 +574,13 @@ function AppShell({ children, currentPageName }) {
                         <div className="flex items-center gap-2 md:gap-3">
                             <div className="w-8 h-8 bg-muted rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
                                 <img
+<<<<<<< HEAD
                                     src={LOGO_CIRCLE}
                                     alt="Properly Hired"
+=======
+                                    src={PRAGUE_DAY_CIRCLE}
+                                    alt="Properly Hired small"
+>>>>>>> 159eae0 (Update all source code branding to Properly Hired)
                                     className="w-8 h-8 object-contain"
                                     onError={(e) => {
                                         const el = e.currentTarget;
@@ -632,8 +641,13 @@ function AppShell({ children, currentPageName }) {
                             />
                             <div className="flex items-center gap-2">
                                 <img
+<<<<<<< HEAD
                                     key={LOGO_CIRCLE}
                                     src={LOGO_CIRCLE}
+=======
+                                    key={PRAGUE_DAY_CIRCLE}
+                                    src={PRAGUE_DAY_CIRCLE}
+>>>>>>> 159eae0 (Update all source code branding to Properly Hired)
                                     alt="Properly Hired"
                                     className="w-6 h-6 object-contain"
                                     onError={(e) => {

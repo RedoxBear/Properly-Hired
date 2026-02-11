@@ -66,7 +66,7 @@ export default function ReferralProgram() {
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Refer Friends, Get Rewards</h1>
                     <p className="text-lg text-muted-foreground">
-                        Share Prague Day with friends and both get 20% off your subscription.
+                        Share Properly Hired with friends and both get 20% off your subscription.
                     </p>
                 </motion.div>
 

@@ -58,7 +58,7 @@ export default function QuickActions() {
           gradient="from-emerald-500 to-teal-600"
         />
         <Action
-          title="How to Use Prague Day"
+          title="How to Use Properly Hired"
           desc="Follow the guided playbook"
           icon={Compass}
           to={createPageUrl("HowTo")}

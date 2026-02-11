@@ -42,14 +42,14 @@ import MarketSignals from "../components/dashboard/MarketSignals";
 const heroPresets = {
     elegant: {
         headline: "Navigate Your Career with Precision",
-        sub: "Turn every application into an opportunity. Prague Day analyzes your resume, matches it to your dream roles, and crafts personalized materials that get you noticed.",
+        sub: "Turn every application into an opportunity. Properly Hired analyzes your resume, matches it to your dream roles, and crafts personalized materials that get you noticed.",
         primary: { label: "Match My Resume", href: createPageUrl("JobAnalysis") },
         secondary: { label: "Try Demo → Instant Match", href: createPageUrl("JobAnalysis?demo=1") },
         highlight: "Precision"
     },
     human: {
         headline: "Find Work That Moves You",
-        sub: "Prague Day blends smart AI with human insight to help you discover, tailor, and land roles that fit your story — not just your skills.",
+        sub: "Properly Hired blends smart AI with human insight to help you discover, tailor, and land roles that fit your story — not just your skills.",
         primary: { label: "Discover My Fit", href: createPageUrl("JobAnalysis") },
         secondary: { label: "Try Demo → Instant Match", href: createPageUrl("JobAnalysis?demo=1") },
         highlight: "Moves You"
