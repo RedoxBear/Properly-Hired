@@ -21,7 +21,6 @@ import {
     Palette,
     ArrowRightLeft,
     TrendingUp,
-    BarChart3,
     Inbox,
     Search as SearchIcon,
     Brain,
@@ -38,8 +37,7 @@ import {
     Upload,
     Link2,
     AlertTriangle,
-    Building2,
-    Database
+    Building2
 } from "lucide-react";
 import {
     Sidebar,
