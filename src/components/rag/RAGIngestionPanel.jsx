@@ -198,10 +198,16 @@ export default function RAGIngestionPanel({ onRefreshStats }) {
         <CardContent className="space-y-3">
           <div className="flex items-center gap-4 flex-wrap">
             {!running ? (
-              <Button onClick={runIngestion} disabled={pending === 0 || loading}>
-                <Play className="w-4 h-4 mr-2" />
-                Ingest {pending} Pending
-              </Button>
+              <>
+                <Button onClick={runIngestion} disabled={pending === 0 || loading}>
+                  <Play className="w-4 h-4 mr-2" />
+                  Ingest {pending} Pending
+                </Button>
+                <Button onClick={nukeAndReingest} disabled={records.length === 0 || loading} variant="outline" className="text-amber-600 border-amber-300 hover:bg-amber-50">
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Nuke & Reingest All
+                </Button>
+              </>
             ) : (
               <Button onClick={() => { stopRef.current = true; }} variant="destructive">
                 <Square className="w-4 h-4 mr-2" />
