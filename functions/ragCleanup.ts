@@ -21,9 +21,13 @@ async function retry(fn, attempts = 5) {
 // "kyle/How Google Works - Eric Schmidt, Jonathan Rosenberg.txt"
 // should both normalize to something like "how google works eric schmidt"
 function normalizeTitle(title) {
-  return title
+  // Extract agent prefix to keep it in the grouping key
+  const agentMatch = title.match(/^(kyle|simon)\//i);
+  const agentPrefix = agentMatch ? agentMatch[1].toLowerCase() : 'both';
+  
+  const normalized = title
     .toLowerCase()
-    .replace(/^(kyle|simon)\//, '') // strip agent prefix
+    .replace(/^(kyle|simon)\//, '') // strip agent prefix for content matching
     .replace(/\.[^.]+$/, '')        // strip extension
     .replace(/[^a-z0-9]+/g, ' ')    // replace non-alphanumeric with spaces
     .replace(/\s+/g, ' ')
@@ -34,6 +38,8 @@ function normalizeTitle(title) {
     .filter(w => !['the', 'and', 'for', 'how', 'what', 'novel', 'txt'].includes(w))
     .sort()
     .join(' ');
+  
+  return `${agentPrefix}:${normalized}`;
 }
 
 Deno.serve(async (req) => {
