@@ -2,10 +2,14 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-async function retry(fn, attempts = 3) {
+async function retry(fn, attempts = 5) {
   for (let i = 1; i <= attempts; i++) {
     try { return await fn(); }
     catch (err) {
+      if (err?.message?.includes('Rate limit') && i < attempts) {
+        await sleep(5000 * i); // Aggressive backoff for rate limits
+        continue;
+      }
       if (i === attempts) throw err;
       await sleep(2000 * i);
     }
