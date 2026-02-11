@@ -1,0 +1,431 @@
+{
+  "version": "1.0.0",
+  "artifact": "interview_taxonomy",
+  "summary": {
+    "category_count": 23,
+    "question_count": 527,
+    "competency_distribution": {
+      "career_motivation": 54,
+      "company_research": 54,
+      "leadership": 43,
+      "problem_solving": 21,
+      "culture_fit": 12,
+      "technical_depth": 12,
+      "work_style": 10,
+      "achievements": 9,
+      "risk_flags": 8,
+      "communication": 5
+    }
+  },
+  "categories": [
+    {
+      "id": "starting-the-interview",
+      "title": "Starting the Interview",
+      "question_count": 8,
+      "top_competencies": [
+        "career_motivation",
+        "company_research"
+      ],
+      "question_style_distribution": {
+        "how": 3,
+        "why": 2,
+        "did": 1,
+        "other": 1,
+        "what": 1
+      }
+    },
+    {
+      "id": "about-your-resume",
+      "title": "About Your Resume",
+      "question_count": 13,
+      "top_competencies": [
+        "career_motivation",
+        "risk_flags",
+        "company_research",
+        "communication"
+      ],
+      "question_style_distribution": {
+        "other": 5,
+        "why": 5,
+        "what": 2,
+        "tell": 1
+      }
+    },
+    {
+      "id": "about-work-style",
+      "title": "About Work Style",
+      "question_count": 33,
+      "top_competencies": [
+        "culture_fit",
+        "work_style",
+        "leadership",
+        "problem_solving"
+      ],
+      "question_style_distribution": {
+        "other": 9,
+        "how": 7,
+        "do": 6,
+        "tell": 5,
+        "what": 3,
+        "describe": 3
+      }
+    },
+    {
+      "id": "career-goal-questions",
+      "title": "Career Goal Questions",
+      "question_count": 16,
+      "top_competencies": [
+        "career_motivation",
+        "company_research"
+      ],
+      "question_style_distribution": {
+        "what": 8,
+        "other": 4,
+        "do": 2,
+        "have": 1,
+        "describe": 1
+      }
+    },
+    {
+      "id": "about-your-experience",
+      "title": "About Your Experience",
+      "question_count": 20,
+      "top_competencies": [
+        "leadership",
+        "company_research",
+        "culture_fit",
+        "career_motivation"
+      ],
+      "question_style_distribution": {
+        "other": 5,
+        "describe": 4,
+        "what": 4,
+        "how": 3,
+        "have": 3,
+        "tell": 1
+      }
+    },
+    {
+      "id": "about-your-skills",
+      "title": "About Your Skills",
+      "question_count": 13,
+      "top_competencies": [
+        "technical_depth",
+        "problem_solving",
+        "culture_fit",
+        "communication"
+      ],
+      "question_style_distribution": {
+        "how": 4,
+        "what": 4,
+        "describe": 3,
+        "other": 1,
+        "do": 1
+      }
+    },
+    {
+      "id": "accomplishments",
+      "title": "Accomplishments",
+      "question_count": 20,
+      "top_competencies": [
+        "achievements",
+        "career_motivation",
+        "leadership",
+        "work_style"
+      ],
+      "question_style_distribution": {
+        "tell": 8,
+        "what": 7,
+        "have": 2,
+        "which": 1,
+        "why": 1,
+        "other": 1
+      }
+    },
+    {
+      "id": "education-and-training",
+      "title": "Education and Training",
+      "question_count": 28,
+      "top_competencies": [
+        "career_motivation",
+        "technical_depth"
+      ],
+      "question_style_distribution": {
+        "other": 11,
+        "what": 4,
+        "did": 4,
+        "how": 3,
+        "do": 2,
+        "have": 2,
+        "why": 1,
+        "tell": 1
+      }
+    },
+    {
+      "id": "general-questions",
+      "title": "General Questions",
+      "question_count": 35,
+      "top_competencies": [
+        "company_research",
+        "leadership",
+        "career_motivation",
+        "communication"
+      ],
+      "question_style_distribution": {
+        "what": 12,
+        "other": 9,
+        "how": 5,
+        "why": 3,
+        "do": 3,
+        "did": 1,
+        "describe": 1,
+        "tell": 1
+      }
+    },
+    {
+      "id": "management-questions",
+      "title": "Management Questions",
+      "question_count": 34,
+      "top_competencies": [
+        "leadership",
+        "work_style",
+        "career_motivation",
+        "problem_solving"
+      ],
+      "question_style_distribution": {
+        "what": 8,
+        "describe": 6,
+        "how": 5,
+        "other": 5,
+        "tell": 4,
+        "do": 3,
+        "have": 2,
+        "why": 1
+      }
+    },
+    {
+      "id": "about-the-company",
+      "title": "About the Company",
+      "question_count": 18,
+      "top_competencies": [
+        "company_research",
+        "problem_solving"
+      ],
+      "question_style_distribution": {
+        "what": 7,
+        "other": 5,
+        "how": 2,
+        "do": 1,
+        "have": 1,
+        "tell": 1,
+        "describe": 1
+      }
+    },
+    {
+      "id": "about-the-position",
+      "title": "About the Position",
+      "question_count": 18,
+      "top_competencies": [
+        "company_research",
+        "career_motivation",
+        "problem_solving",
+        "risk_flags"
+      ],
+      "question_style_distribution": {
+        "what": 10,
+        "other": 4,
+        "how": 2,
+        "describe": 1,
+        "do": 1
+      }
+    },
+    {
+      "id": "about-the-industry",
+      "title": "About the Industry",
+      "question_count": 8,
+      "top_competencies": [
+        "career_motivation",
+        "leadership"
+      ],
+      "question_style_distribution": {
+        "other": 3,
+        "why": 2,
+        "tell": 2,
+        "what": 1
+      }
+    },
+    {
+      "id": "recent-graduates",
+      "title": "Recent Graduates",
+      "question_count": 10,
+      "top_competencies": [
+        "career_motivation"
+      ],
+      "question_style_distribution": {
+        "what": 3,
+        "other": 3,
+        "do": 1,
+        "how": 1,
+        "tell": 1,
+        "which": 1
+      }
+    },
+    {
+      "id": "salary-and-benefits",
+      "title": "Salary and Benefits",
+      "question_count": 36,
+      "top_competencies": [
+        "company_research",
+        "culture_fit",
+        "work_style",
+        "career_motivation"
+      ],
+      "question_style_distribution": {
+        "other": 15,
+        "what": 14,
+        "how": 5,
+        "do": 1,
+        "have": 1
+      }
+    },
+    {
+      "id": "character-questions",
+      "title": "Character Questions",
+      "question_count": 45,
+      "top_competencies": [
+        "problem_solving",
+        "leadership",
+        "risk_flags",
+        "company_research"
+      ],
+      "question_style_distribution": {
+        "what": 18,
+        "other": 9,
+        "how": 6,
+        "tell": 4,
+        "have": 3,
+        "do": 3,
+        "describe": 1,
+        "did": 1
+      }
+    },
+    {
+      "id": "situation-questions",
+      "title": "Situation Questions",
+      "question_count": 20,
+      "top_competencies": [
+        "leadership",
+        "problem_solving",
+        "company_research",
+        "communication"
+      ],
+      "question_style_distribution": {
+        "other": 11,
+        "tell": 7,
+        "describe": 1,
+        "what": 1
+      }
+    },
+    {
+      "id": "special-issues",
+      "title": "Special Issues",
+      "question_count": 15,
+      "top_competencies": [
+        "culture_fit",
+        "career_motivation",
+        "problem_solving"
+      ],
+      "question_style_distribution": {
+        "other": 7,
+        "do": 3,
+        "have": 3,
+        "what": 2
+      }
+    },
+    {
+      "id": "tough-questions",
+      "title": "Tough Questions",
+      "question_count": 42,
+      "top_competencies": [
+        "career_motivation",
+        "company_research",
+        "problem_solving",
+        "technical_depth"
+      ],
+      "question_style_distribution": {
+        "other": 20,
+        "what": 12,
+        "describe": 4,
+        "how": 2,
+        "have": 2,
+        "tell": 1,
+        "why": 1
+      }
+    },
+    {
+      "id": "closing-questions",
+      "title": "Closing Questions",
+      "question_count": 9,
+      "top_competencies": [
+        "career_motivation"
+      ],
+      "question_style_distribution": {
+        "other": 7,
+        "do": 1,
+        "why": 1
+      }
+    },
+    {
+      "id": "questionable-questions",
+      "title": "Questionable Questions",
+      "question_count": 28,
+      "top_competencies": [
+        "company_research"
+      ],
+      "question_style_distribution": {
+        "other": 10,
+        "do": 7,
+        "what": 5,
+        "how": 4,
+        "have": 1,
+        "tell": 1
+      }
+    },
+    {
+      "id": "questions-you-ask",
+      "title": "Questions You Ask",
+      "question_count": 33,
+      "top_competencies": [
+        "company_research",
+        "leadership",
+        "career_motivation",
+        "work_style"
+      ],
+      "question_style_distribution": {
+        "other": 19,
+        "what": 8,
+        "how": 5,
+        "do": 1
+      }
+    },
+    {
+      "id": "top-25-interview-questions",
+      "title": "Top 25 Interview Questions",
+      "question_count": 25,
+      "top_competencies": [
+        "career_motivation",
+        "leadership",
+        "problem_solving",
+        "company_research"
+      ],
+      "question_style_distribution": {
+        "what": 9,
+        "other": 7,
+        "tell": 5,
+        "why": 2,
+        "how": 1,
+        "describe": 1
+      }
+    }
+  ]
+}

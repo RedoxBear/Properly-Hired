@@ -1,0 +1,103 @@
+{
+  "version": "1.0.0",
+  "artifact": "resume_review_rubric",
+  "score_model": {
+    "weight_range": [
+      1,
+      3
+    ],
+    "banding": [
+      {
+        "label": "strong",
+        "min_weight_ratio": 0.85
+      },
+      {
+        "label": "good",
+        "min_weight_ratio": 0.7
+      },
+      {
+        "label": "needs_work",
+        "min_weight_ratio": 0.0
+      }
+    ]
+  },
+  "dimensions": {
+    "targeting": 9,
+    "proofreading": 7,
+    "keyword_alignment": 7,
+    "layout_readability": 6,
+    "clarity_and_density": 4,
+    "impact_evidence": 3,
+    "compliance_hygiene": 3,
+    "credibility": 2
+  },
+  "categories": [
+    {
+      "id": "overall-strategy",
+      "title": "Overall Strategy",
+      "question_count": 5,
+      "weight_total": 9,
+      "critical_item_count": 1,
+      "top_dimensions": [
+        "targeting",
+        "proofreading",
+        "keyword_alignment",
+        "clarity_and_density",
+        "impact_evidence"
+      ]
+    },
+    {
+      "id": "subject-matter",
+      "title": "Subject Matter",
+      "question_count": 8,
+      "weight_total": 14,
+      "critical_item_count": 2,
+      "top_dimensions": [
+        "targeting",
+        "keyword_alignment",
+        "proofreading",
+        "compliance_hygiene",
+        "credibility"
+      ]
+    },
+    {
+      "id": "appearance",
+      "title": "Appearance",
+      "question_count": 5,
+      "weight_total": 11,
+      "critical_item_count": 2,
+      "top_dimensions": [
+        "keyword_alignment",
+        "layout_readability",
+        "targeting",
+        "clarity_and_density"
+      ]
+    },
+    {
+      "id": "writing-style",
+      "title": "Writing Style",
+      "question_count": 5,
+      "weight_total": 8,
+      "critical_item_count": 1,
+      "top_dimensions": [
+        "impact_evidence",
+        "clarity_and_density",
+        "layout_readability",
+        "targeting"
+      ]
+    },
+    {
+      "id": "proofreading",
+      "title": "Proofreading",
+      "question_count": 8,
+      "weight_total": 16,
+      "critical_item_count": 3,
+      "top_dimensions": [
+        "proofreading",
+        "layout_readability",
+        "compliance_hygiene",
+        "credibility"
+      ]
+    }
+  ]
+}

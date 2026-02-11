@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "artifact": "pattern_specs",
+  "patterns": [
+    {
+      "id": "arc",
+      "name": "Action-Result-Context",
+      "slots": [
+        "action_verb",
+        "result_metric",
+        "context_scope"
+      ],
+      "validation": [
+        "must_include_metric_or_scale",
+        "must_specify_scope"
+      ]
+    },
+    {
+      "id": "star",
+      "name": "Situation-Task-Action-Result",
+      "slots": [
+        "situation",
+        "task",
+        "action",
+        "result"
+      ],
+      "validation": [
+        "result_should_include_quant_or_business_effect"
+      ]
+    },
+    {
+      "id": "carl",
+      "name": "Challenge-Action-Result-Learning",
+      "slots": [
+        "challenge",
+        "action",
+        "result",
+        "learning"
+      ],
+      "validation": [
+        "learning_must_show_growth_or_transferability"
+      ]
+    },
+    {
+      "id": "value_proposition",
+      "name": "Role-Fit Value Proposition",
+      "slots": [
+        "target_role",
+        "core_strength",
+        "business_value",
+        "proof_signal"
+      ],
+      "validation": [
+        "proof_signal_required"
+      ]
+    }
+  ],
+  "usage_constraints": {
+    "allow_direct_legacy_phrases": false,
+    "require_candidate_specific_evidence": true,
+    "require_role_specific_keywords": true
+  }
+}
