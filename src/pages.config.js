@@ -10,7 +10,6 @@ import Home from './pages/Home';
 import JobAnalysis from './pages/JobAnalysis';
 import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
-import JobMatcher from './pages/JobMatcher';
 import JobSummary from './pages/JobSummary';
 import MyNetwork from './pages/MyNetwork';
 import MyResumes from './pages/MyResumes';
@@ -50,7 +49,6 @@ export const PAGES = {
     "JobAnalysis": JobAnalysis,
     "JobDetails": JobDetails,
     "JobLibrary": JobLibrary,
-    "JobMatcher": JobMatcher,
     "JobSummary": JobSummary,
     "MyNetwork": MyNetwork,
     "MyResumes": MyResumes,

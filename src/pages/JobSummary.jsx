@@ -62,10 +62,15 @@ export default function JobSummary() {
             {S.research_snapshot && (
               <div className="text-sm text-slate-600">
                 {S.research_snapshot.website && <>Website: {S.research_snapshot.website}<br/></>}
+                {S.research_snapshot.linkedin_company_url && <>LinkedIn Company: {S.research_snapshot.linkedin_company_url}<br/></>}
+                {S.research_snapshot.linkedin_people_url && <>LinkedIn People Search: {S.research_snapshot.linkedin_people_url}<br/></>}
                 {S.research_snapshot.industry && <>Industry: {S.research_snapshot.industry}<br/></>}
                 {S.research_snapshot.size && <>Size: {S.research_snapshot.size}<br/></>}
                 {S.research_snapshot.headquarters && <>HQ: {S.research_snapshot.headquarters}<br/></>}
-                {S.research_snapshot.founded && <>Founded: {S.research_snapshot.founded}</>}
+                {S.research_snapshot.founded && <>Founded: {S.research_snapshot.founded}<br/></>}
+                {S.research_snapshot.likely_manager_titles && <>Likely Manager Titles: {S.research_snapshot.likely_manager_titles}<br/></>}
+                {S.research_snapshot.leadership_team_summary && <>Leadership Team: {S.research_snapshot.leadership_team_summary}<br/></>}
+                {S.research_snapshot.geographic_activity_summary && <>Geographic Activity: {S.research_snapshot.geographic_activity_summary}</>}
               </div>
             )}
           </CardContent>

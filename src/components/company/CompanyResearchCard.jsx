@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, Calendar, Users, Building2, MapPin, ExternalLink } from "lucide-react";
+import { Globe, Calendar, Users, Building2, MapPin, ExternalLink, UserRoundSearch, UsersRound, Map } from "lucide-react";
 
 export default function CompanyResearchCard({ company, orgResearch }) {
     if (!orgResearch) return null;
@@ -40,6 +40,38 @@ export default function CompanyResearchCard({ company, orgResearch }) {
                             <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
                                 <div className="text-xs font-bold text-blue-600 uppercase mb-1">⚓ The Hook (Active Project)</div>
                                 <div className="text-sm text-slate-800">{orgResearch.hook}</div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {(orgResearch.likely_manager_titles || orgResearch.leadership_team_summary || orgResearch.geographic_activity_summary) && (
+                    <div className="grid md:grid-cols-3 gap-4 mb-2">
+                        {orgResearch.likely_manager_titles && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-1">
+                                    <UserRoundSearch className="w-3 h-3" />
+                                    Likely Manager Titles
+                                </div>
+                                <div className="text-sm text-slate-800">{orgResearch.likely_manager_titles}</div>
+                            </div>
+                        )}
+                        {orgResearch.leadership_team_summary && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-1">
+                                    <UsersRound className="w-3 h-3" />
+                                    Leadership Team
+                                </div>
+                                <div className="text-sm text-slate-800">{orgResearch.leadership_team_summary}</div>
+                            </div>
+                        )}
+                        {orgResearch.geographic_activity_summary && (
+                            <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                <div className="text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-1">
+                                    <Map className="w-3 h-3" />
+                                    Geographic Activity
+                                </div>
+                                <div className="text-sm text-slate-800">{orgResearch.geographic_activity_summary}</div>
                             </div>
                         )}
                     </div>
@@ -91,17 +123,41 @@ export default function CompanyResearchCard({ company, orgResearch }) {
                     )}
                 </div>
 
-                {orgResearch.website && (
-                    <div className="pt-2 border-t border-slate-200/60 flex justify-end">
-                        <a 
-                            href={orgResearch.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
-                        >
-                            Visit Website
-                            <ExternalLink className="w-3 h-3" />
-                        </a>
+                {(orgResearch.website || orgResearch.linkedin_company_url || orgResearch.linkedin_people_url) && (
+                    <div className="pt-2 border-t border-slate-200/60 flex flex-wrap gap-3 justify-end">
+                        {orgResearch.website && (
+                            <a 
+                                href={orgResearch.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                            >
+                                Visit Website
+                                <ExternalLink className="w-3 h-3" />
+                            </a>
+                        )}
+                        {orgResearch.linkedin_company_url && (
+                            <a
+                                href={orgResearch.linkedin_company_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                            >
+                                LinkedIn Company
+                                <ExternalLink className="w-3 h-3" />
+                            </a>
+                        )}
+                        {orgResearch.linkedin_people_url && (
+                            <a
+                                href={orgResearch.linkedin_people_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
+                            >
+                                LinkedIn People Search
+                                <ExternalLink className="w-3 h-3" />
+                            </a>
+                        )}
                     </div>
                 )}
             </CardContent>

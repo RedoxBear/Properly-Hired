@@ -149,6 +149,35 @@ export default function CompanyResearchDisplay({ company, jobApplication }) {
                                 <Globe className="w-4 h-4" />
                                 Visit Website
                             </a>
+                            {research.linkedin_company_url && (
+                                <a
+                                    href={research.linkedin_company_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 mt-1"
+                                >
+                                    <Globe className="w-4 h-4" />
+                                    LinkedIn Company
+                                </a>
+                            )}
+                            {research.linkedin_people_url && (
+                                <a
+                                    href={research.linkedin_people_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 mt-1"
+                                >
+                                    <Globe className="w-4 h-4" />
+                                    LinkedIn People Search
+                                </a>
+                            )}
+                        </div>
+                    )}
+                    {(research.likely_manager_titles || research.leadership_team_summary || research.geographic_activity_summary) && (
+                        <div className="pt-2 border-t border-blue-200/60 text-sm text-blue-900 space-y-2">
+                            {research.likely_manager_titles && <p><span className="font-semibold">Likely Manager Titles:</span> {research.likely_manager_titles}</p>}
+                            {research.leadership_team_summary && <p><span className="font-semibold">Leadership Team:</span> {research.leadership_team_summary}</p>}
+                            {research.geographic_activity_summary && <p><span className="font-semibold">Geographic Activity:</span> {research.geographic_activity_summary}</p>}
                         </div>
                     )}
                 </CardContent>

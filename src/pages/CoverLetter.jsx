@@ -111,7 +111,16 @@ export default function CoverLetter() {
                     founded: research?.founded,
                     size: research?.size,
                     industry: research?.industry,
-                    headquarters: research?.headquarters
+                    headquarters: research?.headquarters,
+                    viability: research?.viability,
+                    trigger: research?.trigger,
+                    dna: research?.dna,
+                    hook: research?.hook,
+                    linkedin_company_url: research?.linkedin_company_url,
+                    linkedin_people_url: research?.linkedin_people_url,
+                    likely_manager_titles: research?.likely_manager_titles,
+                    leadership_team_summary: research?.leadership_team_summary,
+                    geographic_activity_summary: research?.geographic_activity_summary
                   }
                 }
               });

@@ -3,12 +3,10 @@ import { base44 } from "@/api/base44Client";
 
 const Resume = base44.entities.Resume;
 const JobApplication = base44.entities.JobApplication;
-const JobMatch = base44.entities.JobMatch;
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Sparkles, Briefcase, Star, Loader2, Lightbulb, Target, Zap, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,17 +20,14 @@ import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 export default function ResumeOptimizer() {
   const [jobApplications, setJobApplications] = React.useState([]);
-  const [jobMatches, setJobMatches] = React.useState([]);
   const [masterResumes, setMasterResumes] = React.useState([]);
   const [selectedJobId, setSelectedJobId] = React.useState("");
-  const [selectedMatchId, setSelectedMatchId] = React.useState("");
   const [selectedResumeId, setSelectedResumeId] = React.useState("");
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [optimizationResults, setOptimizationResults] = React.useState(null);
   const [error, setError] = React.useState("");
   const [retargetEnabled, setRetargetEnabled] = React.useState(true);
   const [optimizeMode, setOptimizeMode] = React.useState("two_page");
-  const [useJobMatch, setUseJobMatch] = React.useState(false);
   const [aggressiveMatch, setAggressiveMatch] = React.useState(true);
   const [deepHumanize, setDeepHumanize] = React.useState(true);
   const [suggestions, setSuggestions] = React.useState(null);
@@ -46,14 +41,12 @@ export default function ResumeOptimizer() {
     setIsProcessing(true);
     setError("");
     try {
-      const [applications, resumes, matches] = await Promise.all([
+      const [applications, resumes] = await Promise.all([
         JobApplication.list("-created_date", 50),
-        Resume.filter({ is_master_resume: true }, "-created_date", 100),
-        JobMatch.list("-created_date", 50)
+        Resume.filter({ is_master_resume: true }, "-created_date", 100)
       ]);
       setJobApplications(applications);
       setMasterResumes(resumes);
-      setJobMatches(matches);
       if (resumes.length === 0) {
         setError("Please upload or build a master resume first.");
       }
@@ -151,11 +144,7 @@ export default function ResumeOptimizer() {
   };
 
   const optimizeResume = async (generateMultiple = false) => {
-    if (useJobMatch && !selectedMatchId) {
-      setError("Please select a job match to optimize for.");
-      return;
-    }
-    if (!useJobMatch && !selectedJobId) {
+    if (!selectedJobId) {
       setError("Please select a job application.");
       return;
     }
@@ -166,16 +155,10 @@ export default function ResumeOptimizer() {
     setIsProcessing(true);
     setError("");
 
-    const selectedMatch = useJobMatch ? jobMatches.find(m => m.id === selectedMatchId) : null;
-    const selectedJob = !useJobMatch ? jobApplications.find(j => j.id === selectedJobId) : null;
+    const selectedJob = jobApplications.find(j => j.id === selectedJobId);
     const selectedResume = masterResumes.find(r => r.id === selectedResumeId);
 
-    const jobData = selectedMatch ? {
-      job_title: selectedMatch.job_title,
-      company_name: selectedMatch.company_name,
-      job_description: selectedMatch.job_description,
-      id: selectedMatch.id
-    } : {
+    const jobData = {
       job_title: selectedJob.job_title,
       company_name: selectedJob.company_name,
       job_description: selectedJob.job_description,
@@ -307,7 +290,7 @@ export default function ResumeOptimizer() {
               parsed_content: selectedResume.parsed_content,
               optimized_content: JSON.stringify(response.optimized_resume_content),
               is_master_resume: false,
-              job_application_id: useJobMatch ? null : jobData.id
+              job_application_id: jobData.id
             });
 
             versions.push({
@@ -323,7 +306,7 @@ export default function ResumeOptimizer() {
             setSelectedVersion(0);
         }
 
-        if (!useJobMatch && selectedJob) {
+        if (selectedJob) {
           await JobApplication.update(selectedJobId, {
             optimization_score: versions[0].optimization_score,
             master_resume_id: selectedResumeId,
@@ -355,7 +338,6 @@ export default function ResumeOptimizer() {
   const resetOptimization = () => {
       setOptimizationResults(null);
       setSelectedJobId("");
-      setSelectedMatchId("");
       setSelectedResumeId("");
       setSuggestions(null);
       setTailoringSuggestions(null);
@@ -392,44 +374,21 @@ export default function ResumeOptimizer() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-3 p-4 bg-slate-100 rounded-lg border border-slate-200">
-                    <Switch checked={useJobMatch} onCheckedChange={setUseJobMatch} />
-                    <span className="text-sm font-medium text-slate-700">Use Job Match instead of Application</span>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Job Application</label>
+                    <Select value={selectedJobId} onValueChange={setSelectedJobId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a job application" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {jobApplications.map(job => (
+                          <SelectItem key={job.id} value={job.id}>
+                            {job.job_title} at {job.company_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  {!useJobMatch ? (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Job Application</label>
-                      <Select value={selectedJobId} onValueChange={setSelectedJobId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a job application" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {jobApplications.map(job => (
-                            <SelectItem key={job.id} value={job.id}>
-                              {job.job_title} at {job.company_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Job Match</label>
-                      <Select value={selectedMatchId} onValueChange={setSelectedMatchId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a job match" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {jobMatches.map(match => (
-                            <SelectItem key={match.id} value={match.id}>
-                              {match.job_title} at {match.company_name} ({match.match_score}% match)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Master Resume</label>

@@ -418,7 +418,12 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                         viability: research.viability,
                         trigger: research.trigger,
                         dna: research.dna,
-                        hook: research.hook
+                        hook: research.hook,
+                        linkedin_company_url: research.linkedin_company_url,
+                        linkedin_people_url: research.linkedin_people_url,
+                        likely_manager_titles: research.likely_manager_titles,
+                        leadership_team_summary: research.leadership_team_summary,
+                        geographic_activity_summary: research.geographic_activity_summary
                     } : undefined
                 }
             });
@@ -702,6 +707,9 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                         <p className="text-slate-700 bg-slate-50 p-4 rounded-lg">
                                             {analysisResult.company_culture}
                                         </p>
+                                        <p className="text-xs text-slate-500 mt-2">
+                                            Note: O*NET benchmark responses are not part of this Job Analysis pipeline yet. This page currently uses JD parsing and public web research only.
+                                        </p>
                                     </div>
 
                                     {/* Required Qualifications */}
@@ -709,7 +717,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                         <h3 className="font-semibold text-slate-800 mb-3">Required Qualifications</h3>
                                         {/* Company Research Card */}
                                         {savedApp?.summary?.research_snapshot && (
-                                            <CompanyResearchCard 
+                                                <CompanyResearchCard 
                                                 company={companyName} 
                                                 orgResearch={{
                                                     overview: savedApp.summary.company_overview,
@@ -717,7 +725,16 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                     founded: savedApp.summary.research_snapshot.founded,
                                                     size: savedApp.summary.research_snapshot.size,
                                                     industry: savedApp.summary.research_snapshot.industry,
-                                                    headquarters: savedApp.summary.research_snapshot.headquarters
+                                                    headquarters: savedApp.summary.research_snapshot.headquarters,
+                                                    viability: savedApp.summary.research_snapshot.viability,
+                                                    trigger: savedApp.summary.research_snapshot.trigger,
+                                                    dna: savedApp.summary.research_snapshot.dna,
+                                                    hook: savedApp.summary.research_snapshot.hook,
+                                                    linkedin_company_url: savedApp.summary.research_snapshot.linkedin_company_url,
+                                                    linkedin_people_url: savedApp.summary.research_snapshot.linkedin_people_url,
+                                                    likely_manager_titles: savedApp.summary.research_snapshot.likely_manager_titles,
+                                                    leadership_team_summary: savedApp.summary.research_snapshot.leadership_team_summary,
+                                                    geographic_activity_summary: savedApp.summary.research_snapshot.geographic_activity_summary
                                                 }}
                                             />
                                         )}
@@ -825,10 +842,15 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                         <h4 className="font-semibold mb-2">Company Snapshot</h4>
                                                         <ul className="list-disc list-inside text-sm text-slate-600">
                                                             {savedApp.summary.research_snapshot.website && <li>Website: <a href={savedApp.summary.research_snapshot.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{savedApp.summary.research_snapshot.website}</a></li>}
+                                                            {savedApp.summary.research_snapshot.linkedin_company_url && <li>LinkedIn Company: <a href={savedApp.summary.research_snapshot.linkedin_company_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{savedApp.summary.research_snapshot.linkedin_company_url}</a></li>}
+                                                            {savedApp.summary.research_snapshot.linkedin_people_url && <li>LinkedIn People Search: <a href={savedApp.summary.research_snapshot.linkedin_people_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{savedApp.summary.research_snapshot.linkedin_people_url}</a></li>}
                                                             {savedApp.summary.research_snapshot.founded && <li>Founded: {savedApp.summary.research_snapshot.founded}</li>}
                                                             {savedApp.summary.research_snapshot.size && <li>Size: {savedApp.summary.research_snapshot.size}</li>}
                                                             {savedApp.summary.research_snapshot.industry && <li>Industry: {savedApp.summary.research_snapshot.industry}</li>}
                                                             {savedApp.summary.research_snapshot.headquarters && <li>Headquarters: {savedApp.summary.research_snapshot.headquarters}</li>}
+                                                            {savedApp.summary.research_snapshot.likely_manager_titles && <li>Likely Manager Titles: {savedApp.summary.research_snapshot.likely_manager_titles}</li>}
+                                                            {savedApp.summary.research_snapshot.leadership_team_summary && <li>Leadership Team: {savedApp.summary.research_snapshot.leadership_team_summary}</li>}
+                                                            {savedApp.summary.research_snapshot.geographic_activity_summary && <li>Geographic Activity: {savedApp.summary.research_snapshot.geographic_activity_summary}</li>}
                                                         </ul>
                                                     </div>
                                                 )}

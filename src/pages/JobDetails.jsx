@@ -152,7 +152,16 @@ export default function JobDetails() {
                   founded: application.summary.research_snapshot.founded,
                   size: application.summary.research_snapshot.size,
                   industry: application.summary.research_snapshot.industry,
-                  headquarters: application.summary.research_snapshot.headquarters
+                  headquarters: application.summary.research_snapshot.headquarters,
+                  viability: application.summary.research_snapshot.viability,
+                  trigger: application.summary.research_snapshot.trigger,
+                  dna: application.summary.research_snapshot.dna,
+                  hook: application.summary.research_snapshot.hook,
+                  linkedin_company_url: application.summary.research_snapshot.linkedin_company_url,
+                  linkedin_people_url: application.summary.research_snapshot.linkedin_people_url,
+                  likely_manager_titles: application.summary.research_snapshot.likely_manager_titles,
+                  leadership_team_summary: application.summary.research_snapshot.leadership_team_summary,
+                  geographic_activity_summary: application.summary.research_snapshot.geographic_activity_summary
                 }}
               />
             )}
