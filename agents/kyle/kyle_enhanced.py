@@ -33,9 +33,15 @@ class KyleEnhanced:
     - Interview preparation
     """
 
-    # Output configuration
-    OUTPUT_DIR = "/mnt/f/Projects/AI_Projects/code/career-coach/data/CVs"
-    MASTER_CV_PATH = "/mnt/f/Projects/AI_Projects/code/career-coach/data/master_cv.txt"
+    # Output configuration - uses environment variables or project-relative defaults
+    OUTPUT_DIR = os.environ.get(
+        "KYLE_OUTPUT_DIR",
+        str(Path(__file__).parent.parent.parent / "data" / "CVs")
+    )
+    MASTER_CV_PATH = os.environ.get(
+        "KYLE_MASTER_CV_PATH",
+        str(Path(__file__).parent.parent.parent / "data" / "master_cv.txt")
+    )
 
     def __init__(self, llm_provider: Optional[str] = None):
         """
@@ -68,7 +74,7 @@ class KyleEnhanced:
             print(f"  → Output directory: {self.OUTPUT_DIR}")
         else:
             print(f"⚠ {self.name} initialized WITHOUT RAG")
-            print(f"  Run: cd /mnt/f/Projects/AI_Projects/rag-system && python ingest.py")
+            print(f"  RAG knowledge base not loaded. Check knowledge/ directory.")
 
     # =====================================================================
     # CV EXPERTISE - DOMAIN-FOCUSED RAG QUERIES

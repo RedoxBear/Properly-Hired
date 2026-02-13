@@ -236,13 +236,10 @@ export default function ResumeEditor() {
       return;
     }
     
-    console.log("Loading resume with ID:", resumeId);
-    console.log("isNew flag:", isNew);
     
     (async () => {
       try {
         const r = await base44.entities.Resume.get(resumeId);
-        console.log("Loaded resume:", r);
         
         if (!r) {
           setError("Resume not found. It may have been deleted.");
@@ -255,7 +252,6 @@ export default function ResumeEditor() {
         // Try to parse the resume content
         const parsed = safeParse(r.parsed_content);
         const optimized = safeParse(r.optimized_content);
-        console.log("Parsed content:", parsed);
         
         const initialDraft = parsed || optimized || {
           personal_info: {},

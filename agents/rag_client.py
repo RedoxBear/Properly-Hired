@@ -3,10 +3,14 @@
 Lightweight RAG client for Career-Coach agents (Kyle/Simon).
 Tries external RAG integration first, falls back to local knowledge files.
 """
+import os
 from typing import Optional
 from pathlib import Path
 
-RAG_INTEGRATION_PATH = "/mnt/f/Projects/AI_Projects/.agents"
+RAG_INTEGRATION_PATH = os.environ.get(
+    "RAG_INTEGRATION_PATH",
+    str(Path(__file__).parent.parent / ".agents")
+)
 
 
 class RAGClient:

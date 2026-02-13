@@ -82,7 +82,6 @@ import RecruiterConnect from './pages/RecruiterConnect';
 import ReferralProgram from './pages/ReferralProgram';
 import ResumeBuilder from './pages/ResumeBuilder';
 import ResumeEditor from './pages/ResumeEditor';
-import ResumeEditorTest from './pages/ResumeEditorTest';
 import ResumeHumanizer from './pages/ResumeHumanizer';
 import ResumeOptimizer from './pages/ResumeOptimizer';
 import ResumeQuality from './pages/ResumeQuality';
@@ -132,7 +131,6 @@ export const PAGES = {
     "ReferralProgram": ReferralProgram,
     "ResumeBuilder": ResumeBuilder,
     "ResumeEditor": ResumeEditor,
-    "ResumeEditorTest": ResumeEditorTest,
     "ResumeHumanizer": ResumeHumanizer,
     "ResumeOptimizer": ResumeOptimizer,
     "ResumeQuality": ResumeQuality,

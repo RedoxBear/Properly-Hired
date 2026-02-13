@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ChevronRight, ChevronLeft, Minus, ThumbsUp, ThumbsDown, AtSign, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import { useAppContext } from "@/components/context/AppContextProvider";
+import { useAppContext } from "@/context/AppContextProvider";
 import { canPerformAction, getTierLimit, getWeekStart } from "@/components/utils/accessControl";
 import { readEvents, logEvent } from "@/components/utils/telemetry";
 import ChatErrorBoundary from "./ChatErrorBoundary";
@@ -201,7 +201,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                         throw new Error("Retrieval not available");
                     }
                 } catch (retrieveError) {
-                    console.log("Could not retrieve conversation, creating new one:", retrieveError);
                     // Clear invalid session and create new
                     sessionStorage.removeItem(sessionKey);
                     conv = null;
@@ -318,31 +317,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         }
 
         const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
-            // DEBUG: Log raw response structure to diagnose [object Object] issues
-            if (data?.messages && data.messages.length > 0) {
-                const firstMsg = data.messages[data.messages.length - 1]; // Last message (most recent)
-                try {
-                    const preview = typeof firstMsg?.content === "string"
-                        ? firstMsg.content.substring(0, 100)
-                        : Array.isArray(firstMsg?.content)
-                        ? `[Array: ${firstMsg.content.length} items]`
-                        : `[${typeof firstMsg?.content}]`;
-                    console.log('[CHATBOT] SDK Response:', {
-                        timestamp: new Date().toISOString(),
-                        agentName: agentName,
-                        messageCount: data.messages.length,
-                        latestMessage: {
-                            role: firstMsg?.role,
-                            contentType: typeof firstMsg?.content,
-                            contentIsArray: Array.isArray(firstMsg?.content),
-                            contentKeys: firstMsg?.content ? Object.keys(firstMsg.content).slice(0, 5) : [],
-                            contentPreview: preview
-                        }
-                    });
-                } catch (logErr) {
-                    console.warn("[CHATBOT] Failed to log debug payload:", logErr);
-                }
-            }
 
             if (isMountedRef.current) {
                 const newMessages = data?.messages || [];
@@ -488,17 +462,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                 return '';
             }
 
-            // Debug: Log full message structure for assistant messages
-            if (msg.role === 'assistant') {
-                console.log('[CHATBOT] Assistant message structure:', {
-                    id: msg.id,
-                    content: msg.content,
-                    content_type: typeof msg.content,
-                    keys: Object.keys(msg).slice(0, 10),
-                    full_msg: msg
-                });
-            }
-
             // Empty or no content - may be waiting for response
             if (!msg.content) {
                 console.warn('[CHATBOT] No content in message - may still be loading');
@@ -541,7 +504,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
                 if (hasNumericKeys && hasLengthProp) {
                     // Treat as sparse array - iterate by numeric index
-                    console.log('[CHATBOT] Detected sparse array in content, extracting...');
                     const texts = [];
                     for (let i = 0; i < msg.content.length; i++) {
                         if (msg.content[i]) {
@@ -706,9 +668,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                     const parsed = parseAgentFromResponse(contentText);
                     if (parsed?.cleanedResponse) {
                         contentText = parsed.cleanedResponse;
-                        if (parsed.agent) {
-                            console.log("[CHATBOT] Parsed agent response:", parsed.agent);
-                        }
                     }
                 } catch (parseErr) {
                     console.warn("[CHATBOT] Failed to parse agent from response:", parseErr);
@@ -729,7 +688,6 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
 
             if (msg.role === "assistant") {
                 if (!normalized) {
-                    console.log("[CHATBOT] Skipping empty assistant message, waiting for content...");
                     continue;
                 }
                 if (normalized === lastAssistantContent) {

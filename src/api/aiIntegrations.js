@@ -299,11 +299,9 @@ async function getCoverLetterBestPracticesImpl(roleType, industryType = null) {
  * @returns {Promise<Object>} Complete analysis and optimization or skip recommendation
  */
 async function analyzeAndOptimizeImpl(jobData, resumeData = null) {
-  console.log('[WORKFLOW] Starting Simon → Kyle workflow');
 
   try {
     // Step 1: Analyze job with Simon
-    console.log('[WORKFLOW] Step 1: Simon analyzing job opportunity...');
     const simonAnalysis = await analyzeJobImpl(jobData);
 
     if (!simonAnalysis.success) {
@@ -312,13 +310,9 @@ async function analyzeAndOptimizeImpl(jobData, resumeData = null) {
 
     const analysis = simonAnalysis.data;
 
-    console.log(`[WORKFLOW] Simon decision: ${analysis.recommendation.decision}`);
-    console.log(`[WORKFLOW] Ghost score: ${analysis.ghost_job.score}/100`);
-    console.log(`[WORKFLOW] Priority: ${analysis.recommendation.priority}`);
 
     // Step 2: Check if worth pursuing
     if (analysis.recommendation.priority === 'SKIP') {
-      console.log('[WORKFLOW] Skipping - not recommended to pursue');
       return {
         pursue: false,
         reason: analysis.recommendation.reasoning,
@@ -329,14 +323,12 @@ async function analyzeAndOptimizeImpl(jobData, resumeData = null) {
     }
 
     // Step 3: Optimize with Kyle
-    console.log('[WORKFLOW] Step 2: Kyle optimizing application package...');
     const kyleOptimization = await optimizeResumeImpl(analysis, resumeData);
 
     if (!kyleOptimization.success) {
       throw new Error(kyleOptimization.error || 'Kyle optimization failed');
     }
 
-    console.log('[WORKFLOW] Complete workflow finished successfully');
 
     return {
       pursue: true,
@@ -379,7 +371,6 @@ export const AI = {
   clearCache: () => {
     caches.roleClassification.clear();
     caches.ghostJobScores.clear();
-    console.log('[CACHE] All caches cleared');
   },
 
   getCacheStats: () => ({

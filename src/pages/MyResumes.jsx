@@ -354,7 +354,6 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
 
             // Redirect to editor with "new" flag so user can improve it
             const editorUrl = `${createPageUrl('ResumeEditor')}?resumeId=${created.id}&new=1`;
-            console.log("Navigating to:", editorUrl);
             navigate(editorUrl);
 
         } catch (err) {
@@ -642,12 +641,8 @@ Return a COMPLETE structured resume object with EVERYTHING preserved - no limits
                                                             size="sm" 
                                                             className="bg-blue-600 hover:bg-blue-700 gap-1"
                                                             onClick={() => {
-                                                                console.log("=== CLICK DEBUG ===");
-                                                                console.log("Resume object:", resume);
-                                                                console.log("Resume ID:", resume.id);
                                                                 const basePath = createPageUrl('ResumeEditor');
                                                                 const fullUrl = `${basePath}?resumeId=${resume.id}`;
-                                                                console.log("Navigating to:", fullUrl);
                                                                 navigate(fullUrl);
                                                             }}
                                                             disabled={!resume.id}

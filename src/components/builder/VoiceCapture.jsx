@@ -65,7 +65,6 @@ export default function VoiceCapture({ transcript, setTranscript, onUseTranscrip
       errorCountRef.current++;
       if (autoRestartRef.current && errorCountRef.current < 3) {
         const backoffDelay = Math.min(1000 * Math.pow(2, errorCountRef.current - 1), 5000);
-        console.log(`Retrying voice in ${backoffDelay}ms...`);
         setTimeout(() => {
           if (autoRestartRef.current) rec.start();
         }, backoffDelay);

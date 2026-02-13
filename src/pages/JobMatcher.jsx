@@ -467,11 +467,9 @@ Return JSON with:
         setError("");
 
         try {
-            console.log("Starting job analysis with resume:", selectedResume);
             
             const analysis = await analyzeJobFit(jobInput, selectedResume);
 
-            console.log("Analysis complete:", analysis);
 
             const matchData = {
                 job_title: jobInput.job_title.trim(),
@@ -499,11 +497,9 @@ Return JSON with:
                 job_source: "manual"
             };
 
-            console.log("Creating job match with data:", matchData);
             
             const created = await JobMatch.create(matchData);
             
-            console.log("Job match created successfully:", created);
 
             // Reset form and close dialog
             setShowAddDialog(false);
@@ -673,8 +669,6 @@ Return JSON with:
             // Build search query
             const query = searchQuery || latestRole || skills.slice(0, 3).join(", ");
             
-            console.log("User background extracted:", userBackground);
-            console.log("Starting multi-source job search...");
 
             // Use aggregator to fetch and score jobs from multiple sources
             const aggregatedJobs = await jobAggregator.aggregateAndScoreJobs(
@@ -695,7 +689,6 @@ Return JSON with:
                 return;
             }
 
-            console.log(`Found ${aggregatedJobs.length} aggregated and scored jobs`);
 
             // Calculate source statistics
             const stats = {};
@@ -713,7 +706,6 @@ Return JSON with:
                 return;
             }
 
-            console.log(`Processing ${relevantJobs.length} relevant jobs for detailed analysis...`);
 
             // Analyze each job against the resume with rate limiting
             let processedCount = 0;
@@ -735,7 +727,6 @@ Return JSON with:
                     );
                     
                     if (existing) {
-                        console.log(`Skipping duplicate: ${job.job_title} at ${job.company_name}`);
                         skippedDuplicates++;
                         continue;
                     }
@@ -773,7 +764,6 @@ Return JSON with:
                     });
 
                     processedCount++;
-                    console.log(`Processed ${processedCount}/${relevantJobs.length}: ${job.job_title}`);
                 } catch (e) {
                     console.error(`Error processing job ${job.job_title}:`, e);
                 }

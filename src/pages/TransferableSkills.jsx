@@ -120,7 +120,6 @@ export default function TransferableSkills() {
           setOnetStatus(onetDataService.getApiStatus());
         }
       } catch (e) {
-        console.log("O*NET data service unavailable:", e);
         setOnetStatus(onetDataService.getApiStatus());
       }
 

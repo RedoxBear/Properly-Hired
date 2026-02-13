@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "next-themes";
 import { base44 } from "@/api/base44Client";
 import { isAdmin, isSuperAdmin } from "@/components/utils/accessControl";
-import { AppContextProvider } from "@/components/context/AppContextProvider";
+import { AppContextProvider } from "@/context/AppContextProvider";
 import GuidedTour from "@/components/GuidedTour";
 import {
     LayoutDashboard,

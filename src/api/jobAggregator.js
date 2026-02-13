@@ -51,7 +51,6 @@ class JobAggregator {
             this.clearExpiredCache();
             const cacheKey = this.getCacheKey(query, location, options);
             if (this.cache.has(cacheKey)) {
-                console.log("Returning cached job results for:", query);
                 return this.cache.get(cacheKey).results;
             }
         }
@@ -65,7 +64,6 @@ class JobAggregator {
                 );
             }
 
-            console.log(`Searching ${connectorsToUse.length} job sources for: "${query}" in "${location}"`);
 
             // Execute searches in parallel with Promise.allSettled for resilience
             const searchPromises = connectorsToUse.map(connector =>
@@ -91,11 +89,9 @@ class JobAggregator {
                 .filter(r => r.status === "fulfilled" && Array.isArray(r.value))
                 .flatMap(r => r.value);
 
-            console.log(`Found ${allJobs.length} total jobs across ${connectorsToUse.length} sources`);
 
             // Deduplicate
             const deduped = deduplicateJobs(allJobs);
-            console.log(`After deduplication: ${deduped.length} unique jobs`);
 
             // Sort by recency (newer first)
             const sorted = deduped.sort((a, b) => {
@@ -321,7 +317,6 @@ Return JSON with:
      */
     clearCache() {
         this.cache.clear();
-        console.log("Job aggregator cache cleared");
     }
 }
 

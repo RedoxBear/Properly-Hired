@@ -77,7 +77,6 @@ export class ChatErrorBoundary extends React.Component {
         */
 
         // For now, errors are only logged to browser console
-        console.log("Error logged locally. To enable remote logging, configure logErrorToService() method.");
     };
 
     handleReset = () => {
