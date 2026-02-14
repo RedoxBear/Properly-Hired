@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, Loader2, X, Minimize2, Maximize2, Bot, Mic, MicOff, RotateCcw, Trash2, ChevronRight, ChevronLeft, Minus, ThumbsUp, ThumbsDown, AtSign, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 import { useAppContext } from "@/context/AppContextProvider";
 import { canPerformAction, getTierLimit, getWeekStart } from "@/components/utils/accessControl";
 import { readEvents, logEvent } from "@/components/utils/telemetry";
@@ -1078,7 +1079,7 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                                                 }`}
                                             >
                                                 <div className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                                                    <ReactMarkdown>{contentText}</ReactMarkdown>
+                                                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{contentText}</ReactMarkdown>
                                                 </div>
                                             </div>
                                         </div>

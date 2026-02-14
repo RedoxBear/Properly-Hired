@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /AgentWorkspace
+Disallow: /AgentTraining
+Disallow: /AgentFeedbackInsights
+Disallow: /RAGMonitor
+Disallow: /Users
+Disallow: /ONetImport
+Disallow: /CollaborationDashboard
+
+Sitemap: https://properlyhired.com/sitemap.xml

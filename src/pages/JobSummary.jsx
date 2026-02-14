@@ -1,4 +1,5 @@
 import React from "react";
+import DOMPurify from "dompurify";
 import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,7 @@ export default function JobSummary() {
         </CardHeader>
         <CardContent className="prose max-w-none">
           {app.analysis_summary_html ? (
-            <div dangerouslySetInnerHTML={{ __html: app.analysis_summary_html }} />
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(app.analysis_summary_html) }} />
           ) : (
             <div className="whitespace-pre-wrap text-sm font-sans text-slate-700 leading-relaxed">{app.analysis_summary_md || "No summary available."}</div>
           )}

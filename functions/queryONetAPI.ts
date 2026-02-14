@@ -21,10 +21,22 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'O*NET API key not configured' }, { status: 500 });
         }
 
-        const baseUrl = 'https://api-v2.onetcenter.org';
-
-        // Normalize endpoint - strip leading slash to avoid double slash
+        // Validate endpoint against allowed O*NET API paths to prevent SSRF
         const cleanEndpoint = endpoint.replace(/^\//, '');
+        const allowedPatterns = [
+            /^online\/search$/,
+            /^online\/occupations\/[\w.-]+$/,
+            /^online\/occupations\/[\w.-]+\/summary\/(skills|abilities|knowledge|tasks|interests|work_activities|work_context|technology_skills)$/,
+            /^online\/occupations\/[\w.-]+\/related\/occupations$/,
+            /^ws\/online\/search$/,
+            /^ws\/mnm\/search$/,
+        ];
+
+        if (!allowedPatterns.some(pattern => pattern.test(cleanEndpoint))) {
+            return Response.json({ error: 'Invalid O*NET API endpoint' }, { status: 400 });
+        }
+
+        const baseUrl = 'https://api-v2.onetcenter.org';
         const url = new URL(`${baseUrl}/${cleanEndpoint}`);
 
         // Append query params

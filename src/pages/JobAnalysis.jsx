@@ -1,4 +1,5 @@
 import React from "react";
+import DOMPurify from "dompurify";
 import { base44 } from "@/api/base44Client";
 import { JobApplication } from "@/entities/JobApplication";
 import { InvokeLLM } from "@/integrations/Core";
@@ -1467,7 +1468,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                     </CardHeader>
                                     <CardContent className="prose max-w-none">
                                         {savedApp.analysis_summary_html ? (
-                                            <div dangerouslySetInnerHTML={{ __html: savedApp.analysis_summary_html }} />
+                                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(savedApp.analysis_summary_html) }} />
                                         ) : (
                                             <div className="whitespace-pre-wrap text-sm font-sans text-slate-700 leading-relaxed">
                                                 {savedApp.analysis_summary_md || "No summary available."}
