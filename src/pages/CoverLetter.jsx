@@ -23,6 +23,7 @@ import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 export default function CoverLetter() {
   const [params] = useSearchParams();
   const appId = params.get("id") || "";
+  const urlRecruiterMode = params.get("mode") === "recruiter";
   const [app, setApp] = useState(null);
   const [vault, setVault] = useState(null);
   const [optimizedResume, setOptimizedResume] = useState(null);
@@ -42,6 +43,9 @@ export default function CoverLetter() {
   const [aiFeedback, setAIFeedback] = useState(null);
   const [isCheckingFeedback, setIsCheckingFeedback] = useState(false);
   const feedbackTextRef = useRef("");
+
+  // Recruiter mode state (agency posting detection)
+  const [isRecruiterMode, setIsRecruiterMode] = useState(urlRecruiterMode);
 
   // Tier limit enforcement
   const [currentUser, setCurrentUser] = useState(null);
@@ -68,6 +72,10 @@ export default function CoverLetter() {
         try {
           const a = await JobApplication.get(appId);
           setApp(a);
+          // Auto-detect recruiter mode from agency analysis
+          if (a.llm_analysis_result?.is_recruitment_agency && a.llm_analysis_result.agency_confidence >= 50) {
+            setIsRecruiterMode(true);
+          }
           
           let currentResume = null;
 
@@ -353,11 +361,53 @@ Write like you're explaining to a friend why you're excited about this opportuni
         ? resumeData.skills.slice(0, 8).join(", ") 
         : "";
 
-      const keyPointsText = keyPoints.trim() 
-        ? `\n**KEY POINTS TO EMPHASIZE (MUST address these):**\n${keyPoints}\n` 
+      const keyPointsText = keyPoints.trim()
+        ? `\n**KEY POINTS TO EMPHASIZE (MUST address these):**\n${keyPoints}\n`
         : "";
 
-      const prompt = `You are an expert cover letter writer who creates compelling, personalized, and authentically human cover letters.
+      const recruiterPrompt = isRecruiterMode ? `You are an expert at writing brief, conversational recruiter outreach messages — NOT formal cover letters.
+
+**CONTEXT:** This job posting is from a recruitment/staffing agency${app?.llm_analysis_result?.agency_name ? ` (${app.llm_analysis_result.agency_name})` : ''}, not the direct employer.
+
+**OBJECTIVE:** Write a brief, warm, professional message to the recruiter that:
+1. Shows genuine interest in the opportunity
+2. Highlights 3-4 top matching skills from the candidate's background
+3. Includes qualifying questions (client/company name, salary range, contract vs permanent, exclusivity)
+4. Suggests connecting on LinkedIn
+5. Keeps it conversational — NOT a formal cover letter
+
+**Job Details:**
+- Position: ${app?.job_title || '[role]'}
+- Agency/Company: ${app?.company_name || '[company]'}
+- Job Description: ${app?.job_description || ''}
+${keyPointsText}
+**Candidate Information:**
+- Name: ${candidateName}
+- LinkedIn: ${vars.candidate_linkedin}
+
+**Candidate's Background:**
+- Career Summary: ${resumeData.summary || resumeData.executive_summary || ""}
+- Top Skills: ${skillsText}
+- Key Achievements:
+${achievements.slice(0, 5).map(a => `  • ${a}`).join('\n')}
+
+**WRITING GUIDELINES:**
+- Keep the total message under 200 words
+- Use a friendly, professional tone — like reaching out to a potential business contact
+- Do NOT use formal letter formatting (no "Dear Sir/Madam", no "Sincerely")
+- Weave in skills naturally, not as a list
+- End with qualifying questions and a LinkedIn connection suggestion
+
+**OUTPUT FORMAT:**
+Return a JSON object with these 4 strings:
+{
+  "intro_mission": "2-3 sentence opening — express interest and briefly introduce yourself",
+  "para_experience": "3-4 sentences highlighting your most relevant skills and experience for this role",
+  "para_alignment": "2-3 sentences with qualifying questions for the recruiter (client name, salary range, contract vs perm, exclusivity)",
+  "closing": "1-2 sentences suggesting next steps — LinkedIn connection, quick call"
+}` : null;
+
+      const prompt = recruiterPrompt || `You are an expert cover letter writer who creates compelling, personalized, and authentically human cover letters.
 
 CRITICAL OBJECTIVE: Write a cover letter that sounds 100% human-written and passes ATS AI-detection systems.
 
@@ -565,7 +615,8 @@ Return ONLY a JSON object with these 4 clean paragraph strings:
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <FileText className="w-5 h-5" /> Cover Letter
+          {isRecruiterMode ? <MessageCircle className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+          {isRecruiterMode ? "Recruiter Message" : "Cover Letter"}
         </h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handlePrint}>
@@ -608,13 +659,34 @@ Return ONLY a JSON object with these 4 clean paragraph strings:
 
       {orgResearch && <CompanyResearchCard company={app?.company_name} orgResearch={orgResearch} />}
 
+      {/* Recruitment Agency Banner */}
+      {isRecruiterMode && (
+        <Alert className="bg-amber-50 border-amber-300">
+          <MessageCircle className="w-4 h-4 text-amber-600" />
+          <AlertDescription className="text-amber-800">
+            <span className="font-semibold">Agency Posting Detected</span>
+            {app?.llm_analysis_result?.agency_name && (
+              <span> — {app.llm_analysis_result.agency_name}</span>
+            )}
+            <span className="block mt-1 text-sm text-amber-700">
+              This job is from a recruitment agency. The generator will produce a brief recruiter outreach message instead of a formal cover letter. Focus on building a relationship and asking qualifying questions.
+            </span>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* AI Generate Section */}
       <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
         <CardContent className="p-4 space-y-4">
           <div>
-            <h3 className="font-semibold text-green-800 mb-1">AI-Powered Cover Letter Generator</h3>
+            <h3 className="font-semibold text-green-800 mb-1">
+              {isRecruiterMode ? "AI-Powered Recruiter Message Generator" : "AI-Powered Cover Letter Generator"}
+            </h3>
             <p className="text-sm text-green-700 mb-4">
-              Combines your optimized resume + organization research + job requirements to create personalized, human-sounding cover letters.
+              {isRecruiterMode
+                ? "Generates a brief, conversational recruiter outreach message with qualifying questions — optimized for agency postings."
+                : "Combines your optimized resume + organization research + job requirements to create personalized, human-sounding cover letters."
+              }
             </p>
 
             <div className="grid md:grid-cols-2 gap-4 mb-4">
@@ -708,7 +780,7 @@ Return ONLY a JSON object with these 4 clean paragraph strings:
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Cover Letter
+                  {isRecruiterMode ? "Generate Recruiter Message" : "Generate Cover Letter"}
                 </>
               )}
             </Button>

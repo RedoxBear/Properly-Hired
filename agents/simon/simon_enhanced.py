@@ -642,6 +642,135 @@ class SimonEnhanced:
         }
 
     # =====================================================================
+    # RECRUITMENT AGENCY DETECTION
+    # =====================================================================
+
+    def detect_recruitment_agency(self, jd_text: str, company_name: str) -> Dict:
+        """
+        Detect if a job posting is from a recruitment/staffing agency rather than a direct employer.
+
+        Scoring breakdown (0-100):
+        - Known agency name matching (40 pts)
+        - JD language pattern detection (30 pts)
+        - Company name keyword analysis (15 pts)
+        - Missing direct employer detection (15 pts)
+
+        Threshold: confidence >= 50 = agency posting
+
+        Args:
+            jd_text: Full job description text
+            company_name: Company/poster name
+
+        Returns:
+            Dict with is_recruitment_agency, agency_confidence, agency_signals, agency_name
+        """
+        import re
+        print(f"\n🏢 [SIMON - AGENCY DETECTION] Checking if '{company_name}' is a recruitment agency...")
+
+        confidence = 0
+        signals = []
+        detected_agency_name = ""
+
+        company_lower = company_name.lower().strip()
+        jd_lower = jd_text.lower()
+
+        # 1. Known agency name matching (40 pts)
+        known_agencies = [
+            "robert half", "randstad", "hays", "adecco", "manpowergroup", "manpower",
+            "kelly services", "michael page", "kforce", "teksystems", "tek systems",
+            "insight global", "aerotek", "page group", "pagegroup", "staffing",
+            "spencer stuart", "korn ferry", "russell reynolds", "egon zehnder",
+            "hudson", "antal", "reed", "modis", "experis", "jefferson frank",
+            "nigel frank", "frank recruitment", "harvey nash", "sthree", "s three",
+            "heidrick & struggles", "heidrick and struggles", "talent solutions",
+            "allegis group", "apex group", "apex systems", "spherion", "volt",
+            "express employment", "staffmark", "trueblue", "true blue",
+            "robert walters", "page personnel", "spring professional",
+            "billion talent", "morgan mckinley", "walker hamill"
+        ]
+
+        for agency in known_agencies:
+            if agency in company_lower:
+                confidence += 40
+                detected_agency_name = company_name
+                signals.append(f"Company name matches known agency: {agency}")
+                break
+
+        # 2. JD language pattern detection (30 pts)
+        agency_phrases = [
+            (r'\bour client\b', "Uses phrase 'our client'"),
+            (r'\bon behalf of\b', "Uses phrase 'on behalf of'"),
+            (r'\bconfidential employer\b', "Uses phrase 'confidential employer'"),
+            (r'\bundisclosed client\b', "Uses phrase 'undisclosed client'"),
+            (r'\bconfidential company\b', "Uses phrase 'confidential company'"),
+            (r'\bour customer\b', "Uses phrase 'our customer'"),
+            (r'\bhiring for\b.*\bclient\b', "Hiring for a client"),
+            (r'\bplaced with\b', "Uses placement language"),
+            (r'\bcontract opportunity\b', "Uses 'contract opportunity'"),
+            (r'\bw-?2\s+(contract|position|role)\b', "Uses W2 contract terminology"),
+            (r'\bcorp.to.corp\b|c2c\b', "Uses corp-to-corp/C2C terminology"),
+        ]
+
+        phrase_score = 0
+        for pattern, description in agency_phrases:
+            if re.search(pattern, jd_lower):
+                phrase_score += 10
+                signals.append(description)
+
+        confidence += min(30, phrase_score)
+
+        # 3. Company name keyword analysis (15 pts)
+        agency_keywords = [
+            "staffing", "recruiting", "recruitment", "talent acquisition",
+            "consulting group", "placement", "search firm", "headhunt",
+            "employment agency", "employment services", "workforce solutions",
+            "talent solutions", "human capital", "personnel"
+        ]
+
+        keyword_score = 0
+        for keyword in agency_keywords:
+            if keyword in company_lower or keyword in jd_lower[:500]:
+                keyword_score += 8
+                signals.append(f"Agency keyword detected: '{keyword}'")
+
+        confidence += min(15, keyword_score)
+
+        # 4. Missing direct employer detection (15 pts)
+        employer_absent_patterns = [
+            (r'\b(client|employer)\s+(name\s+)?(?:is\s+)?(?:confidential|undisclosed|not\s+disclosed|withheld)\b',
+             "Employer name explicitly withheld"),
+            (r'\bwe\s+are\s+(?:a|an)\s+(?:leading\s+)?(?:staffing|recruiting|recruitment|talent)',
+             "Self-describes as staffing/recruitment agency"),
+        ]
+
+        for pattern, description in employer_absent_patterns:
+            if re.search(pattern, jd_lower):
+                confidence += 8
+                signals.append(description)
+
+        # Check if JD mentions "our client" but never names the actual employer
+        if re.search(r'\bour client\b', jd_lower) and not re.search(r'\bour client[,:]?\s+[A-Z]', jd_text):
+            confidence += 7
+            signals.append("References 'our client' without naming the employer")
+
+        confidence = min(100, confidence)
+        is_agency = confidence >= 50
+
+        result = {
+            'is_recruitment_agency': is_agency,
+            'agency_confidence': confidence,
+            'agency_signals': signals,
+            'agency_name': detected_agency_name
+        }
+
+        print(f"  → Agency: {is_agency} (confidence: {confidence}%)")
+        if signals:
+            for s in signals:
+                print(f"  → {s}")
+
+        return result
+
+    # =====================================================================
     # BRIEF TO KYLE - COMPREHENSIVE OPPORTUNITY PACKAGE
     # =====================================================================
 
@@ -675,6 +804,9 @@ class SimonEnhanced:
         ghost_job_analysis = self.calculate_ghost_job_score(
             jd_text, company_name, role_title, posting_date
         )
+
+        # 3.5 Recruitment Agency Detection
+        agency_detection = self.detect_recruitment_agency(jd_text, company_name)
 
         # 4. Company Research (if search tool available)
         company_research = None
@@ -712,7 +844,8 @@ class SimonEnhanced:
             role_classification,
             jd_quality,
             recruiting_insights,
-            ghost_job_analysis
+            ghost_job_analysis,
+            agency_detection
         )
 
         return {
@@ -726,6 +859,7 @@ class SimonEnhanced:
             'role_classification': role_classification,
             'jd_quality_assessment': jd_quality,
             'ghost_job_analysis': ghost_job_analysis,
+            'agency_detection': agency_detection,
             'company_research': company_research,
             'recruiting_insights': recruiting_insights,
             'assessment_criteria': assessment_criteria,
@@ -1086,7 +1220,7 @@ KEY ACTIONS:
             'confidence': 'HIGH' if abs(ghost_score - 50) > 30 else 'MEDIUM'
         }
 
-    def _generate_kyle_strategy(self, role_classification, jd_quality, recruiting_insights, ghost_job_analysis) -> Dict:
+    def _generate_kyle_strategy(self, role_classification, jd_quality, recruiting_insights, ghost_job_analysis, agency_detection=None) -> Dict:
         """Generate strategic guidance for Kyle on how to approach this application"""
 
         strategy = {
@@ -1095,7 +1229,9 @@ KEY ACTIONS:
             'cover_letter_emphasis': [],
             'tone_recommendation': '',
             'key_talking_points': [],
-            'warnings': []
+            'warnings': [],
+            'is_agency_posting': False,
+            'agency_strategy': None
         }
 
         # Approach based on role tier
@@ -1155,6 +1291,30 @@ KEY ACTIONS:
         if jd_quality['quality_score'] < 60:
             strategy['warnings'].append(
                 "Poor JD quality - may need to make assumptions about role requirements"
+            )
+
+        # Agency-aware adjustments
+        if agency_detection and agency_detection.get('is_recruitment_agency') and agency_detection.get('agency_confidence', 0) >= 50:
+            strategy['is_agency_posting'] = True
+            strategy['agency_strategy'] = {
+                'agency_name': agency_detection.get('agency_name', ''),
+                'recommendation': 'Send brief recruiter outreach message instead of formal cover letter',
+                'approach': [
+                    'Connect with recruiter on LinkedIn',
+                    'Ask qualifying questions: client name, salary range, contract vs permanent, exclusivity',
+                    'Highlight 3-4 top matching skills concisely',
+                    'Keep messaging under 200 words'
+                ]
+            }
+            strategy['cover_letter_emphasis'] = [
+                "Brief recruiter intro message (NOT formal cover letter)",
+                "Top 3-4 matching skills for the role",
+                "Qualifying questions for the recruiter",
+                "LinkedIn connection suggestion"
+            ]
+            strategy['warnings'].append(
+                f"Agency posting detected (confidence: {agency_detection['agency_confidence']}%) - "
+                "de-emphasize formal cover letter, use recruiter outreach approach"
             )
 
         return strategy

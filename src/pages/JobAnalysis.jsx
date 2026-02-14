@@ -24,7 +24,8 @@ import {
     Bot,
     ExternalLink,
     Link2,
-    Save
+    Save,
+    MessageCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -669,6 +670,7 @@ ${JSON.stringify(structured)}
         let simonGhostScore = 0;
         let simonRiskLevel = "UNKNOWN";
         let simonRoleClassification = {};
+        let simonAgencyDetection = { is_recruitment_agency: false, agency_confidence: 0, agency_signals: [], agency_name: "" };
         try {
             const ghostAnalysisPrompt = `You are Simon, a recruiting expert. Analyze this job posting for ghost-job indicators using a 100-point scoring system.
 
@@ -686,7 +688,12 @@ Score breakdown (0-100):
 Also classify the role level:
 - IC, Senior IC, Manager, Senior Manager, Director, Senior Director, VP, C-Suite
 
-Return JSON with ghost_job_score (0-100), risk_level (LOW/MONITOR/MEDIUM/HIGH/VERY_HIGH), role_type, tier, indicators[], positive_signals[]`;
+Additionally, determine if this posting is from a recruitment/staffing agency rather than the direct employer.
+Agency indicators: company matches known staffing firms (Robert Half, Randstad, Hays, Adecco, ManpowerGroup, Kelly Services, Michael Page, Kforce, TEKsystems, Insight Global, Aerotek, etc.),
+JD uses phrases like "our client", "on behalf of", "confidential employer", "undisclosed client",
+company self-describes as recruitment/staffing agency, or direct employer name is missing.
+
+Return JSON with ghost_job_score (0-100), risk_level (LOW/MONITOR/MEDIUM/HIGH/VERY_HIGH), role_type, tier, indicators[], positive_signals[], is_recruitment_agency (boolean), agency_confidence (0-100), agency_signals (string array), agency_name (string or empty)`;
 
             const simonAnalysis = await retryWithBackoff(() => InvokeLLM({
                 prompt: ghostAnalysisPrompt,
@@ -699,7 +706,11 @@ Return JSON with ghost_job_score (0-100), risk_level (LOW/MONITOR/MEDIUM/HIGH/VE
                         role_type: { type: "string" },
                         tier: { type: "string" },
                         indicators: { type: "array", items: { type: "string" } },
-                        positive_signals: { type: "array", items: { type: "string" } }
+                        positive_signals: { type: "array", items: { type: "string" } },
+                        is_recruitment_agency: { type: "boolean" },
+                        agency_confidence: { type: "number" },
+                        agency_signals: { type: "array", items: { type: "string" } },
+                        agency_name: { type: "string" }
                     }
                 }
             }), { retries: 2, baseDelay: 1000 });
@@ -711,6 +722,12 @@ Return JSON with ghost_job_score (0-100), risk_level (LOW/MONITOR/MEDIUM/HIGH/VE
                 tier: simonAnalysis.tier,
                 indicators: simonAnalysis.indicators || [],
                 positive_signals: simonAnalysis.positive_signals || []
+            };
+            simonAgencyDetection = {
+                is_recruitment_agency: simonAnalysis.is_recruitment_agency || false,
+                agency_confidence: simonAnalysis.agency_confidence || 0,
+                agency_signals: simonAnalysis.agency_signals || [],
+                agency_name: simonAnalysis.agency_name || ""
             };
         } catch (e) {
             console.error("Simon analysis failed:", e);
@@ -778,7 +795,11 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                     ...response,
                     simon_ghost_score: simonGhostScore,
                     simon_risk_level: simonRiskLevel,
-                    simon_role_classification: simonRoleClassification
+                    simon_role_classification: simonRoleClassification,
+                    is_recruitment_agency: simonAgencyDetection.is_recruitment_agency,
+                    agency_confidence: simonAgencyDetection.agency_confidence,
+                    agency_signals: simonAgencyDetection.agency_signals,
+                    agency_name: simonAgencyDetection.agency_name
                 }
             });
 
@@ -879,9 +900,12 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
         const ghostPenalty = savedApp?.llm_analysis_result?.simon_ghost_score
             ? Math.min(40, Math.round(savedApp.llm_analysis_result.simon_ghost_score / 2))
             : 0;
+        const agencyPenalty = (savedApp?.llm_analysis_result?.is_recruitment_agency && savedApp.llm_analysis_result.agency_confidence >= 50)
+            ? Math.min(15, Math.round(savedApp.llm_analysis_result.agency_confidence / 7))
+            : 0;
         const onetBonus = onetBenchmark?.overlap_score ? Math.min(20, Math.round(onetBenchmark.overlap_score / 5)) : 0;
         const resumeBoost = resumeMatch?.match_score ? Math.min(15, Math.round(resumeMatch.match_score / 8)) : 0;
-        return Math.max(0, Math.min(100, Math.round(base - ghostPenalty + onetBonus + resumeBoost)));
+        return Math.max(0, Math.min(100, Math.round(base - ghostPenalty - agencyPenalty + onetBonus + resumeBoost)));
     })() : null;
 
     const gradeFromScore = (score) => {
@@ -1218,6 +1242,41 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                </div>
                                            )}
                                        </div>
+                                    )}
+
+                                    {/* Recruitment Agency Warning Banner */}
+                                    {savedApp?.llm_analysis_result?.is_recruitment_agency && savedApp.llm_analysis_result.agency_confidence >= 50 && (
+                                        <div className="mt-4 p-4 bg-amber-50 border border-amber-300 rounded-lg">
+                                            <h4 className="font-semibold text-amber-800 flex items-center gap-2 mb-2">
+                                                <Building className="w-4 h-4" />
+                                                Recruitment Agency Posting Detected
+                                                {savedApp.llm_analysis_result.agency_name && (
+                                                    <Badge variant="outline" className="text-xs bg-amber-100 text-amber-800 border-amber-300 ml-1">
+                                                        {savedApp.llm_analysis_result.agency_name}
+                                                    </Badge>
+                                                )}
+                                            </h4>
+                                            <p className="text-sm text-amber-700 mb-2">
+                                                This posting appears to be from a recruitment/staffing agency, not the direct employer. The actual hiring company may be undisclosed.
+                                            </p>
+                                            <div className="text-sm text-amber-800 mb-2">
+                                                <p className="font-medium mb-1">Recommended approach:</p>
+                                                <ul className="list-disc pl-5 space-y-1 text-amber-700">
+                                                    <li>Connect with the recruiter on LinkedIn</li>
+                                                    <li>Ask qualifying questions: client name, salary range, contract vs permanent, exclusivity</li>
+                                                    <li>Send a brief recruiter intro message instead of a formal cover letter</li>
+                                                    <li>Focus on building a relationship with the recruiter</li>
+                                                </ul>
+                                            </div>
+                                            {savedApp.llm_analysis_result.agency_signals?.length > 0 && (
+                                                <div className="text-xs text-amber-600 mt-2">
+                                                    Signals: {savedApp.llm_analysis_result.agency_signals.join(", ")}
+                                                </div>
+                                            )}
+                                            <div className="text-xs text-amber-500 mt-1">
+                                                Confidence: {savedApp.llm_analysis_result.agency_confidence}%
+                                            </div>
+                                        </div>
                                     )}
                                 </CardHeader>
                                 <CardContent className="space-y-6">
@@ -1572,12 +1631,21 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                                 )}
 
                                                 {appId ? (
-                                                    <Link to={createPageUrl(`CoverLetter?id=${appId}`)}>
-                                                        <Button variant="outline" className="w-full h-12">
-                                                            <Sparkles className="w-4 h-4 mr-2" />
-                                                            Create Cover Letter
-                                                        </Button>
-                                                    </Link>
+                                                    savedApp?.llm_analysis_result?.is_recruitment_agency && savedApp.llm_analysis_result.agency_confidence >= 50 ? (
+                                                        <Link to={createPageUrl(`CoverLetter?id=${appId}&mode=recruiter`)}>
+                                                            <Button variant="outline" className="w-full h-12 border-amber-400 bg-amber-50 text-amber-800 hover:bg-amber-100">
+                                                                <MessageCircle className="w-4 h-4 mr-2" />
+                                                                Draft Recruiter Message
+                                                            </Button>
+                                                        </Link>
+                                                    ) : (
+                                                        <Link to={createPageUrl(`CoverLetter?id=${appId}`)}>
+                                                            <Button variant="outline" className="w-full h-12">
+                                                                <Sparkles className="w-4 h-4 mr-2" />
+                                                                Create Cover Letter
+                                                            </Button>
+                                                        </Link>
+                                                    )
                                                 ) : (
                                                     <Button variant="outline" className="w-full h-12" disabled>
                                                         <Sparkles className="w-4 h-4 mr-2" />
