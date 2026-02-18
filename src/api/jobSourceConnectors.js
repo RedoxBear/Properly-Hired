@@ -663,6 +663,104 @@ Return JSON:
     }
 };
 
+// --- Regional Connectors ---
+
+// Helper to create a regional connector following the standard pattern
+const createRegionalConnector = (name, domain, urlFilter, extraPrompt = "") => ({
+    name,
+    async search(query, location, options = {}) {
+        try {
+            const prompt = `Search ${name} (${domain}) for jobs matching:
+Query: "${query}"
+Location: "${location}"
+${options.remote_only ? "Remote preferred" : "Include local and remote"}
+${extraPrompt}
+
+Return the top 8-10 actual job listings found on ${name}.
+
+For each job, extract:
+- job_title: Exact job title from the listing
+- company_name: Company name
+- job_url: THE EXACT, SPECIFIC URL from ${name} (must contain ${domain})
+- job_description: Complete job description text
+- location: City, Region or "Remote"
+- salary_range: If listed
+- posted_date: ISO date if available
+- remote_friendly: true if remote, false otherwise
+
+**CRITICAL: Only include jobs with direct ${name} URLs that you can verify exist.**
+
+Return as JSON array:
+[
+  {
+    "job_title": "string",
+    "company_name": "string",
+    "job_url": "https://${domain}/...",
+    "job_description": "string",
+    "location": "string",
+    "salary_range": "string",
+    "posted_date": "ISO string",
+    "remote_friendly": boolean,
+    "source": "${name}"
+  }
+]`;
+
+            const results = await retryWithBackoff(() =>
+                base44.integrations.Core.InvokeLLM({
+                    prompt,
+                    add_context_from_internet: true,
+                    response_json_schema: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                job_title: { type: "string" },
+                                company_name: { type: "string" },
+                                job_url: { type: "string" },
+                                job_description: { type: "string" },
+                                location: { type: "string" },
+                                salary_range: { type: "string" },
+                                posted_date: { type: "string" },
+                                remote_friendly: { type: "boolean" },
+                                source: { type: "string" }
+                            }
+                        }
+                    }
+                }),
+                { retries: 2, baseDelay: 1000 }
+            );
+
+            return (results || [])
+                .filter(job => job.job_url?.includes(urlFilter))
+                .map(job => normalizeJobData({ ...job, source: name }));
+        } catch (e) {
+            console.error(`${name} search failed:`, e);
+            return [];
+        }
+    }
+});
+
+// UK connectors
+export const reedConnector = createRegionalConnector("Reed", "reed.co.uk", "reed.co.uk");
+export const cvLibraryConnector = createRegionalConnector("CV-Library", "cv-library.co.uk", "cv-library.co.uk");
+export const totalJobsConnector = createRegionalConnector("TotalJobs", "totaljobs.com", "totaljobs.com");
+
+// Korea connectors
+export const jobKoreaConnector = createRegionalConnector("JobKorea", "jobkorea.co.kr", "jobkorea.co.kr");
+export const saraminConnector = createRegionalConnector("Saramin", "saramin.co.kr", "saramin.co.kr");
+
+// Germany connectors
+export const stepStoneConnector = createRegionalConnector("StepStone", "stepstone.de", "stepstone.de");
+export const xingConnector = createRegionalConnector("Xing", "xing.com", "xing.com");
+
+// Australia connectors
+export const seekConnector = createRegionalConnector("Seek", "seek.com.au", "seek.com.au");
+export const joraConnector = createRegionalConnector("Jora", "jora.com", "jora.com");
+
+// India connectors
+export const naukriConnector = createRegionalConnector("Naukri", "naukri.com", "naukri.com");
+export const shineConnector = createRegionalConnector("Shine", "shine.com", "shine.com");
+
 // All available connectors
 export const allConnectors = [
     linkedinConnector,
@@ -673,8 +771,34 @@ export const allConnectors = [
     flexJobsConnector,
     wellFoundConnector,
     companyCareerPagesConnector,
-    upworkConnector
+    upworkConnector,
+    reedConnector,
+    cvLibraryConnector,
+    totalJobsConnector,
+    jobKoreaConnector,
+    saraminConnector,
+    stepStoneConnector,
+    xingConnector,
+    seekConnector,
+    joraConnector,
+    naukriConnector,
+    shineConnector
 ];
+
+// Regional source mapping — determines which connectors to use per country
+export const REGIONAL_SOURCES = {
+    us: [indeedConnector, linkedinConnector, glassdoorConnector, zipRecruiterConnector, diceConnector, flexJobsConnector, wellFoundConnector, companyCareerPagesConnector, upworkConnector],
+    gb: [reedConnector, cvLibraryConnector, totalJobsConnector, linkedinConnector, indeedConnector, glassdoorConnector],
+    kr: [jobKoreaConnector, saraminConnector, linkedinConnector],
+    de: [stepStoneConnector, xingConnector, linkedinConnector, indeedConnector, glassdoorConnector],
+    au: [seekConnector, joraConnector, linkedinConnector, indeedConnector],
+    in: [naukriConnector, shineConnector, linkedinConnector, indeedConnector],
+    _default: [linkedinConnector, indeedConnector, glassdoorConnector, upworkConnector, companyCareerPagesConnector]
+};
+
+export const getConnectorsForRegion = (countryCode) => {
+    return REGIONAL_SOURCES[(countryCode || "").toLowerCase()] || REGIONAL_SOURCES._default;
+};
 
 // Get specific connector by name
 export const getConnector = (name) => {

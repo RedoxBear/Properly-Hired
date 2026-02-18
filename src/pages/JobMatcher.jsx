@@ -1,6 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { jobAggregator } from "@/api/jobAggregator";
+import { getConnectorsForRegion } from "@/api/jobSourceConnectors";
 import { hasAccess, TIERS } from "@/components/utils/accessControl";
 import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 
@@ -71,6 +72,7 @@ export default function JobMatcher() {
     const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
     const [sourceFilter, setSourceFilter] = React.useState("all");
     const [jobSourceStats, setJobSourceStats] = React.useState({});
+    const [locationInputValue, setLocationInputValue] = React.useState("");
     const [isFetchingJob, setIsFetchingJob] = React.useState(false);
     const [resumeOverrideText, setResumeOverrideText] = React.useState("");
     const [isParsingResume, setIsParsingResume] = React.useState(false);
@@ -186,82 +188,61 @@ export default function JobMatcher() {
     const detectUserLocation = async () => {
         setIsDetectingLocation(true);
         try {
-            // Try browser geolocation first
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const { latitude, longitude } = position.coords;
-                        
-                        // Reverse geocode to get city/state
-                        const locationPrompt = `Given coordinates ${latitude}, ${longitude}, return the city and state in JSON format:
-                        { "city": "string", "state": "string", "country": "string" }`;
-                        
                         try {
-                            const locationData = await base44.integrations.Core.InvokeLLM({
-                                prompt: locationPrompt,
-                                add_context_from_internet: true,
-                                response_json_schema: {
-                                    type: "object",
-                                    properties: {
-                                        city: { type: "string" },
-                                        state: { type: "string" },
-                                        country: { type: "string" }
-                                    }
-                                }
-                            });
-                            
+                            const resp = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+                                { headers: { "Accept-Language": "en" } }
+                            );
+                            const data = await resp.json();
+                            const addr = data.address || {};
+                            const city = addr.city || addr.town || addr.village || addr.county || "";
+                            const state = addr.state || "";
+                            const country = addr.country || "";
+                            const countryCode = (addr.country_code || "").toLowerCase();
+
+                            // Format display: US = "City, STATE", others = "City, Country"
+                            let displayLocation = "";
+                            if (countryCode === "us" && city && state) {
+                                displayLocation = `${city}, ${state}`;
+                            } else if (city && country) {
+                                displayLocation = `${city}, ${country}`;
+                            } else {
+                                displayLocation = city || state || country || "";
+                            }
+
                             setUserLocation({
                                 lat: latitude,
                                 lon: longitude,
-                                city: locationData.city,
-                                state: locationData.state,
-                                country: locationData.country
+                                city,
+                                state,
+                                country,
+                                countryCode
                             });
+                            setLocationInputValue(prev => prev || displayLocation);
                         } catch (e) {
-                            console.error("Reverse geocoding failed:", e);
+                            console.error("Nominatim reverse geocoding failed:", e);
                             setUserLocation({ lat: latitude, lon: longitude });
                         }
                         setIsDetectingLocation(false);
                     },
-                    async (error) => {
-                        console.warn("Geolocation denied, using IP-based location:", error);
-                        await fallbackToIPLocation();
+                    (error) => {
+                        console.warn("Geolocation denied:", error);
+                        // Leave location empty for user to type
+                        setIsDetectingLocation(false);
                     }
                 );
             } else {
-                await fallbackToIPLocation();
+                // No geolocation API — leave empty for user to type
+                setIsDetectingLocation(false);
             }
         } catch (e) {
             console.error("Location detection failed:", e);
             setIsDetectingLocation(false);
         }
-    };
-
-    const fallbackToIPLocation = async () => {
-        try {
-            const ipLocationPrompt = `Detect my approximate location based on my IP address. Return JSON:
-            { "city": "string", "state": "string", "country": "string", "lat": number, "lon": number }`;
-            
-            const ipLocation = await base44.integrations.Core.InvokeLLM({
-                prompt: ipLocationPrompt,
-                add_context_from_internet: true,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        city: { type: "string" },
-                        state: { type: "string" },
-                        country: { type: "string" },
-                        lat: { type: "number" },
-                        lon: { type: "number" }
-                    }
-                }
-            });
-            
-            setUserLocation(ipLocation);
-        } catch (e) {
-            console.error("IP location detection failed:", e);
-        }
-        setIsDetectingLocation(false);
     };
 
     const loadData = async () => {
@@ -550,6 +531,19 @@ Return JSON with:
         }
     };
 
+    const navigateToFullAnalysis = (match) => {
+        const params = new URLSearchParams();
+        if (match.job_url) params.set("url", match.job_url);
+        if (match.job_title) params.set("title", match.job_title);
+        if (match.company_name) params.set("company", match.company_name);
+        params.set("autostart", "1");
+        if (match.job_description) {
+            sessionStorage.setItem("jobmatcher_prefill_jd", match.job_description);
+        }
+        updateMatchStatus(match.id, "reviewed");
+        navigate(createPageUrl("JobAnalysis") + "?" + params.toString());
+    };
+
     const quickApplyToTracker = async (match) => {
         try {
             const newApp = await JobApplication.create({
@@ -673,13 +667,14 @@ Return JSON with:
             // Use aggregator to fetch and score jobs from multiple sources
             const aggregatedJobs = await jobAggregator.aggregateAndScoreJobs(
                 query,
-                userLocation ? `${userLocation.city}, ${userLocation.state}` : "Remote",
+                locationInputValue || "Remote",
                 userBackground,
                 {
                     sources: "all", // Search all available sources
                     remote_only: false,
                     timeout: 60000,
-                    cache: false // Don't use cache for fresh results
+                    cache: false, // Don't use cache for fresh results
+                    countryCode: userLocation?.countryCode || null
                 }
             );
 
@@ -888,7 +883,7 @@ Return JSON with:
                             </div>
                             <div>
                                 <h3 className="font-semibold text-foreground">AI Job Search</h3>
-                                <p className="text-sm text-muted-foreground">Automatically find & match jobs from Indeed, LinkedIn, Glassdoor, and ZipRecruiter based on your CV</p>
+                                <p className="text-sm text-muted-foreground">Automatically find & match jobs from {getConnectorsForRegion(userLocation?.countryCode).map(c => c.name).slice(0, 4).join(", ")} and more based on your CV</p>
                             </div>
                         </div>
                         <div className="space-y-3">
@@ -917,14 +912,14 @@ Return JSON with:
                                         Your Location {isDetectingLocation && "(Detecting...)"}
                                     </label>
                                     <Input
-                                        value={userLocation ? `${userLocation.city}, ${userLocation.state}` : "Detecting..."}
-                                        readOnly
-                                        className="bg-muted"
+                                        value={locationInputValue}
+                                        onChange={(e) => setLocationInputValue(e.target.value)}
+                                        placeholder={isDetectingLocation ? "Detecting..." : "e.g. London, United Kingdom"}
                                     />
                                 </div>
                                 <div className="w-32">
                                     <label className="text-sm font-medium text-foreground mb-2 block">
-                                        Radius (mi)
+                                        Radius ({userLocation?.countryCode === "us" ? "mi" : "km"})
                                     </label>
                                     <Input
                                         type="number"
@@ -1306,14 +1301,9 @@ Return JSON with:
                                         <SelectContent>
                                             <SelectItem value="all">All Sources</SelectItem>
                                             <SelectItem value="manual">Manual Entry</SelectItem>
-                                            <SelectItem value="Indeed">Indeed</SelectItem>
-                                            <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                                            <SelectItem value="Glassdoor">Glassdoor</SelectItem>
-                                            <SelectItem value="ZipRecruiter">ZipRecruiter</SelectItem>
-                                            <SelectItem value="Dice">Dice</SelectItem>
-                                            <SelectItem value="FlexJobs">FlexJobs</SelectItem>
-                                            <SelectItem value="WellFound">WellFound</SelectItem>
-                                            <SelectItem value="Upwork">Upwork</SelectItem>
+                                            {Object.keys(jobSourceStats).map(source => (
+                                                <SelectItem key={source} value={source}>{source}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -1513,9 +1503,9 @@ Return JSON with:
                                                             <Eye className="w-4 h-4 mr-1" />
                                                             Mark Reviewed
                                                         </Button>
-                                                        <Button 
-                                                           size="sm" 
-                                                           onClick={() => createApplication(match)}
+                                                        <Button
+                                                           size="sm"
+                                                           onClick={() => navigateToFullAnalysis(match)}
                                                            className="bg-green-600 hover:bg-green-700"
                                                         >
                                                            <ThumbsUp className="w-4 h-4 mr-1" />
@@ -1540,6 +1530,16 @@ Return JSON with:
                                                            Dismiss
                                                         </Button>
                                                     </>
+                                                )}
+                                                {match.status !== "new" && (
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => navigateToFullAnalysis(match)}
+                                                        className="bg-green-600 hover:bg-green-700"
+                                                    >
+                                                        <ThumbsUp className="w-4 h-4 mr-1" />
+                                                        Full Analysis
+                                                    </Button>
                                                 )}
                                                 {match.job_url && (
                                                     <a 

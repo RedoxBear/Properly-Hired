@@ -519,12 +519,18 @@ ${JSON.stringify(structured)}
         if (t) setJobTitle(t);
         if (c) setCompanyName(c);
 
+        const storedJd = sessionStorage.getItem("jobmatcher_prefill_jd");
+        if (storedJd) {
+            setJobDescription(storedJd);
+            sessionStorage.removeItem("jobmatcher_prefill_jd");
+        }
+
         if (u && (!t || !c)) {
             setPrefillInfo("We filled the job URL from your browser. Add the job title and company to analyze automatically.");
         }
 
-        // Auto-run only once when required fields are present
-        if (u && t && c && autostart && !autoStartedRef.current) {
+        // Auto-run only once when required fields are present (URL not required when JD is pre-filled)
+        if (t && c && autostart && !autoStartedRef.current) {
             autoStartedRef.current = true;
             // Defer to allow state to settle
             setTimeout(() => {

@@ -7,7 +7,8 @@ import { retryWithBackoff } from "@/components/utils/retry";
 import { base44 } from "@/api/base44Client";
 import {
     allConnectors,
-    deduplicateJobs
+    deduplicateJobs,
+    getConnectorsForRegion
 } from "./jobSourceConnectors";
 
 class JobAggregator {
@@ -43,7 +44,8 @@ class JobAggregator {
             sources = "all",
             remote_only = false,
             timeout = 45000, // 45 seconds total timeout
-            cache = true
+            cache = true,
+            countryCode = null
         } = options;
 
         // Check cache
@@ -57,11 +59,15 @@ class JobAggregator {
 
         try {
             // Determine which connectors to use
-            let connectorsToUse = allConnectors;
+            let connectorsToUse;
             if (sources !== "all" && Array.isArray(sources)) {
                 connectorsToUse = allConnectors.filter(c =>
                     sources.some(s => c.name.toLowerCase().includes(s.toLowerCase()))
                 );
+            } else if (countryCode) {
+                connectorsToUse = getConnectorsForRegion(countryCode);
+            } else {
+                connectorsToUse = allConnectors;
             }
 
 
