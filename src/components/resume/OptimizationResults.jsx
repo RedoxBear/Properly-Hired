@@ -87,12 +87,12 @@ export default function OptimizationResults({ results, onReset }) {
             if (optimized.experience && optimized.experience.length > 0) {
                 text += `\nExperience\n${'-'.repeat("Experience".length)}\n`;
                 optimized.experience.forEach(exp => {
-                    text += `${exp.position || ''} at ${exp.company || ''}`;
-                    if (exp.location) text += `, ${exp.location}`;
+                    text += `${clean(exp.position || '')} at ${clean(exp.company || '')}`;
+                    if (exp.location) text += `, ${clean(exp.location)}`;
                     text += '\n';
-                    if (exp.duration) text += `${exp.duration}\n`;
+                    if (exp.duration) text += `${clean(exp.duration)}\n`;
                     if (exp.achievements && exp.achievements.length > 0) {
-                        exp.achievements.forEach(ach => text += `  • ${ach}\n`);
+                        exp.achievements.forEach(ach => text += `  - ${clean(ach)}\n`);
                     }
                     text += '\n'; // Separate entries with an extra newline
                 });
