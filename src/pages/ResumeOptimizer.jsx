@@ -23,6 +23,8 @@ import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
 import CvStylePrompt from "@/components/resume/CvStylePrompt";
 import { resolveCvStyle } from "@/components/utils/cvStyleResolver";
+import { generateAnalysisReport } from "@/components/reports/AnalysisReportGenerator";
+import AnalysisReportView from "@/components/reports/AnalysisReportView";
 
 // Kyle's Expertise Domains
 const KYLE_EXPERTISE_DOMAINS = [
