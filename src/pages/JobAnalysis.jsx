@@ -42,10 +42,10 @@ import { fetchOrgResearch } from "@/components/utils/orgResearch";
 import { logEvent } from "@/components/utils/telemetry"; // Updated import path
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
+import { generateAnalysisReport } from "@/components/reports/AnalysisReportGenerator";
+import AnalysisResultsSection from "@/components/jobanalysis/AnalysisResultsSection";
 
-const createPageUrl = (path) => {
-    return path.startsWith('/') ? path : `/${path}`;
-};
+const createPageUrl = (path) => path.startsWith('/') ? path : `/${path}`;
 
 const truncateText = (value, max = 240) => {
     if (!value) return "";
