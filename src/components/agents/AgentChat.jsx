@@ -14,6 +14,8 @@ import { canPerformAction, getTierLimit, getWeekStart } from "@/components/utils
 import { readEvents, logEvent } from "@/components/utils/telemetry";
 import ChatErrorBoundary from "./ChatErrorBoundary";
 import { AGENT_CONFIG, parseAgentFromResponse } from "./agentPrompts";
+import SimonActionChips, { isCompanyRoleMatchResponse } from "./SimonActionChips";
+import { createPageUrl } from "@/utils";
 
 function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = false, initialMessage = "", autoSendInitial = false }) {
     const { context: appContext, getContextSummary } = useAppContext();
