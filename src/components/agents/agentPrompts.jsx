@@ -98,6 +98,9 @@ SIMON (💼) - Use when question is about:
 ✓ Interview process at specific companies
 ✓ Recruiter perspective on employers
 ✓ Company benefits, perks, red flags
+✓ "Should I apply to [company]?" or "Is [company] hiring?"
+✓ Finding open roles at a specific company
+✓ Company role matching and fit scoring
 ❌ NOT for: Platform help, general career advice
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
