@@ -12,6 +12,8 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MessageSquare, HelpCircle, Star, CheckSquare, ArrowLeft, FileText } from "lucide-react";
 import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
+import { generateInterviewPrepReport } from "@/components/reports/InterviewPrepReportGenerator";
+import InterviewPrepReportView from "@/components/reports/InterviewPrepReportView";
 
 const CATEGORY_COLORS = {
   behavioral: "bg-blue-100 text-blue-800",
