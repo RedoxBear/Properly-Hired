@@ -22,6 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import AISuggestions from "@/components/resume/AISuggestions";
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
+import CvStylePrompt from "@/components/resume/CvStylePrompt";
+import { resolveCvStyle } from "@/components/utils/cvStyleResolver";
 
 // Kyle's Expertise Domains
 const KYLE_EXPERTISE_DOMAINS = [
@@ -93,6 +95,10 @@ export default function ResumeOptimizer() {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [optimizationCount, setOptimizationCount] = React.useState(0);
 
+  // CV Style auto-detection
+  const [resolvedCvStyle, setResolvedCvStyle] = React.useState(null); // null = not yet resolved
+  const [selectedCvStyle, setSelectedCvStyle] = React.useState(null); // user's pick when "both"
+
   React.useEffect(() => {
     const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
     if (dismissed) return;
@@ -149,6 +155,28 @@ export default function ResumeOptimizer() {
       if (exists) setSelectedJobId(id);
     }
   }, [jobApplications]);
+
+  // Auto-resolve CV style when job + resume are selected
+  React.useEffect(() => {
+    if (!selectedJobId && !selectedMatchId) { setResolvedCvStyle(null); setSelectedCvStyle(null); return; }
+    if (!selectedResumeId) { setResolvedCvStyle(null); setSelectedCvStyle(null); return; }
+
+    const job = useJobMatch
+      ? jobMatches.find(m => m.id === selectedMatchId)
+      : jobApplications.find(j => j.id === selectedJobId);
+    const resume = masterResumes.find(r => r.id === selectedResumeId);
+    if (!job || !resume) return;
+
+    const resumeText = resume.parsed_content || resume.optimized_content || "";
+    const roleClassification = job.llm_analysis_result?.simon_role_classification
+      || job.summary?.simon_brief?.role_classification
+      || {};
+
+    const style = resolveCvStyle("auto", job.job_title, roleClassification, resumeText);
+    setResolvedCvStyle(style);
+    // Reset user pick when resolved style changes
+    setSelectedCvStyle(style === "both" ? null : style);
+  }, [selectedJobId, selectedMatchId, selectedResumeId, useJobMatch, jobApplications, jobMatches, masterResumes]);
 
   // Load Kyle's Positioning Analysis
   const loadPositioningAnalysis = async () => {
