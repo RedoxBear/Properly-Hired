@@ -160,7 +160,6 @@ export default function InterviewPrep() {
         </CardHeader>
       </Card>
 
-      {/* Generate or display */}
       {/* Detailed Report (primary view) */}
       <InterviewPrepReportView
         reportText={prepReportText}
@@ -169,25 +168,19 @@ export default function InterviewPrep() {
         isGenerating={isGeneratingReport}
       />
 
-      {!prep ? (
-        <Card className="border-dashed border-2 border-purple-200">
-          <CardContent className="flex flex-col items-center justify-center py-16 gap-4">
-            <MessageSquare className="h-16 w-16 text-purple-300" />
-            <h3 className="text-xl font-semibold text-foreground">Interview Prep Not Generated Yet</h3>
-            <p className="text-muted-foreground text-center max-w-md">
-              Generate a personalized interview guide with likely questions, STAR story templates,
-              and strategic questions to ask your interviewer.
-            </p>
-            <Button onClick={handleGenerate} disabled={generating}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8">
-              {generating
-                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating…</>
-                : "Generate Interview Prep"}
-            </Button>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+      {/* Loading state while auto-generating */}
+      {generating && !prep && (
+        <Card className="border-purple-200">
+          <CardContent className="flex items-center justify-center py-12 gap-3">
+            <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            <span className="text-purple-700 font-medium">Generating interview preparation...</span>
           </CardContent>
         </Card>
-      ) : (
+      )}
+
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+      {prep && (
         <>
           {/* Likely Questions */}
           <Card>
