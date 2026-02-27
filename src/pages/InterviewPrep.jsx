@@ -53,8 +53,26 @@ export default function InterviewPrep() {
     try {
       const app = await base44.entities.JobApplication.get(appId);
       setApplication(app);
-      setPrep(app?.summary?.interview_prep ?? null);
+      const existingPrep = app?.summary?.interview_prep ?? null;
+      setPrep(existingPrep);
       setPrepReportText(app?.interview_prep_report_text || "");
+
+      // If prep is missing, it should already have been generated during Resume Optimizer handoff.
+      // Auto-generate as a fallback to ensure data is always present.
+      if (!existingPrep) {
+        setGenerating(true);
+        generateInterviewPrep({ action: "generate", job_application_id: appId })
+          .then(result => setPrep(result.data?.interview_prep))
+          .catch(console.error)
+          .finally(() => setGenerating(false));
+      }
+      if (!app?.interview_prep_report_text) {
+        setIsGeneratingReport(true);
+        generateInterviewPrepReport(appId)
+          .then(text => setPrepReportText(text || ""))
+          .catch(console.error)
+          .finally(() => setIsGeneratingReport(false));
+      }
     } catch (e) {
       setError("Could not load application.");
     } finally {
@@ -62,7 +80,7 @@ export default function InterviewPrep() {
     }
   };
 
-  const handleGenerate = async () => {
+  const handleRegenerate = async () => {
     setGenerating(true);
     setError(null);
     try {
@@ -71,15 +89,15 @@ export default function InterviewPrep() {
         job_application_id: appId
       });
       setPrep(result.data?.interview_prep);
-      // Also generate the detailed report
-      if (!prepReportText) {
-        setIsGeneratingReport(true);
-        generateInterviewPrepReport(appId).then(text => {
-          setPrepReportText(text || "");
-        }).catch(console.error).finally(() => setIsGeneratingReport(false));
-      }
+      // Also regenerate the detailed report
+      setIsGeneratingReport(true);
+      // Clear existing to force re-generation
+      await base44.entities.JobApplication.update(appId, { interview_prep_report_text: "" });
+      generateInterviewPrepReport(appId).then(text => {
+        setPrepReportText(text || "");
+      }).catch(console.error).finally(() => setIsGeneratingReport(false));
     } catch (e) {
-      setError("Generation failed. Please try again.");
+      setError("Regeneration failed. Please try again.");
     } finally {
       setGenerating(false);
     }
