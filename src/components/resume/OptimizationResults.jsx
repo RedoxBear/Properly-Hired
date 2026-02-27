@@ -380,7 +380,7 @@ export default function OptimizationResults({ results, onReset }) {
                             <div>
                                 <h3 className="font-semibold text-slate-800 mb-2">Professional Summary</h3>
                                 <p className="text-slate-700 bg-slate-50 p-4 rounded-lg leading-relaxed">
-                                    {results.optimized_resume_sections.professional_summary}
+                                    {clean(results.optimized_resume_sections.professional_summary)}
                                 </p>
                             </div>
                         )}
@@ -392,7 +392,7 @@ export default function OptimizationResults({ results, onReset }) {
                                 <div className="flex flex-wrap gap-2">
                                     {results.optimized_resume_sections.key_skills.map((skill, index) => (
                                         <Badge key={index} variant="secondary" className="bg-green-50 text-green-800">
-                                            {skill}
+                                            {clean(skill)}
                                         </Badge>
                                     ))}
                                 </div>
@@ -407,7 +407,7 @@ export default function OptimizationResults({ results, onReset }) {
                                     {results.optimized_resume_sections.experience_bullets.map((bullet, index) => (
                                         <li key={index} className="flex items-start gap-2">
                                             <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-slate-700">{bullet}</span>
+                                            <span className="text-slate-700">{clean(bullet)}</span>
                                         </li>
                                     ))}
                                 </ul>
