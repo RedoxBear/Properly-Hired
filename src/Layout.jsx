@@ -160,8 +160,24 @@ function AppShell({ children, currentPageName }) {
                         overflow-x: hidden;
                     }
 
-                    body, button, input, textarea, select {
+                    /* Unified font across the entire app */
+                    body, button, input, textarea, select,
+                    h1, h2, h3, h4, h5, h6, p, span, div, li, a, label,
+                    .prose, .prose * {
                         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    }
+
+                    /* Override Tailwind's font-sans to use Inter */
+                    .font-sans {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+                    }
+
+                    /* Override any font-mono leaking into UI (keep for code blocks only) */
+                    .font-mono {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+                    }
+                    pre .font-mono, pre code, code.font-mono {
+                        font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace !important;
                     }
 
                     body {
