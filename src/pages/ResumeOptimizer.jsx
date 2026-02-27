@@ -23,6 +23,7 @@ import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
 import CvStylePrompt from "@/components/resume/CvStylePrompt";
 import { resolveCvStyle } from "@/components/utils/cvStyleResolver";
+import { cleanResumeData } from "@/components/utils/cleanResumeText";
 import { generateAnalysisReport } from "@/components/reports/AnalysisReportGenerator";
 import AnalysisReportView from "@/components/reports/AnalysisReportView";
 import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
