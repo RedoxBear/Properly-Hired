@@ -43,8 +43,7 @@ export default function ResumeTemplates() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [templateItems, setTemplateItems] = useState(DEFAULT_TEMPLATES);
-  const [autoRedirectArmed, setAutoRedirectArmed] = useState(false);
-  const redirectTimerRef = useRef(null);
+  const [userConfirmedFormat, setUserConfirmedFormat] = useState(null); // null = not answered, true = project-based, false = standard
   const navigate = useNavigate();
 
   useEffect(() => {
