@@ -1114,6 +1114,9 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
                             </CardContent>
 
                             <div className="border-t p-3 space-y-2 dark:border-slate-700">
+                                {showSimonActions && !isLoading && (
+                                    <SimonActionChips onAction={handleSimonAction} />
+                                )}
                                 {error && (
                                     <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-center justify-between dark:bg-red-950 dark:border-red-900 dark:text-red-200">
                                         <span>{error}</span>
