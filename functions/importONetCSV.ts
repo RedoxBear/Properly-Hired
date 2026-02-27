@@ -477,7 +477,7 @@ Deno.serve(async (req) => {
       case "get_counts": {
         const entities = [
           "ONetOccupation", "ONetSkill", "ONetAbility", "ONetKnowledge",
-          "ONetTask", "ONetWorkActivity", "ONetWorkContext", "ONetReference",
+          "ONetTask", "ONetWorkActivity", "ONetWorkContext", "ONetReference", "ONetProfile",
         ];
         const counts = {};
         for (const name of entities) {
