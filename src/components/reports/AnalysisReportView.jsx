@@ -2,6 +2,8 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Loader2 } from "lucide-react";
+import ProfessionalReportRenderer from "@/components/reports/ProfessionalReportRenderer";
+import { cleanMarkdown } from "@/components/utils/cleanReportText";
 
 export default function AnalysisReportView({ reportText, jobTitle, companyName, isGenerating }) {
   if (isGenerating) {
@@ -19,7 +21,8 @@ export default function AnalysisReportView({ reportText, jobTitle, companyName, 
 
   const handleDownload = () => {
     const safe = `${(companyName || "Company").replace(/[\\/:*?"<>|]/g, "_")}-${(jobTitle || "Role").replace(/[\\/:*?"<>|]/g, "_")}-Analysis.txt`;
-    const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+    const cleaned = cleanMarkdown(reportText);
+    const blob = new Blob([cleaned], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -45,9 +48,9 @@ export default function AnalysisReportView({ reportText, jobTitle, companyName, 
         </div>
       </CardHeader>
       <CardContent>
-        <pre className="whitespace-pre-wrap text-sm font-mono text-slate-700 bg-slate-50 p-4 rounded-lg border max-h-[600px] overflow-y-auto leading-relaxed">
-          {reportText}
-        </pre>
+        <div className="bg-muted/40 p-5 rounded-lg border max-h-[600px] overflow-y-auto">
+          <ProfessionalReportRenderer text={reportText} accentColor="blue" />
+        </div>
       </CardContent>
     </Card>
   );
