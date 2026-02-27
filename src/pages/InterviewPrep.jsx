@@ -143,6 +143,14 @@ export default function InterviewPrep() {
       </Card>
 
       {/* Generate or display */}
+      {/* Detailed Report (primary view) */}
+      <InterviewPrepReportView
+        reportText={prepReportText}
+        jobTitle={application?.job_title}
+        companyName={application?.company_name}
+        isGenerating={isGeneratingReport}
+      />
+
       {!prep ? (
         <Card className="border-dashed border-2 border-purple-200">
           <CardContent className="flex flex-col items-center justify-center py-16 gap-4">
