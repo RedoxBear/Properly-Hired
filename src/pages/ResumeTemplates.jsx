@@ -413,56 +413,80 @@ ${el.innerHTML}
 
         <KyleOptimizeBanner resumeId={selectedResumeId} />
 
+        {/* Step 1: Select Resume */}
         <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Select Resume & Template</CardTitle>
+            <CardTitle>Step 1: Select Your Resume</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-md">
+              <label className="text-sm font-medium text-slate-700">Resume</label>
+              <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Choose a resume to render" />
+                </SelectTrigger>
+                <SelectContent>
+                  {resumes.map(r => (
+                    <SelectItem key={r.id} value={r.id}>{r.version_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step 2: Template Gallery — shown prominently first */}
+        <TemplateGallery
+          onPick={handleGalleryPick}
+          items={templateItems}
+          showAdminControls={isAdmin(currentUser)}
+          onAdd={handleAddTemplate}
+          onDelete={handleDeleteTemplate}
+        />
+
+        {appliedNote && <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">{appliedNote}</div>}
+
+        {/* Step 3: Project-based format question — shown after template is picked */}
+        {selectedResumeId && template && (
+          <Card className="shadow-lg border-0 bg-gradient-to-r from-blue-50 to-cyan-50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Step 3: Choose Your Resume Format</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-slate-700">
+                {recommendProjectCV
+                  ? "Based on your work history, a **project-based format** may better highlight your skills and accomplishments. Would you like to use a project-based format?"
+                  : "Would you like to use a project-based format (groups work by projects/skills) or a standard chronological format?"}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={() => handleFormatChoice(true)}
+                  className="gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  Yes, Project-Based
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={() => handleFormatChoice(false)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  No, Standard Format
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <TemplateHelperHint />
+
+        {/* Template Preview & Actions */}
+        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>Preview</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700">Resume</label>
-                <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Choose a resume to render" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {resumes.map(r => (
-                      <SelectItem key={r.id} value={r.id}>{r.version_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700">Template</label>
-                <Select value={template} onValueChange={setTemplate}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Choose a template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="classic">Classic</SelectItem>
-                    <SelectItem value="modern">Modern</SelectItem>
-                    <SelectItem value="minimal">Minimal</SelectItem>
-                    <SelectItem value="double-column">Double Column</SelectItem>
-                    <SelectItem value="ivy-league">Ivy League</SelectItem>
-                    <SelectItem value="elegant">Elegant</SelectItem>
-                    <SelectItem value="contemporary">Contemporary</SelectItem>
-                    <SelectItem value="polished">Polished</SelectItem>
-                    <SelectItem value="timeline">Timeline</SelectItem>
-                    <SelectItem value="creative">Creative</SelectItem>
-                    <SelectItem value="stylish">Stylish</SelectItem>
-                    <SelectItem value="double-column-logos">Double Column w/ Logos</SelectItem>
-                    <SelectItem value="multicolumn">Multicolumn</SelectItem>
-                    <SelectItem value="high-performer">High Performer</SelectItem>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="prime-ats">Prime ATS</SelectItem>
-                    <SelectItem value="pure-ats">Pure ATS</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {appliedNote && <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">{appliedNote}</div>}
-
             <div className="flex flex-wrap gap-3 no-print">
               <Button onClick={handlePrint} className="gap-2">
                 <Printer className="w-4 h-4" />
@@ -496,29 +520,18 @@ ${el.innerHTML}
           }}
         />
 
-        {/* Printable area: attach ref so we only print this */}
+        {/* Printable area */}
         <div id="print-area" ref={printRef} className="bg-white rounded-xl shadow">
           {renderTemplate()}
         </div>
 
-        <TemplateHelperHint />
-
-        {/* Gallery */}
-        <TemplateGallery
-          onPick={handleGalleryPick}
-          items={templateItems}
-          showAdminControls={isAdmin(currentUser)}
-          onAdd={handleAddTemplate}
-          onDelete={handleDeleteTemplate}
-        />
-
-        {/* Kyle Agent Chat */}
+        {/* Kyle Agent Chat — asks about format */}
         <AgentChat
           agentName="kyle"
           agentTitle="Kyle - CV Expert"
           autoOpen
           autoSendInitial
-          initialMessage={`Start by asking me: "Is there anything you'd like to change or optimize further?" Then advise whether a project-based CV would be stronger. Tenure stats: ${tenureStats ? `avg ${tenureStats.averageMonths} months, short stints ${tenureStats.shortStints}/${tenureStats.totalRoles}` : "not available"}.`}
+          initialMessage={`Start by asking: "Would you like to use a project-based format for your resume? This groups your experience by projects/skills rather than chronologically." Based on tenure stats: ${tenureStats ? `avg ${tenureStats.averageMonths} months, short stints ${tenureStats.shortStints}/${tenureStats.totalRoles}` : "not available"}. ${recommendProjectCV ? "Recommend project-based format." : "Let them choose."} When they answer yes or no, tell them: "Great choice! Click the format button above to proceed to the Resume Editor."`}
           context={{
             page: "ResumeTemplates",
             resumeId: selectedResumeId,
