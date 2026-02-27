@@ -1,14 +1,10 @@
 import React from "react";
+import { parseResumeData } from "./templateUtils";
 
 export default function Modern({ data }) {
-  if (!data) return null;
-  const pi = data.personal_info || {};
-  const skills = data.skills || [];
-  const highlights = data.highlights || [];
-  const experience = data.experience || [];
-  const education = data.education || [];
-  const references = data.references || [];
-  const summary = data.executive_summary || data.summary || data.professional_summary;
+  const d = parseResumeData(data);
+  if (!d) return null;
+  const { pi, skills, highlights, experience, education, references, summary } = d;
 
   return (
     <div className="max-w-[800px] mx-auto bg-white text-slate-900">

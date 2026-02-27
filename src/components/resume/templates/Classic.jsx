@@ -1,15 +1,10 @@
 import React from "react";
+import { parseResumeData } from "./templateUtils";
 
 export default function Classic({ data }) {
-  if (!data) return null;
-  const pi = data.personal_info || {};
-  const skills = data.skills || [];
-  const rawHighlights = data.highlights || [];
-  const highlights = Array.isArray(rawHighlights) ? rawHighlights : (typeof rawHighlights === "string" && rawHighlights.trim() ? rawHighlights.split(/•|\n/).map(s => s.trim()).filter(Boolean) : []);
-  const experience = data.experience || [];
-  const education = data.education || [];
-  const references = data.references || [];
-  const summary = data.executive_summary || data.summary || data.professional_summary;
+  const d = parseResumeData(data);
+  if (!d) return null;
+  const { pi, skills, highlights, experience, education, references, summary } = d;
 
   return (
     <div className="max-w-[800px] mx-auto bg-white text-slate-800 p-8">
