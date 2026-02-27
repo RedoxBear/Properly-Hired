@@ -14,8 +14,12 @@ import {
   FileText,
   Mail,
   MessageCircleQuestion,
+  MessageSquare,
+  Lock,
   ArrowLeft,
 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { hasAccess } from "@/components/utils/accessControl";
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 
 const statusConfig = {
@@ -30,11 +34,13 @@ const statusConfig = {
 export default function JobDetails() {
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("applicationId");
     const load = async () => {
+      try { setCurrentUser(await base44.auth.me()); } catch (_) {}
       if (!id) {
         setLoading(false);
         return;
@@ -235,6 +241,15 @@ export default function JobDetails() {
                   <Button variant="outline" className="gap-2">
                     <FileText className="w-4 h-4" />
                     View All Resumes
+                  </Button>
+                </RouterLink>
+                <RouterLink to={createPageUrl(`InterviewPrep?id=${application.id}`)}>
+                  <Button variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50 gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    Interview Prep
+                    {!hasAccess(currentUser, "interview_prep") && (
+                      <Lock className="h-3 w-3 text-gray-400" />
+                    )}
                   </Button>
                 </RouterLink>
                 {application.optimized_resume_id && (

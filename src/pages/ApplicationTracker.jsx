@@ -36,7 +36,8 @@ import {
     Sparkles,
     Building2,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Lock
 } from "lucide-react";
 import { motion } from "framer-motion";
 import CompanyResearchDisplay from "@/components/company/CompanyResearchDisplay";
@@ -793,6 +794,18 @@ export default function ApplicationTracker() {
                                                                     className="h-8 w-8 p-0"
                                                                 >
                                                                     <Sparkles className="w-4 h-4" />
+                                                                </Button>
+                                                            </Link>
+                                                            <Link to={createPageUrl(`InterviewPrep?id=${app.id}`)}>
+                                                                <Button
+                                                                    variant="ghost" size="sm"
+                                                                    className="h-8 w-8 p-0 text-purple-600 hover:text-purple-800 relative"
+                                                                    title="Interview Prep"
+                                                                >
+                                                                    <MessageSquare className="h-4 w-4" />
+                                                                    {!hasAccess(currentUser, "interview_prep") && (
+                                                                        <Lock className="h-2.5 w-2.5 absolute -top-0.5 -right-0.5 text-gray-400" />
+                                                                    )}
                                                                 </Button>
                                                             </Link>
                                                             <Button 

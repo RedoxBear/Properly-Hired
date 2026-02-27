@@ -1,18 +1,24 @@
 import React from "react";
 import DOMPurify from "dompurify";
+import { base44 } from "@/api/base44Client";
 import { JobApplication } from "@/entities/JobApplication";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { hasAccess } from "@/components/utils/accessControl";
+import { MessageSquare } from "lucide-react";
 
 export default function JobSummary() {
   const [app, setApp] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState(null);
 
   React.useEffect(() => {
     const qp = new URLSearchParams(window.location.search);
     const id = qp.get("id");
     (async () => {
+      try { setCurrentUser(await base44.auth.me()); } catch (_) {}
       if (id) setApp(await JobApplication.get(id));
     })();
   }, []);
@@ -98,9 +104,65 @@ export default function JobSummary() {
         </Card>
       </div>
 
-      <div className="flex gap-2">
+      {/* Simon → Kyle CTA */}
+      {S.simon_brief && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-semibold text-blue-900">Simon's brief is ready for Kyle</p>
+            <p className="text-sm text-blue-700">
+              Strategy: {S.simon_brief.strategy_for_kyle?.approach || "Available"} ·
+              Tone: {S.simon_brief.strategy_for_kyle?.tone || "N/A"}
+            </p>
+          </div>
+          <Link to={createPageUrl(`ResumeOptimizer?id=${app.id}`)}>
+            <Button>Optimize Resume →</Button>
+          </Link>
+        </div>
+      )}
+
+      {/* Handover Brief (Premium) */}
+      {hasAccess(currentUser, "interview_prep") && S.simon_brief && (
+        <Card className="border-purple-200 bg-purple-50/50">
+          <CardHeader>
+            <CardTitle className="text-purple-900 text-base flex items-center gap-2">
+              Simon → Kyle Handover Brief
+              <Badge className="bg-purple-100 text-purple-700">Premium</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1 text-sm">
+            {S.simon_brief.ghost_job_score !== undefined && (
+              <p><span className="font-medium">Ghost Score:</span>{" "}
+                {S.simon_brief.ghost_job_score}/100 · {S.simon_brief.risk_level}
+              </p>
+            )}
+            {S.simon_brief.strategy_for_kyle?.must_win_priorities && (
+              <p><span className="font-medium">Must-Win Keywords:</span>{" "}
+                {S.simon_brief.strategy_for_kyle.must_win_priorities.join(", ")}
+              </p>
+            )}
+            {S.simon_brief.strategy_for_kyle?.tone && (
+              <p><span className="font-medium">Tone:</span>{" "}
+                {S.simon_brief.strategy_for_kyle.tone}
+              </p>
+            )}
+            {S.simon_brief.overall_recommendation?.decision && (
+              <p><span className="font-medium">Recommendation:</span>{" "}
+                {S.simon_brief.overall_recommendation.decision}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="flex gap-2 flex-wrap">
         <Link to={createPageUrl(`OptimizeResume?id=${app.id}`)}><Button>Optimize Resume</Button></Link>
         <Link to={createPageUrl(`CoverLetter?id=${app.id}`)}><Button variant="outline">Cover Letter</Button></Link>
+        <Link to={createPageUrl(`InterviewPrep?id=${app.id}`)}>
+          <Button variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Interview Prep
+          </Button>
+        </Link>
         <Link to={createPageUrl("Dashboard")}><Button variant="ghost">Back to Dashboard</Button></Link>
       </div>
     </div>

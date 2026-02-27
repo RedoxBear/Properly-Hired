@@ -92,6 +92,7 @@ import SearchHub from './pages/SearchHub';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
+import InterviewPrep from './pages/InterviewPrep';
 import __Layout from './Layout.jsx';
 
 
@@ -141,6 +142,7 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
+    "InterviewPrep": InterviewPrep,
 }
 
 export const pagesConfig = {
