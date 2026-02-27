@@ -931,6 +931,16 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
           </CardContent>
         </Card>
 
+        {/* Analysis Report (auto-generated on handoff) */}
+        {(analysisReportText || isGeneratingReport) && (
+          <AnalysisReportView
+            reportText={analysisReportText}
+            jobTitle={jobApplications.find(j => j.id === selectedJobId)?.job_title}
+            companyName={jobApplications.find(j => j.id === selectedJobId)?.company_name}
+            isGenerating={isGeneratingReport}
+          />
+        )}
+
         {error && <Alert variant="destructive" className="mb-6"><AlertDescription>{error}</AlertDescription></Alert>}
 
         {/* Tier Limit Warning */}
