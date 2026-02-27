@@ -198,7 +198,7 @@ Generate 8-12 likely_questions, 3-4 items per questions_to_ask category, 3 star_
     const interviewPrep = aiResponse;
 
     // Persist to JobApplication.summary.interview_prep
-    await base44.asServiceRole.entities.JobApplication.update(job_application_id, {
+    await base44.entities.JobApplication.update(job_application_id, {
       summary: { ...summary, interview_prep: interviewPrep }
     });
 
