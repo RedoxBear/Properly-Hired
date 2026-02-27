@@ -34,7 +34,8 @@ export const TIER_LIMITS = {
       "cover_letters",
       "resume_builder",
       "career_coach",
-      "agent_chat" // Limited chat credits for FREE
+      "agent_chat", // Limited chat credits for FREE
+      "search_hub_preview" // Free users see limited preview
     ]
   },
   pro: {
@@ -63,7 +64,8 @@ export const TIER_LIMITS = {
       "insights",
       "networking_hub",
       "career_coach",
-      "agent_chat"
+      "agent_chat",
+      "search_hub"
     ]
   },
   premium: {
@@ -232,6 +234,7 @@ export function getUpgradeMessage(feature) {
     resume_templates: "Access professional resume templates with Pro or Premium",
     networking_hub: "Unlock full Networking Hub features with Pro or Premium",
     external_resources: "Link external resources with Pro or Premium",
+    search_hub: "Unlock full Search Hub with complete research history and company research details — available on Pro or Premium",
     interview_prep: "Unlock AI-powered interview preparation with personalized questions, STAR story templates, and strategic questions to ask — available on Premium."
   };
 
