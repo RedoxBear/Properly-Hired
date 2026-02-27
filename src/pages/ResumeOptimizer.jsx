@@ -25,6 +25,8 @@ import CvStylePrompt from "@/components/resume/CvStylePrompt";
 import { resolveCvStyle } from "@/components/utils/cvStyleResolver";
 import { generateAnalysisReport } from "@/components/reports/AnalysisReportGenerator";
 import AnalysisReportView from "@/components/reports/AnalysisReportView";
+import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
+import { generateInterviewPrepReport } from "@/components/reports/InterviewPrepReportGenerator";
 
 // Kyle's Expertise Domains
 const KYLE_EXPERTISE_DOMAINS = [
