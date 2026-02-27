@@ -9,6 +9,20 @@ import { Loader2, Printer, Download, Palette, ArrowRight } from "lucide-react";
 import Classic from "@/components/resume/templates/Classic";
 import Modern from "@/components/resume/templates/Modern";
 import Minimal from "@/components/resume/templates/Minimal";
+import DoubleColumn from "@/components/resume/templates/DoubleColumn";
+import IvyLeague from "@/components/resume/templates/IvyLeague";
+import Elegant from "@/components/resume/templates/Elegant";
+import Contemporary from "@/components/resume/templates/Contemporary";
+import Polished from "@/components/resume/templates/Polished";
+import Timeline from "@/components/resume/templates/Timeline";
+import Creative from "@/components/resume/templates/Creative";
+import Stylish from "@/components/resume/templates/Stylish";
+import DoubleColumnLogos from "@/components/resume/templates/DoubleColumnLogos";
+import Multicolumn from "@/components/resume/templates/Multicolumn";
+import HighPerformer from "@/components/resume/templates/HighPerformer";
+import Professional from "@/components/resume/templates/Professional";
+import PrimeATS from "@/components/resume/templates/PrimeATS";
+import PureATS from "@/components/resume/templates/PureATS";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { parse, parseISO, isValid, differenceInMonths } from "date-fns";
 import TemplateGallery, { DEFAULT_TEMPLATES } from "@/components/resume/templates/TemplateGallery";
@@ -93,7 +107,7 @@ export default function ResumeTemplates() {
   // When switching selected resume, load its saved template if exists
   useEffect(() => {
     const r = resumes.find(x => x.id === selectedResumeId);
-    if (r?.template && ["classic", "modern", "minimal"].includes(r.template)) {
+    if (r?.template) {
       setTemplate(r.template);
     }
   }, [selectedResumeId, resumes]);
@@ -236,12 +250,29 @@ export default function ResumeTemplates() {
   const tenureStats = resumeData?.experience ? computeTenureStats(resumeData.experience) : null;
   const recommendProjectCV = tenureStats ? tenureStats.shortStints >= 2 || tenureStats.averageMonths <= 14 : false;
 
+  const TEMPLATE_COMPONENTS = {
+    "classic": Classic,
+    "modern": Modern,
+    "minimal": Minimal,
+    "double-column": DoubleColumn,
+    "ivy-league": IvyLeague,
+    "elegant": Elegant,
+    "contemporary": Contemporary,
+    "polished": Polished,
+    "timeline": Timeline,
+    "creative": Creative,
+    "stylish": Stylish,
+    "double-column-logos": DoubleColumnLogos,
+    "multicolumn": Multicolumn,
+    "high-performer": HighPerformer,
+    "professional": Professional,
+    "prime-ats": PrimeATS,
+    "pure-ats": PureATS,
+  };
+
   const renderTemplate = () => {
-    const props = { data: resumeData };
-    if (template === "classic") return <Classic {...props} />;
-    if (template === "modern") return <Modern {...props} />;
-    if (template === "minimal") return <Minimal {...props} />;
-    return null;
+    const Comp = TEMPLATE_COMPONENTS[template] || Classic;
+    return <Comp data={resumeData} />;
   };
 
   // REPLACE: window.print with iframe-based clean printing
@@ -429,13 +460,30 @@ ${el.innerHTML}
               </div>
               <div>
                 <label className="text-sm font-medium text-slate-700">Template</label>
-                <Tabs value={template} onValueChange={setTemplate} className="mt-2">
-                  <TabsList className="grid grid-cols-3">
-                    <TabsTrigger value="classic">Classic</TabsTrigger>
-                    <TabsTrigger value="modern">Modern</TabsTrigger>
-                    <TabsTrigger value="minimal">Minimal</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <Select value={template} onValueChange={setTemplate}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Choose a template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="classic">Classic</SelectItem>
+                    <SelectItem value="modern">Modern</SelectItem>
+                    <SelectItem value="minimal">Minimal</SelectItem>
+                    <SelectItem value="double-column">Double Column</SelectItem>
+                    <SelectItem value="ivy-league">Ivy League</SelectItem>
+                    <SelectItem value="elegant">Elegant</SelectItem>
+                    <SelectItem value="contemporary">Contemporary</SelectItem>
+                    <SelectItem value="polished">Polished</SelectItem>
+                    <SelectItem value="timeline">Timeline</SelectItem>
+                    <SelectItem value="creative">Creative</SelectItem>
+                    <SelectItem value="stylish">Stylish</SelectItem>
+                    <SelectItem value="double-column-logos">Double Column w/ Logos</SelectItem>
+                    <SelectItem value="multicolumn">Multicolumn</SelectItem>
+                    <SelectItem value="high-performer">High Performer</SelectItem>
+                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="prime-ats">Prime ATS</SelectItem>
+                    <SelectItem value="pure-ats">Pure ATS</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

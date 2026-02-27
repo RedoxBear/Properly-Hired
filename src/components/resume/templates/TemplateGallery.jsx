@@ -1,21 +1,21 @@
 import React, { useMemo, useState } from "react";
 
-// Map gallery titles to our internal renderers
+// Map gallery titles to unique template slugs
 const templateMap = {
-  "Double Column": "modern",
-  "Ivy League": "classic",
-  "Elegant": "modern",
-  "Contemporary": "modern",
-  "Polished": "modern",
-  "Timeline": "classic",
-  "Creative": "modern",
-  "Stylish": "minimal",
-  "Double Column with Logos": "modern",
-  "Multicolumn": "modern",
-  "High Performer": "classic",
-  "Professional": "modern",
-  "Prime ATS": "classic",
-  "Pure ATS": "minimal"
+  "Double Column": "double-column",
+  "Ivy League": "ivy-league",
+  "Elegant": "elegant",
+  "Contemporary": "contemporary",
+  "Polished": "polished",
+  "Timeline": "timeline",
+  "Creative": "creative",
+  "Stylish": "stylish",
+  "Double Column with Logos": "double-column-logos",
+  "Multicolumn": "multicolumn",
+  "High Performer": "high-performer",
+  "Professional": "professional",
+  "Prime ATS": "prime-ats",
+  "Pure ATS": "pure-ats"
 };
 
 export const DEFAULT_TEMPLATES = [
