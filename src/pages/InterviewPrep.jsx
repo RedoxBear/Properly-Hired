@@ -30,6 +30,8 @@ export default function InterviewPrep() {
   const [generating, setGenerating] = useState(false);
   const [checkedItems, setCheckedItems] = useState({});
   const [error, setError] = useState(null);
+  const [prepReportText, setPrepReportText] = useState("");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const appId = new URLSearchParams(window.location.search).get("id");
 
