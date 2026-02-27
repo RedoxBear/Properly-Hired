@@ -310,7 +310,7 @@ export default function OptimizationResults({ results, onReset }) {
                                     className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200"
                                 >
                                     <TrendingUp className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                                    <span className="text-slate-700">{rec}</span>
+                                    <span className="text-slate-700">{clean(rec)}</span>
                                 </motion.li>
                             ))}
                         </ul>
