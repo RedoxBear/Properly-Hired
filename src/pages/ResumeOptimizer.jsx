@@ -97,8 +97,10 @@ export default function ResumeOptimizer() {
   const [optimizationCount, setOptimizationCount] = React.useState(0);
 
   // CV Style auto-detection
-  const [resolvedCvStyle, setResolvedCvStyle] = React.useState(null); // null = not yet resolved
-  const [selectedCvStyle, setSelectedCvStyle] = React.useState(null); // user's pick when "both"
+  const [resolvedCvStyle, setResolvedCvStyle] = React.useState(null);
+  const [selectedCvStyle, setSelectedCvStyle] = React.useState(null);
+  const [analysisReportText, setAnalysisReportText] = React.useState("");
+  const [isGeneratingReport, setIsGeneratingReport] = React.useState(false);
 
   React.useEffect(() => {
     const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
