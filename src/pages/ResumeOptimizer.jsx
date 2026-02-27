@@ -836,6 +836,17 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
               { retries: 3, baseDelay: 1200 }
             );
 
+            // Clean all markdown/asterisk formatting from the optimized content
+            if (response.optimized_resume_content) {
+              response.optimized_resume_content = cleanResumeData(response.optimized_resume_content);
+            }
+            if (response.executive_summary) {
+              response.executive_summary = cleanResumeData(response.executive_summary);
+            }
+            if (response.recommendations) {
+              response.recommendations = response.recommendations.map(r => cleanResumeData(r));
+            }
+
             const styleSuffix = stylesToGenerate.length > 1 ? ` — ${cvStyle.charAt(0).toUpperCase() + cvStyle.slice(1)}` : "";
             const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
             const newVersion = await Resume.create({
