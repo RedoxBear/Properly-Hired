@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     let onetData = null;
     if (simonBrief?.soc_code) {
       try {
-        const profiles = await base44.asServiceRole.entities.ONetProfile.filter(
+        const profiles = await base44.entities.ONetProfile.filter(
           { onet_soc_code: simonBrief.soc_code }, '-created_date', 1
         );
         onetData = profiles?.[0] ?? null;
