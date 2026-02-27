@@ -434,32 +434,62 @@ ${JSON.stringify(structured)}
         if (!jobTitle.trim()) return;
         setIsOnetLoading(true);
         try {
-            const occRes = await onetServiceRef.current.query("Occupation", { keyword: jobTitle });
-            const occupation = Array.isArray(occRes?.data) ? occRes.data[0] : occRes?.data;
-            if (!occupation?.code && !occupation?.soc_code) {
-                setOnetBenchmark({ status: "no_match" });
-                setIsOnetLoading(false);
-                return;
+            // Try ONetProfile first (fast, pre-aggregated)
+            let profileUsed = false;
+            try {
+                const profileRes = await base44.functions.invoke("getONetProfile", { role_title: jobTitle });
+                if (profileRes?.data?.profile) {
+                    const p = profileRes.data.profile;
+                    const skills = (p.skills || []).slice(0, 12).map(name => ({ name, value: 0 }));
+                    const requirementSet = new Set(requirements.map(r => r.toLowerCase()));
+                    const overlap = skills.filter(s => requirementSet.has(s.name.toLowerCase()));
+                    const overlapScore = skills.length > 0 ? Math.round((overlap.length / skills.length) * 100) : 0;
+                    const ghostIndicator = overlapScore < 30 ? "High mismatch with O*NET benchmarks" : "Aligned with O*NET benchmarks";
+
+                    setOnetBenchmark({
+                        occupation: p.title || jobTitle,
+                        soc_code: p.onet_soc_code,
+                        top_skills: skills,
+                        overlap_score: overlapScore,
+                        ghost_indicator: ghostIndicator,
+                        education_level: p.education_level,
+                        job_zone: p.job_zone,
+                        work_values: p.work_values,
+                        riasec_profile: p.riasec_profile
+                    });
+                    profileUsed = true;
+                }
+            } catch (_) { /* fall through to legacy path */ }
+
+            // Fallback: use ONetDataService
+            if (!profileUsed) {
+                const occRes = await onetServiceRef.current.query("Occupation", { keyword: jobTitle });
+                const occupation = Array.isArray(occRes?.data) ? occRes.data[0] : occRes?.data;
+                if (!occupation?.code && !occupation?.soc_code) {
+                    setOnetBenchmark({ status: "no_match" });
+                    setIsOnetLoading(false);
+                    return;
+                }
+                const socCode = occupation.code || occupation.soc_code;
+                const skillRes = await onetServiceRef.current.query("Skill", { socCode });
+                const skills = (skillRes?.data || []).map((item) => ({
+                    name: item.element_name || item.name || "",
+                    value: item.data_value || item.importance?.data_value || item.level?.data_value || 0
+                })).filter((item) => item.name).sort((a, b) => b.value - a.value).slice(0, 12);
+
+                const requirementSet = new Set(requirements.map((r) => r.toLowerCase()));
+                const overlap = skills.filter((s) => requirementSet.has(s.name.toLowerCase()));
+                const overlapScore = skills.length > 0 ? Math.round((overlap.length / skills.length) * 100) : 0;
+                const ghostIndicator = overlapScore < 30 ? "High mismatch with O*NET benchmarks" : "Aligned with O*NET benchmarks";
+
+                setOnetBenchmark({
+                    occupation: occupation.title || occupation.name || jobTitle,
+                    soc_code: socCode,
+                    top_skills: skills,
+                    overlap_score: overlapScore,
+                    ghost_indicator: ghostIndicator
+                });
             }
-            const socCode = occupation.code || occupation.soc_code;
-            const skillRes = await onetServiceRef.current.query("Skill", { socCode });
-            const skills = (skillRes?.data || []).map((item) => ({
-                name: item.element_name || item.name || "",
-                value: item.data_value || item.importance?.data_value || item.level?.data_value || 0
-            })).filter((item) => item.name).sort((a, b) => b.value - a.value).slice(0, 12);
-
-            const requirementSet = new Set(requirements.map((r) => r.toLowerCase()));
-            const overlap = skills.filter((s) => requirementSet.has(s.name.toLowerCase()));
-            const overlapScore = skills.length > 0 ? Math.round((overlap.length / skills.length) * 100) : 0;
-            const ghostIndicator = overlapScore < 30 ? "High mismatch with O*NET benchmarks" : "Aligned with O*NET benchmarks";
-
-            setOnetBenchmark({
-                occupation: occupation.title || occupation.name || jobTitle,
-                soc_code: socCode,
-                top_skills: skills,
-                overlap_score: overlapScore,
-                ghost_indicator: ghostIndicator
-            });
         } catch (e) {
             console.error("O*NET benchmark failed:", e);
             setOnetBenchmark({ status: "error" });
