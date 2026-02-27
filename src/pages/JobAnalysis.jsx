@@ -672,6 +672,30 @@ ${JSON.stringify(structured)}
         setIsAnalyzing(true);
         setError("");
 
+        // ENRICH: Fetch ONetProfile for the role to enhance ghost-job detection
+        let onetProfileData = null;
+        try {
+            const profileRes = await base44.functions.invoke("getONetProfile", { role_title: jobTitle });
+            if (profileRes?.data?.profile) {
+                onetProfileData = profileRes.data.profile;
+            }
+        } catch (e) {
+            console.warn("ONetProfile lookup failed, proceeding without:", e);
+        }
+
+        // Build O*NET context string for Simon's prompt
+        const onetContext = onetProfileData ? `
+O*NET Benchmark Data (SOC: ${onetProfileData.onet_soc_code}):
+- Job Zone: ${onetProfileData.job_zone}/5
+- Education Level: ${onetProfileData.education_level || "N/A"}
+- Top Skills: ${(onetProfileData.skills || []).slice(0, 10).join(", ")}
+- Work Values: ${(onetProfileData.work_values || []).join(", ")}
+- RIASEC Profile: ${(onetProfileData.riasec_profile || []).join(", ")}
+- Work Styles: ${(onetProfileData.work_styles || []).slice(0, 5).join(", ")}
+- Core Tasks: ${(onetProfileData.tasks || []).slice(0, 5).join("; ")}
+- Emerging Tasks: ${(onetProfileData.emerging_tasks || []).slice(0, 3).join("; ")}
+` : "";
+
         // SIMON'S GHOST-JOB DETECTION
         let simonGhostScore = 0;
         let simonRiskLevel = "UNKNOWN";
@@ -683,6 +707,7 @@ ${JSON.stringify(structured)}
 Job Title: ${jobTitle}
 Company: ${companyName}
 Job Description: ${jobDescription}
+${onetContext}
 
 Score breakdown (0-100):
 - JD Quality (30 pts): Structure, completeness, professionalism

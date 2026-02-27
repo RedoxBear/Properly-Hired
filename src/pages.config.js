@@ -1,58 +1,99 @@
 /**
  * pages.config.js - Page routing configuration
+ * 
+ * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
+ * Pages are auto-registered when you create files in the ./pages/ folder.
+ * 
+ * THE ONLY EDITABLE VALUE: mainPage
+ * This controls which page is the landing page (shown when users visit the app).
+ * 
+ * Example file structure:
+ * 
+ *   import HomePage from './pages/HomePage';
+ *   import Dashboard from './pages/Dashboard';
+ *   import Settings from './pages/Settings';
+ *   
+ *   export const PAGES = {
+ *       "HomePage": HomePage,
+ *       "Dashboard": Dashboard,
+ *       "Settings": Settings,
+ *   }
+ *   
+ *   export const pagesConfig = {
+ *       mainPage: "HomePage",
+ *       Pages: PAGES,
+ *   };
+ * 
+ * Example with Layout (wraps all pages):
  *
- * Uses React.lazy() for route-based code splitting.
- * Home and Layout are eagerly loaded (always needed on first visit).
- * All other pages are lazy-loaded on navigation.
+ *   import Home from './pages/Home';
+ *   import Settings from './pages/Settings';
+ *   import __Layout from './Layout.jsx';
+ *
+ *   export const PAGES = {
+ *       "Home": Home,
+ *       "Settings": Settings,
+ *   }
+ *
+ *   export const pagesConfig = {
+ *       mainPage: "Home",
+ *       Pages: PAGES,
+ *       Layout: __Layout,
+ *   };
+ *
+ * To change the main page from HomePage to Dashboard, use find_replace:
+ *   Old: mainPage: "HomePage",
+ *   New: mainPage: "Dashboard",
+ *
+ * The mainPage value must match a key in the PAGES object exactly.
  */
-import { lazy } from 'react';
+import ActivityInsights from './pages/ActivityInsights';
+import AgentFeedbackInsights from './pages/AgentFeedbackInsights';
+import AgentTraining from './pages/AgentTraining';
+import AgentWorkspace from './pages/AgentWorkspace';
+import ApplicationQnA from './pages/ApplicationQnA';
+import ApplicationTracker from './pages/ApplicationTracker';
+import AutofillVault from './pages/AutofillVault';
+import CollaborationDashboard from './pages/CollaborationDashboard';
+import CompanyResearchTool from './pages/CompanyResearchTool';
+import CoverLetter from './pages/CoverLetter';
+import CoverLetters from './pages/CoverLetters';
+import Dashboard from './pages/Dashboard';
+import ExtensionGuide from './pages/ExtensionGuide';
+import ExternalResources from './pages/ExternalResources';
 import Home from './pages/Home';
+import HowTo from './pages/HowTo';
+import JobAnalysis from './pages/JobAnalysis';
+import JobDetails from './pages/JobDetails';
+import JobLibrary from './pages/JobLibrary';
+import JobMatcher from './pages/JobMatcher';
+import JobSummary from './pages/JobSummary';
+import MyNetwork from './pages/MyNetwork';
+import MyResumes from './pages/MyResumes';
+import NetworkingHub from './pages/NetworkingHub';
+import NetworkingMessages from './pages/NetworkingMessages';
+import ONetImport from './pages/ONetImport';
+import OptimizeResume from './pages/OptimizeResume';
+import PeopleSearch from './pages/PeopleSearch';
+import Pricing from './pages/Pricing';
+import QAAssistant from './pages/QAAssistant';
+import RAGMonitor from './pages/RAGMonitor';
+import RecruiterConnect from './pages/RecruiterConnect';
+import ReferralProgram from './pages/ReferralProgram';
+import ResumeBuilder from './pages/ResumeBuilder';
+import ResumeEditor from './pages/ResumeEditor';
+import ResumeHumanizer from './pages/ResumeHumanizer';
+import ResumeOptimizer from './pages/ResumeOptimizer';
+import ResumeQuality from './pages/ResumeQuality';
+import ResumeReview from './pages/ResumeReview';
+import ResumeTemplates from './pages/ResumeTemplates';
+import ResumeViewer from './pages/ResumeViewer';
+import SearchHub from './pages/SearchHub';
+import TransferableSkills from './pages/TransferableSkills';
+import UserProfile from './pages/UserProfile';
+import Users from './pages/Users';
 import __Layout from './Layout.jsx';
 
-const ActivityInsights = lazy(() => import('./pages/ActivityInsights'));
-const AgentFeedbackInsights = lazy(() => import('./pages/AgentFeedbackInsights'));
-const AgentTraining = lazy(() => import('./pages/AgentTraining'));
-const AgentWorkspace = lazy(() => import('./pages/AgentWorkspace'));
-const ApplicationQnA = lazy(() => import('./pages/ApplicationQnA'));
-const ApplicationTracker = lazy(() => import('./pages/ApplicationTracker'));
-const AutofillVault = lazy(() => import('./pages/AutofillVault'));
-const CollaborationDashboard = lazy(() => import('./pages/CollaborationDashboard'));
-const CompanyResearchTool = lazy(() => import('./pages/CompanyResearchTool'));
-const CoverLetter = lazy(() => import('./pages/CoverLetter'));
-const CoverLetters = lazy(() => import('./pages/CoverLetters'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const ExtensionGuide = lazy(() => import('./pages/ExtensionGuide'));
-const ExternalResources = lazy(() => import('./pages/ExternalResources'));
-const HowTo = lazy(() => import('./pages/HowTo'));
-const JobAnalysis = lazy(() => import('./pages/JobAnalysis'));
-const JobDetails = lazy(() => import('./pages/JobDetails'));
-const JobLibrary = lazy(() => import('./pages/JobLibrary'));
-const JobMatcher = lazy(() => import('./pages/JobMatcher'));
-const JobSummary = lazy(() => import('./pages/JobSummary'));
-const MyNetwork = lazy(() => import('./pages/MyNetwork'));
-const MyResumes = lazy(() => import('./pages/MyResumes'));
-const NetworkingHub = lazy(() => import('./pages/NetworkingHub'));
-const NetworkingMessages = lazy(() => import('./pages/NetworkingMessages'));
-const ONetImport = lazy(() => import('./pages/ONetImport'));
-const OptimizeResume = lazy(() => import('./pages/OptimizeResume'));
-const PeopleSearch = lazy(() => import('./pages/PeopleSearch'));
-const Pricing = lazy(() => import('./pages/Pricing'));
-const QAAssistant = lazy(() => import('./pages/QAAssistant'));
-const RAGMonitor = lazy(() => import('./pages/RAGMonitor'));
-const RecruiterConnect = lazy(() => import('./pages/RecruiterConnect'));
-const ReferralProgram = lazy(() => import('./pages/ReferralProgram'));
-const ResumeBuilder = lazy(() => import('./pages/ResumeBuilder'));
-const ResumeEditor = lazy(() => import('./pages/ResumeEditor'));
-const ResumeHumanizer = lazy(() => import('./pages/ResumeHumanizer'));
-const ResumeOptimizer = lazy(() => import('./pages/ResumeOptimizer'));
-const ResumeQuality = lazy(() => import('./pages/ResumeQuality'));
-const ResumeReview = lazy(() => import('./pages/ResumeReview'));
-const ResumeTemplates = lazy(() => import('./pages/ResumeTemplates'));
-const ResumeViewer = lazy(() => import('./pages/ResumeViewer'));
-const SearchHub = lazy(() => import('./pages/SearchHub'));
-const TransferableSkills = lazy(() => import('./pages/TransferableSkills'));
-const UserProfile = lazy(() => import('./pages/UserProfile'));
-const Users = lazy(() => import('./pages/Users'));
 
 export const PAGES = {
     "ActivityInsights": ActivityInsights,
@@ -103,7 +144,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "Dashboard",
     Pages: PAGES,
     Layout: __Layout,
 };
