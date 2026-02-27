@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Printer, Download, Palette, ArrowRight } from "lucide-react";
+
 import Classic from "@/components/resume/templates/Classic";
 import Modern from "@/components/resume/templates/Modern";
 import Minimal from "@/components/resume/templates/Minimal";
