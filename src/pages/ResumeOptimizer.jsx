@@ -776,7 +776,8 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                - Example: "optimization_score": 85 (CORRECT)
                - Example: "optimization_score": "85%" (WRONG)
             2. COUNT your bullets before submitting - verify they match the ${modeLabel} requirements above
-            3. PRESERVE the core meaning of achievements - reframe wording but don't invent new achievements`,
+            3. PRESERVE the core meaning of achievements - reframe wording but don't invent new achievements
+            4. **NO MARKDOWN FORMATTING:** Do NOT use asterisks (*), double asterisks (**), underscores (_), hash symbols (#), or any other markdown formatting in ANY output text. All text must be plain, clean, professional text with no special formatting characters.`,
                 response_json_schema: {
                   type: "object",
                   properties: {
