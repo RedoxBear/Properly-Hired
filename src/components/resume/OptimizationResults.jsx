@@ -32,6 +32,9 @@ export default function OptimizationResults({ results, onReset }) {
         return "from-red-500 to-pink-500";
     };
 
+    // Helper: strip markdown formatting from any string
+    const clean = (s) => cleanResumeText(s);
+
     // NEW: Build formatted text from results for download
     const buildResumeText = () => {
         let text = "";
@@ -42,7 +45,7 @@ export default function OptimizationResults({ results, onReset }) {
             text += `\n${title}\n${'-'.repeat(title.length)}\n`;
             contentLines.forEach((line) => {
                 if (typeof line === "string") {
-                    text += `• ${line}\n`;
+                    text += `- ${clean(line)}\n`;
                 }
             });
             text += '\n'; // Add a newline after each section for separation
