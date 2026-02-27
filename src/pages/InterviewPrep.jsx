@@ -71,6 +71,13 @@ export default function InterviewPrep() {
         job_application_id: appId
       });
       setPrep(result.data?.interview_prep);
+      // Also generate the detailed report
+      if (!prepReportText) {
+        setIsGeneratingReport(true);
+        generateInterviewPrepReport(appId).then(text => {
+          setPrepReportText(text || "");
+        }).catch(console.error).finally(() => setIsGeneratingReport(false));
+      }
     } catch (e) {
       setError("Generation failed. Please try again.");
     } finally {
