@@ -267,7 +267,7 @@ export default function OptimizationResults({ results, onReset }) {
                     </CardHeader>
                     <CardContent>
                         <p className="text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg">
-                            {results.executive_summary}
+                            {clean(results.executive_summary)}
                         </p>
                     </CardContent>
                 </Card>
