@@ -837,11 +837,13 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
         }
 
         if (!useJobMatch && selectedJob) {
+          const existingSummary = selectedJob.summary || {};
           await JobApplication.update(selectedJobId, {
             optimization_score: versions[0].optimization_score,
             master_resume_id: selectedResumeId,
             optimized_resume_id: versions[0].resumeId,
-            application_status: "ready"
+            application_status: "ready",
+            summary: { ...existingSummary, cv_style_resolved: finalCvStyle }
           });
         }
 
@@ -874,6 +876,8 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
       setTailoringSuggestions(null);
       setOptimizedVersions([]);
       setSelectedVersion(0);
+      setResolvedCvStyle(null);
+      setSelectedCvStyle(null);
   };
 
   return (
