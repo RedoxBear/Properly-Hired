@@ -4,7 +4,7 @@ import { Resume } from "@/entities/Resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { base44 } from "@/api/base44Client";
 import { Loader2, Printer, Download, Palette, ArrowRight } from "lucide-react";
 import Classic from "@/components/resume/templates/Classic";
 import Modern from "@/components/resume/templates/Modern";
@@ -160,6 +160,11 @@ export default function ResumeTemplates() {
     resumeData = resume.optimized_content
       ? JSON.parse(resume.optimized_content)
       : (resume.parsed_content ? JSON.parse(resume.parsed_content) : null);
+    // Inject profile photo and skill levels from resume record
+    if (resumeData) {
+      if (resume.profile_photo_url) resumeData.profile_photo = resume.profile_photo_url;
+      if (resume.skill_levels) resumeData.skill_levels = resume.skill_levels;
+    }
   }
 
   // Detect employment gaps of 6+ months (best-effort parsing)
