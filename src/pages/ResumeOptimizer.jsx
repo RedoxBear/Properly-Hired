@@ -970,6 +970,14 @@ Return JSON:
 
                   <ResumeLengthControls value={optimizeMode} onChange={setOptimizeMode} />
 
+                  {/* CV Style Prompt — only shown for senior-level roles */}
+                  {resolvedCvStyle === "both" && (
+                    <CvStylePrompt
+                      onSelect={setSelectedCvStyle}
+                      selectedStyle={selectedCvStyle}
+                    />
+                  )}
+
                   <div className="flex items-center justify-between p-4 bg-slate-100 rounded-lg border border-slate-200">
                     <span className="text-sm font-medium text-slate-700">Aggressive Keyword Matching</span>
                     <Switch checked={aggressiveMatch} onCheckedChange={setAggressiveMatch} />
@@ -981,10 +989,14 @@ Return JSON:
                   </div>
 
                   <div className="flex gap-3">
-                      <Button onClick={() => optimizeResume(false)} disabled={isProcessing} className="flex-1 bg-blue-600 hover:bg-blue-700 h-12">
+                      <Button
+                        onClick={() => optimizeResume(false)}
+                        disabled={isProcessing || (resolvedCvStyle === "both" && !selectedCvStyle)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 h-12"
+                      >
                         {isProcessing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processing...</> : <><Sparkles className="w-5 h-5 mr-2" />Optimize Resume</>}
                       </Button>
-                      <Button onClick={() => optimizeResume(true)} disabled={isProcessing} variant="outline" className="border-purple-600 text-purple-700 h-12">
+                      <Button onClick={() => optimizeResume(true)} disabled={isProcessing || (resolvedCvStyle === "both" && !selectedCvStyle)} variant="outline" className="border-purple-600 text-purple-700 h-12">
                         Generate 3 Versions
                       </Button>
                   </div>
