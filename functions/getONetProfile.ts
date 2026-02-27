@@ -214,40 +214,128 @@ Deno.serve(async (req) => {
 
     if (!resolvedCode && role_title) {
       const normalizedTitle = role_title.trim();
-
-      // Try exact title match first
       const occupations = await db.ONetOccupation.list('title', 1000);
 
+      // Common abbreviations and synonyms for better fuzzy matching
+      const synonyms = {
+        'hr': 'human resources', 'it': 'information technology', 'dev': 'developer',
+        'devops': 'development operations', 'qa': 'quality assurance', 'pm': 'project manager',
+        'vp': 'vice president', 'svp': 'senior vice president', 'cto': 'chief technology',
+        'cfo': 'chief financial', 'ceo': 'chief executive', 'coo': 'chief operating',
+        'ciso': 'chief information security', 'cio': 'chief information',
+        'swe': 'software engineer', 'sde': 'software development engineer',
+        'ux': 'user experience', 'ui': 'user interface', 'ml': 'machine learning',
+        'ai': 'artificial intelligence', 'dba': 'database administrator',
+        'admin': 'administrator', 'mgr': 'manager', 'dir': 'director',
+        'sr': 'senior', 'jr': 'junior', 'eng': 'engineer', 'engr': 'engineer',
+        'ops': 'operations', 'acct': 'account', 'mktg': 'marketing',
+        'fin': 'financial', 'exec': 'executive', 'coord': 'coordinator',
+        'tech': 'technology', 'info': 'information', 'sys': 'systems',
+        'sw': 'software', 'hw': 'hardware', 'net': 'network',
+      };
+
+      // Title-level synonyms (maps common job titles to O*NET standard titles)
+      const titleAliases = {
+        'hr director': 'human resources managers',
+        'hr manager': 'human resources managers',
+        'hr specialist': 'human resources specialists',
+        'regional hr director': 'human resources managers',
+        'senior hr director': 'human resources managers',
+        'director of hr': 'human resources managers',
+        'director of human resources': 'human resources managers',
+        'vp of hr': 'human resources managers',
+        'head of hr': 'human resources managers',
+        'people operations manager': 'human resources managers',
+        'people ops': 'human resources managers',
+        'talent acquisition manager': 'human resources specialists',
+        'recruiting manager': 'human resources specialists',
+        'it manager': 'computer and information systems managers',
+        'it director': 'computer and information systems managers',
+        'engineering manager': 'computer and information systems managers',
+        'software engineering manager': 'computer and information systems managers',
+        'data scientist': 'data scientists',
+        'data analyst': 'data scientists',
+        'web developer': 'web developers',
+        'frontend developer': 'web developers',
+        'backend developer': 'software developers',
+        'fullstack developer': 'software developers',
+        'full stack developer': 'software developers',
+        'devops engineer': 'software developers',
+        'cloud engineer': 'software developers',
+        'qa engineer': 'software quality assurance analysts and testers',
+        'test engineer': 'software quality assurance analysts and testers',
+        'ux designer': 'web and digital interface designers',
+        'ui designer': 'web and digital interface designers',
+        'product manager': 'information technology project managers',
+        'project manager': 'information technology project managers',
+        'scrum master': 'information technology project managers',
+        'business analyst': 'management analysts',
+        'management consultant': 'management analysts',
+        'financial analyst': 'financial and investment analysts',
+        'accountant': 'accountants and auditors',
+        'marketing manager': 'marketing managers',
+        'sales manager': 'sales managers',
+        'operations manager': 'general and operations managers',
+      };
+
       const titleLower = normalizedTitle.toLowerCase();
-      const titleWords = titleLower.split(/\s+/).filter(w => w.length > 2);
 
-      // Score all occupations
-      let bestMatch = null;
-      let bestScore = 0;
-
-      for (const occ of occupations) {
-        const occTitle = (occ.title || '').toLowerCase();
-        let score = 0;
-
-        // Exact match
-        if (occTitle === titleLower) { score += 100; }
-        // Contains match
-        else if (occTitle.includes(titleLower) || titleLower.includes(occTitle)) { score += 15; }
-        // Word overlap
-        for (const word of titleWords) {
-          if (occTitle.includes(word)) score += 3;
-        }
-
-        if (score > bestScore) {
-          bestScore = score;
-          bestMatch = occ;
+      // Step A: Check direct title aliases first
+      const aliasTarget = titleAliases[titleLower];
+      if (aliasTarget) {
+        const match = occupations.find(o => (o.title || '').toLowerCase() === aliasTarget);
+        if (match) {
+          resolvedCode = match.code;
+          resolvedTitle = match.title;
+          matchSource = 'local_alias';
         }
       }
 
-      if (bestMatch && bestScore >= 4) {
-        resolvedCode = bestMatch.code;
-        resolvedTitle = bestMatch.title;
-        matchSource = bestScore >= 100 ? 'local_exact' : 'local_fuzzy';
+      // Step B: Expand abbreviations in search title, then fuzzy match
+      if (!resolvedCode) {
+        const expandedWords = titleLower.split(/\s+/).flatMap(w => {
+          const syn = synonyms[w];
+          return syn ? syn.split(/\s+/) : [w];
+        });
+        const expandedTitle = expandedWords.join(' ');
+        const titleWords = expandedWords.filter(w => w.length > 2);
+        // Strip generic prefix words for matching
+        const stripWords = new Set(['senior', 'junior', 'lead', 'principal', 'staff', 'regional', 'global', 'head', 'chief', 'associate', 'assistant', 'vice', 'president', 'executive', 'deputy']);
+
+        let bestMatch = null;
+        let bestScore = 0;
+
+        for (const occ of occupations) {
+          const occTitle = (occ.title || '').toLowerCase();
+          let score = 0;
+
+          // Exact match (after expansion)
+          if (occTitle === expandedTitle) { score += 100; }
+          // Contains match
+          else if (occTitle.includes(expandedTitle) || expandedTitle.includes(occTitle)) { score += 15; }
+          // Word overlap (excluding generic prefix words)
+          for (const word of titleWords) {
+            if (stripWords.has(word)) continue;
+            if (occTitle.includes(word)) score += 3;
+          }
+          // Bonus: core noun match (last 1-2 significant words)
+          const coreWords = titleWords.filter(w => !stripWords.has(w));
+          if (coreWords.length > 0) {
+            const lastCore = coreWords[coreWords.length - 1];
+            if (occTitle.includes(lastCore)) score += 2;
+          }
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = occ;
+          }
+        }
+
+        if (bestMatch && bestScore >= 4) {
+          resolvedCode = bestMatch.code;
+          resolvedTitle = bestMatch.title;
+          matchSource = bestScore >= 100 ? 'local_exact' : 'local_fuzzy';
+        }
       }
     }
 
