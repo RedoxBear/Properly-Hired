@@ -40,7 +40,11 @@ export default function InterviewPrep() {
     const init = async () => {
       const user = await base44.auth.me();
       setCurrentUser(user);
-      if (!appId || !hasAccess(user, "interview_prep")) {
+      if (!hasAccess(user, "interview_prep")) {
+        setLoading(false);
+        return;
+      }
+      if (!appId) {
         setLoading(false);
         return;
       }
