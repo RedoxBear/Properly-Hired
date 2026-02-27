@@ -239,7 +239,7 @@ export default function AnalysisResultsSection({
             {savedApp.analysis_summary_html ? (
               <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(savedApp.analysis_summary_html) }} />
             ) : (
-              <div className="whitespace-pre-wrap text-sm font-sans text-slate-700 leading-relaxed">
+              <div className="whitespace-pre-wrap text-sm text-slate-700 leading-[1.75]">
                 {savedApp.analysis_summary_md || "No summary available."}
               </div>
             )}
