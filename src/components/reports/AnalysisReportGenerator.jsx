@@ -46,9 +46,20 @@ Role Differences: ${(summary?.role_differences || []).join("; ")}
 Candidate Matches: ${(summary?.candidate_matches || []).join("; ")}
 Interviewer Tips: ${(summary?.interviewer_tips || []).join("; ")}
 
-Generate a DETAILED analysis report in plain text format structured EXACTLY like this:
+Generate a DETAILED analysis report in CLEAN PLAIN TEXT.
 
-# ANALYSIS REPORT: [Job Title] at [Company]
+CRITICAL FORMATTING RULES:
+- Do NOT use markdown syntax: no **, no ##, no ###, no ---, no \`\`\`, no * for emphasis
+- Use UPPERCASE section headers separated by ===== divider lines
+- Use plain text labels like "Score:" instead of "**Score:**"
+- Use numbered lists (1. 2. 3.) and bullet dashes (- item) for list items
+- Write in a clean, professional document style suitable for printing
+
+Structure it EXACTLY like this:
+
+================================================================================
+ANALYSIS REPORT — [Job Title] at [Company]
+================================================================================
 Generated: [current date]
 Seniority Tier: [tier]
 

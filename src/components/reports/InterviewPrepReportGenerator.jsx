@@ -45,63 +45,64 @@ ${resumeSnippet || "Not available"}
 
 ${interviewPrep ? `EXISTING PREP DATA: ${JSON.stringify(interviewPrep).slice(0, 2000)}` : ""}
 
-Generate a DETAILED interview preparation report in plain text structured EXACTLY like this:
+Generate a DETAILED interview preparation report in CLEAN PLAIN TEXT. 
+
+CRITICAL FORMATTING RULES:
+- Do NOT use markdown syntax: no **, no ##, no ###, no ---, no \`\`\`, no * for emphasis
+- Use UPPERCASE section headers separated by ===== divider lines
+- Use plain text labels like "Your Goal:" instead of "**Your Goal:**"
+- Use numbered lists (1. 2. 3.) and lettered sub-items (a. b. c.) instead of bullet markers
+- Use indentation for hierarchy, not markdown symbols
+- Write in a clean, professional document style suitable for printing
+
+Structure the report EXACTLY like this:
 
 ================================================================================
-INTERVIEW PREPARATION - ${job_title} at ${company_name}
+INTERVIEW PREPARATION — ${job_title} at ${company_name}
 ================================================================================
 
 Generated: [current date]
 Role Type: [role classification]
 
 ================================================================================
-BENCHMARKED STRATEGY (Psychology, Strategy, HR)
+BENCHMARKED STRATEGY
 ================================================================================
 
-[2-3 paragraphs of master interview strategy. Include:
-- The candidate's core positioning statement
-- The psychological approach (confidence anchoring, mirroring, strategic vulnerability)
-- How to leverage the company's culture/values]
+[2-3 paragraphs of master interview strategy covering positioning, psychological approach, and company culture leverage]
 
----
+Master Interview Strategy: [Job Title]
 
-### Master Interview Strategy: [Job Title]
-
-**Your Goal:** [1-2 sentence positioning statement]
-
-**Core Narrative:** [2-3 sentences on the story arc to tell]
-
-**Psychological Framework:** [key psychological strategies to employ]
+Your Goal: [1-2 sentence positioning statement]
+Core Narrative: [2-3 sentences on the story arc to tell]
+Psychological Framework: [key psychological strategies to employ]
 
 ================================================================================
-LIKELY INTERVIEW QUESTIONS & BEST ANSWERS
+LIKELY INTERVIEW QUESTIONS AND BEST ANSWERS
 ================================================================================
 
 [Generate 8-12 questions across behavioral, situational, technical, and culture categories]
 
-For each question:
-**Q[N]: "[Question text]"**
+For each question use this format:
+Q[N]: "[Question text]"
 Category: [behavioral/situational/technical/culture]
 Why They Ask: [1-2 sentences]
-Best Answer Strategy: [2-3 sentences with specific guidance referencing the candidate's experience]
+Best Answer Strategy: [2-3 sentences with specific guidance]
 STAR Hook: [specific story anchor]
-
----
 
 ================================================================================
 QUESTIONS TO ASK THE INTERVIEWER
 ================================================================================
 
-### Strategic Questions
+Strategic Questions
 [3-4 questions that position you as a strategic thinker]
 
-### Narrative Questions
+Narrative Questions
 [3-4 questions that demonstrate curiosity about the company story]
 
-### Value-Driving Questions
+Value-Driving Questions
 [3-4 questions showing you're focused on delivering results]
 
-### Insightful Questions
+Insightful Questions
 [3-4 questions showing deep research and understanding]
 
 ================================================================================
@@ -110,7 +111,7 @@ STAR STORY TEMPLATES
 
 [3-4 STAR templates tailored to this role]
 
-**Story [N]: [Scenario Title]**
+Story [N]: [Scenario Title]
 Situation: [specific context]
 Task: [what needed to be done]
 Action: [what the candidate did]
@@ -129,20 +130,13 @@ RIASEC Fit: [description]
 PREPARATION CHECKLIST
 ================================================================================
 
-[10-12 specific, actionable preparation items]
-□ [Item 1]
-□ [Item 2]
-...
+[10-12 specific, actionable preparation items as a numbered list]
 
 ================================================================================
 FINAL COACHING NOTES
 ================================================================================
 
-[2-3 paragraphs of final advice, including:
-- What to wear/bring
-- Energy management tips
-- Key phrases to use/avoid
-- How to close strong]
+[2-3 paragraphs of final advice covering attire, energy management, key phrases, and closing strong]
 
 Be thorough, specific, and reference the candidate's actual experience where possible.`;
 
