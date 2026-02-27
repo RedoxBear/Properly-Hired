@@ -17,6 +17,7 @@ import {
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { cleanResumeText } from "@/components/utils/cleanResumeText";
 
 export default function OptimizationResults({ results, onReset }) {
     const getScoreColor = (score) => {
