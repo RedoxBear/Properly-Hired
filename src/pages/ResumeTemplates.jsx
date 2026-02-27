@@ -412,26 +412,6 @@ ${el.innerHTML}
         {recommendProjectCV && <ProjectBasedCVHint />}
 
         <KyleOptimizeBanner resumeId={selectedResumeId} />
-        {autoRedirectArmed && selectedResumeId && (
-          <Alert className="border-slate-200 bg-white">
-            <AlertDescription className="flex flex-wrap items-center gap-3">
-              <span>Redirecting to Resume Editor in a few seconds...</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (redirectTimerRef.current) {
-                    clearTimeout(redirectTimerRef.current);
-                    redirectTimerRef.current = null;
-                  }
-                  setAutoRedirectArmed(false);
-                }}
-              >
-                Stay here
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
 
         <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader>
