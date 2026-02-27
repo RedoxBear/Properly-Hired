@@ -269,7 +269,7 @@ export default function ResumeTemplates() {
     return <Comp data={resumeData} />;
   };
 
-  // REPLACE: window.print with iframe-based clean printing
+  // iframe-based clean printing that preserves template styles
   const handlePrint = async () => {
     const node = printRef.current;
     if (!node) return;
@@ -285,33 +285,46 @@ export default function ResumeTemplates() {
 
     const doc = iframe.contentDocument || iframe.contentWindow.document;
 
+    // Collect all external stylesheets
     const linkTags = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
       .map(l => `<link rel="stylesheet" href="${l.href}">`)
       .join("");
 
+    // Collect all inline <style> tags from the document (includes Tailwind + component styles)
+    const styleTags = Array.from(document.querySelectorAll('style'))
+      .map(s => `<style>${s.innerHTML}</style>`)
+      .join("");
+
     const html = `
 <!doctype html>
-<html>
+<html class="light">
 <head>
 <meta charset="utf-8" />
 <title>${resume?.version_name || "Resume"}</title>
 ${linkTags}
+${styleTags}
 <style>
-  @page { size: A4; margin: 16mm; }
-  html, body { background: #fff; }
-  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 12mm; }
+  html, body { background: #fff !important; margin: 0; padding: 0; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+  /* Force light mode for printing */
+  .dark { color-scheme: light !important; }
   #printable-resume {
     max-width: 800px;
     margin: 0 auto;
     font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     color: #111827;
   }
+  #printable-resume * { color-scheme: light !important; }
   .page-break { break-after: page; }
+  /* Remove shadows/borders for cleaner print */
+  .shadow, .shadow-lg, .shadow-xl { box-shadow: none !important; }
+  .rounded-xl { border-radius: 0 !important; }
 </style>
 </head>
 <body>
   <div id="printable-resume">
-    ${node.outerHTML}
+    ${node.innerHTML}
   </div>
 </body>
 </html>`.trim();
@@ -320,12 +333,12 @@ ${linkTags}
     doc.write(html);
     doc.close();
 
-    // Give the iframe a tick to load styles/fonts
-    await new Promise(r => setTimeout(r, 150));
+    // Wait longer for styles/fonts to fully load in the iframe
+    await new Promise(r => setTimeout(r, 600));
     iframe.contentWindow.focus();
     iframe.contentWindow.print();
 
-    setTimeout(() => iframe.remove(), 500);
+    setTimeout(() => iframe.remove(), 1000);
   };
 
   const handleDownloadHtml = () => {
