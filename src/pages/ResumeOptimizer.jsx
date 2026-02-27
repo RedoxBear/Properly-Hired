@@ -155,7 +155,19 @@ export default function ResumeOptimizer() {
     const id = qp.get("id");
     if (id && jobApplications.length > 0) {
       const exists = jobApplications.some(j => j.id === id);
-      if (exists) setSelectedJobId(id);
+      if (exists) {
+        setSelectedJobId(id);
+        // Auto-generate analysis report on handoff from Job Analysis
+        const app = jobApplications.find(j => j.id === id);
+        if (app && !app.analysis_report_text) {
+          setIsGeneratingReport(true);
+          generateAnalysisReport(id).then(text => {
+            setAnalysisReportText(text || "");
+          }).catch(console.error).finally(() => setIsGeneratingReport(false));
+        } else if (app?.analysis_report_text) {
+          setAnalysisReportText(app.analysis_report_text);
+        }
+      }
     }
   }, [jobApplications]);
 
