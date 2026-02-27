@@ -343,7 +343,7 @@ export default function InterviewPrep() {
 
           {/* Regenerate */}
           <div className="flex justify-end">
-            <Button variant="outline" onClick={handleGenerate} disabled={generating} size="sm">
+            <Button variant="outline" onClick={handleRegenerate} disabled={generating} size="sm">
               {generating
                 ? <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Regenerating…</>
                 : "Regenerate"}
