@@ -1,7 +1,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Search, Compass } from "lucide-react";
+import { ExternalLink, Search, Compass, ArrowRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { Link } from "react-router-dom";
 
 const SIMON_ACTIONS = [
     { label: "Apply now", icon: ExternalLink, variant: "default" },
@@ -23,7 +24,29 @@ export function isCompanyRoleMatchResponse(text) {
     );
 }
 
-export default function SimonActionChips({ onAction }) {
+/**
+ * Extract company name from Simon's company-role-match response text.
+ */
+export function extractCompanyName(text) {
+    if (!text || typeof text !== "string") return null;
+    // Try to find "Company: X" or "company_name: X" patterns
+    const patterns = [
+        /company:\s*(.+?)(?:\n|\||$)/i,
+        /company signals.*?(?:for|at|about)\s+(.+?)(?:\n|\||$)/i,
+        /role match.*?(?:at|for)\s+(.+?)(?:\n|\||$)/i,
+    ];
+    for (const p of patterns) {
+        const match = text.match(p);
+        if (match?.[1]) return match[1].trim().replace(/[*#]/g, "").trim();
+    }
+    return null;
+}
+
+export default function SimonActionChips({ onAction, companyName }) {
+    const searchHubUrl = companyName
+        ? `${createPageUrl("SearchHub")}?agent=simon&type=company_research&query=${encodeURIComponent(companyName)}`
+        : null;
+
     return (
         <div className="flex flex-wrap gap-2 mt-1">
             {SIMON_ACTIONS.map((action) => (
@@ -38,6 +61,18 @@ export default function SimonActionChips({ onAction }) {
                     {action.label}
                 </Button>
             ))}
+            {searchHubUrl && (
+                <Link to={searchHubUrl}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-3 text-xs gap-1 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                    >
+                        <ArrowRight className="w-3 h-3" />
+                        Open Search Hub Deep Research
+                    </Button>
+                </Link>
+            )}
         </div>
     );
 }
