@@ -47,6 +47,46 @@ const createPageUrl = (path) => {
     return path.startsWith('/') ? path : `/${path}`;
 };
 
+const truncateText = (value, max = 240) => {
+    if (!value) return "";
+    const text = String(value);
+    return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+};
+
+const compactResearchPayload = (research) => {
+    const raw = JSON.stringify(research);
+    if (raw.length <= 3800) return raw;
+
+    const compact = {
+        company_name: research?.company_name || "",
+        generated_at: research?.generated_at,
+        financial_snapshot: research?.financial_snapshot || null,
+        interviewer_map: (research?.interviewer_map || []).slice(0, 4),
+        leadership_style_assessment: research?.leadership_style_assessment || null,
+        culture_sentiment: research?.culture_sentiment || null,
+        firecrawl: {
+            company_culture: truncateText(research?.firecrawl?.company_culture, 280),
+            values: (research?.firecrawl?.values || []).slice(0, 8),
+            open_positions: (research?.firecrawl?.open_positions || []).slice(0, 12)
+        },
+        career_page: {
+            culture_signals: truncateText(research?.career_page?.culture_signals, 280),
+            open_roles: (research?.career_page?.open_roles || []).slice(0, 12),
+            application_links: (research?.career_page?.application_links || []).slice(0, 8)
+        },
+        glassdoor: {
+            review_summary: truncateText(research?.glassdoor?.review_summary, 320),
+            leadership_sentiment: research?.glassdoor?.leadership_sentiment || "",
+            culture_sentiment: research?.glassdoor?.culture_sentiment || ""
+        },
+        github: research?.github || null,
+        brightdata: research?.brightdata || null,
+        payload_truncated: true
+    };
+
+    return JSON.stringify(compact);
+};
+
 export default function JobAnalysis() {
     const [jobUrl, setJobUrl] = React.useState("");
     const [jobDescription, setJobDescription] = React.useState("");
@@ -226,77 +266,242 @@ URL: ${jobUrl}
             const glassdoorUrl = companyName
                 ? `https://www.glassdoor.com/Search/results.htm?keyword=${encodeURIComponent(companyName)}`
                 : "";
-            const firecrawlRes = targetUrl
-                ? await base44.functions.invoke("firecrawlScrape", {
-                    action: "extract",
-                    url: targetUrl,
-                    json_schema: {
-                        type: "object",
-                        properties: {
-                            company_culture: { type: "string" },
-                            values: { type: "array", items: { type: "string" } },
-                            open_positions: { type: "array", items: { type: "string" } }
-                        }
+            const extractWithFirecrawl = async (url, jsonSchema) => {
+                if (!url) return null;
+                try {
+                    const response = await base44.functions.invoke("firecrawlScrape", {
+                        action: "extract",
+                        url,
+                        json_schema: jsonSchema
+                    });
+                    return response?.data?.extracted || response || null;
+                } catch (e) {
+                    console.warn(`Firecrawl extract failed for ${url}:`, e?.message || e);
+                    return null;
+                }
+            };
+
+            const firecrawlData = await extractWithFirecrawl(targetUrl || origin, {
+                type: "object",
+                properties: {
+                    company_culture: { type: "string" },
+                    values: { type: "array", items: { type: "string" } },
+                    open_positions: { type: "array", items: { type: "string" } },
+                    leadership_mentions: { type: "array", items: { type: "string" } },
+                    recruiter_mentions: { type: "array", items: { type: "string" } },
+                    application_links: { type: "array", items: { type: "string" } }
+                }
+            });
+
+            const careerData = await extractWithFirecrawl(careerUrl, {
+                type: "object",
+                properties: {
+                    culture_signals: { type: "string" },
+                    open_roles: { type: "array", items: { type: "string" } },
+                    recruiter_titles: { type: "array", items: { type: "string" } },
+                    hiring_team_signals: { type: "array", items: { type: "string" } },
+                    application_links: { type: "array", items: { type: "string" } }
+                }
+            });
+
+            const leadershipUrls = origin
+                ? [
+                    `${origin}/about`,
+                    `${origin}/about-us`,
+                    `${origin}/team`,
+                    `${origin}/leadership`,
+                    `${origin}/company`
+                ]
+                : [];
+            const leadershipPages = (await Promise.all(
+                leadershipUrls.map((url) => extractWithFirecrawl(url, {
+                    type: "object",
+                    properties: {
+                        leadership_people: { type: "array", items: { type: "string" } },
+                        leadership_roles: { type: "array", items: { type: "string" } },
+                        leadership_style_clues: { type: "string" }
                     }
-                })
-                : null;
+                }))
+            )).filter(Boolean);
 
-            const careerRes = careerUrl
-                ? await base44.functions.invoke("firecrawlScrape", {
-                    action: "extract",
-                    url: careerUrl,
-                    json_schema: {
-                        type: "object",
-                        properties: {
-                            culture_signals: { type: "string" },
-                            open_roles: { type: "array", items: { type: "string" } }
-                        }
+            const glassdoorData = await extractWithFirecrawl(glassdoorUrl, {
+                type: "object",
+                properties: {
+                    review_summary: { type: "string" },
+                    ratings: { type: "array", items: { type: "string" } },
+                    leadership_sentiment: { type: "string" },
+                    culture_sentiment: { type: "string" },
+                    leadership_pros: { type: "array", items: { type: "string" } },
+                    leadership_cons: { type: "array", items: { type: "string" } }
+                }
+            });
+
+            let githubRes = null;
+            try {
+                githubRes = companyName
+                    ? await base44.functions.invoke("githubQuery", {
+                        action: "search_repos",
+                        query: `${companyName} org`,
+                        per_page: 5
+                    })
+                    : null;
+            } catch (e) {
+                console.warn("GitHub company lookup failed:", e?.message || e);
+            }
+
+            let brightDataTrigger = null;
+            let brightDataSnapshot = null;
+            if (origin) {
+                try {
+                    brightDataTrigger = await base44.functions.invoke("brightdataCollect", {
+                        action: "collect_company",
+                        company_url: origin
+                    });
+                    if (brightDataTrigger?.snapshot_id) {
+                        brightDataSnapshot = await base44.functions.invoke("brightdataCollect", {
+                            action: "get_snapshot",
+                            snapshot_id: brightDataTrigger.snapshot_id
+                        });
                     }
-                })
-                : null;
+                } catch (e) {
+                    console.warn("Bright Data company lookup failed:", e?.message || e);
+                }
+            }
 
-            const glassdoorRes = glassdoorUrl
-                ? await base44.functions.invoke("firecrawlScrape", {
-                    action: "extract",
-                    url: glassdoorUrl,
-                    json_schema: {
-                        type: "object",
-                        properties: {
-                            review_summary: { type: "string" },
-                            ratings: { type: "array", items: { type: "string" } }
-                        }
+            let financialSnapshot = null;
+            try {
+                if (companyName) {
+                    const financeResponse = await base44.functions.invoke("queryAlphaVantage", {
+                        action: "company_financials",
+                        companyName,
+                        includeHistory: false
+                    });
+                    financialSnapshot = financeResponse?.snapshot || null;
+                }
+            } catch (e) {
+                console.warn("Alpha Vantage company lookup failed:", e?.message || e);
+            }
+
+            const githubSummary = (() => {
+                const repos = githubRes?.repositories || githubRes?.items || githubRes?.data?.items || [];
+                return repos.length
+                    ? {
+                        total_repos_found: repos.length,
+                        top_repos: repos.slice(0, 5).map((repo) => ({
+                            name: repo.full_name || repo.name || "",
+                            language: repo.language || "",
+                            stars: repo.stargazers_count || repo.stars || 0,
+                            url: repo.html_url || repo.url || ""
+                        }))
                     }
-                })
+                    : null;
+            })();
+
+            const brightDataSummary = brightDataTrigger
+                ? {
+                    snapshot_id: brightDataTrigger.snapshot_id || "",
+                    status: brightDataTrigger.status || "",
+                    has_snapshot_data: Boolean(brightDataSnapshot?.data),
+                    preview: Array.isArray(brightDataSnapshot?.data)
+                        ? brightDataSnapshot.data.slice(0, 2)
+                        : brightDataSnapshot?.data || null
+                }
                 : null;
 
-            const githubRes = companyName
-                ? await base44.functions.invoke("githubQuery", {
-                    action: "search_repos",
-                    query: `${companyName} org`,
-                    per_page: 5
-                })
-                : null;
+            const synthesisPrompt = `
+You are Simon, a recruiting and hiring intelligence analyst.
+Based on the provided research, create:
+1) interviewer_map: likely stakeholders for hiring and interview process
+2) leadership_style_assessment: style label + survive/thrive guidance
+3) culture_sentiment summary
+4) next_steps_for_kyle: concrete interview prep notes
 
-            const brightDataRes = origin
-                ? await base44.functions.invoke("brightdataCollect", {
-                    action: "collect_company",
-                    company_url: origin
-                })
-                : null;
+Rules:
+- Do not fabricate names.
+- If exact people are unknown, use granular role labels (e.g., Senior Recruiter, Hiring Manager for Engineering).
+- Add confidence (0-100) and source references.
+
+Job title context: ${jobTitle || "unknown role"}
+Company: ${companyName || "unknown company"}
+
+Research:
+${JSON.stringify({
+                firecrawl: firecrawlData,
+                career_page: careerData,
+                leadership_pages: leadershipPages,
+                glassdoor: glassdoorData,
+                github: githubSummary,
+                brightdata: brightDataSummary,
+                financial_snapshot: financialSnapshot
+            })}
+            `;
+
+            const synthesis = await InvokeLLM({
+                prompt: synthesisPrompt,
+                add_context_from_internet: true,
+                response_json_schema: {
+                    type: "object",
+                    properties: {
+                        interviewer_map: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    stakeholder_role: { type: "string" },
+                                    likely_person: { type: "string" },
+                                    confidence: { type: "number" },
+                                    reasoning: { type: "string" },
+                                    source: { type: "string" }
+                                }
+                            }
+                        },
+                        leadership_style_assessment: {
+                            type: "object",
+                            properties: {
+                                style_label: { type: "string" },
+                                survive_vs_thrive_signal: { type: "string" },
+                                summary: { type: "string" },
+                                evidence: { type: "array", items: { type: "string" } },
+                                fit_guidance: { type: "string" }
+                            }
+                        },
+                        culture_sentiment: {
+                            type: "object",
+                            properties: {
+                                score: { type: "number" },
+                                positives: { type: "array", items: { type: "string" } },
+                                risks: { type: "array", items: { type: "string" } }
+                            }
+                        },
+                        next_steps_for_kyle: { type: "array", items: { type: "string" } }
+                    }
+                }
+            });
+
+            const interviewerMap = synthesis?.interviewer_map || [];
+            const leadershipStyle = synthesis?.leadership_style_assessment || null;
+            const cultureSentiment = synthesis?.culture_sentiment || null;
+            const kylePrep = synthesis?.next_steps_for_kyle || [];
 
             const structured = {
-                firecrawl: firecrawlRes?.data?.extracted || firecrawlRes || null,
-                career_page: careerRes?.data?.extracted || careerRes || null,
-                glassdoor: glassdoorRes?.data?.extracted || glassdoorRes || null,
-                github: githubRes || null,
-                brightdata: brightDataRes || null,
+                company_name: companyName || "",
+                firecrawl: firecrawlData,
+                career_page: careerData,
+                leadership_pages: leadershipPages,
+                glassdoor: glassdoorData,
+                github: githubSummary,
+                brightdata: brightDataSummary,
+                financial_snapshot: financialSnapshot,
+                interviewer_map: interviewerMap,
+                leadership_style_assessment: leadershipStyle,
+                culture_sentiment: cultureSentiment,
+                kyle_interview_prep: kylePrep,
                 generated_at: new Date().toISOString()
             };
 
             const summaryPrompt = `
-Summarize the following company research in 3-5 concise bullet points.
-Focus on culture, hiring signals, reputation risks, and tech signals.
-
+Summarize this company research in 5 concise bullet points.
+Include: culture/leadership signal, interviewer targeting, financial viability, and candidate fit risk.
 Research:
 ${JSON.stringify(structured)}
             `;
@@ -304,7 +509,27 @@ ${JSON.stringify(structured)}
                 prompt: summaryPrompt,
                 add_context_from_internet: false
             });
-            const summaryText = summaryRes?.response || summaryRes?.content || summaryRes?.text || "";
+            const summaryText = truncateText(summaryRes?.response || summaryRes?.content || summaryRes?.text || "", 580);
+
+            const topInterviewerTargets = interviewerMap
+                .slice(0, 3)
+                .map((item) => {
+                    const person = item?.likely_person && item.likely_person.toLowerCase() !== "unknown"
+                        ? `: ${item.likely_person}`
+                        : "";
+                    const confidence = item?.confidence !== undefined ? ` (${Math.round(item.confidence)}%)` : "";
+                    return `${item?.stakeholder_role || "Hiring stakeholder"}${person}${confidence}`;
+                })
+                .filter(Boolean);
+
+            const financialHighlight = financialSnapshot?.ticker
+                ? `Financial snapshot: ${financialSnapshot.ticker} | Market cap ${financialSnapshot.market_cap || "n/a"}`
+                : "Financial snapshot: no public ticker/limited data";
+
+            const leadershipHighlight = leadershipStyle?.style_label
+                ? `Leadership style: ${leadershipStyle.style_label} (${leadershipStyle.survive_vs_thrive_signal || "unknown"})`
+                : "Leadership style signal: limited data";
+
             setCompanyResearch(structured);
             setCompanyResearchSummary(summaryText);
             if (base44.entities?.CompanyResearch) {
@@ -321,7 +546,7 @@ ${JSON.stringify(structured)}
                     glassdoor_url: glassdoorUrl,
                     related_ids: relatedIds,
                     summary: summaryText,
-                    research_payload: JSON.stringify(structured),
+                    research_payload: compactResearchPayload(structured),
                     created_at: new Date().toISOString(),
                     created_by: currentUser?.email || ""
                 });
@@ -341,9 +566,12 @@ ${JSON.stringify(structured)}
                     to_agent: "simon",
                     summary: `Review company research for ${companyName || "target company"}`,
                     highlights: [
-                        "Assess culture and Glassdoor sentiment",
-                        "Summarize hiring signal and risks",
-                        "Provide recommendation to Kyle"
+                        leadershipHighlight,
+                        financialHighlight,
+                        topInterviewerTargets.length
+                            ? `Interviewer map: ${topInterviewerTargets.join("; ")}`
+                            : "Interviewer map: assign by role (Senior Recruiter, Hiring Manager, Director)",
+                        kylePrep[0] || "Provide recommendation to Kyle on interview strategy"
                     ],
                     priority: "normal",
                     status: "open",
@@ -368,7 +596,7 @@ ${JSON.stringify(structured)}
                     career_page_url: careerUrl,
                     glassdoor_url: glassdoorUrl,
                     summary: summaryText,
-                    research_payload: JSON.stringify(structured),
+                    research_payload: compactResearchPayload(structured),
                     created_at: new Date().toISOString(),
                     created_by: currentUser?.email || ""
                 };

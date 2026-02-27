@@ -33,3 +33,15 @@ export async function queryONet({ endpoint, params } = {}) {
     params
   });
 }
+
+export async function queryAlphaVantage({ action, companyName, symbol, keywords, region, includeHistory, outputsize } = {}) {
+  return base44.functions.invoke('queryAlphaVantage', {
+    action,
+    companyName,
+    symbol,
+    keywords,
+    region,
+    includeHistory,
+    outputsize
+  });
+}

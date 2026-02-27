@@ -9,6 +9,38 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Sparkles, Save } from "lucide-react";
 
+const truncateText = (value, max = 240) => {
+  if (!value) return "";
+  const text = String(value);
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+};
+
+const compactResearchPayload = (research) => {
+  const raw = JSON.stringify(research);
+  if (raw.length <= 3800) return raw;
+
+  const compact = {
+    company_name: research?.company_name || "",
+    generated_at: research?.generated_at || new Date().toISOString(),
+    interviewer_map: (research?.interviewer_map || []).slice(0, 4),
+    leadership_style_assessment: research?.leadership_style_assessment || null,
+    culture_sentiment: research?.culture_sentiment || null,
+    financial_snapshot: research?.financial_snapshot || null,
+    firecrawl: {
+      company_culture: truncateText(research?.firecrawl?.company_culture, 280),
+      values: (research?.firecrawl?.values || []).slice(0, 8),
+      open_positions: (research?.firecrawl?.open_positions || []).slice(0, 12)
+    },
+    career_page: {
+      culture_signals: truncateText(research?.career_page?.culture_signals, 280),
+      open_roles: (research?.career_page?.open_roles || []).slice(0, 12),
+      application_links: (research?.career_page?.application_links || []).slice(0, 8)
+    },
+    payload_truncated: true
+  };
+  return JSON.stringify(compact);
+};
+
 export default function CompanyResearchTool() {
   const [companyName, setCompanyName] = React.useState("");
   const [jobUrl, setJobUrl] = React.useState("");
@@ -28,94 +60,204 @@ export default function CompanyResearchTool() {
       const glassdoorUrl = companyName
         ? `https://www.glassdoor.com/Search/results.htm?keyword=${encodeURIComponent(companyName)}`
         : "";
-
-      const firecrawlRes = origin
-        ? await base44.functions.invoke("firecrawlScrape", {
+      const extractWithFirecrawl = async (url, jsonSchema) => {
+        if (!url) return null;
+        try {
+          const response = await base44.functions.invoke("firecrawlScrape", {
             action: "extract",
-            url: origin,
-            json_schema: {
-              type: "object",
-              properties: {
-                mission: { type: "string" },
-                products: { type: "array", items: { type: "string" } },
-                markets: { type: "array", items: { type: "string" } }
-              }
-            }
-          })
-        : null;
+            url,
+            json_schema: jsonSchema
+          });
+          return response?.data?.extracted || response || null;
+        } catch (e) {
+          console.warn(`Firecrawl extract failed for ${url}:`, e?.message || e);
+          return null;
+        }
+      };
 
-      const careerRes = careerUrl
-        ? await base44.functions.invoke("firecrawlScrape", {
-            action: "extract",
-            url: careerUrl,
-            json_schema: {
-              type: "object",
-              properties: {
-                culture_signals: { type: "string" },
-                open_roles: { type: "array", items: { type: "string" } }
-              }
-            }
-          })
-        : null;
+      const firecrawlData = await extractWithFirecrawl(origin || jobUrl, {
+        type: "object",
+        properties: {
+          company_culture: { type: "string" },
+          values: { type: "array", items: { type: "string" } },
+          open_positions: { type: "array", items: { type: "string" } },
+          leadership_mentions: { type: "array", items: { type: "string" } },
+          recruiter_mentions: { type: "array", items: { type: "string" } }
+        }
+      });
 
-      const glassdoorRes = glassdoorUrl
-        ? await base44.functions.invoke("firecrawlScrape", {
-            action: "extract",
-            url: glassdoorUrl,
-            json_schema: {
-              type: "object",
-              properties: {
-                review_summary: { type: "string" },
-                ratings: { type: "array", items: { type: "string" } }
-              }
-            }
-          })
-        : null;
+      const careerData = await extractWithFirecrawl(careerUrl, {
+        type: "object",
+        properties: {
+          culture_signals: { type: "string" },
+          open_roles: { type: "array", items: { type: "string" } },
+          recruiter_titles: { type: "array", items: { type: "string" } },
+          application_links: { type: "array", items: { type: "string" } }
+        }
+      });
 
-      const githubRes = companyName
-        ? await base44.functions.invoke("githubQuery", {
-            action: "search_repos",
-            query: `${companyName} org`,
-            per_page: 5
-          })
-        : null;
+      const leadershipUrls = origin
+        ? [`${origin}/about`, `${origin}/team`, `${origin}/leadership`, `${origin}/company`]
+        : [];
+      const leadershipPages = (await Promise.all(
+        leadershipUrls.map((url) => extractWithFirecrawl(url, {
+          type: "object",
+          properties: {
+            leadership_people: { type: "array", items: { type: "string" } },
+            leadership_roles: { type: "array", items: { type: "string" } },
+            leadership_style_clues: { type: "string" }
+          }
+        }))
+      )).filter(Boolean);
 
-      const brightDataRes = origin
-        ? await base44.functions.invoke("brightdataCollect", {
+      const glassdoorData = await extractWithFirecrawl(glassdoorUrl, {
+        type: "object",
+        properties: {
+          review_summary: { type: "string" },
+          ratings: { type: "array", items: { type: "string" } },
+          leadership_sentiment: { type: "string" },
+          culture_sentiment: { type: "string" }
+        }
+      });
+
+      let githubRes = null;
+      try {
+        githubRes = companyName
+          ? await base44.functions.invoke("githubQuery", {
+              action: "search_repos",
+              query: `${companyName} org`,
+              per_page: 5
+            })
+          : null;
+      } catch (e) {
+        console.warn("GitHub lookup failed:", e?.message || e);
+      }
+
+      let brightDataTrigger = null;
+      let brightDataSnapshot = null;
+      if (origin) {
+        try {
+          brightDataTrigger = await base44.functions.invoke("brightdataCollect", {
             action: "collect_company",
             company_url: origin
-          })
-        : null;
+          });
+          if (brightDataTrigger?.snapshot_id) {
+            brightDataSnapshot = await base44.functions.invoke("brightdataCollect", {
+              action: "get_snapshot",
+              snapshot_id: brightDataTrigger.snapshot_id
+            });
+          }
+        } catch (e) {
+          console.warn("Bright Data lookup failed:", e?.message || e);
+        }
+      }
 
-      const marketPrompt = `Summarize market insights and financial signals for ${companyName || origin} in 4-6 bullet points. Focus on market size, competitors, funding, and revenue signals if available.`;
-      const newsPrompt = `Provide 3 recent news highlights about ${companyName || origin}. Return bullet points with source and date.`;
+      let financialSnapshot = null;
+      try {
+        if (companyName) {
+          const financeRes = await base44.functions.invoke("queryAlphaVantage", {
+            action: "company_financials",
+            companyName,
+            includeHistory: false
+          });
+          financialSnapshot = financeRes?.snapshot || null;
+        }
+      } catch (e) {
+        console.warn("Alpha Vantage lookup failed:", e?.message || e);
+      }
 
-      const [marketRes, newsRes] = await Promise.all([
-        InvokeLLM({ prompt: marketPrompt, add_context_from_internet: true }),
-        InvokeLLM({ prompt: newsPrompt, add_context_from_internet: true })
-      ]);
+      const synthesis = await InvokeLLM({
+        prompt: `
+You are Simon, a recruiting intelligence analyst.
+Generate:
+- interviewer_map (role/possible person/confidence/source)
+- leadership_style_assessment (style label + survive_vs_thrive_signal + fit guidance)
+- culture_sentiment (positives and risks)
+- next_steps_for_kyle (3 concrete interview prep points)
+
+Rules:
+- Do not fabricate names.
+- Prefer specific person names only when explicitly supported by source.
+- Otherwise use granular role labels (Senior Recruiter, Hiring Manager for Engineering, etc.).
+
+Research:
+${JSON.stringify({
+          company_name: companyName,
+          firecrawl: firecrawlData,
+          career_page: careerData,
+          leadership_pages: leadershipPages,
+          glassdoor: glassdoorData,
+          github: githubRes,
+          brightdata: brightDataTrigger,
+          brightdata_snapshot: brightDataSnapshot?.data || null,
+          financial_snapshot: financialSnapshot
+        })}
+        `,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            interviewer_map: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  stakeholder_role: { type: "string" },
+                  likely_person: { type: "string" },
+                  confidence: { type: "number" },
+                  reasoning: { type: "string" },
+                  source: { type: "string" }
+                }
+              }
+            },
+            leadership_style_assessment: {
+              type: "object",
+              properties: {
+                style_label: { type: "string" },
+                survive_vs_thrive_signal: { type: "string" },
+                summary: { type: "string" },
+                fit_guidance: { type: "string" }
+              }
+            },
+            culture_sentiment: {
+              type: "object",
+              properties: {
+                positives: { type: "array", items: { type: "string" } },
+                risks: { type: "array", items: { type: "string" } }
+              }
+            },
+            next_steps_for_kyle: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
 
       const structured = {
         company_name: companyName,
         job_url: jobUrl,
         company_site: origin,
-        career_page: careerRes?.data?.extracted || careerRes || null,
-        glassdoor: glassdoorRes?.data?.extracted || glassdoorRes || null,
-        firecrawl: firecrawlRes?.data?.extracted || firecrawlRes || null,
-        github: githubRes || null,
-        brightdata: brightDataRes || null,
-        market_insights: marketRes?.response || marketRes?.content || "",
-        company_news: newsRes?.response || newsRes?.content || "",
+        firecrawl: firecrawlData,
+        career_page: careerData,
+        leadership_pages: leadershipPages,
+        glassdoor: glassdoorData,
+        github: githubRes,
+        brightdata: brightDataTrigger,
+        brightdata_snapshot: Array.isArray(brightDataSnapshot?.data)
+          ? brightDataSnapshot.data.slice(0, 2)
+          : brightDataSnapshot?.data || null,
+        financial_snapshot: financialSnapshot,
+        interviewer_map: synthesis?.interviewer_map || [],
+        leadership_style_assessment: synthesis?.leadership_style_assessment || null,
+        culture_sentiment: synthesis?.culture_sentiment || null,
+        next_steps_for_kyle: synthesis?.next_steps_for_kyle || [],
         generated_at: new Date().toISOString()
       };
 
-      const summaryPrompt = `Summarize this company research in 3-5 concise bullets. Focus on culture, hiring signals, market position, and risk.`;
       const summaryRes = await InvokeLLM({
-        prompt: `${summaryPrompt}\n\nResearch:\n${JSON.stringify(structured)}`,
+        prompt: `Summarize this company research in 5 concise bullets for job-seeker decision-making. Include leadership style, likely interview stakeholders, and financial viability.\n\nResearch:\n${JSON.stringify(structured)}`,
         add_context_from_internet: false
       });
 
-      const summaryText = summaryRes?.response || summaryRes?.content || "";
+      const summaryText = truncateText(summaryRes?.response || summaryRes?.content || "", 580);
       setSummary(summaryText);
       setPayload(structured);
 
@@ -126,7 +268,7 @@ export default function CompanyResearchTool() {
           career_page_url: careerUrl,
           glassdoor_url: glassdoorUrl,
           summary: summaryText,
-          research_payload: JSON.stringify(structured),
+          research_payload: compactResearchPayload(structured),
           created_at: new Date().toISOString(),
           created_by: "system"
         });
@@ -138,7 +280,7 @@ export default function CompanyResearchTool() {
           company_name: companyName || "",
           job_url: jobUrl || "",
           summary: summaryText,
-          research_payload: JSON.stringify(structured),
+          research_payload: compactResearchPayload(structured),
           created_at: new Date().toISOString(),
           created_by: "system"
         });
