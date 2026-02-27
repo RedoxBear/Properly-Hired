@@ -588,6 +588,10 @@ Return JSON:
 
     const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
 
+    // Determine CV style(s) to generate
+    const finalCvStyle = selectedCvStyle || resolvedCvStyle || "chronological";
+    const stylesToGenerate = finalCvStyle === "both" ? ["chronological", "achievement"] : [finalCvStyle];
+
     // Define STRICT constraints based on mode - MUST BE ENFORCED
     const constraints = optimizeMode === "ats_one_page"
         ? `**ATS 1-PAGE MODE - STRICT CONSTRAINTS:**
@@ -649,10 +653,24 @@ Return JSON:
 - Current Bullets: ${(job.achievements || []).map((b, i) => `\n  ${i + 1}. ${b}`).join('')}
 `).join('\n');
 
+        for (const cvStyle of stylesToGenerate) {
+          const cvStyleInstruction = cvStyle === "achievement"
+            ? `\n**CV FORMAT: ACHIEVEMENT-BASED**
+- Lead each role with a "Key Achievements" sub-section listing 3-5 quantified impact statements FIRST.
+- Follow with a brief "Responsibilities" section only when essential context is needed.
+- Order bullets by impact magnitude, not chronology.
+- Use bold metrics: "$X revenue", "Y% improvement", "Z team members".
+- The reader should grasp the candidate's value in the first 3 seconds per role.\n`
+            : `\n**CV FORMAT: CHRONOLOGICAL**
+- Standard reverse-chronological format.
+- Each role lists bullets in natural time-order, blending responsibilities with achievements.
+- ATS-optimized with clear section headers.\n`;
+
         for (let i = 0; i < numVersions; i++) {
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
-                prompt: `You are a strict, objective Resume Auditor and Career Coach. Your goal is to optimize this resume for the specific Job Description (JD) provided, adhering to strict TRUTHFULNESS and STRATEGIC REFRAMING principles.
+                prompt: `You are a strict, objective Resume Auditor and Career Coach.
+${cvStyleInstruction} Your goal is to optimize this resume for the specific Job Description (JD) provided, adhering to strict TRUTHFULNESS and STRATEGIC REFRAMING principles.
 
             **PART 1: CRITICAL TRUTHFULNESS RULES**
             1. **NO FABRICATION:** Do NOT invent roles, companies, titles, skills, or achievements not present in the original resume.
@@ -792,9 +810,10 @@ Return JSON:
               { retries: 3, baseDelay: 1200 }
             );
 
+            const styleSuffix = stylesToGenerate.length > 1 ? ` — ${cvStyle.charAt(0).toUpperCase() + cvStyle.slice(1)}` : "";
             const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
             const newVersion = await Resume.create({
-              version_name: `${jobData.job_title} — ${jobData.company_name} — ${modeLabel}${versionSuffix}`,
+              version_name: `${jobData.job_title} — ${jobData.company_name} — ${modeLabel}${styleSuffix}${versionSuffix}`,
               original_file_url: selectedResume.original_file_url,
               parsed_content: selectedResume.parsed_content,
               optimized_content: JSON.stringify(response.optimized_resume_content),
@@ -806,9 +825,11 @@ Return JSON:
                 ...response,
                 resumeId: newVersion.id,
                 jobTitle: jobData.job_title,
-                companyName: jobData.company_name
+                companyName: jobData.company_name,
+                cvStyle
             });
         }
+        } // end stylesToGenerate loop
 
         if (generateMultiple) {
             setOptimizedVersions(versions);
