@@ -904,6 +904,22 @@ function AgentChatComponent({ agentName, agentTitle, context = {}, autoOpen = fa
         }
     }, [agentName, buildContextPack, conversation?.id]);
 
+    // Detect if last Simon response is a Company Role Match
+    const showSimonActions = useMemo(() => {
+        if (agentName !== "simon" || !lastAssistant?.contentText) return false;
+        return isCompanyRoleMatchResponse(lastAssistant.contentText);
+    }, [agentName, lastAssistant]);
+
+    const handleSimonAction = useCallback((actionLabel) => {
+        if (actionLabel === "Apply now") {
+            sendMessageWithContent("Apply now — please guide me to the application with the role link context.");
+        } else if (actionLabel === "Research deeper") {
+            sendMessageWithContent("Research deeper — I'd like to verify culture, risk signals, and hiring trends for this company.");
+        } else if (actionLabel === "Keep exploring") {
+            sendMessageWithContent("Keep exploring — show me more companies or roles that could be a good fit.");
+        }
+    }, [sendMessageWithContent]);
+
     // Get agent config for styling
     const agentConfig = AGENT_CONFIG[agentName] || AGENT_CONFIG.build;
 
