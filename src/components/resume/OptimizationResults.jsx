@@ -57,11 +57,11 @@ export default function OptimizationResults({ results, onReset }) {
             // Personal Info
             if (optimized.personal_info) {
                 const pi = optimized.personal_info;
-                if (pi.name) text += `${pi.name}\n`;
+                if (pi.name) text += `${clean(pi.name)}\n`;
                 const contactInfo = [];
                 if (pi.email) contactInfo.push(pi.email);
                 if (pi.phone) contactInfo.push(pi.phone);
-                if (pi.location) contactInfo.push(pi.location);
+                if (pi.location) contactInfo.push(clean(pi.location));
                 if (pi.linkedin) contactInfo.push(pi.linkedin);
                 if (pi.portfolio) contactInfo.push(pi.portfolio);
                 if (contactInfo.length > 0) {
@@ -71,9 +71,9 @@ export default function OptimizationResults({ results, onReset }) {
 
             // Executive Summary (preferred) or Summary
             if (optimized.executive_summary) {
-                addSectionToText("Executive Summary", [optimized.executive_summary]);
+                addSectionToText("Executive Summary", [clean(optimized.executive_summary)]);
             } else if (optimized.summary) {
-                addSectionToText("Summary", [optimized.summary]);
+                addSectionToText("Summary", [clean(optimized.summary)]);
             }
             // Note: If optimized.professional_summary is still needed here, it would be an 'else if' after optimized.summary.
             // Based on the outline, executive_summary and summary are the prioritized fields within optimized_resume_content.
