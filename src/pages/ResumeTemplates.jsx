@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Resume } from "@/entities/Resume";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { base44 } from "@/api/base44Client";
 import { Loader2, Printer, Download, Palette, ArrowRight } from "lucide-react";
 import Classic from "@/components/resume/templates/Classic";
 import Modern from "@/components/resume/templates/Modern";
@@ -59,7 +57,7 @@ export default function ResumeTemplates() {
         if (hasAccess(user, "resume_templates")) {
           const urlParams = new URLSearchParams(window.location.search);
           const rid = urlParams.get("resumeId") || "";
-          const list = await Resume.list("-created_date", 50);
+          const list = await base44.entities.Resume.list("-created_date", 50);
           setResumes(list);
           if (rid) setSelectedResumeId(rid);
           else if (list.length) setSelectedResumeId(list[0].id);
@@ -375,7 +373,7 @@ ${el.innerHTML}
     setTemplate(slug);
     setAppliedNote("");
     if (selectedResumeId) {
-      await Resume.update(selectedResumeId, { template: slug });
+      await base44.entities.Resume.update(selectedResumeId, { template: slug });
       setAppliedNote("Template applied to this resume.");
       // Smooth scroll to preview
       const el = document.getElementById("print-area");
