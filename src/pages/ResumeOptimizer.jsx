@@ -169,6 +169,14 @@ export default function ResumeOptimizer() {
         } else if (app?.analysis_report_text) {
           setAnalysisReportText(app.analysis_report_text);
         }
+
+        // Auto-generate interview prep data + report on handoff
+        if (app && !app.summary?.interview_prep) {
+          generateInterviewPrep({ action: "generate", job_application_id: id }).catch(console.error);
+        }
+        if (app && !app.interview_prep_report_text) {
+          generateInterviewPrepReport(id).catch(console.error);
+        }
       }
     }
   }, [jobApplications]);
