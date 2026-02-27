@@ -8,11 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { hasAccess } from "@/components/utils/accessControl";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, FileText, Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+import SimonIntelBrief from "@/components/jobsummary/SimonIntelBrief";
+import KyleDecisionContext from "@/components/jobsummary/KyleDecisionContext";
 
 export default function JobSummary() {
   const [app, setApp] = React.useState(null);
   const [currentUser, setCurrentUser] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const qp = new URLSearchParams(window.location.search);
@@ -20,23 +23,56 @@ export default function JobSummary() {
     (async () => {
       try { setCurrentUser(await base44.auth.me()); } catch (_) {}
       if (id) setApp(await JobApplication.get(id));
+      setLoading(false);
     })();
   }, []);
 
-  if (!app) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+      </div>
+    );
+  }
+
+  if (!app) return (
+    <div className="min-h-screen flex items-center justify-center text-slate-500">
+      Application not found.
+    </div>
+  );
 
   const S = app.summary || {};
+  const llm = app.llm_analysis_result || {};
+  const simonBrief = S.simon_brief || null;
+
   const List = ({ items }) => items && items.length ? (
     <ul className="list-disc pl-5 space-y-1">
-      {items.map((i, idx) => <li key={idx}>{i}</li>)}
+      {items.map((i, idx) => <li key={idx} className="text-slate-700">{i}</li>)}
     </ul>
   ) : <div className="text-slate-500 text-sm">No data yet.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 space-y-4">
+    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">{app.job_title} @ {app.company_name}</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Analyzed {app.last_analysis_at ? new Date(app.last_analysis_at).toLocaleDateString() : "—"}
+          </p>
+        </div>
+        <Link to={createPageUrl("ApplicationTracker")}>
+          <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4 mr-1" /> Back to Tracker</Button>
+        </Link>
+      </div>
+
+      {/* Analysis Summary (top card) */}
       <Card className="bg-white/90 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>{app.job_title} @ {app.company_name}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            Analysis Summary
+          </CardTitle>
         </CardHeader>
         <CardContent className="prose max-w-none">
           {app.analysis_summary_html ? (
@@ -47,14 +83,34 @@ export default function JobSummary() {
         </CardContent>
       </Card>
 
-      {/* NEW: Structured Summary Sections */}
+      {/* === SIMON'S INTELLIGENCE SECTION === */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
+          💼 Simon's Intelligence Report
+        </h2>
+        <SimonIntelBrief brief={simonBrief} llmResult={llm} />
+      </div>
+
+      {/* === KYLE'S DECISION CONTEXT === */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
+          🎯 Kyle's Decision Context
+        </h2>
+        <KyleDecisionContext 
+          llmResult={llm} 
+          optimizationScore={app.optimization_score}
+          aiLikelihood={app.ai_generated_likelihood}
+        />
+      </div>
+
+      {/* === STRUCTURED SUMMARY SECTIONS === */}
       <div className="grid md:grid-cols-2 gap-4">
         <Card className="bg-white/90 backdrop-blur-sm">
           <CardHeader><CardTitle>ATS Keywords</CardTitle></CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             {(S.ats_keywords || []).length ? (
-              (S.ats_keywords || []).map((k, i) => (
-                <span key={i} className="text-xs px-2 py-1 rounded-full border">{k}</span>
+              S.ats_keywords.map((k, i) => (
+                <span key={i} className="text-xs px-2 py-1 rounded-full border bg-blue-50 text-blue-800 border-blue-200">{k}</span>
               ))
             ) : (
               <div className="text-slate-500 text-sm">No keywords found.</div>
@@ -67,12 +123,16 @@ export default function JobSummary() {
           <CardContent className="space-y-2">
             <p className="text-slate-700">{S.company_overview || "Overview not available yet."}</p>
             {S.research_snapshot && (
-              <div className="text-sm text-slate-600">
-                {S.research_snapshot.website && <>Website: {S.research_snapshot.website}<br/></>}
-                {S.research_snapshot.industry && <>Industry: {S.research_snapshot.industry}<br/></>}
-                {S.research_snapshot.size && <>Size: {S.research_snapshot.size}<br/></>}
-                {S.research_snapshot.headquarters && <>HQ: {S.research_snapshot.headquarters}<br/></>}
-                {S.research_snapshot.founded && <>Founded: {S.research_snapshot.founded}</>}
+              <div className="text-sm text-slate-600 space-y-0.5">
+                {S.research_snapshot.website && <div>Website: <a href={S.research_snapshot.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{S.research_snapshot.website}</a></div>}
+                {S.research_snapshot.industry && <div>Industry: {S.research_snapshot.industry}</div>}
+                {S.research_snapshot.size && <div>Size: {S.research_snapshot.size}</div>}
+                {S.research_snapshot.headquarters && <div>HQ: {S.research_snapshot.headquarters}</div>}
+                {S.research_snapshot.founded && <div>Founded: {S.research_snapshot.founded}</div>}
+                {S.research_snapshot.viability && <div>Viability: {S.research_snapshot.viability}</div>}
+                {S.research_snapshot.trigger && <div>Hiring Trigger: {S.research_snapshot.trigger}</div>}
+                {S.research_snapshot.dna && <div>Company DNA: {S.research_snapshot.dna}</div>}
+                {S.research_snapshot.hook && <div>Personalization Hook: {S.research_snapshot.hook}</div>}
               </div>
             )}
           </CardContent>
@@ -97,65 +157,21 @@ export default function JobSummary() {
             <List items={S.candidate_matches} />
           </CardContent>
         </Card>
-
-        <Card className="bg-white/90 backdrop-blur-sm md:col-span-2">
-          <CardHeader><CardTitle>Interview Prep: Likely Questions & Interactions</CardTitle></CardHeader>
-          <CardContent><List items={S.interviewer_tips} /></CardContent>
-        </Card>
       </div>
 
-      {/* Simon → Kyle CTA */}
-      {S.simon_brief && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <p className="font-semibold text-blue-900">Simon's brief is ready for Kyle</p>
-            <p className="text-sm text-blue-700">
-              Strategy: {S.simon_brief.strategy_for_kyle?.approach || "Available"} ·
-              Tone: {S.simon_brief.strategy_for_kyle?.tone || "N/A"}
-            </p>
-          </div>
-          <Link to={createPageUrl(`ResumeOptimizer?id=${app.id}`)}>
-            <Button>Optimize Resume →</Button>
-          </Link>
-        </div>
-      )}
-
-      {/* Handover Brief (Premium) */}
-      {hasAccess(currentUser, "interview_prep") && S.simon_brief && (
-        <Card className="border-purple-200 bg-purple-50/50">
-          <CardHeader>
-            <CardTitle className="text-purple-900 text-base flex items-center gap-2">
-              Simon → Kyle Handover Brief
-              <Badge className="bg-purple-100 text-purple-700">Premium</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-1 text-sm">
-            {S.simon_brief.ghost_job_score !== undefined && (
-              <p><span className="font-medium">Ghost Score:</span>{" "}
-                {S.simon_brief.ghost_job_score}/100 · {S.simon_brief.risk_level}
-              </p>
-            )}
-            {S.simon_brief.strategy_for_kyle?.must_win_priorities && (
-              <p><span className="font-medium">Must-Win Keywords:</span>{" "}
-                {S.simon_brief.strategy_for_kyle.must_win_priorities.join(", ")}
-              </p>
-            )}
-            {S.simon_brief.strategy_for_kyle?.tone && (
-              <p><span className="font-medium">Tone:</span>{" "}
-                {S.simon_brief.strategy_for_kyle.tone}
-              </p>
-            )}
-            {S.simon_brief.overall_recommendation?.decision && (
-              <p><span className="font-medium">Recommendation:</span>{" "}
-                {S.simon_brief.overall_recommendation.decision}
-              </p>
-            )}
+      {/* Notes */}
+      {S.notes && (
+        <Card className="bg-white/90 backdrop-blur-sm">
+          <CardHeader><CardTitle>Notes</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-slate-700 whitespace-pre-wrap">{S.notes}</p>
           </CardContent>
         </Card>
       )}
 
+      {/* Action Buttons */}
       <div className="flex gap-2 flex-wrap">
-        <Link to={createPageUrl(`OptimizeResume?id=${app.id}`)}><Button>Optimize Resume</Button></Link>
+        <Link to={createPageUrl(`ResumeOptimizer?id=${app.id}`)}><Button>Optimize Resume</Button></Link>
         <Link to={createPageUrl(`CoverLetter?id=${app.id}`)}><Button variant="outline">Cover Letter</Button></Link>
         <Link to={createPageUrl(`InterviewPrep?id=${app.id}`)}>
           <Button variant="outline" className="text-purple-600 border-purple-300 hover:bg-purple-50">
@@ -163,7 +179,7 @@ export default function JobSummary() {
             Interview Prep
           </Button>
         </Link>
-        <Link to={createPageUrl("Dashboard")}><Button variant="ghost">Back to Dashboard</Button></Link>
+        <Link to={createPageUrl("ApplicationTracker")}><Button variant="ghost">Back to Tracker</Button></Link>
       </div>
     </div>
   );

@@ -63,6 +63,7 @@ import ExtensionGuide from './pages/ExtensionGuide';
 import ExternalResources from './pages/ExternalResources';
 import Home from './pages/Home';
 import HowTo from './pages/HowTo';
+import InterviewPrep from './pages/InterviewPrep';
 import JobAnalysis from './pages/JobAnalysis';
 import JobDetails from './pages/JobDetails';
 import JobLibrary from './pages/JobLibrary';
@@ -92,7 +93,6 @@ import SearchHub from './pages/SearchHub';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
-import InterviewPrep from './pages/InterviewPrep';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +113,7 @@ export const PAGES = {
     "ExternalResources": ExternalResources,
     "Home": Home,
     "HowTo": HowTo,
+    "InterviewPrep": InterviewPrep,
     "JobAnalysis": JobAnalysis,
     "JobDetails": JobDetails,
     "JobLibrary": JobLibrary,
@@ -142,7 +143,6 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
-    "InterviewPrep": InterviewPrep,
 }
 
 export const pagesConfig = {
