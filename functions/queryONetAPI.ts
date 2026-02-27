@@ -36,6 +36,42 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Invalid O*NET API endpoint' }, { status: 400 });
         }
 
+        // ── Try local ONetProfile first for occupation detail queries ──
+        if (/^online\/occupations\/[\w.-]+$/.test(cleanEndpoint)) {
+            const socCode = cleanEndpoint.match(/[\d]{2}-[\d]{4}\.[\d]{2}/)?.[0];
+            if (socCode) {
+                try {
+                    const results = await base44.asServiceRole.entities.ONetProfile.filter(
+                        { onet_soc_code: socCode }, '-created_date', 1
+                    );
+                    if (results && results.length > 0) {
+                        const p = results[0];
+                        return Response.json({
+                            code: p.onet_soc_code,
+                            title: p.title,
+                            description: p.description,
+                            job_zone: p.job_zone,
+                            education_level: p.education_level,
+                            skills: p.skills,
+                            knowledge: p.knowledge,
+                            abilities: p.abilities,
+                            work_activities: p.work_activities,
+                            work_values: p.work_values,
+                            work_styles: p.work_styles,
+                            riasec_profile: p.riasec_profile,
+                            tasks: p.tasks,
+                            emerging_tasks: p.emerging_tasks,
+                            tech: p.tech,
+                            related_socs: p.related_socs,
+                            alternate_titles: p.alternate_titles,
+                            source: "local",
+                        });
+                    }
+                } catch (_) { /* fall through to live API */ }
+            }
+        }
+
+        // ── Fall through: live O*NET API ──
         const baseUrl = 'https://api-v2.onetcenter.org';
         const url = new URL(`${baseUrl}/${cleanEndpoint}`);
 

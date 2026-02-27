@@ -211,6 +211,56 @@ function mapScalesRef(row) {
   };
 }
 
+// Typed mapper for scored elements (Interests, Work_Styles, Work_Values)
+function mapScoredElement(refType) {
+  const SKIP_SUFFIXES = ["High-Point"];
+  return (row) => {
+    const name = (row["Element Name"] || "").trim();
+    if (!name || SKIP_SUFFIXES.some(s => name.includes(s))) return null;
+    const val = parseFloat(row["Data Value"]) || 0;
+    return {
+      reference_type: refType,
+      reference_key: `${refType}::${row["O*NET-SOC Code"]}::${name}`,
+      reference_name: name,
+      version: "30.1",
+      import_date: new Date().toISOString(),
+      status: "completed",
+      notes: refType,
+      metadata: {
+        onet_soc_code: row["O*NET-SOC Code"] || "",
+        occupation_title: row["Title"] || "",
+        element_name: name,
+        data_value: val,
+        scale_id: row["Scale ID"] || "",
+      },
+    };
+  };
+}
+
+// Typed mapper for Education — only Required Level of Education (2.D.1 / RL scale)
+function mapEducation(row) {
+  if ((row["Element ID"] || "").trim() !== "2.D.1") return null;
+  if ((row["Scale ID"] || "").trim() !== "RL") return null;
+  const cat = parseInt(row["Category"]) || 0;
+  const val = parseFloat(row["Data Value"]) || 0;
+  if (!cat) return null;
+  return {
+    reference_type: "Education_Training",
+    reference_key: `Education::${row["O*NET-SOC Code"]}::cat${cat}`,
+    reference_name: `Category ${cat}`,
+    version: "30.1",
+    import_date: new Date().toISOString(),
+    status: "completed",
+    notes: "Education_Training",
+    metadata: {
+      onet_soc_code: row["O*NET-SOC Code"] || "",
+      occupation_title: row["Title"] || "",
+      education_category: cat,
+      data_value: val,
+    },
+  };
+}
+
 function mapGenericRef(refType) {
   return (row) => {
     const cols = Object.keys(row);
