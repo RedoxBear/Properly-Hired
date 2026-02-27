@@ -115,10 +115,10 @@ function AppShell({ children, currentPageName }) {
             items: [
                 { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis", badge: "Pro" },
                 { title: "App Tracker", url: createPageUrl("ApplicationTracker"), icon: Briefcase, description: "Track all your applications", badge: "Pro" },
+                { title: "Interview Prep", url: createPageUrl("InterviewPrep"), icon: MessageCircleQuestion, description: "AI interview strategy", badge: "Pro" },
                 { title: "Autofill Vault", url: createPageUrl("AutofillVault"), icon: Boxes, description: "Keep answers.", badge: "Pro" },
                 { title: "Transferable Skills", url: createPageUrl("TransferableSkills"), icon: ArrowRightLeft, description: "Identify & Retarget Skills", badge: "Pro" },
                 { title: "Application Q&A", url: createPageUrl("ApplicationQnA"), icon: MessageCircleQuestion, description: "Prepare portal answers", badge: "Pro" },
-                { title: "Interview Prep", url: createPageUrl("InterviewPrep"), icon: MessageCircleQuestion, description: "AI interview strategy", badge: "Pro" },
                 { title: "Resume Templates", url: createPageUrl("ResumeTemplates"), icon: Palette, description: "Choose & Print Templates", badge: "Pro" },
                 { title: "Insights", url: createPageUrl("ActivityInsights"), icon: TrendingUp, description: "Activity & Timing Insights", badge: "Pro" },
                 { title: "Networking Hub", url: createPageUrl("NetworkingHub"), icon: Users, description: "Professional Networking", badge: "Pro" },
