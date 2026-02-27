@@ -886,7 +886,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
 
             await JobApplication.update(savedApplication.id, {
                 analysis_summary_md: summaryMD || null,
-                analysis_summary_html: null, // HTML version could be generated on demand if needed
+                analysis_summary_html: null,
                 last_analysis_at: new Date().toISOString(),
                 summary: {
                     ats_keywords,
@@ -909,7 +909,44 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                         trigger: research.trigger,
                         dna: research.dna,
                         hook: research.hook
-                    } : undefined
+                    } : undefined,
+                    simon_brief: {
+                        ghost_job_score: simonGhostScore,
+                        risk_level: simonRiskLevel,
+                        role_classification: simonRoleClassification,
+                        agency_detection: simonAgencyDetection,
+                        onet_benchmark: onetProfileData ? {
+                            occupation: onetProfileData.title || jobTitle,
+                            soc_code: onetProfileData.onet_soc_code,
+                            overlap_score: null,
+                            ghost_indicator: null,
+                            education_level: onetProfileData.education_level,
+                            job_zone: onetProfileData.job_zone,
+                            work_values: onetProfileData.work_values || [],
+                            riasec_profile: onetProfileData.riasec_profile || [],
+                            top_skills: (onetProfileData.skills || []).slice(0, 12)
+                        } : undefined,
+                        strategy_for_kyle: {
+                            approach: simonRiskLevel === "HIGH" || simonRiskLevel === "VERY_HIGH"
+                                ? "Proceed with caution — ghost-job risk detected"
+                                : simonAgencyDetection.is_recruitment_agency
+                                    ? "Agency posting — tailor for recruiter relationship"
+                                    : "Standard direct-employer approach",
+                            tone: simonRoleClassification.tier || "Professional",
+                            must_win_priorities: (response.important_keywords || []).slice(0, 8),
+                            avoid: simonRoleClassification.indicators?.slice(0, 3) || []
+                        },
+                        overall_recommendation: {
+                            decision: simonGhostScore > 60 ? "SKIP" 
+                                : simonGhostScore > 40 ? "CONSIDER"
+                                : simonGhostScore > 20 ? "PURSUE" 
+                                : "STRONGLY PURSUE",
+                            confidence: Math.max(0, 100 - simonGhostScore),
+                            reasoning: simonRiskLevel === "LOW" 
+                                ? "Low ghost-job risk with positive signals detected"
+                                : `Risk level ${simonRiskLevel} — review indicators before proceeding`
+                        }
+                    }
                 }
             });
 
