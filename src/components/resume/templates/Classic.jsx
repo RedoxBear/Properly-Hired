@@ -4,7 +4,8 @@ export default function Classic({ data }) {
   if (!data) return null;
   const pi = data.personal_info || {};
   const skills = data.skills || [];
-  const highlights = data.highlights || [];
+  const rawHighlights = data.highlights || [];
+  const highlights = Array.isArray(rawHighlights) ? rawHighlights : (typeof rawHighlights === "string" && rawHighlights.trim() ? rawHighlights.split(/•|\n/).map(s => s.trim()).filter(Boolean) : []);
   const experience = data.experience || [];
   const education = data.education || [];
   const references = data.references || [];
