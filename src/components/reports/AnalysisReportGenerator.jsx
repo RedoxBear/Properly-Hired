@@ -129,6 +129,8 @@ Decision: [STRONGLY PURSUE / PURSUE / CONSIDER / SKIP]
 Confidence: [X]%
 Reasoning: [2-3 sentence reasoning]
 
+REMINDER: Do NOT use any markdown formatting (no **, no ##, no ###, no ---). Write everything in clean plain text with uppercase section headers and ===== dividers only.
+
 Be thorough, specific, and actionable. Use real data from the analysis, don't fabricate.`;
 
   const response = await retryWithBackoff(

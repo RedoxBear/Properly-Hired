@@ -172,11 +172,12 @@ function AppShell({ children, currentPageName }) {
                         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
                     }
 
-                    /* Override any font-mono leaking into UI (keep for code blocks only) */
-                    .font-mono {
+                    /* Override font-mono leaking into non-code UI elements */
+                    span.font-mono, div.font-mono, p.font-mono {
                         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
                     }
-                    pre .font-mono, pre code, code.font-mono {
+                    /* Preserve monospace for actual code blocks */
+                    pre, pre *, code, .font-mono code {
                         font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace !important;
                     }
 
