@@ -54,6 +54,7 @@ export default function InterviewPrep() {
       const app = await base44.entities.JobApplication.get(appId);
       setApplication(app);
       setPrep(app?.summary?.interview_prep ?? null);
+      setPrepReportText(app?.interview_prep_report_text || "");
     } catch (e) {
       setError("Could not load application.");
     } finally {
