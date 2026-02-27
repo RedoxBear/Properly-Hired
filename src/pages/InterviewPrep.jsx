@@ -14,6 +14,7 @@ import { Loader2, MessageSquare, HelpCircle, Star, CheckSquare, ArrowLeft, FileT
 import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
 import { generateInterviewPrepReport } from "@/components/reports/InterviewPrepReportGenerator";
 import InterviewPrepReportView from "@/components/reports/InterviewPrepReportView";
+import JobSelectionPicker from "@/components/interviewprep/JobSelectionPicker";
 
 const CATEGORY_COLORS = {
   behavioral: "bg-blue-100 text-blue-800",
