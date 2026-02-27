@@ -332,7 +332,7 @@ export default function OptimizationResults({ results, onReset }) {
                                     key={index} 
                                     className="bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
                                 >
-                                    {keyword}
+                                    {clean(keyword)}
                                 </Badge>
                             ))}
                         </div>
