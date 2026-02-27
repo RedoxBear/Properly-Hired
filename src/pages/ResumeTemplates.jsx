@@ -32,6 +32,7 @@ import AgentChat from "@/components/agents/AgentChat";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { KyleOptimizeBanner, ProjectBasedCVHint, TemplateHelperHint } from "@/components/resume/KyleTemplateBanner";
+import TemplateCustomizer from "@/components/resume/templates/TemplateCustomizer";
 
 export default function ResumeTemplates() {
   const [resumes, setResumes] = useState([]);
@@ -516,6 +517,16 @@ ${el.innerHTML}
             </div>
           </CardContent>
         </Card>
+
+        {/* Template Customizer */}
+        <TemplateCustomizer
+          resume={resume}
+          resumeData={resumeData}
+          onUpdate={async () => {
+            const list = await base44.entities.Resume.list("-created_date", 50);
+            setResumes(list);
+          }}
+        />
 
         {/* Printable area: attach ref so we only print this */}
         <div id="print-area" ref={printRef} className="bg-white rounded-xl shadow">
