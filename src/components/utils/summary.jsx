@@ -220,10 +220,9 @@ export function buildCandidateMatches(idealLines, cvText, max = 8) {
     if (out.length >= max) break;
   }
 
-  // Fallback to simple mapping if nothing found
+  // Fallback: return nothing rather than echoing ideal lines with no match evidence
   if (!out.length) {
-    // If no good matches, just return the ideal candidate lines as bullet points
-    return ideal.slice(0, max).map(x => `• ${x}`);
+    return ["No strong matches found between your resume and the ideal candidate profile. Consider updating your master resume."];
   }
   return out;
 }
