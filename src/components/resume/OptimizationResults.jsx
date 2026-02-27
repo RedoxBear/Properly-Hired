@@ -357,7 +357,7 @@ export default function OptimizationResults({ results, onReset }) {
                             <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                                 <div className="flex items-start gap-2">
                                     <CheckCircle2 className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                                    <span className="text-slate-700">{highlight}</span>
+                                    <span className="text-slate-700">{clean(highlight)}</span>
                                 </div>
                             </div>
                         ))}
