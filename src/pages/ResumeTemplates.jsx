@@ -111,22 +111,12 @@ export default function ResumeTemplates() {
     }
   }, [selectedResumeId, resumes]);
 
-  useEffect(() => {
-    if (!selectedResumeId) return;
-    const key = `resume-templates-redirect-${selectedResumeId}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    setAutoRedirectArmed(true);
-    redirectTimerRef.current = setTimeout(() => {
-      navigate(`${createPageUrl("ResumeEditor")}?resumeId=${selectedResumeId}`);
-    }, 3500);
-    return () => {
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-        redirectTimerRef.current = null;
-      }
-    };
-  }, [selectedResumeId, navigate]);
+  const handleFormatChoice = (isProjectBased) => {
+    setUserConfirmedFormat(isProjectBased);
+    if (selectedResumeId) {
+      navigate(`${createPageUrl("ResumeEditor")}?resumeId=${selectedResumeId}${isProjectBased ? '&format=project' : ''}`);
+    }
+  };
 
   // Show loading while checking user access
   if (isLoadingUser) {
