@@ -141,7 +141,7 @@ Output a JSON object with EXACTLY this structure:
 
 Generate 8-12 likely_questions, 3-4 items per questions_to_ask category, 3 star_templates, 10-12 checklist items.`;
 
-    const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const aiResponse = await base44.integrations.Core.InvokeLLM({
       prompt: `${systemPrompt}\n\n${userPrompt}`,
       response_json_schema: {
         type: 'object',
