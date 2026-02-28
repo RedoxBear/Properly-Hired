@@ -985,7 +985,8 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
         }
         } // end stylesToGenerate loop
 
-        if (generateMultiple) {
+        // When "both" is selected or multi-version, show version compare UI
+        if (versions.length > 1) {
             setOptimizedVersions(versions);
             setSelectedVersion(0);
         }
