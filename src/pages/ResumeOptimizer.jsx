@@ -201,8 +201,8 @@ export default function ResumeOptimizer() {
 
     const style = resolveCvStyle("auto", job.job_title, roleClassification, resumeText);
     setResolvedCvStyle(style);
-    // Reset user pick when resolved style changes
-    setSelectedCvStyle(style === "both" ? null : style);
+    // Pre-select chronological as default, let user choose
+    setSelectedCvStyle(null);
   }, [selectedJobId, selectedMatchId, selectedResumeId, useJobMatch, jobApplications, jobMatches, masterResumes]);
 
   // Load Kyle's Positioning Analysis
