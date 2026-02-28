@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Download, FileText, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { normalizeAchievementItem } from "@/components/utils/achievementItemUtils";
 
 export default function ResumeViewer() {
     const [resume, setResume] = React.useState(null);
@@ -71,7 +72,8 @@ export default function ResumeViewer() {
             useData.career_achievements.forEach(pillar => {
                 text += `\n${(pillar.pillar_name || '').toUpperCase()}\n`;
                 (pillar.items || []).forEach((item, i) => {
-                    text += `  ${i + 1}. ${item}\n`;
+                    const n = normalizeAchievementItem(item);
+                    text += `  ${i + 1}. ${n.text}${n.formula ? ` [${n.formula}]` : ""}\n`;
                 });
             });
             text += "\n";
@@ -140,7 +142,10 @@ export default function ResumeViewer() {
             lines.push("## Career Achievements");
             content.career_achievements.forEach(pillar => {
                 lines.push(`### ${pillar.pillar_name || ''}`);
-                (pillar.items || []).forEach(item => lines.push(`- ${item}`));
+                (pillar.items || []).forEach(item => {
+                    const n = normalizeAchievementItem(item);
+                    lines.push(`- ${n.text}${n.formula ? ` [${n.formula}]` : ""}`);
+                });
                 lines.push("");
             });
         }
