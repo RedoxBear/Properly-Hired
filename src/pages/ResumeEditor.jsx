@@ -14,6 +14,7 @@ import { resumeJsonToPlainText } from "@/components/utils/resumeText";
 import AgentChat from "@/components/agents/AgentChat";
 import AgentHandoffCard from "@/components/agents/AgentHandoffCard";
 import { parse, parseISO, isValid, differenceInMonths } from "date-fns";
+import { getItemText, normalizeAchievementItem } from "@/components/utils/achievementItemUtils";
 
 export default function ResumeEditor() {
   const [resume, setResume] = React.useState(null);
@@ -65,7 +66,8 @@ export default function ResumeEditor() {
       content.career_achievements.forEach(pillar => {
         text += `\n${(pillar.pillar_name || '').toUpperCase()}\n`;
         (pillar.items || []).forEach((item, i) => {
-          text += `  ${i + 1}. ${item}\n`;
+          const normalized = normalizeAchievementItem(item);
+          text += `  ${i + 1}. ${normalized.text}${normalized.formula ? ` [${normalized.formula}]` : ""}\n`;
         });
       });
       text += "\n";
@@ -121,7 +123,10 @@ export default function ResumeEditor() {
       lines.push("## Career Achievements");
       content.career_achievements.forEach(pillar => {
         lines.push(`### ${pillar.pillar_name || ''}`);
-        (pillar.items || []).forEach(item => lines.push(`- ${item}`));
+        (pillar.items || []).forEach(item => {
+          const normalized = normalizeAchievementItem(item);
+          lines.push(`- ${normalized.text}${normalized.formula ? ` [${normalized.formula}]` : ""}`);
+        });
         lines.push("");
       });
     }
@@ -654,16 +659,23 @@ export default function ResumeEditor() {
                         />
                         <Textarea
                           className="min-h-[100px]"
-                          value={(pillar.items || []).join("\n")}
+                          value={(pillar.items || []).map(item => {
+                            const n = normalizeAchievementItem(item);
+                            return n.formula ? `[${n.formula}] ${n.text}` : n.text;
+                          }).join("\n")}
                           onChange={(e) => {
                             const updated = [...(draft.career_achievements || [])];
                             updated[pIdx] = {
                               ...updated[pIdx],
-                              items: e.target.value.split("\n").filter(line => line.trim())
+                              items: e.target.value.split("\n").filter(line => line.trim()).map(line => {
+                                const match = line.match(/^\[([A-Z]+)\]\s*(.*)/);
+                                if (match) return { text: match[2], formula: match[1] };
+                                return { text: line, formula: null };
+                              })
                             };
                             updateField("career_achievements", updated);
                           }}
-                          placeholder="One achievement per line"
+                          placeholder="One achievement per line. Prefix with [FORMULA] e.g. [ARC] Delivered..."
                         />
                       </CardContent>
                     </Card>
