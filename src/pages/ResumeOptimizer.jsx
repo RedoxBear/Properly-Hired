@@ -965,10 +965,9 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
               response.recommendations = response.recommendations.map(r => cleanResumeData(r));
             }
 
-            const styleSuffix = stylesToGenerate.length > 1 ? ` — ${cvStyle.charAt(0).toUpperCase() + cvStyle.slice(1)}` : "";
             const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
             const newVersion = await Resume.create({
-              version_name: `${jobData.job_title} — ${jobData.company_name} — ${modeLabel}${styleSuffix}${versionSuffix}`,
+              version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${versionSuffix}`,
               original_file_url: selectedResume.original_file_url,
               parsed_content: selectedResume.parsed_content,
               optimized_content: JSON.stringify(response.optimized_resume_content),
