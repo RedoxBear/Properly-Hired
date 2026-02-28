@@ -78,6 +78,18 @@ export default function OptimizationResults({ results, onReset }) {
             // Note: If optimized.professional_summary is still needed here, it would be an 'else if' after optimized.summary.
             // Based on the outline, executive_summary and summary are the prioritized fields within optimized_resume_content.
 
+            // Career Achievements (pillar format)
+            if (optimized.career_achievements && optimized.career_achievements.length > 0) {
+                text += `\nCareer Achievements\n${'-'.repeat("Career Achievements".length)}\n`;
+                optimized.career_achievements.forEach(pillar => {
+                    text += `\n${clean(pillar.pillar_name || '').toUpperCase()}\n`;
+                    (pillar.items || []).forEach((item, i) => {
+                        text += `  ${i + 1}. ${clean(item)}\n`;
+                    });
+                });
+                text += '\n';
+            }
+
             // Skills
             if (optimized.skills && optimized.skills.length > 0) {
                 addSectionToText("Skills", optimized.skills);
