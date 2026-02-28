@@ -5,7 +5,7 @@ import { parseResumeData } from "./templateUtils";
 export default function PureATS({ data }) {
   const d = parseResumeData(data);
   if (!d) return null;
-  const { pi, skills, highlights, experience, education, references, summary } = d;
+  const { pi, skills, highlights, experience, education, references, summary, careerAchievements } = d;
 
   return (
     <div className="max-w-[800px] mx-auto bg-white text-black p-8" style={{ fontFamily: "'Courier New', Courier, monospace", minHeight: 1056 }}>
@@ -26,6 +26,20 @@ export default function PureATS({ data }) {
         <section className="mb-4">
           <h2 className="text-xs font-bold uppercase mb-1">SUMMARY</h2>
           <p className="text-xs leading-5">{summary}</p>
+        </section>
+      )}
+
+      {careerAchievements.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-xs font-bold uppercase mb-1">CAREER ACHIEVEMENTS</h2>
+          {careerAchievements.map((pillar, i) => (
+            <div key={i} className="mb-2">
+              <p className="text-xs font-bold uppercase">{pillar.pillar_name}</p>
+              {(pillar.items || []).map((item, j) => (
+                <p key={j} className="text-xs ml-2">- {item}</p>
+              ))}
+            </div>
+          ))}
         </section>
       )}
 
