@@ -430,8 +430,11 @@ export default function ResumeEditor() {
     setError("");
     try {
       const analysis = await analyzeResumeAgainstJD(plain, "");
+      // If optimized_content exists on the resume, also update it with the current draft
+      // so that templates and viewers pick up career_achievements
       const payload = {
         parsed_content: JSON.stringify(draft),
+        optimized_content: JSON.stringify(draft),
         personal_info: draft.personal_info || {},
         skills: draft.skills || [], // No limit on skills
         experience: draft.experience || [],
