@@ -365,6 +365,35 @@ export default function OptimizationResults({ results, onReset }) {
                 </CardContent>
             </Card>
 
+            {/* Achievement-Based Pillars (Career Achievements) */}
+            {results.optimized_resume_content?.career_achievements?.length > 0 && (
+                <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Star className="w-5 h-5 text-amber-600" />
+                            Career Achievements (Pillar Format)
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {results.optimized_resume_content.career_achievements.map((pillar, pIdx) => (
+                            <div key={pIdx}>
+                                <h3 className="font-semibold text-slate-800 mb-3 uppercase tracking-wide text-sm border-b pb-1">
+                                    {clean(pillar.pillar_name)}
+                                </h3>
+                                <ul className="space-y-2">
+                                    {pillar.items?.map((item, iIdx) => (
+                                        <li key={iIdx} className="flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                            <CheckCircle2 className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                            <span className="text-slate-700 text-sm">{clean(item)}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            )}
+
             {/* Optimized Sections */}
             {results.optimized_resume_sections && (
                 <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
