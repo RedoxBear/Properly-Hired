@@ -613,7 +613,7 @@ Return JSON:
       id: selectedJob.id
     };
 
-    const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
+    const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "2-Page Pro" : "Full CV";
 
     // Determine CV style(s) to generate
     const userChoice = selectedCvStyle || resolvedCvStyle || "chronological";
