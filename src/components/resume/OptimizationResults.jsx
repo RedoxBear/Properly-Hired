@@ -164,13 +164,15 @@ export default function OptimizationResults({ results, onReset }) {
     };
 
     const handleDownloadTxt = () => {
-        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Optimized'}`.replace(/[\\/:*?"<>|]/g, "_");
+        const styleTag = results.cvStyle === "achievement" ? "Exp" : "Chron";
+        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Company'} - ${styleTag}`.replace(/[\\/:*?"<>|]/g, "_");
         const content = buildResumeText();
         downloadFile(content, `${baseName}.txt`, "text/plain");
     };
 
     const handleDownloadJson = () => {
-        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Optimized'}`.replace(/[\\/:*?"<>|]/g, "_");
+        const styleTag = results.cvStyle === "achievement" ? "Exp" : "Chron";
+        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Company'} - ${styleTag}`.replace(/[\\/:*?"<>|]/g, "_");
         const payload = {
             job_title: results.jobTitle,
             company_name: results.companyName,
