@@ -272,10 +272,11 @@ export default function ResumeEditor() {
         setResume(r);
         
         // Try to parse the resume content
+        // For optimized resumes, prefer optimized_content (has career_achievements)
         const parsed = safeParse(r.parsed_content);
         const optimized = safeParse(r.optimized_content);
         
-        const initialDraft = parsed || optimized || {
+        const initialDraft = (r.is_master_resume === false && optimized) ? optimized : parsed || optimized || {
           personal_info: {},
           summary: "",
           skills: [],
