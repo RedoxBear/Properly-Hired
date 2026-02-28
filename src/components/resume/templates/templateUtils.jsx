@@ -16,8 +16,9 @@ export function parseResumeData(data) {
   const summary = data.executive_summary || data.summary || data.professional_summary || "";
   const profilePhoto = data.profile_photo || pi.photo || "";
   const skillLevels = data.skill_levels || {};
+  const careerAchievements = Array.isArray(data.career_achievements) ? data.career_achievements : [];
 
-  return { pi, skills, highlights, experience, education, references, summary, profilePhoto, skillLevels };
+  return { pi, skills, highlights, experience, education, references, summary, profilePhoto, skillLevels, careerAchievements };
 }
 
 export function SkillBar({ name, level = 70, color = "bg-blue-600" }) {
