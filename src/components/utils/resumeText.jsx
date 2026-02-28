@@ -9,6 +9,15 @@ export function resumeJsonToPlainText(jsonData) {
 
   const summary = jsonData.executive_summary || jsonData.summary || "";
 
+  // Career Achievements (pillar format from Achievement-Based CV)
+  const careerAchievements = Array.isArray(jsonData.career_achievements) && jsonData.career_achievements.length > 0
+    ? jsonData.career_achievements.map(pillar => {
+        const heading = (pillar.pillar_name || '').toUpperCase();
+        const items = Array.isArray(pillar.items) ? pillar.items.map((item, i) => `  ${i + 1}. ${item}`).join("\n") : "";
+        return [heading, items].filter(Boolean).join("\n");
+      }).join("\n\n")
+    : "";
+
   const skills = Array.isArray(jsonData.skills) ? jsonData.skills.map(s => `• ${s}`).join("\n") : "";
 
   const experience = Array.isArray(jsonData.experience) ? jsonData.experience.map(exp => {
@@ -28,5 +37,5 @@ export function resumeJsonToPlainText(jsonData) {
     return [header, contacts].filter(Boolean).join("\n");
   }).join("\n\n") : "";
 
-  return [header, summary, skills, experience, education, refs].filter(Boolean).join("\n\n").trim();
+  return [header, summary, careerAchievements, skills, experience, education, refs].filter(Boolean).join("\n\n").trim();
 }
