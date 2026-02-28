@@ -26,14 +26,42 @@ Key properties:
 - Professional Experience is a lightweight reference list (title | company | dates | scope). No bullets. No narrative.
 - All proof lives in Career Achievements, organized by pillar.
 - A proof point from any era is valid if it is the strongest evidence for a pillar. Age of role is irrelevant.
-- Each item: 2 sentences standard (3 max for STAR/SOAR/ELITE only).
 - Formula selection determines structure — not one formula for everything.
 
 ================================================================================
-FORMULA REFERENCE — CHOOSE THE RIGHT TOOL FOR EACH ACHIEVEMENT
+STEP 0: ANALYZE THE JD's OWN WRITING STYLE — MIRROR IT
 ================================================================================
 
-FORMULA SELECTOR:
+Before generating anything, study the JD text itself:
+
+JD STYLE ANALYSIS (perform silently before writing):
+1. BULLET LENGTH: Are JD bullets short & punchy (≤15 words), medium (15-30 words), or detailed paragraphs (30+ words)?
+2. TONE: Is the JD formal/corporate, conversational, technical, or action-oriented?
+3. SPECIFICITY: Does the JD use precise metrics ("manage $5M budget") or general language ("manage budgets")?
+4. VERB PATTERN: What verbs does the JD favor? (e.g., "drive", "own", "partner", "execute", "lead")
+5. STRUCTURE: Does the JD use single-line bullets, multi-sentence descriptions, or mixed?
+
+MIRRORING RULES:
+- If JD bullets are short & punchy → achievement items should be 1-2 concise sentences
+- If JD bullets are medium/detailed → achievement items should be 2-3 sentences with context
+- If JD uses paragraph-style descriptions → achievement items can be 3-4 sentences with full narrative
+- Mirror the JD's verb energy level — if JD says "drive revenue", use "drove", not "facilitated"
+- If JD names specific metrics/KPIs, frame achievements using the SAME metric types
+- Adopt the JD's tone: if formal, write formally; if action-oriented, lead with impact verbs
+
+DYNAMIC SENTENCE COUNT (replaces fixed "2 sentences"):
+- Terse JD (≤15 word bullets): 1-2 sentences per achievement item
+- Standard JD (15-30 word bullets): 2-3 sentences per achievement item
+- Detailed JD (30+ word bullets or paragraphs): 3-4 sentences per achievement item
+- The goal: a recruiter should feel the CV was written BY someone who deeply understands their JD's world
+
+================================================================================
+FORMULA REFERENCE — INTELLIGENT SELECTION PER ACHIEVEMENT
+================================================================================
+
+You have 9 formulas. Each serves a DIFFERENT purpose. Your job is to analyze each achievement and select the formula that makes it STRONGEST — not default to one formula.
+
+FORMULA SELECTOR (decision tree — follow strictly):
   Strongest element is a METRIC (%, $, count, time)? → XYZ or TEAL
   A clear PROBLEM existed before → candidate solved it → measurable after? → CAR or PAR
   Obstacle required RESILIENCE or GRIT to overcome? → SOAR
@@ -43,15 +71,26 @@ FORMULA SELECTOR:
   Highly impressive stat — lead with the NUMBER? → ARC or TEAL
 
 FORMULA TEMPLATES:
-  ARC  (Action + Result + Context) — 1-2 sentences
-  TEAL (Result + Metric + Context) — 1-2 sentences, result-first
-  XYZ  (Accomplished X as measured by Y by doing Z) — 1-2 sentences
-  CAR  (Challenge + Action + Result) — 2-3 sentences
-  PAR  (Problem + Action + Result) — 2 sentences
-  SOAR (Situation + Obstacle + Action + Result) — 2-3 sentences
-  STAR (Situation + Task + Action + Result) — 2-3 sentences compressed
-  LPS  (Lead + Process + Success) — 2 sentences
-  ELITE (Effort + Leadership + Impact + Technical + Excellence) — 2-3 sentences
+  ARC  (Action + Result + Context) — compact, impact-first
+  TEAL (Result + Metric + Context) — result-first, great for numbers
+  XYZ  (Accomplished X as measured by Y by doing Z) — Google-style, metric-dense
+  CAR  (Challenge + Action + Result) — shows problem-solving
+  PAR  (Problem + Action + Result) — similar to CAR, problem-led
+  SOAR (Situation + Obstacle + Action + Result) — shows resilience/grit
+  STAR (Situation + Task + Action + Result) — shows complexity handling
+  LPS  (Lead + Process + Success) — shows leadership methodology
+  ELITE (Effort + Leadership + Impact + Technical + Excellence) — C-suite multi-dimensional
+
+FORMULA VARIETY ENFORCEMENT:
+- Across ALL achievement items in the CV, you MUST use at least 3 DIFFERENT formulas
+- Within a single pillar (3+ items), you MUST use at least 2 different formulas
+- NEVER use the same formula for more than 40% of all items
+- Tag each item with [FORMULA_NAME] so variety can be verified
+- If you find yourself defaulting to STAR or ARC for everything, STOP and re-evaluate:
+  * Does this achievement have a strong number? → Switch to XYZ or TEAL
+  * Did the candidate overcome a specific obstacle? → Switch to SOAR or CAR
+  * Was leadership methodology the key differentiator? → Switch to LPS
+  * Is this a senior/complex multi-faceted achievement? → Switch to ELITE
 
 ================================================================================
 STEP 1: ANALYZE THE JD — EXTRACT SIGNALS
@@ -87,13 +126,24 @@ BRIDGING RULE: No direct experience → identify closest transferable analog, na
 STEP 4: GENERATE CONTENT
 ================================================================================
 
-Select formula per item using the FORMULA SELECTOR. Mix formulas across pillars.
+For EACH achievement item:
+1. Run the FORMULA SELECTOR decision tree
+2. Select the formula that makes THIS specific achievement strongest
+3. Write the item using that formula's structure
+4. Tag it with the formula name: [ARC], [TEAL], [XYZ], [CAR], [PAR], [SOAR], [STAR], [LPS], or [ELITE]
+5. Adapt sentence count to match the JD's style (see STEP 0)
+
+After generating all items, VERIFY:
+- At least 3 different formulas used across all items
+- No single formula exceeds 40% of total items
+- If not, rewrite the weakest items using underrepresented formulas
 
 WRITING RULES:
 - Active verb, past tense (Delivered / Built / Reduced / Launched / Stabilized / Directed / Redesigned)
 - Every item: at least one number OR named company+tool+scope
 - Third person only. No "I", "my", "our".
 - Numbers rule: Only use numbers from candidate data. Never fabricate.
+- Mirror JD's verb patterns and energy level
 
 EXECUTIVE SUMMARY — 3 SENTENCES:
   S1: years + specialization + environments
@@ -106,7 +156,7 @@ BANNED WORDS: leverage, spearhead, utilize, synergy, dynamic, passionate, result
 STEP 5: QUALITY CHECKLIST
 ================================================================================
 
-Verify: Pillars ordered by JD priority | Formula variety | 2 sentences per item | Metric or named context | JD tools named | No banned words | No fabricated metrics | Professional Experience has NO bullets | Company name in Executive Summary.
+Verify: Pillars ordered by JD priority | Formula variety (3+ formulas, none >40%) | Sentence count matches JD style | Metric or named context per item | JD tools named | JD tone mirrored | No banned words | No fabricated metrics | Professional Experience has NO bullets | Company name in Executive Summary | Each item tagged with formula name.
 
 NO MARKDOWN FORMATTING: Do NOT use asterisks, double asterisks, underscores, hash symbols, or any other markdown formatting. All text must be plain, clean, professional text.`;
 
