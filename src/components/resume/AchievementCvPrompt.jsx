@@ -230,9 +230,21 @@ ${typeof resumeContent === "string" ? resumeContent : JSON.stringify(resumeConte
 
 ${generateMultiple ? `Create variation ${variationIndex + 1} with a different pillar emphasis angle.` : ""}
 
+BEFORE generating, perform JD Style Analysis silently and adapt your output accordingly.
+
 Return JSON with this EXACT structure:
 {
   "optimization_score": <number 0-100>,
+  "jd_style_analysis": {
+    "bullet_length": "short|medium|detailed",
+    "tone": "formal|conversational|technical|action-oriented",
+    "verb_pattern": ["verb1", "verb2"],
+    "sentence_target": "1-2|2-3|3-4"
+  },
+  "formula_distribution": {
+    "ARC": 0, "TEAL": 0, "XYZ": 0, "CAR": 0, "PAR": 0,
+    "SOAR": 0, "STAR": 0, "LPS": 0, "ELITE": 0
+  },
   "recommendations": ["string"],
   "pillars": [{"name": "string", "items": ["string"]}],
   "optimized_resume_content": {
@@ -241,7 +253,12 @@ Return JSON with this EXACT structure:
     "career_achievements": [
       {
         "pillar_name": "PILLAR NAME IN CAPS",
-        "items": ["Achievement item 1 (2 sentences)", "Achievement item 2 (2 sentences)"]
+        "items": [
+          {
+            "text": "Achievement text adapted to JD style length",
+            "formula": "ARC|TEAL|XYZ|CAR|PAR|SOAR|STAR|LPS|ELITE"
+          }
+        ]
       }
     ],
     "skills": ["skill1", "skill2"],
@@ -262,7 +279,11 @@ Return JSON with this EXACT structure:
 
 CRITICAL: 
 - optimization_score MUST be a number, not a string.
-- career_achievements must contain the pillar-organized achievement items.
+- career_achievements items are OBJECTS with "text" and "formula" fields, NOT plain strings.
+- Each item.formula must be one of: ARC, TEAL, XYZ, CAR, PAR, SOAR, STAR, LPS, ELITE.
+- formula_distribution must accurately count how many items use each formula.
+- At least 3 different formulas must be used. No single formula >40% of items.
+- Sentence count per item must match jd_style_analysis.sentence_target.
 - experience must be a LIGHTWEIGHT reference list with EMPTY achievements arrays (no bullets).
 - NO markdown formatting anywhere.`;
 }
