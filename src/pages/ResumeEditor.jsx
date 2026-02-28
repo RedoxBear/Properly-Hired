@@ -280,6 +280,7 @@ export default function ResumeEditor() {
           summary: "",
           skills: [],
           highlights: "",
+          career_achievements: [],
           experience: [],
           education: []
         };
@@ -612,6 +613,71 @@ export default function ResumeEditor() {
               </div>
               <p className="text-xs text-slate-500 mt-2">No limit - add all relevant skills. Each appears as a filled box.</p>
             </section>
+
+            {/* Career Achievements (pillar format) — shown when present from Achievement-Based optimization */}
+            {(draft?.career_achievements?.length > 0) && (
+              <section>
+                <Label className="text-base font-semibold mb-2 block">
+                  Career Achievements (Pillar Format) <span className="text-xs text-amber-600 ml-2">Achievement-Based CV</span>
+                </Label>
+                <div className="space-y-4">
+                  {(draft.career_achievements || []).map((pillar, pIdx) => (
+                    <Card key={pIdx} className="bg-amber-50 border-amber-200">
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <Label className="text-sm font-semibold text-amber-800 uppercase tracking-wide">{pillar.pillar_name}</Label>
+                          <Button
+                            size="sm" variant="ghost"
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                            onClick={() => {
+                              const updated = [...(draft.career_achievements || [])];
+                              updated.splice(pIdx, 1);
+                              updateField("career_achievements", updated);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          value={pillar.pillar_name || ""}
+                          onChange={(e) => {
+                            const updated = [...(draft.career_achievements || [])];
+                            updated[pIdx] = { ...updated[pIdx], pillar_name: e.target.value };
+                            updateField("career_achievements", updated);
+                          }}
+                          placeholder="Pillar Name"
+                          className="font-semibold"
+                        />
+                        <Textarea
+                          className="min-h-[100px]"
+                          value={(pillar.items || []).join("\n")}
+                          onChange={(e) => {
+                            const updated = [...(draft.career_achievements || [])];
+                            updated[pIdx] = {
+                              ...updated[pIdx],
+                              items: e.target.value.split("\n").filter(line => line.trim())
+                            };
+                            updateField("career_achievements", updated);
+                          }}
+                          placeholder="One achievement per line"
+                        />
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button
+                    size="sm" variant="outline"
+                    className="gap-1 border-amber-300 text-amber-700 hover:bg-amber-50"
+                    onClick={() => {
+                      const updated = [...(draft.career_achievements || []), { pillar_name: "", items: [] }];
+                      updateField("career_achievements", updated);
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Pillar
+                  </Button>
+                </div>
+              </section>
+            )}
 
             <section>
               <Label className="text-base font-semibold mb-2 block">Career Highlights {draft?.highlights && <span className="text-xs text-green-600 ml-2">✓ Filled</span>}</Label>
