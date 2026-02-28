@@ -1396,20 +1396,20 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                         <CardTitle className="text-blue-900 text-base">Compare Optimized Versions</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex gap-2">
-                          {optimizedVersions.map((version, idx) => (
-                            <Button
-                              key={idx}
-                              onClick={() => {
-                                setSelectedVersion(idx);
-                                setOptimizationResults(version);
-                              }}
-                              variant={selectedVersion === idx ? "default" : "outline"}
-                              size="sm"
-                            >
-                              Version {idx + 1} ({version.optimization_score}%)
-                            </Button>
-                          ))}
+                        <div className="flex flex-wrap gap-2">
+                         {optimizedVersions.map((version, idx) => (
+                           <Button
+                             key={idx}
+                             onClick={() => {
+                               setSelectedVersion(idx);
+                               setOptimizationResults(version);
+                             }}
+                             variant={selectedVersion === idx ? "default" : "outline"}
+                             size="sm"
+                           >
+                             {version.cvStyle === "achievement" ? "Achievement" : "Chronological"} ({version.optimization_score}%)
+                           </Button>
+                         ))}
                         </div>
                       </CardContent>
                     </Card>
