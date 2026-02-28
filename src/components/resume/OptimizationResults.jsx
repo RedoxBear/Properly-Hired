@@ -458,6 +458,17 @@ export default function OptimizationResults({ results, onReset }) {
                 </Card>
             )}
 
+            {/* CV Style Tag */}
+            {results.cvStyle && (
+                <div className="flex items-center gap-2">
+                    <Badge className={results.cvStyle === "achievement" 
+                        ? "bg-amber-100 text-amber-800 border-amber-200" 
+                        : "bg-blue-100 text-blue-800 border-blue-200"}>
+                        {results.cvStyle === "achievement" ? "Achievement-Based (Exp)" : "Chronological (Chron)"}
+                    </Badge>
+                </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
                 <Button onClick={handleDownloadTxt} className="bg-green-600 hover:bg-green-700 gap-2">
@@ -468,6 +479,12 @@ export default function OptimizationResults({ results, onReset }) {
                     <Download className="w-4 h-4" />
                     Download as JSON
                 </Button>
+                <Link to={createPageUrl("MyResumes")}>
+                    <Button variant="outline" className="gap-2 border-green-200 text-green-700 hover:bg-green-50">
+                        <FileText className="w-4 h-4" />
+                        View in My Resumes
+                    </Button>
+                </Link>
                 <Link to={createPageUrl("ResumeTemplates")}>
                     <Button variant="outline" className="gap-2 border-purple-200 text-purple-700 hover:bg-purple-50">
                         <Palette className="w-4 h-4" />
