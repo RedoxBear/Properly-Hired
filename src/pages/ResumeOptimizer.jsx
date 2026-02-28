@@ -705,6 +705,23 @@ Return JSON:
                     type: "object",
                     properties: {
                       optimization_score: { type: "number" },
+                      jd_style_analysis: {
+                        type: "object",
+                        properties: {
+                          bullet_length: { type: "string" },
+                          tone: { type: "string" },
+                          verb_pattern: { type: "array", items: { type: "string" } },
+                          sentence_target: { type: "string" }
+                        }
+                      },
+                      formula_distribution: {
+                        type: "object",
+                        properties: {
+                          ARC: { type: "number" }, TEAL: { type: "number" }, XYZ: { type: "number" },
+                          CAR: { type: "number" }, PAR: { type: "number" }, SOAR: { type: "number" },
+                          STAR: { type: "number" }, LPS: { type: "number" }, ELITE: { type: "number" }
+                        }
+                      },
                       recommendations: { type: "array", items: { type: "string" } },
                       pillars: {
                         type: "array",
