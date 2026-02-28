@@ -616,7 +616,8 @@ Return JSON:
     const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
 
     // Determine CV style(s) to generate
-    const finalCvStyle = selectedCvStyle || resolvedCvStyle || "chronological";
+    const userChoice = selectedCvStyle || resolvedCvStyle || "chronological";
+    const finalCvStyle = userChoice;
     const stylesToGenerate = finalCvStyle === "both" ? ["chronological", "achievement"] : [finalCvStyle];
 
     // Define STRICT constraints based on mode - MUST BE ENFORCED
@@ -681,14 +682,129 @@ Return JSON:
 `).join('\n');
 
         for (const cvStyle of stylesToGenerate) {
-          const cvStyleInstruction = cvStyle === "achievement"
-            ? `\n**CV FORMAT: ACHIEVEMENT-BASED**
-- Lead each role with a "Key Achievements" sub-section listing 3-5 quantified impact statements FIRST.
-- Follow with a brief "Responsibilities" section only when essential context is needed.
-- Order bullets by impact magnitude, not chronology.
-- Use bold metrics: "$X revenue", "Y% improvement", "Z team members".
-- The reader should grasp the candidate's value in the first 3 seconds per role.\n`
-            : `\n**CV FORMAT: CHRONOLOGICAL**
+          const styleTag = cvStyle === "achievement" ? "Exp" : "Chron";
+
+          // For achievement style, use the dedicated achievement CV prompt builder
+          if (cvStyle === "achievement") {
+            for (let i = 0; i < numVersions; i++) {
+              const achievementPrompt = buildAchievementCvPrompt({
+                jobTitle: jobData.job_title,
+                companyName: jobData.company_name,
+                jobDescription: jobData.job_description,
+                resumeContent: selectedResume.parsed_content,
+                modeLabel,
+                constraints,
+                variationIndex: i,
+                generateMultiple,
+              });
+
+              const response = await retryWithBackoff(() =>
+                base44.integrations.Core.InvokeLLM({
+                  prompt: achievementPrompt,
+                  response_json_schema: {
+                    type: "object",
+                    properties: {
+                      optimization_score: { type: "number" },
+                      recommendations: { type: "array", items: { type: "string" } },
+                      pillars: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            name: { type: "string" },
+                            items: { type: "array", items: { type: "string" } }
+                          }
+                        }
+                      },
+                      optimized_resume_content: {
+                        type: "object",
+                        properties: {
+                          personal_info: {
+                            type: "object",
+                            properties: {
+                              name: { type: "string" },
+                              email: { type: "string" },
+                              phone: { type: "string" },
+                              location: { type: "string" },
+                              linkedin: { type: "string" },
+                              portfolio: { type: "string" }
+                            }
+                          },
+                          executive_summary: { type: "string" },
+                          career_achievements: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                pillar_name: { type: "string" },
+                                items: { type: "array", items: { type: "string" } }
+                              }
+                            }
+                          },
+                          skills: { type: "array", items: { type: "string" } },
+                          experience: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                position: { type: "string" },
+                                company: { type: "string" },
+                                location: { type: "string" },
+                                duration: { type: "string" },
+                                achievements: { type: "array", items: { type: "string" } }
+                              }
+                            }
+                          },
+                          education: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                degree: { type: "string" },
+                                institution: { type: "string" },
+                                year: { type: "string" }
+                              }
+                            }
+                          }
+                        },
+                        required: ["personal_info", "skills", "experience"]
+                      }
+                    }
+                  }
+                }),
+                { retries: 3, baseDelay: 1200 }
+              );
+
+              if (response.optimized_resume_content) {
+                response.optimized_resume_content = cleanResumeData(response.optimized_resume_content);
+              }
+              if (response.recommendations) {
+                response.recommendations = response.recommendations.map(r => cleanResumeData(r));
+              }
+
+              const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
+              const newVersion = await Resume.create({
+                version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${versionSuffix}`,
+                original_file_url: selectedResume.original_file_url,
+                parsed_content: selectedResume.parsed_content,
+                optimized_content: JSON.stringify(response.optimized_resume_content),
+                is_master_resume: false,
+                job_application_id: useJobMatch ? null : jobData.id
+              });
+
+              versions.push({
+                ...response,
+                resumeId: newVersion.id,
+                jobTitle: jobData.job_title,
+                companyName: jobData.company_name,
+                cvStyle
+              });
+            }
+            continue; // skip to next style
+          }
+
+          // Chronological style — existing prompt
+          const cvStyleInstruction = `\n**CV FORMAT: CHRONOLOGICAL**
 - Standard reverse-chronological format.
 - Each role lists bullets in natural time-order, blending responsibilities with achievements.
 - ATS-optimized with clear section headers.\n`;
