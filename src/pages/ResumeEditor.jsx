@@ -55,8 +55,20 @@ export default function ResumeEditor() {
     }
 
     if (content?.executive_summary || content?.summary) {
-      text += "Summary\n------\n";
+      text += "Executive Summary\n-----------------\n";
       text += `${content.executive_summary || content.summary}\n\n`;
+    }
+
+    // Career Achievements (pillar format from Achievement-Based CV)
+    if (content?.career_achievements?.length) {
+      text += "Career Achievements\n-------------------\n";
+      content.career_achievements.forEach(pillar => {
+        text += `\n${(pillar.pillar_name || '').toUpperCase()}\n`;
+        (pillar.items || []).forEach((item, i) => {
+          text += `  ${i + 1}. ${item}\n`;
+        });
+      });
+      text += "\n";
     }
 
     if (content?.skills?.length) {
@@ -99,9 +111,19 @@ export default function ResumeEditor() {
 
     const summary = content.executive_summary || content.summary;
     if (summary) {
-      lines.push("## Summary");
+      lines.push("## Executive Summary");
       lines.push(summary);
       lines.push("");
+    }
+
+    // Career Achievements (pillar format from Achievement-Based CV)
+    if (content.career_achievements?.length) {
+      lines.push("## Career Achievements");
+      content.career_achievements.forEach(pillar => {
+        lines.push(`### ${pillar.pillar_name || ''}`);
+        (pillar.items || []).forEach(item => lines.push(`- ${item}`));
+        lines.push("");
+      });
     }
 
     if (content.skills?.length) {
