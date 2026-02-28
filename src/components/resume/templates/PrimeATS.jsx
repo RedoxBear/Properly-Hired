@@ -37,7 +37,10 @@ export default function PrimeATS({ data }) {
               <h3 className="text-sm font-bold uppercase mt-2 mb-1">{pillar.pillar_name}</h3>
               <ul className="space-y-0.5 ml-4">
                 {(pillar.items || []).map((item, j) => (
-                  <li key={j} className="text-sm list-disc">{item}</li>
+                  <li key={j} className="text-sm list-disc">
+                    {item.text}
+                    {item.formula && <span className="text-[9px] text-gray-400 ml-1">[{item.formula}]</span>}
+                  </li>
                 ))}
               </ul>
             </div>

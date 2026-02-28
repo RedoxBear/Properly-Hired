@@ -83,7 +83,10 @@ export default function Professional({ data }) {
               <div key={i} className="mb-3">
                 <h3 className="text-xs font-bold uppercase text-slate-700 mb-1">{pillar.pillar_name}</h3>
                 {(pillar.items || []).map((item, j) => (
-                  <p key={j} className="text-xs text-slate-700 mb-0.5">✦ {item}</p>
+                  <p key={j} className="text-xs text-slate-700 mb-0.5">
+                    ✦ {item.text}
+                    {item.formula && <span className="text-[8px] text-slate-400 ml-1">[{item.formula}]</span>}
+                  </p>
                 ))}
               </div>
             ))}

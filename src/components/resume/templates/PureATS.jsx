@@ -36,7 +36,7 @@ export default function PureATS({ data }) {
             <div key={i} className="mb-2">
               <p className="text-xs font-bold uppercase">{pillar.pillar_name}</p>
               {(pillar.items || []).map((item, j) => (
-                <p key={j} className="text-xs ml-2">- {item}</p>
+                <p key={j} className="text-xs ml-2">- {item.text}{item.formula ? ` [${item.formula}]` : ""}</p>
               ))}
             </div>
           ))}
