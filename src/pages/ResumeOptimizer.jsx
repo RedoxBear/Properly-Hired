@@ -737,7 +737,14 @@ Return JSON:
                               type: "object",
                               properties: {
                                 pillar_name: { type: "string" },
-                                items: { type: "array", items: { type: "string" } }
+                                items: { type: "array", items: {
+                                  type: "object",
+                                  properties: {
+                                    text: { type: "string" },
+                                    formula: { type: "string" }
+                                  },
+                                  required: ["text", "formula"]
+                                } }
                               }
                             }
                           },
