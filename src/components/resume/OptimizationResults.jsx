@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { cleanResumeText } from "@/components/utils/cleanResumeText";
+import { getItemText, getItemFormula } from "@/components/utils/achievementItemUtils";
 
 export default function OptimizationResults({ results, onReset }) {
     const getScoreColor = (score) => {
@@ -84,7 +85,9 @@ export default function OptimizationResults({ results, onReset }) {
                 optimized.career_achievements.forEach(pillar => {
                     text += `\n${clean(pillar.pillar_name || '').toUpperCase()}\n`;
                     (pillar.items || []).forEach((item, i) => {
-                        text += `  ${i + 1}. ${clean(item)}\n`;
+                        const itemText = getItemText(item);
+                        const formula = getItemFormula(item);
+                        text += `  ${i + 1}. ${clean(itemText)}${formula ? ` [${formula}]` : ""}\n`;
                     });
                 });
                 text += '\n';
@@ -387,6 +390,15 @@ export default function OptimizationResults({ results, onReset }) {
                             <Star className="w-5 h-5 text-amber-600" />
                             Career Achievements (Pillar Format)
                         </CardTitle>
+                        {results.formula_distribution && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                {Object.entries(results.formula_distribution).filter(([,v]) => v > 0).map(([formula, count]) => (
+                                    <Badge key={formula} className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
+                                        {formula}: {count}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {results.optimized_resume_content.career_achievements.map((pillar, pIdx) => (
@@ -395,12 +407,23 @@ export default function OptimizationResults({ results, onReset }) {
                                     {clean(pillar.pillar_name)}
                                 </h3>
                                 <ul className="space-y-2">
-                                    {pillar.items?.map((item, iIdx) => (
-                                        <li key={iIdx} className="flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                                            <CheckCircle2 className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-slate-700 text-sm">{clean(item)}</span>
-                                        </li>
-                                    ))}
+                                    {pillar.items?.map((item, iIdx) => {
+                                        const itemText = getItemText(item);
+                                        const formula = getItemFormula(item);
+                                        return (
+                                            <li key={iIdx} className="flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                                <CheckCircle2 className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                                <div className="flex-1">
+                                                    <span className="text-slate-700 text-sm">{clean(itemText)}</span>
+                                                    {formula && (
+                                                        <Badge className="ml-2 bg-slate-100 text-slate-600 border-slate-200 text-[10px] px-1.5 py-0">
+                                                            {formula}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         ))}
