@@ -20,6 +20,7 @@ import { retryWithBackoff } from "@/components/utils/retry";
 import { canPerformAction, getWeekStart, getTierLimit, formatLimit, TIERS } from "@/components/utils/accessControl";
 import UpgradePrompt from "@/components/subscription/UpgradePrompt";
 import { HUMAN_OPTIMIZATION_SYSTEM_PROMPT } from "@/components/resume/HumanOptimizationPrompt";
+import HumanVoiceScanCard from "@/components/scanner/HumanVoiceScanCard";
 
 export default function CoverLetter() {
   const [params] = useSearchParams();

@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { cleanResumeText } from "@/components/utils/cleanResumeText";
 import { getItemText, getItemFormula } from "@/components/utils/achievementItemUtils";
+import HumanVoiceScanCard from "@/components/scanner/HumanVoiceScanCard";
 
 export default function OptimizationResults({ results, onReset }) {
     const getScoreColor = (score) => {
