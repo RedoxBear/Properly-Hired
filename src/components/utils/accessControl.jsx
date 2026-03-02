@@ -182,6 +182,7 @@ export function canPerformAction(user, action, currentCount) {
     optimize_resume: limits.resume_optimizations_per_week,
     job_analysis: limits.job_analyses_per_week,
     cover_letter: limits.cover_letters_per_week,
+    human_optimization: limits.human_optimizations_per_week,
     track_application: limits.job_analyses_per_week,
     agent_chat: limits.agent_chat_credits
   };

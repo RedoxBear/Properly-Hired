@@ -29,6 +29,8 @@ import { generateAnalysisReport } from "@/components/reports/AnalysisReportGener
 import AnalysisReportView from "@/components/reports/AnalysisReportView";
 import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
 import { generateInterviewPrepReport } from "@/components/reports/InterviewPrepReportGenerator";
+import HumanOptimizationToggle from "@/components/resume/HumanOptimizationToggle";
+import { buildHumanOptimizationEnhancement } from "@/components/resume/HumanOptimizationPrompt";
 
 // Kyle's Expertise Domains
 const KYLE_EXPERTISE_DOMAINS = [
@@ -106,6 +108,10 @@ export default function ResumeOptimizer() {
   const [analysisReportText, setAnalysisReportText] = React.useState("");
   const [isGeneratingReport, setIsGeneratingReport] = React.useState(false);
 
+  // Human Optimization state
+  const [humanOptEnabled, setHumanOptEnabled] = React.useState(false);
+  const [humanOptCount, setHumanOptCount] = React.useState(0);
+
   React.useEffect(() => {
     const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
     if (dismissed) return;
@@ -137,6 +143,14 @@ export default function ResumeOptimizer() {
         !r.is_master_resume && new Date(r.created_date) >= weekStart
       ).length;
       setOptimizationCount(optimizedThisWeek);
+
+      // Count this week's human optimizations (track via version name suffix)
+      const humanOptThisWeek = allResumes.filter(r =>
+        !r.is_master_resume &&
+        r.version_name?.includes("Human") &&
+        new Date(r.created_date) >= weekStart
+      ).length;
+      setHumanOptCount(humanOptThisWeek);
 
       if (masterResumesResult.length === 0) {
         setError("Please upload or build a master resume first.");
