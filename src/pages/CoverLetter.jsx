@@ -413,6 +413,36 @@ CRITICAL OBJECTIVE: Write a cover letter that sounds 100% human-written and pass
 
 **TONE REQUIREMENT:** ${selectedToneConfig.instructions}
 
+═══════════════════════════════════════════
+VOICE RULES (NON-NEGOTIABLE)
+═══════════════════════════════════════════
+- Write as if talking to the hiring manager over coffee, not presenting at a board meeting.
+- Use contractions naturally (I'm, I've, I'd, doesn't, wasn't). Zero-contraction formality is BANNED.
+- Vary paragraph length — let the important paragraph run long, keep supporting points short.
+- No four-item abstract noun lists in closings (e.g., "passion, dedication, leadership, and integrity" is BANNED).
+
+═══════════════════════════════════════════
+BANNED PHRASES (instant rejection if used)
+═══════════════════════════════════════════
+❌ "at the intersection of..."
+❌ "navigate ambiguity" / "navigate complexity"
+❌ "care-adjacent" or ANY "[noun]-adjacent" construction
+❌ "signal quality" or other engineer-speak in HR context
+❌ Any tagline in the header (e.g., "Architect of the Ecosystem")
+❌ "Leveraged," "utilized," "spearheaded," "facilitated"
+❌ "I am excited to express my interest" (too formal/robotic)
+❌ "Best-in-class," "world-class," "cutting-edge"
+❌ Generic phrases that could apply to ANY company
+❌ Buzzword soup and keyword stuffing
+❌ Resume bullets or achievement lists
+
+═══════════════════════════════════════════
+METRICS IN COVER LETTERS
+═══════════════════════════════════════════
+- Use casual phrasing: "about $1.1M" not "$1.1 million annually"
+- Round where appropriate: "roughly 50 roles" not "50+ roles"
+- Don't attach a metric to every example — one or two is enough. Let some achievements breathe without numbers.
+
 CRITICAL OUTPUT RULES:
 ❌ DO NOT copy-paste resume bullets or raw achievement text
 ❌ DO NOT include company names from resume in the output (except when naturally referencing your experience)
@@ -455,42 +485,43 @@ ${(app.key_requirements || []).slice(0, 5).map(req => `- ${req}`).join('\n')}
 
 ${selectedStyleConfig.instructions}
 
-**BODY PARAGRAPHS GUIDELINES:**
+═══════════════════════════════════════════
+STRUCTURE (STRICT)
+═══════════════════════════════════════════
 
-**Experience Paragraph (4-5 sentences):**
-- Tell a brief story about relevant experience
-- Weave in 1-2 quantified achievements NATURALLY (no bullet points)
-- Connect your background to their needs through storytelling
-- Example: "At my previous company, I worked with the executive team to roll out performance-driven OKR programs. Over the next year, we saw productivity climb 30% while employee engagement scores improved significantly."
+**Paragraph 1 — Why this role, why now (3-4 sentences MAX):**
+- Follow the selected opening style above.
+- Hook the reader with something specific about THIS company/role.
+- Keep it tight. Don't front-load your life story here.
 
-**Alignment Paragraph (4-5 sentences):**
-- Demonstrate company knowledge (use research above)
-- Show alignment with their mission/values/work
-- Explain what excites you about THEIR specific work
-- Make it personal and company-specific
+**Paragraph 2 — The proof (THIS IS THE LONGEST PARAGRAPH, 4-6 sentences):**
+- 2-3 company examples with specific facts from your background.
+- Weave in metrics casually (remember: "about $1.1M", not "$1.1 million annually").
+- Tell brief stories, don't list achievements.
+- This paragraph should feel substantial — it carries the weight of the letter.
 
-**Closing Paragraph (2-3 sentences):**
-- Express genuine interest in contributing
-- Mention next steps naturally
-- Professional but warm tone
+**Paragraph 3 — The company-specific connection (3-4 sentences):**
+- What about THIS company's situation fits your experience?
+- Demonstrate you've done your homework using the organization research above.
+- Be specific — name a product, initiative, or challenge they face.
 
-**ANTI-AI RED FLAGS TO AVOID THROUGHOUT:**
-❌ "Leveraged," "utilized," "spearheaded," "facilitated"
-❌ "I am excited to express my interest" (too formal/robotic)
-❌ "Best-in-class," "world-class," "cutting-edge"
-❌ Perfect parallel structure throughout
-❌ Generic phrases that could apply to ANY company
-❌ Buzzword soup and keyword stuffing
-❌ Resume bullets or achievement lists
+**Paragraph 4 (optional) — Secondary skill if relevant (2 sentences MAX):**
+- Only include if there's a clear secondary angle (analytics, AI, language, etc.).
+- Keep it brief. If it doesn't add value, skip it entirely.
+
+**Closing (2-3 sentences):**
+- Just say you want the job. Be direct.
+- No stacking abstract qualities ("I bring passion, integrity, resilience, and vision...").
+- Warm but not groveling.
 
 **OUTPUT FORMAT:**
 
 Return ONLY a JSON object with these 4 clean paragraph strings:
 {
-  "intro_mission": "2-3 sentence opening paragraph following the ${openingStyle} style with ${tone} tone",
-  "para_experience": "4-5 sentence paragraph about experience - NO BULLETS, natural storytelling with metrics woven in",
-  "para_alignment": "4-5 sentence paragraph showing company knowledge and genuine fit",
-  "closing": "2-3 sentence closing paragraph"
+  "intro_mission": "3-4 sentence opening paragraph following the ${openingStyle} style with ${tone} tone — why this role, why now",
+  "para_experience": "The proof — 4-6 sentence paragraph with 2-3 company examples, specific facts, casual metrics. This is the longest paragraph.",
+  "para_alignment": "3-4 sentence paragraph on company-specific connection. If a secondary skill is relevant, append 1-2 sentences about it here.",
+  "closing": "2-3 sentence closing. Direct, warm. No abstract noun stacking."
 }`;
 
       const numVariations = generateMultiple ? 3 : 1;
