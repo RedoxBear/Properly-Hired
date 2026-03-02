@@ -1215,6 +1215,16 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                     <Switch checked={deepHumanize} onCheckedChange={setDeepHumanize} />
                   </div>
 
+                  {/* Human Optimization - Premium Feature */}
+                  <HumanOptimizationToggle
+                    enabled={humanOptEnabled}
+                    onToggle={setHumanOptEnabled}
+                    canUse={canPerformAction(currentUser, "human_optimization", humanOptCount)}
+                    usageCount={humanOptCount}
+                    usageLimit={getTierLimit(currentUser, "human_optimization")}
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
+                  />
+
                   <div className="flex gap-3">
                       <Button
                         onClick={() => optimizeResume(false)}
