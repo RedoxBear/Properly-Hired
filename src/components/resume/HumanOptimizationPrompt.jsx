@@ -208,36 +208,24 @@ Before outputting, mentally read each bullet aloud — if it sounds robotic or c
 `;
 }
 
-/**
- * List of banned verbs for quick reference/validation
- */
-export const BANNED_VERBS = [
-  'architected', 'orchestrated', 'spearheaded', 'catalyzed', 'championed',
-  'leveraged', 'synergized', 'operationalized', 'pioneered', 'revolutionized',
-  'transformed', 'elevated', 'empowered', 'curated', 'facilitated',
-  'streamlined', 'optimized', 'strategized', 'conceptualized', 'actualized',
-  'ideated', 'synced'
-];
+// Re-export banned/preferred verbs and scan function from the single source of truth
+export {
+  BANNED_VERBS,
+  BANNED_MODIFIERS,
+  BANNED_PHRASES,
+  BANNED_FILLER,
+  PREFERRED_VERBS,
+  scanText
+} from "@/components/utils/humanVoiceRules";
 
 /**
- * List of preferred verbs for quick reference
- */
-export const PREFERRED_VERBS = [
-  'built', 'led', 'managed', 'ran', 'set up', 'handled', 'created', 'designed',
-  'reduced', 'improved', 'fixed', 'hired', 'coached', 'supported', 'worked with',
-  'helped', 'kept', 'put in place', 'started', 'launched', 'grew', 'cut', 'raised',
-  'saved', 'trained', 'developed', 'wrote', 'organized', 'planned', 'tracked',
-  'shipped', 'delivered', 'completed', 'closed', 'negotiated', 'presented',
-  'analyzed', 'researched', 'tested'
-];
-
-/**
- * Check if text contains banned verbs
+ * Check if text contains banned verbs (convenience wrapper)
  * @param {string} text 
  * @returns {string[]} Array of found banned verbs
  */
 export function findBannedVerbs(text) {
   if (!text) return [];
+  const { BANNED_VERBS: bv } = require("@/components/utils/humanVoiceRules");
   const lowerText = text.toLowerCase();
-  return BANNED_VERBS.filter(verb => lowerText.includes(verb.toLowerCase()));
+  return Object.keys(bv).filter(verb => lowerText.includes(verb.toLowerCase()));
 }
