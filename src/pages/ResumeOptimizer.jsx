@@ -698,10 +698,17 @@ Return JSON:
         for (const cvStyle of stylesToGenerate) {
           const styleTag = cvStyle === "achievement" ? "Exp" : "Chron";
 
+          // Build human optimization enhancement if enabled
+          const humanOptEnhancement = humanOptEnabled ? buildHumanOptimizationEnhancement({
+            targetRole: jobData.job_title,
+            targetCompany: jobData.company_name,
+            toneFit: ""
+          }) : "";
+
           // For achievement style, use the dedicated achievement CV prompt builder
           if (cvStyle === "achievement") {
             for (let i = 0; i < numVersions; i++) {
-              const achievementPrompt = buildAchievementCvPrompt({
+              const baseAchievementPrompt = buildAchievementCvPrompt({
                 jobTitle: jobData.job_title,
                 companyName: jobData.company_name,
                 jobDescription: jobData.job_description,
@@ -711,6 +718,9 @@ Return JSON:
                 variationIndex: i,
                 generateMultiple,
               });
+              const achievementPrompt = humanOptEnabled 
+                ? `${humanOptEnhancement}\n\n${baseAchievementPrompt}`
+                : baseAchievementPrompt;
 
               const response = await retryWithBackoff(() =>
                 base44.integrations.Core.InvokeLLM({
@@ -820,9 +830,10 @@ Return JSON:
                 response.recommendations = response.recommendations.map(r => cleanResumeData(r));
               }
 
+              const humanTag = humanOptEnabled ? " - Human" : "";
               const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
               const newVersion = await Resume.create({
-                version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${versionSuffix}`,
+                version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${humanTag}${versionSuffix}`,
                 original_file_url: selectedResume.original_file_url,
                 parsed_content: selectedResume.parsed_content,
                 optimized_content: JSON.stringify(response.optimized_resume_content),
