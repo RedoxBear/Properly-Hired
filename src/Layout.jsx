@@ -107,7 +107,8 @@ function AppShell({ children, currentPageName }) {
             items: [
                 { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings", badge: "Free" },
                 { title: "Resume Optimizer", url: createPageUrl("ResumeOptimizer"), icon: FileText, description: "Tailor Your Resume", badge: "Free" },
-                { title: "Cover Letters", url: createPageUrl("CoverLetters"), icon: Mail, description: "Generate Cover Letters", badge: "Free" }
+                { title: "Cover Letters", url: createPageUrl("CoverLetters"), icon: Mail, description: "Generate Cover Letters", badge: "Free" },
+                { title: "AI Scanner", url: createPageUrl("AIDetectionScanner"), icon: Shield, description: "Check for AI-sounding text", badge: "Free" }
             ]
         },
         {
