@@ -93,6 +93,7 @@ import SearchHub from './pages/SearchHub';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
+import AIDetectionScanner from './pages/AIDetectionScanner';
 import __Layout from './Layout.jsx';
 
 
@@ -143,6 +144,7 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
+    "AIDetectionScanner": AIDetectionScanner,
 }
 
 export const pagesConfig = {
