@@ -484,6 +484,12 @@ export default function OptimizationResults({ results, onReset }) {
                 </Card>
             )}
 
+            {/* Human Voice Scan */}
+            <HumanVoiceScanCard
+              text={buildResumeText()}
+              label="Human Voice Scan — Optimized Resume"
+            />
+
             {/* CV Style Tag */}
             {results.cvStyle && (
                 <div className="flex items-center gap-2">

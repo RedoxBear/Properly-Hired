@@ -914,6 +914,16 @@ Return ONLY a JSON object with these 4 clean paragraph strings:
                 ))
               }
             </div>
+            {/* Human Voice Scan for Cover Letter */}
+            {output.trim() && (
+              <div className="mt-4">
+                <HumanVoiceScanCard
+                  text={output}
+                  label="Human Voice Scan — Cover Letter"
+                />
+              </div>
+            )}
+
             <div className="mt-6">
               <Button onClick={runAIFeedback} disabled={isCheckingFeedback} className="mb-4">
                 {isCheckingFeedback ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
