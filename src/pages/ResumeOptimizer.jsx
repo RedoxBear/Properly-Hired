@@ -1084,6 +1084,7 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
       setSelectedVersion(0);
       setResolvedCvStyle(null);
       setSelectedCvStyle(null);
+      setHumanOptEnabled(false);
   };
 
   return (
