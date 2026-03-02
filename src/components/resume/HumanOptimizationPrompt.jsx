@@ -5,6 +5,18 @@
  * to make resume content sound authentically human-written.
  */
 
+// Re-export from the single source of truth (humanVoiceRules)
+import {
+  BANNED_VERBS as _BANNED_VERBS,
+  BANNED_MODIFIERS,
+  BANNED_PHRASES,
+  BANNED_FILLER,
+  PREFERRED_VERBS as _PREFERRED_VERBS,
+  scanText
+} from "@/components/utils/humanVoiceRules";
+
+export { _BANNED_VERBS as BANNED_VERBS, BANNED_MODIFIERS, BANNED_PHRASES, BANNED_FILLER, _PREFERRED_VERBS as PREFERRED_VERBS, scanText };
+
 export const HUMAN_OPTIMIZATION_SYSTEM_PROMPT = `
 ═══════════════════════════════════════════════════════════════════════════════
 HUMAN OPTIMIZATION MODE — ANTI-AI DETECTION FRAMEWORK
@@ -207,18 +219,6 @@ Apply ALL human optimization rules above to EVERY piece of text you generate.
 Before outputting, mentally read each bullet aloud — if it sounds robotic or corporate-speak, rewrite it simpler.
 `;
 }
-
-// Re-export from the single source of truth
-import {
-  BANNED_VERBS as _BANNED_VERBS,
-  BANNED_MODIFIERS,
-  BANNED_PHRASES,
-  BANNED_FILLER,
-  PREFERRED_VERBS as _PREFERRED_VERBS,
-  scanText
-} from "@/components/utils/humanVoiceRules";
-
-export { _BANNED_VERBS as BANNED_VERBS, BANNED_MODIFIERS, BANNED_PHRASES, BANNED_FILLER, _PREFERRED_VERBS as PREFERRED_VERBS, scanText };
 
 /**
  * Check if text contains banned verbs (convenience wrapper)
