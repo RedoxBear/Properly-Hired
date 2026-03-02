@@ -208,15 +208,17 @@ Before outputting, mentally read each bullet aloud — if it sounds robotic or c
 `;
 }
 
-// Re-export banned/preferred verbs and scan function from the single source of truth
-export {
-  BANNED_VERBS,
+// Re-export from the single source of truth
+import {
+  BANNED_VERBS as _BANNED_VERBS,
   BANNED_MODIFIERS,
   BANNED_PHRASES,
   BANNED_FILLER,
-  PREFERRED_VERBS,
+  PREFERRED_VERBS as _PREFERRED_VERBS,
   scanText
 } from "@/components/utils/humanVoiceRules";
+
+export { _BANNED_VERBS as BANNED_VERBS, BANNED_MODIFIERS, BANNED_PHRASES, BANNED_FILLER, _PREFERRED_VERBS as PREFERRED_VERBS, scanText };
 
 /**
  * Check if text contains banned verbs (convenience wrapper)
@@ -225,7 +227,6 @@ export {
  */
 export function findBannedVerbs(text) {
   if (!text) return [];
-  const { BANNED_VERBS: bv } = require("@/components/utils/humanVoiceRules");
   const lowerText = text.toLowerCase();
-  return Object.keys(bv).filter(verb => lowerText.includes(verb.toLowerCase()));
+  return Object.keys(_BANNED_VERBS).filter(verb => lowerText.includes(verb.toLowerCase()));
 }
