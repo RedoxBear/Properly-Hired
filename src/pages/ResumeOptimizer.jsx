@@ -859,9 +859,10 @@ Return JSON:
 - ATS-optimized with clear section headers.\n`;
 
         for (let i = 0; i < numVersions; i++) {
+            const chronHumanPrefix = humanOptEnabled ? humanOptEnhancement + "\n\n" : "";
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
-                prompt: `You are a strict, objective Resume Auditor and Career Coach.
+                prompt: `${chronHumanPrefix}You are a strict, objective Resume Auditor and Career Coach.
 ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job Description (JD) provided, adhering to strict TRUTHFULNESS and STRATEGIC REFRAMING principles.
 
             **PART 1: CRITICAL TRUTHFULNESS RULES**
@@ -1014,9 +1015,10 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
               response.recommendations = response.recommendations.map(r => cleanResumeData(r));
             }
 
+            const chronHumanTag = humanOptEnabled ? " - Human" : "";
             const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
             const newVersion = await Resume.create({
-              version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${versionSuffix}`,
+              version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${chronHumanTag}${versionSuffix}`,
               original_file_url: selectedResume.original_file_url,
               parsed_content: selectedResume.parsed_content,
               optimized_content: JSON.stringify(response.optimized_resume_content),
