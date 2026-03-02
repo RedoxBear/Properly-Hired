@@ -19,6 +19,7 @@ import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import { retryWithBackoff } from "@/components/utils/retry";
 import { canPerformAction, getWeekStart, getTierLimit, formatLimit, TIERS } from "@/components/utils/accessControl";
 import UpgradePrompt from "@/components/subscription/UpgradePrompt";
+import { HUMAN_OPTIMIZATION_SYSTEM_PROMPT } from "@/components/resume/HumanOptimizationPrompt";
 
 export default function CoverLetter() {
   const [params] = useSearchParams();
