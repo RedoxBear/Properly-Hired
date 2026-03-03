@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AIDetectionScanner from './pages/AIDetectionScanner';
 import ActivityInsights from './pages/ActivityInsights';
 import AgentFeedbackInsights from './pages/AgentFeedbackInsights';
 import AgentTraining from './pages/AgentTraining';
@@ -93,11 +94,13 @@ import SearchHub from './pages/SearchHub';
 import TransferableSkills from './pages/TransferableSkills';
 import UserProfile from './pages/UserProfile';
 import Users from './pages/Users';
-import AIDetectionScanner from './pages/AIDetectionScanner';
+import ChronologicalEditor from './pages/ChronologicalEditor';
+import AchievementEditor from './pages/AchievementEditor';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AIDetectionScanner": AIDetectionScanner,
     "ActivityInsights": ActivityInsights,
     "AgentFeedbackInsights": AgentFeedbackInsights,
     "AgentTraining": AgentTraining,
@@ -144,7 +147,8 @@ export const PAGES = {
     "TransferableSkills": TransferableSkills,
     "UserProfile": UserProfile,
     "Users": Users,
-    "AIDetectionScanner": AIDetectionScanner,
+    "ChronologicalEditor": ChronologicalEditor,
+    "AchievementEditor": AchievementEditor,
 }
 
 export const pagesConfig = {
