@@ -957,7 +957,19 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                - Example: "optimization_score": "85%" (WRONG)
             2. COUNT your bullets before submitting - verify they match the ${modeLabel} requirements above
             3. PRESERVE the core meaning of achievements - reframe wording but don't invent new achievements
-            4. **NO MARKDOWN FORMATTING:** Do NOT use asterisks (*), double asterisks (**), underscores (_), hash symbols (#), or any other markdown formatting in ANY output text. All text must be plain, clean, professional text with no special formatting characters.`,
+            4. **NO MARKDOWN FORMATTING:** Do NOT use asterisks (*), double asterisks (**), underscores (_), hash symbols (#), or any other markdown formatting in ANY output text. All text must be plain, clean, professional text with no special formatting characters.
+
+            **POST-GENERATION AI READINESS CHECK (verify before returning):**
+            KEYWORD COVERAGE:
+            - Every MUST requirement from the JD appears in at least one bullet
+            - Every named tool/system appears in skills AND at least one bullet
+            - Professional Summary includes 2-3 major JD terms
+            - Most recent role addresses the JD's #1 priority
+            HUMAN AUTHENTICITY:
+            - At least 3 bullets with honest context sentences (details only someone who did the work would know)
+            - Metrics use "roughly" or "about" at least twice — avoid overly precise or perfect numbers
+            - Not every bullet starts with a power verb — vary structure naturally
+            - At least 1 bullet per role should be a plain scope statement without a metric`,
                 response_json_schema: {
                   type: "object",
                   properties: {
