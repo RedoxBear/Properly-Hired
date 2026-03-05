@@ -856,7 +856,20 @@ Return JSON:
           const cvStyleInstruction = `\n**CV FORMAT: CHRONOLOGICAL**
 - Standard reverse-chronological format.
 - Each role lists bullets in natural time-order, blending responsibilities with achievements.
-- ATS-optimized with clear section headers.\n`;
+- ATS-optimized with clear section headers.
+
+**JD POWER TERM EXTRACTION (do this silently before writing):**
+A. VERB+NOUN PAIRS (highest AI screener weight): Extract the specific actions the JD asks for. Match the JD's verb+noun structure but use natural verbs (JD: "conduct investigations" → You: "handled investigations"). Each major JD verb+noun pair MUST map to at least one bullet. These MUST appear in BULLET TEXT, not just skills sidebar.
+B. HARD SKILLS/TOOLS (medium weight): Every named tool/system must appear in BOTH the skills section AND at least one bullet. Skills section alone is not enough — AI weights in-context mentions higher.
+C. SOFT REQUIREMENTS (differentiating): Industry signals in company descriptions, scope signals in bullets ("across CA, IL, and SC"), pace signals ("90 days", "85 locations").
+
+**KEYWORD PLACEMENT (AI screeners weight locations differently):**
+- Professional Summary: HIGH weight — include 2-3 major JD terms naturally
+- Bullet text (recent roles): HIGHEST weight — all MUST requirements mapped here
+- Bullet text (older roles): MEDIUM weight — PLUS requirements here
+- Skills list: MEDIUM weight — every JD skill listed once
+- Role titles: HIGH weight — match JD title where honest
+- KEY: If a MUST requirement only appears in an older role, add a reference in a recent role too (if honest)\n`;
 
         for (let i = 0; i < numVersions; i++) {
             const chronHumanPrefix = humanOptEnabled ? humanOptEnhancement + "\n\n" : "";
