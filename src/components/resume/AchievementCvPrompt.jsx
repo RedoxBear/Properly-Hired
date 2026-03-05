@@ -155,6 +155,10 @@ WRITING RULES:
 - Third person only. No "I", "my", "our".
 - Numbers rule: Only use numbers from candidate data. Never fabricate.
 - Mirror JD's verb patterns and energy level
+- Metrics should use natural hedging: "about $1.1M", "roughly 50 people" — avoid overly precise numbers
+- At least 2-3 items should include honest context (details only someone who did the work would know)
+- Not every item should start with a power verb — vary structure naturally
+- Avoid: "100% satisfaction", "zero violations" (sounds fabricated to human reviewers)
 
 EXECUTIVE SUMMARY — 3 SENTENCES:
   S1: years + specialization + environments
