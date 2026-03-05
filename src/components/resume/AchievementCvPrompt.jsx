@@ -93,14 +93,25 @@ FORMULA VARIETY ENFORCEMENT:
   * Is this a senior/complex multi-faceted achievement? → Switch to ELITE
 
 ================================================================================
-STEP 1: ANALYZE THE JD — EXTRACT SIGNALS
+STEP 1: ANALYZE THE JD — EXTRACT SIGNALS (ATS AI SCREENING AWARE)
 ================================================================================
 
 TYPE A — EXPLICIT REQUIREMENTS: "required", "must have", "X+ years of"
 TYPE B — VERB DENSITY TOPICS: 3+ JD bullets on a topic → standalone pillar
 TYPE C — PREFERRED / NICE-TO-HAVE: Bridge with transferable analogs
 
-TOOL/SYSTEM CALLOUTS: If JD names a specific tool, it MUST appear by name in the relevant pillar.
+TOOL/SYSTEM CALLOUTS: If JD names a specific tool, it MUST appear by name in the relevant pillar AND in the skills section.
+
+JD POWER TERM EXTRACTION (do silently):
+A. VERB+NOUN PAIRS (highest AI screener weight): Extract the specific actions the JD asks for. Match the JD's verb+noun structure but use natural verbs. Each pair MUST map to at least one achievement item.
+B. HARD SKILLS/TOOLS: Every named tool/system must appear in BOTH the skills section AND at least one achievement item. Skills section alone is not enough — AI weights in-context mentions higher.
+C. SOFT REQUIREMENTS: Industry signals, scope signals ("across CA, IL, and SC"), pace signals ("90 days", "85 locations").
+
+KEYWORD PLACEMENT (AI screeners weight locations differently):
+- Executive Summary: HIGH weight — include 2-3 major JD terms naturally
+- Achievement items (top pillars): HIGHEST weight — all MUST requirements here
+- Skills list: MEDIUM weight — every JD skill listed once
+- KEY: If a MUST requirement only appears in older experience, ensure it surfaces in a top pillar achievement item.
 
 ================================================================================
 STEP 2: DETERMINE PILLAR COUNT AND ORDER
