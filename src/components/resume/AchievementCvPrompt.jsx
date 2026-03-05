@@ -171,7 +171,19 @@ BANNED WORDS: leverage, spearhead, utilize, synergy, dynamic, passionate, result
 STEP 5: QUALITY CHECKLIST
 ================================================================================
 
-Verify: Pillars ordered by JD priority | Formula variety (3+ formulas, none >40%) | Sentence count matches JD style | Metric or named context per item | JD tools named | JD tone mirrored | No banned words | No fabricated metrics | Professional Experience has NO bullets | Company name in Executive Summary | Each item tagged with formula name.
+Verify: Pillars ordered by JD priority | Formula variety (3+ formulas, none >40%) | Sentence count matches JD style | Metric or named context per item | JD tools named in skills AND achievement items | JD tone mirrored | No banned words | No fabricated metrics | Professional Experience has NO bullets | Company name in Executive Summary | Each item tagged with formula name.
+
+POST-GENERATION AI READINESS CHECK:
+KEYWORD COVERAGE:
+- Every MUST requirement from the JD appears in at least one achievement item
+- Every named tool/system appears in skills AND at least one achievement item
+- Executive Summary includes 2-3 major JD terms
+- Top pillar addresses the JD's #1 priority
+HUMAN AUTHENTICITY:
+- At least 3 items with honest context sentences
+- Metrics use "roughly" or "about" at least twice
+- Not every item starts with a power verb
+- At least 2-3 items are plain scope statements without dramatic metrics
 
 NO MARKDOWN FORMATTING: Do NOT use asterisks, double asterisks, underscores, hash symbols, or any other markdown formatting. All text must be plain, clean, professional text.`;
 
