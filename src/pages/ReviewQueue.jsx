@@ -20,7 +20,8 @@ import {
     ChevronDown, ChevronUp, ExternalLink, Plus, RefreshCw,
     Building2, MapPin, DollarSign, Wifi, Loader2, FileText,
     Image, Mail, Eye, Edit3, ThumbsDown, BookmarkX, Search,
-    TrendingUp, Send, Inbox
+    TrendingUp, Send, Inbox, Wand2, Download, ShieldCheck,
+    ShieldAlert, Sparkles
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -122,11 +123,12 @@ function AttentionBanner({ reason, url }) {
 
 // ── Application Card ──────────────────────────────────────────────
 
-function ApplicationCard({ listing, application, onApprove, onReject, onManual, onStatusUpdate }) {
+function ApplicationCard({ listing, application, onApprove, onReject, onManual, onStatusUpdate, onTailor, tailoring, tailorResult }) {
     const [editing, setEditing]         = React.useState(false);
     const [editAnswers, setEditAnswers] = React.useState("");
     const [editCoverLetter, setEditCoverLetter] = React.useState("");
     const [saving, setSaving]           = React.useState(false);
+    const [tailorFormat, setTailorFormat] = React.useState("standard");
 
     const sc   = statusConfig(listing.status);
     const Icon = sc.icon;
@@ -312,6 +314,81 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                     </Section>
                 )}
 
+                {/* ── Simon Audit Panel ── */}
+                {tailorResult && (
+                    <Section label={`Simon's Audit · ATS ${tailorResult.ats_score}/100`} icon={tailorResult.audit?.passed ? ShieldCheck : ShieldAlert} defaultOpen>
+                        <div className="space-y-2">
+                            {/* ATS score bar */}
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                        className={`h-full rounded-full transition-all ${tailorResult.ats_score >= 75 ? "bg-green-500" : tailorResult.ats_score >= 60 ? "bg-yellow-500" : "bg-red-500"}`}
+                                        style={{ width: `${tailorResult.ats_score}%` }}
+                                    />
+                                </div>
+                                <span className="text-xs font-bold tabular-nums w-12 text-right">{tailorResult.ats_score}/100</span>
+                            </div>
+
+                            {/* Audit badges */}
+                            <div className="flex flex-wrap gap-1.5">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${tailorResult.audit?.passed ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"}`}>
+                                    {tailorResult.audit?.passed ? "✓ Clean Room" : "⚠ Review Needed"}
+                                </span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                                    {tailorResult.keyword_gaps_filled?.length || 0} keywords injected
+                                </span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                    Round {tailorResult.round}
+                                </span>
+                                {tailorResult.audit?.section_parse && Object.entries(tailorResult.audit.section_parse).filter(([,v])=>v).map(([k]) => (
+                                    <span key={k} className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                        ✓ {k}
+                                    </span>
+                                ))}
+                            </div>
+
+                            {/* Keywords injected list */}
+                            {tailorResult.keyword_gaps_filled?.length > 0 && (
+                                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                    <span className="font-medium text-foreground">Injected: </span>
+                                    {tailorResult.keyword_gaps_filled.join(" · ")}
+                                </p>
+                            )}
+
+                            {/* Audit issues */}
+                            {tailorResult.audit?.ghost_strings?.length > 0 && (
+                                <Alert className="py-1.5 border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+                                    <AlertDescription className="text-xs text-amber-800 dark:text-amber-200">
+                                        ⚠ Ghost string detected — manual review recommended
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+
+                            {/* DOCX download */}
+                            {tailorResult.docx_base64 && (
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full mt-1"
+                                    onClick={() => {
+                                        const bytes = atob(tailorResult.docx_base64);
+                                        const arr = new Uint8Array(bytes.length);
+                                        for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+                                        const blob = new Blob([arr], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+                                        const a = document.createElement("a");
+                                        a.href = URL.createObjectURL(blob);
+                                        a.download = tailorResult.docx_filename || "resume.docx";
+                                        a.click();
+                                    }}
+                                >
+                                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                                    Download Tailored Resume (.docx)
+                                </Button>
+                            )}
+                        </div>
+                    </Section>
+                )}
+
                 <Separator className="my-2" />
 
                 {/* Action row */}
@@ -326,35 +403,66 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                         </Button>
                     </div>
                 ) : (
-                    <div className="flex gap-2 flex-wrap">
-                        {(isPending || isNeedsAttention || isApproved) && (
-                            <Button
-                                size="sm"
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => onApprove(listing)}
-                            >
-                                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                                Approve & Submit
-                            </Button>
+                    <div className="space-y-2">
+                        {/* Tailor Resume row */}
+                        {listing.status !== "submitted" && listing.status !== "rejected" && (
+                            <div className="flex gap-2 items-center">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex-1 border-indigo-300 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-700 dark:text-indigo-300 dark:hover:bg-indigo-950/30"
+                                    onClick={() => onTailor(listing.id, tailorFormat)}
+                                    disabled={tailoring}
+                                >
+                                    {tailoring
+                                        ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Tailoring…</>
+                                        : <><Wand2 className="w-3.5 h-3.5 mr-1.5" />Tailor Resume</>
+                                    }
+                                </Button>
+                                <select
+                                    value={tailorFormat}
+                                    onChange={e => setTailorFormat(e.target.value)}
+                                    className="text-xs border border-border rounded px-2 py-1.5 bg-background text-foreground h-8"
+                                    disabled={tailoring}
+                                >
+                                    <option value="standard">Standard (ATS)</option>
+                                    <option value="v4">V4 Two-Column</option>
+                                    <option value="v5">V5 Executive</option>
+                                </select>
+                            </div>
                         )}
-                        {(isPending || isNeedsAttention) && application && (
-                            <Button size="sm" variant="outline" onClick={startEdit}>
-                                <Edit3 className="w-3.5 h-3.5 mr-1.5" />
-                                Edit First
-                            </Button>
-                        )}
-                        {listing.status !== "rejected" && listing.status !== "submitted" && (
-                            <Button size="sm" variant="outline" onClick={() => onReject(listing.id)}>
-                                <ThumbsDown className="w-3.5 h-3.5 mr-1.5" />
-                                Reject
-                            </Button>
-                        )}
-                        {listing.status !== "manual" && listing.status !== "submitted" && (
-                            <Button size="sm" variant="ghost" onClick={() => onManual(listing.id)}>
-                                <BookmarkX className="w-3.5 h-3.5 mr-1.5" />
-                                Manual
-                            </Button>
-                        )}
+
+                        {/* Primary actions */}
+                        <div className="flex gap-2 flex-wrap">
+                            {(isPending || isNeedsAttention || isApproved) && (
+                                <Button
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                    onClick={() => onApprove(listing)}
+                                >
+                                    <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                                    Approve & Submit
+                                </Button>
+                            )}
+                            {(isPending || isNeedsAttention) && application && (
+                                <Button size="sm" variant="outline" onClick={startEdit}>
+                                    <Edit3 className="w-3.5 h-3.5 mr-1.5" />
+                                    Edit First
+                                </Button>
+                            )}
+                            {listing.status !== "rejected" && listing.status !== "submitted" && (
+                                <Button size="sm" variant="outline" onClick={() => onReject(listing.id)}>
+                                    <ThumbsDown className="w-3.5 h-3.5 mr-1.5" />
+                                    Reject
+                                </Button>
+                            )}
+                            {listing.status !== "manual" && listing.status !== "submitted" && (
+                                <Button size="sm" variant="ghost" onClick={() => onManual(listing.id)}>
+                                    <BookmarkX className="w-3.5 h-3.5 mr-1.5" />
+                                    Manual
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 )}
             </CardContent>
@@ -402,6 +510,8 @@ export default function ReviewQueue() {
     const [showDiscover, setShowDiscover]       = React.useState(false);
     const [discoverQuery, setDiscoverQuery]     = React.useState("");
     const [discoverLocation, setDiscoverLocation] = React.useState("");
+    const [tailoringIds, setTailoringIds]       = React.useState(new Set());
+    const [tailorResults, setTailorResults]     = React.useState({});
 
     // ── Auth ──
     React.useEffect(() => {
@@ -494,6 +604,26 @@ export default function ReviewQueue() {
     }, [listings, statusFilter, searchTerm, minScore, sortBy]);
 
     // ── Actions ──
+    const handleTailor = async (listingId, format = "standard") => {
+        if (tailoringIds.has(listingId)) return;
+        setTailoringIds(prev => new Set([...prev, listingId]));
+        try {
+            const result = await base44.functions.invoke("orchestrateTailoring", {
+                user_id: currentUser?.id,
+                job_listing_id: listingId,
+                format,
+            });
+            setTailorResults(prev => ({ ...prev, [listingId]: result }));
+            // Refresh listings so status badge updates
+            await loadData();
+        } catch (e) {
+            console.error("Tailoring failed:", e);
+            setTailorResults(prev => ({ ...prev, [listingId]: { error: e.message } }));
+        } finally {
+            setTailoringIds(prev => { const s = new Set(prev); s.delete(listingId); return s; });
+        }
+    };
+
     const handleApprove = (listing) => setConfirmApprove(listing);
 
     const confirmAndApprove = async () => {
@@ -717,6 +847,9 @@ export default function ReviewQueue() {
                             onReject={handleReject}
                             onManual={handleManual}
                             onStatusUpdate={handleStatusUpdate}
+                            onTailor={handleTailor}
+                            tailoring={tailoringIds.has(listing.id)}
+                            tailorResult={tailorResults[listing.id] || null}
                         />
                     ))}
                 </div>

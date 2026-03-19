@@ -1,0 +1,21 @@
+{
+  "name": "ResumeVersion",
+  "type": "object",
+  "properties": {
+    "user_id":             { "type": "string" },
+    "job_listing_id":      { "type": "string" },
+    "version_type":        { "type": "string", "enum": ["standard", "v4", "v5"], "enumNames": ["Standard ATS", "V4 Two-Column", "V5 Executive"] },
+    "resume_text":         { "type": "string" },
+    "docx_base64":         { "type": "string" },
+    "docx_filename":       { "type": "string" },
+    "cover_letter_text":   { "type": "string" },
+    "ats_score":           { "type": "number" },
+    "keyword_gaps_filled": { "type": "array",  "items": { "type": "string" } },
+    "simon_audit_passed":  { "type": "boolean" },
+    "audit_log":           { "type": "object" },
+    "tailor_round":        { "type": "integer" },
+    "needs_manual_review": { "type": "boolean" },
+    "created_at":          { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id", "job_listing_id"]
+}

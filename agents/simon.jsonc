@@ -69,6 +69,26 @@
     {
       "function_name": "queryAlphaVantage",
       "description": "Query Alpha Vantage for company financial intelligence. Use for ticker lookup, public/private signal, market cap, revenue, and trend snapshot. Pass { action: \"company_financials\", companyName: \"...\" } or { action: \"symbol_search\", keywords: \"...\" }."
+    },
+    {
+      "entity_name": "JobListing",
+      "allowed_operations": ["create", "read", "update"]
+    },
+    {
+      "entity_name": "ResumeVersion",
+      "allowed_operations": ["create", "read", "update"]
+    },
+    {
+      "entity_name": "ApplicationEvent",
+      "allowed_operations": ["create", "read"]
+    },
+    {
+      "function_name": "discoverJobs",
+      "description": "Discover and score job listings from JSearch, Adzuna, and USAJobs APIs. Deduplicates, applies 5-dimension match scoring, and creates JobListing records. Pass { user_id, search_query, location, remote_only }. Returns { discovered, new_listings, duplicates_skipped, below_threshold, high_match }."
+    },
+    {
+      "function_name": "orchestrateTailoring",
+      "description": "Run the full resume tailoring pipeline for a job listing: keyword gap analysis, ATS-safe DOCX generation (clean-room, metadata sanitized), 2-round quality loop, parsing audit, cover letter generation. Pass { user_id, job_listing_id, format? } where format is 'standard' (default ATS-safe single-column), 'v4', or 'v5'. Returns { resume_version_id, ats_score, keyword_gaps_filled, audit, status }."
     }
   ],
   "whatsapp_greeting": "Hello! I'm Simon, your Recruiting & HR Expert. I can analyze job postings for ghost-job risk, assess JD quality, classify role levels, and provide strategic recommendations for your job search. I also have access to Library of Congress resources on HR and organizational planning. Share a job description and I'll give you a comprehensive analysis!"
