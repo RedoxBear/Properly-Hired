@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "name": "ONetSkill",
+  "title": "O*NET Skill",
+  "description": "O*NET skill ratings per occupation — maps from Skills.csv",
+  "properties": {
+    "occupation_code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "occupation_title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "skill_name": {
+      "type": "string",
+      "title": "Skill Name"
+    },
+    "skill_category": {
+      "type": "string",
+      "title": "Skill Category"
+    },
+    "importance": {
+      "type": "number",
+      "title": "Importance Score"
+    },
+    "level": {
+      "type": "number",
+      "title": "Level Score"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["occupation_code", "skill_name"]
+}

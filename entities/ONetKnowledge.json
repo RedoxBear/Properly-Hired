@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "name": "ONetKnowledge",
+  "title": "O*NET Knowledge",
+  "description": "O*NET knowledge domain ratings per occupation — maps from Knowledge.csv",
+  "properties": {
+    "occupation_code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "occupation_title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "knowledge_name": {
+      "type": "string",
+      "title": "Knowledge Name"
+    },
+    "knowledge_category": {
+      "type": "string",
+      "title": "Knowledge Category"
+    },
+    "importance": {
+      "type": "number",
+      "title": "Importance Score"
+    },
+    "level": {
+      "type": "number",
+      "title": "Level Score"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["occupation_code", "knowledge_name"]
+}

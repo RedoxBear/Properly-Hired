@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "name": "ONetAbility",
+  "title": "O*NET Ability",
+  "description": "O*NET ability ratings per occupation — maps from Abilities.csv",
+  "properties": {
+    "occupation_code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "occupation_title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "ability_name": {
+      "type": "string",
+      "title": "Ability Name"
+    },
+    "ability_category": {
+      "type": "string",
+      "title": "Ability Category"
+    },
+    "importance": {
+      "type": "number",
+      "title": "Importance Score"
+    },
+    "level": {
+      "type": "number",
+      "title": "Level Score"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["occupation_code", "ability_name"]
+}

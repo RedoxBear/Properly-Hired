@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "name": "ONetWorkActivity",
+  "title": "O*NET Work Activity",
+  "description": "O*NET work activity ratings per occupation — maps from Work_Activities.csv",
+  "properties": {
+    "occupation_code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "occupation_title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "activity_name": {
+      "type": "string",
+      "title": "Activity Name"
+    },
+    "activity_category": {
+      "type": "string",
+      "title": "Activity Category"
+    },
+    "importance": {
+      "type": "number",
+      "title": "Importance Score"
+    },
+    "level": {
+      "type": "number",
+      "title": "Level Score"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["occupation_code", "activity_name"]
+}

@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "name": "ONetReference",
+  "title": "O*NET Reference",
+  "description": "O*NET reference and cross-walk data — maps from Content_Model_Reference.csv, Scales_Reference.csv, Alternate_Titles.csv, and all other reference CSVs",
+  "properties": {
+    "reference_type": {
+      "type": "string",
+      "title": "Reference Type"
+    },
+    "reference_key": {
+      "type": "string",
+      "title": "Reference Key"
+    },
+    "reference_name": {
+      "type": "string",
+      "title": "Reference Name"
+    },
+    "version": {
+      "type": "string",
+      "title": "Version"
+    },
+    "import_date": {
+      "type": "string",
+      "title": "Import Date",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "metadata": {
+      "type": "object",
+      "title": "Metadata"
+    }
+  },
+  "required": ["reference_type", "reference_key", "reference_name"]
+}

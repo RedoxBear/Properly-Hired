@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "name": "ONetWorkContext",
+  "title": "O*NET Work Context",
+  "description": "O*NET work context ratings per occupation — maps from Work_Context.csv",
+  "properties": {
+    "occupation_code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "occupation_title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "context_name": {
+      "type": "string",
+      "title": "Context Name"
+    },
+    "context_category": {
+      "type": "string",
+      "title": "Context Category"
+    },
+    "value": {
+      "type": "number",
+      "title": "Data Value"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["occupation_code", "context_name"]
+}

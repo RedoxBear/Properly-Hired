@@ -28,6 +28,7 @@ import {
     Boxes,
     Crown,
     Target,
+    ClipboardList,
     User,
     Users,
     Gift,
@@ -115,6 +116,7 @@ function AppShell({ children, currentPageName }) {
             items: [
                 { title: "Job Matcher", url: createPageUrl("JobMatcher"), icon: Target, description: "AI job matching & fit analysis", badge: "Pro" },
                 { title: "App Tracker", url: createPageUrl("ApplicationTracker"), icon: Briefcase, description: "Track all your applications", badge: "Pro" },
+                { title: "Review Queue", url: createPageUrl("ReviewQueue"), icon: ClipboardList, description: "Review & approve applications", badge: "Pro" },
                 { title: "Interview Prep", url: createPageUrl("InterviewPrep"), icon: MessageCircleQuestion, description: "AI interview strategy", badge: "Pro" },
                 { title: "Autofill Vault", url: createPageUrl("AutofillVault"), icon: Boxes, description: "Keep answers.", badge: "Pro" },
                 { title: "Transferable Skills", url: createPageUrl("TransferableSkills"), icon: ArrowRightLeft, description: "Identify & Retarget Skills", badge: "Pro" },

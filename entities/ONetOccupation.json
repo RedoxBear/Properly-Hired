@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "name": "ONetOccupation",
+  "title": "O*NET Occupation",
+  "description": "O*NET occupational data — maps from Occupation_Data.csv and Job_Zones.csv",
+  "properties": {
+    "code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "job_zone": {
+      "type": "number",
+      "title": "Job Zone",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["code", "title"]
+}

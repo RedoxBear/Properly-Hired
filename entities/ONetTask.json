@@ -1,0 +1,44 @@
+{
+  "type": "object",
+  "name": "ONetTask",
+  "title": "O*NET Task",
+  "description": "O*NET task statements per occupation — maps from Task_Statements.csv, Emerging_Tasks.csv, Task_Ratings.csv",
+  "properties": {
+    "occupation_code": {
+      "type": "string",
+      "title": "O*NET-SOC Code"
+    },
+    "occupation_title": {
+      "type": "string",
+      "title": "Occupation Title"
+    },
+    "task_name": {
+      "type": "string",
+      "title": "Task"
+    },
+    "task_type": {
+      "type": "string",
+      "title": "Task Type",
+      "enum": ["Core", "Supplemental"],
+      "enumNames": ["Core", "Supplemental"]
+    },
+    "importance": {
+      "type": "number",
+      "title": "Importance Score"
+    },
+    "frequency": {
+      "type": "number",
+      "title": "Frequency Score"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["occupation_code", "task_name"]
+}
