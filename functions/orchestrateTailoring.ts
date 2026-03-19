@@ -491,7 +491,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { user_id = user.id, job_listing_id, format = 'standard' } = body;
 
     if (!job_listing_id) {
@@ -503,9 +503,15 @@ Deno.serve(async (req) => {
     const Resume = base44.asServiceRole.entities.Resume;
     const ResumeVersion = base44.asServiceRole.entities.ResumeVersion;
 
-    // Load job listing
-    const listings = await JobListing.filter({ id: job_listing_id });
-    const jobListing = listings?.[0] ?? null;
+    // Load job listing — try direct get first, fallback to filter
+    let jobListing: Record<string, unknown> | null = null;
+    try {
+      const direct = await JobListing.get(job_listing_id);
+      jobListing = direct ?? null;
+    } catch {
+      const listings = await JobListing.filter({ id: job_listing_id }).catch(() => []);
+      jobListing = listings?.[0] ?? null;
+    }
     if (!jobListing) {
       return Response.json({ error: 'Job listing not found' }, { status: 404 });
     }
@@ -572,9 +578,10 @@ Deno.serve(async (req) => {
     const audit = auditDocumentStructure(tailored);
     audit.ats_score = atsScore;
 
-    // Pack DOCX
+    // Pack DOCX — Buffer is a Uint8Array subclass in Deno npm compat
     const buf = await Packer.toBuffer(doc);
-    const docxBase64 = uint8ToBase64(new Uint8Array(buf as unknown as ArrayBuffer));
+    const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf as ArrayBufferLike);
+    const docxBase64 = uint8ToBase64(u8);
 
     // Generate cover letter
     const coverLetterText = generateCoverLetter(tailored, jobListing as { title?: string; company?: string }, gapKeywords);
@@ -621,6 +628,9 @@ Deno.serve(async (req) => {
       audit,
       status: finalStatus,
       needs_manual_review: !audit.passed || atsScore < 60,
+      // Include DOCX directly in response so ReviewQueue can offer immediate download
+      docx_base64: docxBase64,
+      docx_filename: docxFilename,
     });
   } catch (err) {
     console.error('[orchestrateTailoring] Error:', err);

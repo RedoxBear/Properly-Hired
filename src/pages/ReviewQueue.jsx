@@ -314,8 +314,18 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                     </Section>
                 )}
 
+                {/* ── Tailor error ── */}
+                {tailorResult?.error && (
+                    <Alert className="border-red-300 bg-red-50 dark:bg-red-950/30 py-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        <AlertDescription className="text-xs text-red-800 dark:text-red-200 ml-1">
+                            <span className="font-semibold">Tailoring failed — </span>{tailorResult.error}
+                        </AlertDescription>
+                    </Alert>
+                )}
+
                 {/* ── Simon Audit Panel ── */}
-                {tailorResult && (
+                {tailorResult && !tailorResult.error && (
                     <Section label={`Simon's Audit · ATS ${tailorResult.ats_score}/100`} icon={tailorResult.audit?.passed ? ShieldCheck : ShieldAlert} defaultOpen>
                         <div className="space-y-2">
                             {/* ATS score bar */}
