@@ -234,6 +234,7 @@ Deno.serve(async (req) => {
     const AutofillVault    = base44.asServiceRole.entities.AutofillVault;
     const ApplicationEvent = base44.asServiceRole.entities.ApplicationEvent;
     const Application      = base44.asServiceRole.entities.Application;
+    const Resume           = base44.asServiceRole.entities.Resume;
 
     // ── Load JobListing ──
     let jobListing: Record<string, unknown> | null = null;
@@ -333,7 +334,30 @@ Deno.serve(async (req) => {
       (e: unknown) => console.error('[fillApplication] JobListing update failed:', e),
     );
 
-    // ── Update Application entity — persist cover_letter + fill_summary ──
+    // ── Generate screening answers via Kyle ──
+    let screeningAnswers: Record<string, unknown> = {};
+    try {
+      const jdText = (jobListing.jd_text as string) ?? '';
+      if (jdText.length > 100) {
+        // Try the generateScreeningAnswers function inline
+        const saResp = await fetch(
+          `${(req.url.includes('localhost') ? 'http://localhost:8000' : 'https://api.base44.com')}/functions/generateScreeningAnswers`,
+          {
+            method: 'POST',
+            headers: { ...Object.fromEntries(req.headers), 'content-type': 'application/json' },
+            body: JSON.stringify({ user_id, job_listing_id, save_to_vault: false }),
+          }
+        ).catch(() => null);
+        if (saResp?.ok) {
+          const saResult = await saResp.json().catch(() => ({}));
+          screeningAnswers = saResult.answers ?? {};
+        }
+      }
+    } catch (e) {
+      console.warn('[fillApplication] Screening answer generation failed (non-fatal):', e);
+    }
+
+    // ── Update Application entity — persist cover_letter + fill_summary + screening_answers ──
     const { cover_letter: coverLetterForApp, ...fillSummaryPacket } = autofillPacket as Record<string, unknown>;
     const existingApps = await Application.filter({ job_listing_id, user_id }).catch(() => []);
     const existingApp = existingApps?.[0] ?? null;
@@ -341,6 +365,7 @@ Deno.serve(async (req) => {
       await Application.update(existingApp.id, {
         cover_letter_text: coverLetterForApp ?? '',
         fill_summary:      fillSummaryPacket,
+        screening_answers: Object.keys(screeningAnswers).length > 0 ? screeningAnswers : existingApp.screening_answers,
         status:            finalStatus,
       }).catch((e: unknown) => console.error('[fillApplication] Application update failed:', e));
     } else {
@@ -350,6 +375,7 @@ Deno.serve(async (req) => {
         resume_version_id: resumeVersion?.id ?? null,
         cover_letter_text: coverLetterForApp ?? '',
         fill_summary:      fillSummaryPacket,
+        screening_answers: screeningAnswers,
         status:            finalStatus,
         created_at:        new Date().toISOString(),
       }).catch((e: unknown) => console.error('[fillApplication] Application create failed:', e));
