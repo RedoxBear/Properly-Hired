@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 /**
  * discoverJobs — Autonomous Job Discovery Function
@@ -287,7 +287,7 @@ Deno.serve(async (req) => {
     // ── Load user's master resume for scoring ──
     const resumes = await Resume.filter({ user_id }).catch(() => []);
     const masterResume = resumes.find((r: any) => r.is_master_resume) || resumes[0] || null;
-    const resumeText   = masterResume?.content || masterResume?.resume_text || '';
+    const resumeText   = masterResume?.parsed_content || masterResume?.optimized_content || '';
 
     // ── Existing dedup hashes for this user ──
     const existingHashes = new Set<string>(

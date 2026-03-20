@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import {
   AlignmentType,
   BorderStyle,
@@ -523,9 +523,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'No master resume found for user' }, { status: 400 });
     }
 
-    const masterText: string = (masterResume.content ?? masterResume.resume_text ?? masterResume.parsed_content ?? masterResume.optimized_content ?? '') as string;
+    const masterText: string = (masterResume.parsed_content ?? masterResume.optimized_content ?? '') as string;
     const jdText: string = (jobListing.jd_text ?? '') as string;
-    const candidateName: string = (masterResume.candidate_name ?? user.name ?? user.email ?? 'Candidate') as string;
+    const personalInfo = (masterResume.personal_info ?? {}) as Record<string, string>;
+    const candidateName: string = (personalInfo.name ?? user.full_name ?? user.email ?? 'Candidate') as string;
     const targetRole: string = (jobListing.title ?? jobListing.job_title ?? 'Professional') as string;
 
     // ── Round 1 ──────────────────────────────────────────────────────────────

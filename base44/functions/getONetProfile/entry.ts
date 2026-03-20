@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 /**
  * getONetProfile — Builds an occupation profile from internal O*NET DB first,
@@ -35,22 +35,8 @@ function dedupeByName(rows, nameField) {
 }
 
 /**
- * Merge task rows (importance + frequency are separate rows per task),
- * dedup by task_name, keep max importance.
+ * Merge task rows — now uses element_name like all other entities.
  */
-function dedupeTasks(rows) {
-  const map = {};
-  for (const r of rows) {
-    const name = r.task_name;
-    if (!name) continue;
-    if (!map[name]) {
-      map[name] = { name, importance: 0, frequency: 0 };
-    }
-    map[name].importance = Math.max(map[name].importance, r.importance || 0);
-    map[name].frequency = Math.max(map[name].frequency, r.frequency || 0);
-  }
-  return Object.values(map).sort((a, b) => b.importance - a.importance);
-}
 
 /**
  * Parse RIASEC and Work Values from ONetReference records.
@@ -205,7 +191,7 @@ Deno.serve(async (req) => {
 
     if (resolvedCode) {
       // Direct SOC code lookup
-      const occResults = await db.ONetOccupation.filter({ code: resolvedCode }, '-created_date', 1);
+      const occResults = await db.ONetOccupation.filter({ onet_soc_code: resolvedCode }, '-created_date', 1);
       if (occResults?.length > 0) {
         resolvedTitle = occResults[0].title || '';
         matchSource = 'local_soc';
@@ -285,7 +271,7 @@ Deno.serve(async (req) => {
       if (aliasTarget) {
         const match = occupations.find(o => (o.title || '').toLowerCase() === aliasTarget);
         if (match) {
-          resolvedCode = match.code;
+          resolvedCode = match.onet_soc_code;
           resolvedTitle = match.title;
           matchSource = 'local_alias';
         }
@@ -332,7 +318,7 @@ Deno.serve(async (req) => {
         }
 
         if (bestMatch && bestScore >= 4) {
-          resolvedCode = bestMatch.code;
+          resolvedCode = bestMatch.onet_soc_code;
           resolvedTitle = bestMatch.title;
           matchSource = bestScore >= 100 ? 'local_exact' : 'local_fuzzy';
         }
@@ -343,12 +329,12 @@ Deno.serve(async (req) => {
     if (resolvedCode) {
       // Fetch all granular data in parallel
       const [skillRows, abilityRows, knowledgeRows, taskRows, activityRows, contextRows, interestRefs, workValueRefs, techRefs] = await Promise.all([
-        db.ONetSkill.filter({ occupation_code: resolvedCode }, '-importance', 200).catch(() => []),
-        db.ONetAbility.filter({ occupation_code: resolvedCode }, '-importance', 200).catch(() => []),
-        db.ONetKnowledge.filter({ occupation_code: resolvedCode }, '-importance', 200).catch(() => []),
-        db.ONetTask.filter({ occupation_code: resolvedCode }, '-importance', 200).catch(() => []),
-        db.ONetWorkActivity.filter({ occupation_code: resolvedCode }, '-importance', 200).catch(() => []),
-        db.ONetWorkContext.filter({ occupation_code: resolvedCode }, '-value', 200).catch(() => []),
+        db.ONetSkill.filter({ onet_soc_code: resolvedCode }, '-importance', 200).catch(() => []),
+        db.ONetAbility.filter({ onet_soc_code: resolvedCode }, '-importance', 200).catch(() => []),
+        db.ONetKnowledge.filter({ onet_soc_code: resolvedCode }, '-importance', 200).catch(() => []),
+        db.ONetTask.filter({ onet_soc_code: resolvedCode }, '-importance', 200).catch(() => []),
+        db.ONetWorkActivity.filter({ onet_soc_code: resolvedCode }, '-importance', 200).catch(() => []),
+        db.ONetWorkContext.filter({ onet_soc_code: resolvedCode }, '-value', 200).catch(() => []),
         db.ONetReference.filter({ reference_key: `Interests::${resolvedCode}` }, '-created_date', 50).catch(() => []),
         db.ONetReference.filter({ reference_key: `Work_Values::${resolvedCode}` }, '-created_date', 50).catch(() => []),
         db.ONetReference.filter({ reference_key: `Technology_Skills::${resolvedCode}` }, '-created_date', 200).catch(() => []),
@@ -358,17 +344,17 @@ Deno.serve(async (req) => {
       const hasData = skillRows.length > 0 || taskRows.length > 0 || abilityRows.length > 0;
 
       if (hasData) {
-        const skills = dedupeByName(skillRows, 'skill_name');
-        const abilities = dedupeByName(abilityRows, 'ability_name');
-        const knowledge = dedupeByName(knowledgeRows, 'knowledge_name');
-        const tasks = dedupeTasks(taskRows);
-        const activities = dedupeByName(activityRows, 'activity_name');
+        const skills = dedupeByName(skillRows, 'element_name');
+        const abilities = dedupeByName(abilityRows, 'element_name');
+        const knowledge = dedupeByName(knowledgeRows, 'element_name');
+        const tasks = dedupeByName(taskRows, 'element_name');
+        const activities = dedupeByName(activityRows, 'element_name');
         const riasec = parseInterests(interestRefs);
         const workValues = parseWorkValues(workValueRefs);
         const tech = parseTechSkills(techRefs);
 
         // Get occupation-level data (job_zone etc.)
-        const occResults = await db.ONetOccupation.filter({ code: resolvedCode }, '-created_date', 1).catch(() => []);
+        const occResults = await db.ONetOccupation.filter({ onet_soc_code: resolvedCode }, '-created_date', 1).catch(() => []);
         const occ = occResults?.[0] || {};
 
         const profile = {
