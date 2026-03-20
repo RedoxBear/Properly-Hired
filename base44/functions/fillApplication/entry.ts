@@ -298,10 +298,30 @@ Deno.serve(async (req) => {
     } else {
       // Workday, SmartRecruiters, iCIMS, Taleo, other
       const label = atsType === 'other' ? 'this ATS' : atsType.charAt(0).toUpperCase() + atsType.slice(1);
-      submitResult = {
-        success: false,
-        error: `manual_required: ${label} does not support automated API submission. Use the autofill packet below to apply manually.`,
-      };
+      
+      try {
+        const browserResp = await fetch(
+          `${(req.url.includes('localhost') ? 'http://localhost:8000' : 'https://api.base44.com')}/functions/browserFillApplication`,
+          {
+            method: 'POST',
+            headers: { ...Object.fromEntries(req.headers), 'content-type': 'application/json' },
+            body: JSON.stringify({ user_id, job_listing_id, job_url: jobUrl, ats_type: atsType, autofill_packet: autofillPacket }),
+          }
+        );
+        const browserData = await browserResp.json();
+        
+        submitResult = {
+          success: browserData.success || false,
+          error: browserData.error || (browserData.status === 'manual_required' ? `manual_required: ${browserData.note || label + ' requires manual application.'}` : undefined),
+          confirmation: browserData.confirmation
+        };
+      } catch (e) {
+        console.warn('[fillApplication] Failed to call browserFillApplication:', e);
+        submitResult = {
+          success: false,
+          error: `manual_required: ${label} does not support automated API submission. Use the autofill packet below to apply manually.`,
+        };
+      }
     }
 
     // ── Resolve final status ──
