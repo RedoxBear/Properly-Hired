@@ -296,30 +296,30 @@ Deno.serve(async (req) => {
         submitResult = { success: false, error: 'manual_required: Could not parse Lever posting ID. Use autofill packet.' };
       }
     } else {
-      // Workday, SmartRecruiters, iCIMS, Taleo, other
+      // Workday, SmartRecruiters, iCIMS, Taleo, other — delegate to browserFillApplication
       const label = atsType === 'other' ? 'this ATS' : atsType.charAt(0).toUpperCase() + atsType.slice(1);
-      
+
       try {
-        const browserResp = await fetch(
-          `${(req.url.includes('localhost') ? 'http://localhost:8000' : 'https://api.base44.com')}/functions/browserFillApplication`,
-          {
-            method: 'POST',
-            headers: { ...Object.fromEntries(req.headers), 'content-type': 'application/json' },
-            body: JSON.stringify({ user_id, job_listing_id, job_url: jobUrl, ats_type: atsType, autofill_packet: autofillPacket }),
-          }
-        );
-        const browserData = await browserResp.json();
-        
+        const browserData = await base44.asServiceRole.functions.invoke('browserFillApplication', {
+          user_id,
+          job_listing_id,
+          job_url:         jobUrl,
+          ats_type:        atsType,
+          autofill_packet: autofillPacket,
+        });
+
         submitResult = {
-          success: browserData.success || false,
-          error: browserData.error || (browserData.status === 'manual_required' ? `manual_required: ${browserData.note || label + ' requires manual application.'}` : undefined),
-          confirmation: browserData.confirmation
+          success:      browserData?.success || false,
+          error:        browserData?.error || (browserData?.status === 'manual_required'
+            ? `manual_required: ${browserData?.note ?? label + ' requires manual application.'}`
+            : undefined),
+          confirmation: browserData?.confirmation ?? undefined,
         };
       } catch (e) {
-        console.warn('[fillApplication] Failed to call browserFillApplication:', e);
+        console.warn('[fillApplication] browserFillApplication invoke failed:', e);
         submitResult = {
           success: false,
-          error: `manual_required: ${label} does not support automated API submission. Use the autofill packet below to apply manually.`,
+          error:   `manual_required: ${label} does not support automated API submission. Use the autofill packet below to apply manually.`,
         };
       }
     }
@@ -357,21 +357,13 @@ Deno.serve(async (req) => {
     // ── Generate screening answers via Kyle ──
     let screeningAnswers: Record<string, unknown> = {};
     try {
-      const jdText = (jobListing.jd_text as string) ?? '';
-      if (jdText.length > 100) {
-        // Try the generateScreeningAnswers function inline
-        const saResp = await fetch(
-          `${(req.url.includes('localhost') ? 'http://localhost:8000' : 'https://api.base44.com')}/functions/generateScreeningAnswers`,
-          {
-            method: 'POST',
-            headers: { ...Object.fromEntries(req.headers), 'content-type': 'application/json' },
-            body: JSON.stringify({ user_id, job_listing_id, save_to_vault: false }),
-          }
-        ).catch(() => null);
-        if (saResp?.ok) {
-          const saResult = await saResp.json().catch(() => ({}));
-          screeningAnswers = saResult.answers ?? {};
-        }
+      if (((jobListing.jd_text as string) ?? '').length > 100) {
+        const saResult = await base44.asServiceRole.functions.invoke('generateScreeningAnswers', {
+          user_id,
+          job_listing_id,
+          save_to_vault: false,
+        }).catch(() => null);
+        screeningAnswers = saResult?.answers ?? {};
       }
     } catch (e) {
       console.warn('[fillApplication] Screening answer generation failed (non-fatal):', e);

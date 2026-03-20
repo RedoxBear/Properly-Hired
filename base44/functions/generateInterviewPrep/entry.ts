@@ -1,148 +1,195 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+
+/**
+ * generateInterviewPrep — AI-powered interview preparation
+ *
+ * Generates a personalized prep guide by combining:
+ *   - Application + JobListing data (role, company, JD text, screening answers)
+ *   - ResumeVersion content (tailored resume for this specific role)
+ *   - O*NET profile (work styles, values, RIASEC — via getONetProfile)
+ *   - RAG knowledge base (interview frameworks, STAR method — via ragRetrieve)
+ *   - Simon's company intel (interviewer map, leadership style — from AgentCollabInbox)
+ *
+ * Body params:
+ *   application_id  (string) — Application entity ID (preferred)
+ *   job_listing_id  (string) — fallback: finds Application by listing + user
+ *   action          ('generate' | 'fetch') — default: 'generate'
+ *
+ * Returns:
+ *   { interview_prep: { likely_questions, questions_to_ask, star_templates,
+ *                       preparation_checklist, onet_context } }
+ */
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const body = await req.json().catch(() => ({}));
+    const {
+      application_id,
+      job_listing_id,
+      action = 'generate',
+    } = body;
+
+    if (!application_id && !job_listing_id) {
+      return Response.json(
+        { error: 'application_id or job_listing_id is required' },
+        { status: 400 }
+      );
     }
 
-    const { action, job_application_id } = await req.json();
+    const db = base44.asServiceRole.entities;
 
-    if (!job_application_id) {
-      return Response.json({ error: 'job_application_id is required' }, { status: 400 });
+    // ── Resolve Application ──────────────────────────────────────────────────
+    let app: Record<string, unknown> | null = null;
+
+    if (application_id) {
+      try {
+        app = (await db.Application.get(application_id)) ?? null;
+      } catch {
+        const rows = await db.Application.filter({ id: application_id }).catch(() => []);
+        app = rows?.[0] ?? null;
+      }
     }
 
-    // === FETCH action: return cached prep ===
+    if (!app && job_listing_id) {
+      const rows = await db.Application
+        .filter({ job_listing_id, user_id: user.id })
+        .catch(() => []);
+      app = rows?.[0] ?? null;
+    }
+
+    if (!app) return Response.json({ error: 'Application not found' }, { status: 404 });
+
+    // ── FETCH action: return cached prep ────────────────────────────────────
     if (action === 'fetch') {
-      const app = await base44.entities.JobApplication.get(job_application_id);
-      return Response.json({ interview_prep: app?.summary?.interview_prep ?? null });
+      return Response.json({ interview_prep: (app.interview_prep ?? null) });
     }
 
-    // === GENERATE action ===
     if (action !== 'generate') {
-      return Response.json({ error: 'Invalid action' }, { status: 400 });
+      return Response.json({ error: 'Invalid action. Use "generate" or "fetch".' }, { status: 400 });
     }
 
-    const app = await base44.entities.JobApplication.get(job_application_id);
-    if (!app) {
-      return Response.json({ error: 'Application not found' }, { status: 404 });
-    }
+    // ── Load JobListing ──────────────────────────────────────────────────────
+    const listingId = (app.job_listing_id as string) ?? job_listing_id ?? null;
+    let jobListing: Record<string, unknown> | null = null;
 
-    const { summary = {}, job_title, company_name, job_description } = app;
-    const simonBrief = summary?.simon_brief;
-
-    // Fetch ONetProfile if soc_code available
-    let onetData = null;
-    if (simonBrief?.soc_code) {
+    if (listingId) {
       try {
-        const profiles = await base44.entities.ONetProfile.filter(
-          { onet_soc_code: simonBrief.soc_code }, '-created_date', 1
-        );
-        onetData = profiles?.[0] ?? null;
-      } catch (e) { /* graceful degradation */ }
+        jobListing = (await db.JobListing.get(listingId)) ?? null;
+      } catch {
+        const rows = await db.JobListing.filter({ id: listingId }).catch(() => []);
+        jobListing = rows?.[0] ?? null;
+      }
     }
 
-    // If no ONetProfile from simon_brief, try by job title
-    if (!onetData && job_title) {
-      try {
-        const res = await base44.functions.invoke('getONetProfile', { role_title: job_title });
-        if (res?.profile) onetData = res.profile;
-      } catch (e) { /* graceful degradation */ }
-    }
+    const jobTitle   = (jobListing?.title   as string) ?? '';
+    const companyName = (jobListing?.company as string) ?? '';
+    const jdText     = (jobListing?.jd_text  as string) ?? '';
 
-    // Fetch optimized resume if available
+    // ── Load tailored ResumeVersion ──────────────────────────────────────────
     let resumeText = '';
-    if (app.optimized_resume_id) {
+
+    // Primary: the version attached to this application
+    const rvId = app.resume_version_id as string | null;
+    if (rvId) {
       try {
-        const resume = await base44.entities.Resume.get(app.optimized_resume_id);
-        resumeText = resume?.optimized_content || resume?.parsed_content || '';
-      } catch (e) { /* graceful degradation */ }
+        const rv = await db.ResumeVersion.get(rvId);
+        resumeText = ((rv?.resume_text ?? rv?.parsed_content ?? rv?.optimized_content) as string) ?? '';
+      } catch { /* graceful degradation */ }
     }
 
-    // RAG context
+    // Fallback: latest version for this listing
+    if (!resumeText && listingId) {
+      const rows: Record<string, unknown>[] = await db.ResumeVersion
+        .filter({ user_id: user.id, job_listing_id: listingId })
+        .catch(() => []);
+      const latest = rows.sort((a, b) =>
+        new Date(b.created_at as string).getTime() - new Date(a.created_at as string).getTime()
+      )[0] ?? null;
+      resumeText = ((latest?.resume_text ?? latest?.parsed_content ?? latest?.optimized_content) as string) ?? '';
+    }
+
+    // ── O*NET profile ────────────────────────────────────────────────────────
+    let onetData: Record<string, unknown> | null = null;
+
+    if (jobTitle) {
+      try {
+        const res = await base44.asServiceRole.functions.invoke('getONetProfile', { role_title: jobTitle });
+        if (res?.profile) onetData = res.profile as Record<string, unknown>;
+      } catch { /* graceful degradation */ }
+    }
+
+    // ── RAG context ──────────────────────────────────────────────────────────
     let ragContext = '';
+
     try {
-      const ragRes = await base44.functions.invoke('ragRetrieve', {
-        query: `interview preparation behavioral questions ${job_title}`,
+      const ragRes = await base44.asServiceRole.functions.invoke('ragRetrieve', {
+        query: `interview preparation behavioral questions STAR method ${jobTitle}`,
         agent: 'kyle',
-        top_k: 5
+        top_k: 5,
       });
       if (ragRes?.chunks?.length) {
-        ragContext = ragRes.chunks.map(c => c.content).join('\n\n');
+        ragContext = (ragRes.chunks as Array<{ content: string }>)
+          .map(c => c.content)
+          .join('\n\n')
+          .substring(0, 1000);
       }
-    } catch (e) { /* graceful degradation */ }
+    } catch { /* graceful degradation */ }
 
-    // Build AI prompt
-    const systemPrompt = `You are Kyle, an elite career coach and interview strategist.
-Your task is to generate a comprehensive, personalized interview preparation guide.
-Output MUST be valid JSON matching the schema exactly.`;
+    // ── Simon's company intel from AgentCollabInbox ──────────────────────────
+    let companyIntel = '';
 
+    try {
+      const inboxItems: Record<string, unknown>[] = await db.AgentCollabInbox
+        .filter({ from_agent: 'simon', to_agent: 'kyle' }, '-created_date', 5)
+        .catch(() => []);
+
+      const match = inboxItems.find(item =>
+        companyName && (item.summary as string ?? '').toLowerCase().includes(companyName.toLowerCase())
+      ) ?? inboxItems[0] ?? null;
+
+      if (match?.highlights) {
+        companyIntel = (match.highlights as string[]).join('\n');
+      }
+    } catch { /* graceful degradation */ }
+
+    // ── Screening answers context ────────────────────────────────────────────
+    const screeningAnswers = (app.screening_answers as Record<string, Record<string, string>>) ?? {};
+    const screeningSummary = Object.entries(screeningAnswers)
+      .slice(0, 5)
+      .map(([q, v]) => `Q: ${q}\nA: ${v?.answer ?? String(v)}`)
+      .join('\n\n');
+
+    // ── Build prompt ─────────────────────────────────────────────────────────
     const onetContext = onetData ? JSON.stringify({
-      work_styles: onetData.work_styles,
-      work_values: onetData.work_values,
+      work_styles:    onetData.work_styles,
+      work_values:    onetData.work_values,
       riasec_profile: onetData.riasec_profile,
-      tasks: (onetData.tasks || []).slice(0, 5),
-      emerging_tasks: (onetData.emerging_tasks || []).slice(0, 3)
+      tasks:          (onetData.tasks          as string[] ?? []).slice(0, 5),
+      emerging_tasks: (onetData.emerging_tasks as string[] ?? []).slice(0, 3),
     }, null, 2) : 'Not available';
 
-    const userPrompt = `Generate an interview prep guide for this candidate:
+    const sections = [
+      `You are Kyle, an elite career coach. Generate a comprehensive, personalized interview preparation guide.`,
+      `Do NOT fabricate resume experience. Reference only what is provided below.`,
+      ``,
+      `JOB: ${jobTitle || 'Not specified'} at ${companyName || 'Not specified'}`,
+      jdText     ? `JOB DESCRIPTION:\n${jdText.substring(0, 1500)}`              : '',
+      resumeText ? `CANDIDATE RESUME:\n${resumeText.substring(0, 1800)}`         : '',
+      companyIntel   ? `COMPANY INTEL (from Simon):\n${companyIntel}`            : '',
+      screeningSummary ? `SCREENING ANSWERS SUBMITTED:\n${screeningSummary}`     : '',
+      `O*NET PROFILE:\n${onetContext}`,
+      ragContext ? `KNOWLEDGE BASE CONTEXT:\n${ragContext}`                       : '',
+      ``,
+      `Generate 8–12 likely_questions, 3–4 items per questions_to_ask category, 3 STAR templates, 10–12 checklist items.`,
+    ].filter(Boolean).join('\n\n');
 
-JOB: ${job_title} at ${company_name}
-JD: ${(job_description || '').slice(0, 2000) || 'Not provided'}
-
-SIMON'S STRATEGIC BRIEF:
-${simonBrief ? JSON.stringify(simonBrief, null, 2) : 'Not available'}
-
-CANDIDATE'S OPTIMIZED RESUME:
-${(resumeText || '').slice(0, 2000) || 'Not available'}
-
-O*NET PROFILE:
-${onetContext}
-
-KNOWLEDGE BASE CONTEXT:
-${ragContext || 'Not available'}
-
-Output a JSON object with EXACTLY this structure:
-{
-  "likely_questions": [
-    {
-      "question": "string",
-      "category": "behavioral|situational|technical|culture",
-      "why_they_ask": "string",
-      "best_answer_guide": "string (reference resume bullets)",
-      "star_hook": "string (specific story anchor from resume)"
-    }
-  ],
-  "questions_to_ask": {
-    "strategic": ["string"],
-    "narrative": ["string"],
-    "value_driving": ["string"],
-    "insightful": ["string"]
-  },
-  "star_templates": [
-    {
-      "scenario": "string",
-      "situation": "string",
-      "task": "string",
-      "action": "string",
-      "result": "string",
-      "coaching_note": "string"
-    }
-  ],
-  "preparation_checklist": ["string"],
-  "onet_context": {
-    "work_styles_to_demonstrate": ["string"],
-    "role_values_alignment": ["string"],
-    "riasec_fit": "string"
-  }
-}
-
-Generate 8-12 likely_questions, 3-4 items per questions_to_ask category, 3 star_templates, 10-12 checklist items.`;
-
+    // ── Call LLM ─────────────────────────────────────────────────────────────
     const aiResponse = await base44.integrations.Core.InvokeLLM({
-      prompt: `${systemPrompt}\n\n${userPrompt}`,
+      prompt: sections,
       response_json_schema: {
         type: 'object',
         properties: {
@@ -151,59 +198,59 @@ Generate 8-12 likely_questions, 3-4 items per questions_to_ask category, 3 star_
             items: {
               type: 'object',
               properties: {
-                question: { type: 'string' },
-                category: { type: 'string' },
-                why_they_ask: { type: 'string' },
+                question:          { type: 'string' },
+                category:          { type: 'string' },
+                why_they_ask:      { type: 'string' },
                 best_answer_guide: { type: 'string' },
-                star_hook: { type: 'string' }
-              }
-            }
+                star_hook:         { type: 'string' },
+              },
+            },
           },
           questions_to_ask: {
             type: 'object',
             properties: {
-              strategic: { type: 'array', items: { type: 'string' } },
-              narrative: { type: 'array', items: { type: 'string' } },
+              strategic:     { type: 'array', items: { type: 'string' } },
+              narrative:     { type: 'array', items: { type: 'string' } },
               value_driving: { type: 'array', items: { type: 'string' } },
-              insightful: { type: 'array', items: { type: 'string' } }
-            }
+              insightful:    { type: 'array', items: { type: 'string' } },
+            },
           },
           star_templates: {
             type: 'array',
             items: {
               type: 'object',
               properties: {
-                scenario: { type: 'string' },
-                situation: { type: 'string' },
-                task: { type: 'string' },
-                action: { type: 'string' },
-                result: { type: 'string' },
-                coaching_note: { type: 'string' }
-              }
-            }
+                scenario:      { type: 'string' },
+                situation:     { type: 'string' },
+                task:          { type: 'string' },
+                action:        { type: 'string' },
+                result:        { type: 'string' },
+                coaching_note: { type: 'string' },
+              },
+            },
           },
           preparation_checklist: { type: 'array', items: { type: 'string' } },
           onet_context: {
             type: 'object',
             properties: {
               work_styles_to_demonstrate: { type: 'array', items: { type: 'string' } },
-              role_values_alignment: { type: 'array', items: { type: 'string' } },
-              riasec_fit: { type: 'string' }
-            }
-          }
-        }
-      }
+              role_values_alignment:      { type: 'array', items: { type: 'string' } },
+              riasec_fit:                 { type: 'string' },
+            },
+          },
+        },
+      },
     });
 
-    const interviewPrep = aiResponse;
+    // ── Persist to Application entity ─────────────────────────────────────────
+    await db.Application.update(app.id as string, {
+      interview_prep: aiResponse,
+    }).catch((e: unknown) => console.error('[generateInterviewPrep] Application update failed:', e));
 
-    // Persist to JobApplication.summary.interview_prep
-    await base44.entities.JobApplication.update(job_application_id, {
-      summary: { ...summary, interview_prep: interviewPrep }
-    });
+    return Response.json({ interview_prep: aiResponse });
 
-    return Response.json({ interview_prep: interviewPrep });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('[generateInterviewPrep] Unhandled error:', error);
+    return Response.json({ error: (error as Error).message }, { status: 500 });
   }
 });

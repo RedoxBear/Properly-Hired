@@ -137,6 +137,12 @@
       ]
     },
     {
+      "entity_name": "AutofillVault",
+      "allowed_operations": [
+        "read"
+      ]
+    },
+    {
       "function_name": "ragRetrieve",
       "description": "CALL THIS FIRST for every user question. Retrieves top-k relevant knowledge chunks from ingested documents. Call with: { query: 'user question keywords', agent: 'kyle', top_k: 5 }."
     },
@@ -183,6 +189,14 @@
     {
       "function_name": "orchestrateTailoring",
       "description": "Trigger the full ATS-safe resume tailoring pipeline for a job listing. Produces a clean-room DOCX with keyword-optimized content, metadata sanitization, parsing audit, and a cover letter. Pass { user_id, job_listing_id, format } where format is standard (default), v4, or v5. Returns { resume_version_id, ats_score, keyword_gaps_filled, audit }."
+    },
+    {
+      "function_name": "generateScreeningAnswers",
+      "description": "Extract ATS screening questions from a job description, answer them using AutofillVault data first, then generate answers for unanswered questions. Optionally write new answers back to the vault. Pass { job_listing_id, user_id, save_to_vault: true/false }. Returns { answers, vault_hits, kyle_generated, template_fallbacks, total }."
+    },
+    {
+      "function_name": "generateInterviewPrep",
+      "description": "Generate a comprehensive interview prep guide for a specific application. Combines resume, JD, O*NET profile, company intel from Simon, and RAG knowledge. Pass { application_id } or { job_listing_id }. Returns { interview_prep: { likely_questions, questions_to_ask, star_templates, preparation_checklist, onet_context } }."
     }
   ],
   "model": "automatic",

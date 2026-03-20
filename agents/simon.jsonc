@@ -154,6 +154,13 @@
       ]
     },
     {
+      "entity_name": "Application",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    },
+    {
       "function_name": "ragRetrieve",
       "description": "CALL THIS FIRST for every user question. Retrieves top-k relevant knowledge chunks. Call with: { query: 'keywords', agent: 'simon', top_k: 5 }."
     },
