@@ -235,13 +235,60 @@ Run through each item and mark ✅ or ❌:
 
 ---
 
-## Known Issues (as of last audit 2026-03-19)
+## Known Issues (last audit 2026-03-19, fixes applied same day)
 
-| # | Location | Issue | Fix |
-|---|----------|-------|-----|
-| 1 | `orchestrateTailoring` (deployed) | Interim `status: 'tailoring'` update still present at line 264 | Remove the line; see canonical pattern above |
-| 2 | `orchestrateTailoring` (deployed) | `flagged_reason` block missing from final `JobListing.update()` | Add flaggedReasonParts block before update |
-| 3 | `fillApplication` (deployed) | `Application` entity not declared (only 4 entities) | Add 5th entity declaration |
-| 4 | `fillApplication` (deployed) | No `Application.create/update` block | Add create-or-update block after `JobListing.update()` |
+### Function Deployment Gaps
+These are fixed in GitHub source but must be re-pasted into Base44 UI:
 
-All fixes are present in the GitHub source (`functions/orchestrateTailoring.ts` and `functions/fillApplication.ts` on `main` branch, commit `f0eb0ef`). They must be re-pasted into Base44 UI to take effect.
+| # | Function | Issue | Source status |
+|---|----------|-------|--------------|
+| 1 | `orchestrateTailoring` | Interim `status: 'tailoring'` update still in deployed version | ✅ Removed in source |
+| 2 | `orchestrateTailoring` | `flagged_reason` block missing from deployed version | ✅ Present in source |
+| 3 | `orchestrateTailoring` | Resume fallback chain only uses `content ?? resume_text` | ✅ Fixed — now uses full 4-field chain |
+| 4 | `fillApplication` | `Application` entity not declared in deployed version (only 4 entities) | ✅ Present in source |
+| 5 | `fillApplication` | No `Application.create/update` block in deployed version | ✅ Present in source |
+
+Source: `main` branch, commit `b652af0+` — paste `functions/orchestrateTailoring.ts` and `functions/fillApplication.ts` into Base44 UI.
+
+---
+
+### Base44 Entity Schema Gaps
+These must be fixed in the Base44 entity editor (not just the local JSON reference files):
+
+#### JobListing entity — add missing fields
+Go to **Base44 → Data → JobListing → Edit Schema** and add:
+```
+flagged_reason   String (optional/nullable)
+applied_at       DateTime (optional/nullable)
+```
+Update the `status` field enum to include:
+```
+manual_required, application_error
+```
+Mark `tailoring` as deprecated (keep in enum to avoid breaking existing records but do not write it from any function).
+
+#### Application entity — add missing field
+Go to **Base44 → Data → Application → Edit Schema** and add:
+```
+cover_letter_text   String (optional)
+```
+This field is required for ReviewQueue to display the cover letter in the application detail panel.
+
+#### ApplicationEvent entity — update event_type enum
+Go to **Base44 → Data → ApplicationEvent → Edit Schema** and update the `event_type` enum to:
+```
+applied, manual_required, application_error, submitted, rejected
+```
+Remove any legacy values that don't match this list (`created`, `fill_started`, `fill_complete`, `flagged`, `approved` — these were from an older design).
+
+---
+
+### Resume text fallback chain (canonical)
+All functions that read resume text must use this fallback order:
+```typescript
+const masterText = masterResume.content
+  ?? masterResume.resume_text
+  ?? masterResume.parsed_content
+  ?? masterResume.optimized_content
+  ?? '';
+```

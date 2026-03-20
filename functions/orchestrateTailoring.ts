@@ -523,7 +523,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'No master resume found for user' }, { status: 400 });
     }
 
-    const masterText: string = (masterResume.content ?? masterResume.resume_text ?? '') as string;
+    const masterText: string = (masterResume.content ?? masterResume.resume_text ?? masterResume.parsed_content ?? masterResume.optimized_content ?? '') as string;
     const jdText: string = (jobListing.jd_text ?? '') as string;
     const candidateName: string = (masterResume.candidate_name ?? user.name ?? user.email ?? 'Candidate') as string;
     const targetRole: string = (jobListing.title ?? jobListing.job_title ?? 'Professional') as string;
