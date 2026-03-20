@@ -159,9 +159,9 @@ async function fetchJSearch(query: string, location: string, remoteOnly: boolean
 
 async function fetchAdzuna(query: string, location: string, remoteOnly: boolean): Promise<NormalizedJob[]> {
   const appId  = Deno.env.get('ADZUNA_APP_ID');
-  const apiKey = Deno.env.get('ADZUNA_API_KEY');
+  const apiKey = Deno.env.get('ADZUNA_APP_KEY');
   if (!appId || !apiKey) {
-    console.log('[discoverJobs] ADZUNA_APP_ID/ADZUNA_API_KEY not set — skipping Adzuna');
+    console.log('[discoverJobs] ADZUNA_APP_ID/ADZUNA_APP_KEY not set — skipping Adzuna');
     return [];
   }
 

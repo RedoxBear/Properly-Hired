@@ -591,6 +591,7 @@ Deno.serve(async (req) => {
     const versionData = {
       user_id,
       job_listing_id,
+      base_resume_id: masterResume.id,
       version_type: format,
       resume_text: tailoredText,
       docx_base64: docxBase64,
