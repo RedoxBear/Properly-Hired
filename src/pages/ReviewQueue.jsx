@@ -126,7 +126,7 @@ function AttentionBanner({ reason, url }) {
 
 // ── Application Card ──────────────────────────────────────────────
 
-function ApplicationCard({ listing, application, onApprove, onReject, onManual, onStatusUpdate, onTailor, tailoring, tailorResult, onFillApplication, filling, fillResult, onShowAutofill }) {
+function ApplicationCard({ listing, application, onApprove, onReject, onManual, onStatusUpdate, onTailor, tailoring, tailorResult, onFillApplication, filling, fillResult, onShowAutofill, onGenerateAnswers, generatingAnswers, answerResult }) {
     const [editing, setEditing]         = React.useState(false);
     const [editAnswers, setEditAnswers] = React.useState("");
     const [editCoverLetter, setEditCoverLetter] = React.useState("");
@@ -271,7 +271,7 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                 )}
 
                 {(hasScreening || editing) && (
-                    <Section label="Screening Answers" icon={FileText} defaultOpen={editing}>
+                    <Section label={`Screening Answers${hasScreening ? ` (${Object.keys(screeningAnswers).length})` : ""}`} icon={FileText} defaultOpen={editing}>
                         {editing ? (
                             <Textarea
                                 value={editAnswers}
@@ -281,12 +281,28 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                             />
                         ) : (
                             <div className="space-y-3">
-                                {Object.entries(screeningAnswers).map(([q, a]) => (
-                                    <div key={q}>
-                                        <p className="text-xs font-medium text-foreground">{q}</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">{a}</p>
-                                    </div>
-                                ))}
+                                {Object.entries(screeningAnswers).map(([q, entry]) => {
+                                    const isRich = typeof entry === "object" && entry !== null;
+                                    const answerText = isRich ? (entry.answer ?? entry) : entry;
+                                    const source     = isRich ? entry.source : null;
+                                    return (
+                                        <div key={q} className="space-y-0.5">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <p className="text-xs font-medium text-foreground flex-1">{q}</p>
+                                                {source && (
+                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${
+                                                        source === "vault"    ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" :
+                                                        source === "kyle"     ? "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300" :
+                                                        "bg-slate-100 text-slate-600"
+                                                    }`}>
+                                                        {source === "vault" ? "vault" : source === "kyle" ? "Kyle ✦" : "template"}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-muted-foreground leading-relaxed">{answerText}</p>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </Section>
@@ -506,6 +522,42 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                             </div>
                         )}
 
+                        {/* Generate Screening Answers row */}
+                        {listing.jd_text && listing.status !== "submitted" && listing.status !== "rejected" && (
+                            <div className="space-y-1">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/30"
+                                    onClick={() => onGenerateAnswers(listing.id, false)}
+                                    disabled={generatingAnswers}
+                                >
+                                    {generatingAnswers
+                                        ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Generating Answers…</>
+                                        : <><Sparkles className="w-3.5 h-3.5 mr-1.5" />{hasScreening ? "Re-generate Answers" : "Generate Screening Answers"}</>
+                                    }
+                                </Button>
+                                {answerResult && !answerResult.error && (
+                                    <div className="flex items-center justify-between px-2 py-1 bg-purple-50 dark:bg-purple-950/20 rounded text-xs text-purple-700 dark:text-purple-300">
+                                        <span>
+                                            {answerResult.total} answered · {answerResult.vault_hits} from vault · {answerResult.kyle_generated} by Kyle
+                                        </span>
+                                        {answerResult.kyle_generated > 0 && (
+                                            <button
+                                                className="underline font-medium ml-2 hover:text-purple-900"
+                                                onClick={() => onGenerateAnswers(listing.id, true)}
+                                            >
+                                                Save to vault
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {answerResult?.error && (
+                                    <p className="text-xs text-red-600 px-1">{answerResult.error}</p>
+                                )}
+                            </div>
+                        )}
+
                         {/* Primary actions */}
                         <div className="flex gap-2 flex-wrap">
                             {(isPending || isNeedsAttention || isApproved) && (
@@ -589,6 +641,8 @@ export default function ReviewQueue() {
     const [fillingIds, setFillingIds]           = React.useState(new Set());
     const [fillResults, setFillResults]         = React.useState({});
     const [autofillModal, setAutofillModal]     = React.useState(null); // { autofill_packet, cover_letter, ats_type }
+    const [generatingAnswerIds, setGeneratingAnswerIds] = React.useState(new Set());
+    const [answerResults, setAnswerResults]     = React.useState({});
 
     // ── Auth ──
     React.useEffect(() => {
@@ -721,6 +775,32 @@ export default function ReviewQueue() {
             setFillResults(prev => ({ ...prev, [listingId]: { status: "application_error", error: e.message } }));
         } finally {
             setFillingIds(prev => { const s = new Set(prev); s.delete(listingId); return s; });
+        }
+    };
+
+    // ── Generate screening answers ──
+    const handleGenerateAnswers = async (listingId, saveToVault = false) => {
+        if (generatingAnswerIds.has(listingId)) return;
+        setGeneratingAnswerIds(prev => new Set([...prev, listingId]));
+        try {
+            const result = await base44.functions.invoke("generateScreeningAnswers", {
+                user_id:       currentUser?.id,
+                job_listing_id: listingId,
+                save_to_vault:  saveToVault,
+            });
+            setAnswerResults(prev => ({ ...prev, [listingId]: result }));
+            // Merge answers into the local applications state so the card refreshes
+            if (result.answers && Object.keys(result.answers).length > 0) {
+                setApplications(prev => prev.map(a =>
+                    a.job_listing_id === listingId
+                        ? { ...a, screening_answers: result.answers }
+                        : a
+                ));
+            }
+        } catch (e) {
+            setAnswerResults(prev => ({ ...prev, [listingId]: { error: e.message } }));
+        } finally {
+            setGeneratingAnswerIds(prev => { const s = new Set(prev); s.delete(listingId); return s; });
         }
     };
 
@@ -954,6 +1034,9 @@ export default function ReviewQueue() {
                             filling={fillingIds.has(listing.id)}
                             fillResult={fillResults[listing.id] || null}
                             onShowAutofill={setAutofillModal}
+                            onGenerateAnswers={handleGenerateAnswers}
+                            generatingAnswers={generatingAnswerIds.has(listing.id)}
+                            answerResult={answerResults[listing.id] || null}
                         />
                     ))}
                 </div>
