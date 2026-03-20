@@ -32,3 +32,10 @@ upload/
 **/query-onet*.js
 **/query-onet*.mjs
 **/setup-onet-entities.js
+
+# Base44 local app config (contains project ID — do not commit)
+base44/.app.jsonc
+base44/.app.jsonc
+
+# Nested repo copy — exclude
+ProperlyHired/
