@@ -21,7 +21,7 @@ import {
     Building2, MapPin, DollarSign, Wifi, Loader2, FileText,
     Image, Mail, Eye, Edit3, ThumbsDown, BookmarkX, Search,
     TrendingUp, Send, Inbox, Wand2, Download, ShieldCheck,
-    ShieldAlert, Sparkles
+    ShieldAlert, Sparkles, Zap, Copy, ClipboardCheck
 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
@@ -58,12 +58,15 @@ function statusConfig(status) {
         pending_review:  { label: "Pending Review", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",   icon: Clock },
         needs_attention: { label: "Needs Attention", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300", icon: AlertTriangle },
         approved:        { label: "Approved", color: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",  icon: CheckCircle2 },
-        submitted:       { label: "Submitted", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300", icon: Send },
-        rejected:        { label: "Rejected", color: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",    icon: XCircle },
-        manual:          { label: "Manual", color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",  icon: BookmarkX },
-        discovered:      { label: "Discovered", color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", icon: Eye },
-        tailoring:       { label: "Tailoring", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300", icon: FileText },
-        filling:         { label: "Filling Form", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300", icon: Edit3 },
+        submitted:          { label: "Submitted", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300", icon: Send },
+        applied:            { label: "Applied ✓", color: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300", icon: CheckCircle2 },
+        manual_required:    { label: "Manual Required", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300", icon: ClipboardCheck },
+        application_error:  { label: "Submit Error", color: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300", icon: AlertTriangle },
+        rejected:           { label: "Rejected", color: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",    icon: XCircle },
+        manual:             { label: "Manual", color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",  icon: BookmarkX },
+        discovered:         { label: "Discovered", color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", icon: Eye },
+        tailoring:          { label: "Tailoring", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300", icon: FileText },
+        filling:            { label: "Filling Form", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300", icon: Edit3 },
     };
     return map[status] || { label: status, color: "bg-slate-100 text-slate-700", icon: Clock };
 }
@@ -123,12 +126,13 @@ function AttentionBanner({ reason, url }) {
 
 // ── Application Card ──────────────────────────────────────────────
 
-function ApplicationCard({ listing, application, onApprove, onReject, onManual, onStatusUpdate, onTailor, tailoring, tailorResult }) {
+function ApplicationCard({ listing, application, onApprove, onReject, onManual, onStatusUpdate, onTailor, tailoring, tailorResult, onFillApplication, filling, fillResult, onShowAutofill }) {
     const [editing, setEditing]         = React.useState(false);
     const [editAnswers, setEditAnswers] = React.useState("");
     const [editCoverLetter, setEditCoverLetter] = React.useState("");
     const [saving, setSaving]           = React.useState(false);
     const [tailorFormat, setTailorFormat] = React.useState("standard");
+    const [copied, setCopied]           = React.useState("");
 
     const sc   = statusConfig(listing.status);
     const Icon = sc.icon;
@@ -395,6 +399,66 @@ function ApplicationCard({ listing, application, onApprove, onReject, onManual, 
                                     Download Tailored Resume (.docx)
                                 </Button>
                             )}
+
+                            {/* Submit Application button */}
+                            {tailorResult.success && listing.status !== "applied" && listing.status !== "submitted" && (
+                                <Button
+                                    size="sm"
+                                    className="w-full mt-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                    onClick={() => onFillApplication(listing.id, tailorResult.resume_version_id)}
+                                    disabled={filling}
+                                >
+                                    {filling
+                                        ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Submitting…</>
+                                        : <><Zap className="w-3.5 h-3.5 mr-1.5" />Submit Application</>
+                                    }
+                                </Button>
+                            )}
+
+                            {/* Fill result feedback */}
+                            {fillResult && (
+                                <div className="mt-1 space-y-1">
+                                    {fillResult.status === "applied" && (
+                                        <Alert className="py-1.5 border-green-300 bg-green-50 dark:bg-green-950/30">
+                                            <AlertDescription className="text-xs text-green-800 dark:text-green-200 flex items-center gap-1">
+                                                <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                                                <span><strong>Applied!</strong> {fillResult.confirmation}</span>
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
+                                    {fillResult.status === "manual_required" && (
+                                        <div className="space-y-1">
+                                            <Alert className="py-1.5 border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+                                                <AlertDescription className="text-xs text-amber-800 dark:text-amber-200 flex items-center gap-1">
+                                                    <ClipboardCheck className="w-3.5 h-3.5 flex-shrink-0" />
+                                                    <span><strong>Manual apply required</strong> — autofill packet ready</span>
+                                                </AlertDescription>
+                                            </Alert>
+                                            <div className="flex gap-1.5">
+                                                <Button size="sm" variant="outline" className="flex-1 text-xs"
+                                                    onClick={() => onShowAutofill(fillResult)}>
+                                                    <Copy className="w-3 h-3 mr-1" />View Autofill Data
+                                                </Button>
+                                                {listing.url && (
+                                                    <a href={listing.url} target="_blank" rel="noopener noreferrer"
+                                                        className="flex-1">
+                                                        <Button size="sm" variant="outline" className="w-full text-xs">
+                                                            <ExternalLink className="w-3 h-3 mr-1" />Open Job Page
+                                                        </Button>
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {fillResult.status === "application_error" && (
+                                        <Alert className="py-1.5 border-red-300 bg-red-50 dark:bg-red-950/30">
+                                            <AlertDescription className="text-xs text-red-800 dark:text-red-200">
+                                                <strong>Submit failed — </strong>{fillResult.error}
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </Section>
                 )}
@@ -522,6 +586,9 @@ export default function ReviewQueue() {
     const [discoverLocation, setDiscoverLocation] = React.useState("");
     const [tailoringIds, setTailoringIds]       = React.useState(new Set());
     const [tailorResults, setTailorResults]     = React.useState({});
+    const [fillingIds, setFillingIds]           = React.useState(new Set());
+    const [fillResults, setFillResults]         = React.useState({});
+    const [autofillModal, setAutofillModal]     = React.useState(null); // { autofill_packet, cover_letter, ats_type }
 
     // ── Auth ──
     React.useEffect(() => {
@@ -631,6 +698,29 @@ export default function ReviewQueue() {
             setTailorResults(prev => ({ ...prev, [listingId]: { error: e.message } }));
         } finally {
             setTailoringIds(prev => { const s = new Set(prev); s.delete(listingId); return s; });
+        }
+    };
+
+    // ── Fill application ──
+    const handleFillApplication = async (listingId, resumeVersionId) => {
+        if (fillingIds.has(listingId)) return;
+        setFillingIds(prev => new Set([...prev, listingId]));
+        try {
+            const result = await base44.functions.invoke("fillApplication", {
+                user_id:          currentUser?.id,
+                job_listing_id:   listingId,
+                resume_version_id: resumeVersionId || undefined,
+            });
+            setFillResults(prev => ({ ...prev, [listingId]: result }));
+            // Update listing status in local state
+            if (result.status) {
+                setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: result.status } : l));
+            }
+        } catch (e) {
+            console.error("Fill application failed:", e);
+            setFillResults(prev => ({ ...prev, [listingId]: { status: "application_error", error: e.message } }));
+        } finally {
+            setFillingIds(prev => { const s = new Set(prev); s.delete(listingId); return s; });
         }
     };
 
@@ -860,6 +950,10 @@ export default function ReviewQueue() {
                             onTailor={handleTailor}
                             tailoring={tailoringIds.has(listing.id)}
                             tailorResult={tailorResults[listing.id] || null}
+                            onFillApplication={handleFillApplication}
+                            filling={fillingIds.has(listing.id)}
+                            fillResult={fillResults[listing.id] || null}
+                            onShowAutofill={setAutofillModal}
                         />
                     ))}
                 </div>
@@ -942,6 +1036,95 @@ export default function ReviewQueue() {
                             </Button>
                         </div>
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Autofill Packet modal */}
+            <Dialog open={!!autofillModal} onOpenChange={() => setAutofillModal(null)}>
+                <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ClipboardCheck className="w-4 h-4 text-amber-600" />
+                            Autofill Packet — {autofillModal?.autofill_packet?.company || ""}
+                        </DialogTitle>
+                    </DialogHeader>
+                    {autofillModal && (
+                        <div className="space-y-3 text-sm">
+                            <p className="text-xs text-muted-foreground border-l-2 border-amber-400 pl-2">
+                                <span className="font-medium text-amber-700 dark:text-amber-400">
+                                    {autofillModal.ats_type === "workday" ? "Workday" :
+                                     autofillModal.ats_type === "smartrecruiters" ? "SmartRecruiters" :
+                                     autofillModal.ats_type === "workable" ? "Workable" :
+                                     autofillModal.ats_type === "icims" ? "iCIMS" :
+                                     autofillModal.ats_type === "taleo" ? "Taleo" : "This ATS"}
+                                </span>
+                                {" "}requires manual submission. Copy the fields below into the application form.
+                            </p>
+
+                            {/* Personal fields */}
+                            {[
+                                { label: "First Name",    key: "first_name" },
+                                { label: "Last Name",     key: "last_name" },
+                                { label: "Email",         key: "email" },
+                                { label: "Phone",         key: "phone" },
+                                { label: "Location",      key: "location" },
+                                { label: "LinkedIn",      key: "linkedin" },
+                                { label: "Portfolio",     key: "portfolio" },
+                                { label: "GitHub",        key: "github" },
+                                { label: "Work Auth",     key: "work_authorization" },
+                                { label: "Sponsorship?",  key: "sponsorship_needed" },
+                                { label: "Salary Expect", key: "salary_expectation" },
+                                { label: "Remote Pref",   key: "remote_preference" },
+                                { label: "Notice Period", key: "notice_period" },
+                            ].filter(f => autofillModal.autofill_packet?.[f.key]).map(({ label, key }) => (
+                                <div key={key} className="flex items-center gap-2 border border-border rounded-md px-3 py-2">
+                                    <span className="text-xs text-muted-foreground w-28 flex-shrink-0">{label}</span>
+                                    <span className="flex-1 text-xs font-medium text-foreground truncate">
+                                        {autofillModal.autofill_packet[key]}
+                                    </span>
+                                    <button
+                                        className="flex-shrink-0 p-1 rounded hover:bg-muted transition-colors"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(autofillModal.autofill_packet[key]);
+                                        }}
+                                        title="Copy to clipboard"
+                                    >
+                                        <Copy className="w-3 h-3 text-muted-foreground" />
+                                    </button>
+                                </div>
+                            ))}
+
+                            {/* Cover Letter */}
+                            {autofillModal.cover_letter && (
+                                <div className="border border-border rounded-md overflow-hidden">
+                                    <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border">
+                                        <span className="text-xs font-medium">Cover Letter</span>
+                                        <button
+                                            className="p-1 rounded hover:bg-muted transition-colors"
+                                            onClick={() => navigator.clipboard.writeText(autofillModal.cover_letter)}
+                                            title="Copy cover letter"
+                                        >
+                                            <Copy className="w-3 h-3 text-muted-foreground" />
+                                        </button>
+                                    </div>
+                                    <p className="px-3 py-2 text-xs text-muted-foreground whitespace-pre-line leading-relaxed max-h-40 overflow-y-auto">
+                                        {autofillModal.cover_letter}
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="flex gap-2 justify-end pt-1">
+                                {autofillModal.autofill_packet?.apply_url && (
+                                    <a href={autofillModal.autofill_packet.apply_url} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="outline">
+                                            <ExternalLink className="w-3.5 h-3.5 mr-1.5" />Open Application
+                                        </Button>
+                                    </a>
+                                )}
+                                <Button size="sm" onClick={() => setAutofillModal(null)}>Done</Button>
+                            </div>
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
 
