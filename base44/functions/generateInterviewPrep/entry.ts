@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     let onetData = null;
     if (simonBrief?.soc_code) {
       try {
-        const profiles = await base44.asServiceRole.entities.ONetProfile.filter(
+        const profiles = await base44.entities.ONetProfile.filter(
           { onet_soc_code: simonBrief.soc_code }, '-created_date', 1
         );
         onetData = profiles?.[0] ?? null;
@@ -141,7 +141,7 @@ Output a JSON object with EXACTLY this structure:
 
 Generate 8-12 likely_questions, 3-4 items per questions_to_ask category, 3 star_templates, 10-12 checklist items.`;
 
-    const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const aiResponse = await base44.integrations.Core.InvokeLLM({
       prompt: `${systemPrompt}\n\n${userPrompt}`,
       response_json_schema: {
         type: 'object',
@@ -198,7 +198,7 @@ Generate 8-12 likely_questions, 3-4 items per questions_to_ask category, 3 star_
     const interviewPrep = aiResponse;
 
     // Persist to JobApplication.summary.interview_prep
-    await base44.asServiceRole.entities.JobApplication.update(job_application_id, {
+    await base44.entities.JobApplication.update(job_application_id, {
       summary: { ...summary, interview_prep: interviewPrep }
     });
 

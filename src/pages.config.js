@@ -47,6 +47,8 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AIDetectionScanner from './pages/AIDetectionScanner';
+import AchievementEditor from './pages/AchievementEditor';
 import ActivityInsights from './pages/ActivityInsights';
 import AgentFeedbackInsights from './pages/AgentFeedbackInsights';
 import AgentTraining from './pages/AgentTraining';
@@ -54,6 +56,7 @@ import AgentWorkspace from './pages/AgentWorkspace';
 import ApplicationQnA from './pages/ApplicationQnA';
 import ApplicationTracker from './pages/ApplicationTracker';
 import AutofillVault from './pages/AutofillVault';
+import ChronologicalEditor from './pages/ChronologicalEditor';
 import CollaborationDashboard from './pages/CollaborationDashboard';
 import CompanyResearchTool from './pages/CompanyResearchTool';
 import CoverLetter from './pages/CoverLetter';
@@ -97,6 +100,8 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AIDetectionScanner": AIDetectionScanner,
+    "AchievementEditor": AchievementEditor,
     "ActivityInsights": ActivityInsights,
     "AgentFeedbackInsights": AgentFeedbackInsights,
     "AgentTraining": AgentTraining,
@@ -104,6 +109,7 @@ export const PAGES = {
     "ApplicationQnA": ApplicationQnA,
     "ApplicationTracker": ApplicationTracker,
     "AutofillVault": AutofillVault,
+    "ChronologicalEditor": ChronologicalEditor,
     "CollaborationDashboard": CollaborationDashboard,
     "CompanyResearchTool": CompanyResearchTool,
     "CoverLetter": CoverLetter,

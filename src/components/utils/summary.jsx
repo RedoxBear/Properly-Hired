@@ -1,4 +1,3 @@
-
 const STOP = new Set(["and","the","to","for","with","on","of","in","a","an","as","at","by","from","or","into","our","we"]);
 const HARD_SKILL_HINTS = ["sql","python","excel","javascript","hris","sap","workday","salesforce","powerbi","tableau","kubernetes","aws","gcp","azure"];
 const SOFT_SKILL_HINTS = ["leadership","communication","stakeholder","cross-functional","collaboration","ownership","analytical","problem-solving","mentorship","strategic"];
@@ -28,9 +27,64 @@ export function diffRoleVsCV(jdText, resumeText) {
 }
 
 export function idealCandidateFromJD(jdText) {
-  const lines = (jdText || "").split(/\n+/).filter(Boolean);
-  const ideal = lines.filter(l => /ideal candidate|we're looking for|you have|qualifications|requirements/i.test(l));
-  return (ideal.length ? ideal : lines).slice(0, 8);
+  const lines = (jdText || "").split(/\n+/).map(l => l.trim()).filter(Boolean);
+  
+  // Find sections that describe ideal candidate / qualifications / requirements
+  const sectionHeaders = /^(\*{0,2})(ideal candidate|we're looking for|you have|qualifications|requirements|what you.ll bring|who you are|minimum qualifications|preferred qualifications|what we.re looking for|about you|your background)/i;
+  const bulletOrContent = /^[-•*]\s+.{8,}|^\d+[.)]\s+.{8,}|^[A-Z].{15,}/;
+  const isSectionHeader = (l) => sectionHeaders.test(l.replace(/^\*+\s*/, '').replace(/\*+$/, ''));
+  const isJustHeader = (l) => {
+    const cleaned = l.replace(/\*+/g, '').replace(/:/g, '').trim();
+    return cleaned.split(/\s+/).length <= 3; // Very short lines are likely headers
+  };
+  
+  const items = [];
+  let inSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    
+    if (isSectionHeader(l)) {
+      inSection = true;
+      // Don't add the header itself if it's just a label
+      if (!isJustHeader(l)) items.push(l);
+      continue;
+    }
+    
+    // End section on next major heading or blank-ish line
+    if (inSection && /^#{1,3}\s|^\*{2}[A-Z]/.test(l) && !bulletOrContent.test(l)) {
+      inSection = false;
+      continue;
+    }
+    
+    if (inSection) {
+      const cleaned = l.replace(/^[-•*]\s+/, '').replace(/^\d+[.)]\s+/, '').trim();
+      // Skip empty or very short lines (sub-headers like "Skills:", "Education:")
+      if (cleaned.length > 8 && !isJustHeader(cleaned)) {
+        items.push(cleaned);
+      }
+    }
+  }
+  
+  // Fallback: grab bullet lines from anywhere if nothing found
+  if (!items.length) {
+    for (const l of lines) {
+      if (/^[-•*]\s+.{10,}/.test(l)) {
+        const cleaned = l.replace(/^[-•*]\s+/, '').trim();
+        if (cleaned.length > 8 && !isJustHeader(cleaned)) items.push(cleaned);
+      }
+    }
+  }
+  
+  // De-duplicate
+  const seen = new Set();
+  const unique = [];
+  for (const item of items) {
+    const k = item.toLowerCase();
+    if (!seen.has(k)) { seen.add(k); unique.push(item); }
+  }
+  
+  return unique.slice(0, 10);
 }
 
 export function mapCandidateMatches(cvText, ideal) {
@@ -166,10 +220,9 @@ export function buildCandidateMatches(idealLines, cvText, max = 8) {
     if (out.length >= max) break;
   }
 
-  // Fallback to simple mapping if nothing found
+  // Fallback: return nothing rather than echoing ideal lines with no match evidence
   if (!out.length) {
-    // If no good matches, just return the ideal candidate lines as bullet points
-    return ideal.slice(0, max).map(x => `• ${x}`);
+    return ["No strong matches found between your resume and the ideal candidate profile. Consider updating your master resume."];
   }
   return out;
 }

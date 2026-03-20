@@ -108,7 +108,8 @@ function AppShell({ children, currentPageName }) {
             items: [
                 { title: "Job Analysis", url: createPageUrl("JobAnalysis"), icon: Search, description: "Analyze Job Postings", badge: "Free" },
                 { title: "Resume Optimizer", url: createPageUrl("ResumeOptimizer"), icon: FileText, description: "Tailor Your Resume", badge: "Free" },
-                { title: "Cover Letters", url: createPageUrl("CoverLetters"), icon: Mail, description: "Generate Cover Letters", badge: "Free" }
+                { title: "Cover Letters", url: createPageUrl("CoverLetters"), icon: Mail, description: "Generate Cover Letters", badge: "Free" },
+                { title: "AI Scanner", url: createPageUrl("AIDetectionScanner"), icon: Shield, description: "Check for AI-sounding text", badge: "Free" }
             ]
         },
         {
@@ -162,8 +163,25 @@ function AppShell({ children, currentPageName }) {
                         overflow-x: hidden;
                     }
 
-                    body, button, input, textarea, select {
+                    /* Unified font across the entire app */
+                    body, button, input, textarea, select,
+                    h1, h2, h3, h4, h5, h6, p, span, div, li, a, label,
+                    .prose, .prose * {
                         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    }
+
+                    /* Override Tailwind's font-sans to use Inter */
+                    .font-sans {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+                    }
+
+                    /* Override font-mono leaking into non-code UI elements */
+                    span.font-mono, div.font-mono, p.font-mono {
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+                    }
+                    /* Preserve monospace for actual code blocks */
+                    pre, pre *, code, .font-mono code {
+                        font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace !important;
                     }
 
                     body {

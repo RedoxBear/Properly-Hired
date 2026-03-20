@@ -21,6 +21,7 @@ export const TIER_LIMITS = {
     resume_optimizations_per_week: 5,
     job_analyses_per_week: 10,
     cover_letters_per_week: 5,
+    human_optimizations_per_week: 1,
     agent_chat_credits: 10,
     cover_letters: true,
     transferable_skills: false,
@@ -35,7 +36,8 @@ export const TIER_LIMITS = {
       "resume_builder",
       "career_coach",
       "agent_chat", // Limited chat credits for FREE
-      "search_hub_preview" // Free users see limited preview
+      "search_hub_preview", // Free users see limited preview
+      "human_optimization" // Limited to 1/week
     ]
   },
   pro: {
@@ -43,6 +45,7 @@ export const TIER_LIMITS = {
     resume_optimizations_per_week: 40,
     job_analyses_per_week: 100,
     cover_letters_per_week: 40,
+    human_optimizations_per_week: 20,
     agent_chat_credits: 50,
     cover_letters: true,
     transferable_skills: true,
@@ -65,7 +68,8 @@ export const TIER_LIMITS = {
       "networking_hub",
       "career_coach",
       "agent_chat",
-      "search_hub"
+      "search_hub",
+      "human_optimization"
     ]
   },
   premium: {
@@ -73,6 +77,7 @@ export const TIER_LIMITS = {
     resume_optimizations_per_week: -1,
     job_analyses_per_week: -1,
     cover_letters_per_week: -1,
+    human_optimizations_per_week: 100,
     agent_chat_credits: 100,
     cover_letters: true,
     transferable_skills: true,
@@ -96,7 +101,8 @@ export const TIER_LIMITS = {
       "career_coach",
       "agent_chat",
       "priority_support",
-      "interview_prep"
+      "interview_prep",
+      "human_optimization"
     ]
   },
   enterprise: {
@@ -104,6 +110,7 @@ export const TIER_LIMITS = {
     resume_optimizations_per_week: -1,
     job_analyses_per_week: -1,
     cover_letters_per_week: -1,
+    human_optimizations_per_week: -1,
     agent_chat_credits: -1,
     cover_letters: true,
     transferable_skills: true,
@@ -175,6 +182,7 @@ export function canPerformAction(user, action, currentCount) {
     optimize_resume: limits.resume_optimizations_per_week,
     job_analysis: limits.job_analyses_per_week,
     cover_letter: limits.cover_letters_per_week,
+    human_optimization: limits.human_optimizations_per_week,
     track_application: limits.job_analyses_per_week,
     agent_chat: limits.agent_chat_credits
   };
@@ -202,6 +210,7 @@ export function getRemainingQuota(user, action, currentCount) {
     optimize_resume: limits.resume_optimizations_per_week,
     job_analysis: limits.job_analyses_per_week,
     cover_letter: limits.cover_letters_per_week,
+    human_optimization: limits.human_optimizations_per_week,
     track_application: limits.job_analyses_per_week,
     agent_chat: limits.agent_chat_credits
   };
@@ -226,6 +235,7 @@ export function getUpgradeMessage(feature) {
     resume_optimizations: "You've reached your weekly resume optimization limit. Upgrade for more optimizations",
     cover_letters_weekly: "You've reached your weekly cover letter limit. Upgrade for more cover letters",
     agent_chat: "You've used all your AI agent chat credits this week. Upgrade to Pro or Premium for more.",
+    human_optimization: "You've reached your weekly Human Optimization limit. Free: 1/week, Pro: 20/week, Premium: 100/week.",
     // Locked features for FREE tier
     job_matcher: "Match jobs to your profile with Pro or Premium",
     app_tracker: "Track your job applications with Pro or Premium",
@@ -356,6 +366,7 @@ export function getTierLimit(user, action) {
     optimize_resume: limits.resume_optimizations_per_week,
     job_analysis: limits.job_analyses_per_week,
     cover_letter: limits.cover_letters_per_week,
+    human_optimization: limits.human_optimizations_per_week,
     agent_chat: limits.agent_chat_credits
   };
 

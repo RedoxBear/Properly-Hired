@@ -17,6 +17,9 @@ import {
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { cleanResumeText } from "@/components/utils/cleanResumeText";
+import { getItemText, getItemFormula } from "@/components/utils/achievementItemUtils";
+import HumanVoiceScanCard from "@/components/scanner/HumanVoiceScanCard";
 
 export default function OptimizationResults({ results, onReset }) {
     const getScoreColor = (score) => {
@@ -31,6 +34,9 @@ export default function OptimizationResults({ results, onReset }) {
         return "from-red-500 to-pink-500";
     };
 
+    // Helper: strip markdown formatting from any string
+    const clean = (s) => cleanResumeText(s);
+
     // NEW: Build formatted text from results for download
     const buildResumeText = () => {
         let text = "";
@@ -41,7 +47,7 @@ export default function OptimizationResults({ results, onReset }) {
             text += `\n${title}\n${'-'.repeat(title.length)}\n`;
             contentLines.forEach((line) => {
                 if (typeof line === "string") {
-                    text += `• ${line}\n`;
+                    text += `- ${clean(line)}\n`;
                 }
             });
             text += '\n'; // Add a newline after each section for separation
@@ -53,11 +59,11 @@ export default function OptimizationResults({ results, onReset }) {
             // Personal Info
             if (optimized.personal_info) {
                 const pi = optimized.personal_info;
-                if (pi.name) text += `${pi.name}\n`;
+                if (pi.name) text += `${clean(pi.name)}\n`;
                 const contactInfo = [];
                 if (pi.email) contactInfo.push(pi.email);
                 if (pi.phone) contactInfo.push(pi.phone);
-                if (pi.location) contactInfo.push(pi.location);
+                if (pi.location) contactInfo.push(clean(pi.location));
                 if (pi.linkedin) contactInfo.push(pi.linkedin);
                 if (pi.portfolio) contactInfo.push(pi.portfolio);
                 if (contactInfo.length > 0) {
@@ -67,12 +73,26 @@ export default function OptimizationResults({ results, onReset }) {
 
             // Executive Summary (preferred) or Summary
             if (optimized.executive_summary) {
-                addSectionToText("Executive Summary", [optimized.executive_summary]);
+                addSectionToText("Executive Summary", [clean(optimized.executive_summary)]);
             } else if (optimized.summary) {
-                addSectionToText("Summary", [optimized.summary]);
+                addSectionToText("Summary", [clean(optimized.summary)]);
             }
             // Note: If optimized.professional_summary is still needed here, it would be an 'else if' after optimized.summary.
             // Based on the outline, executive_summary and summary are the prioritized fields within optimized_resume_content.
+
+            // Career Achievements (pillar format)
+            if (optimized.career_achievements && optimized.career_achievements.length > 0) {
+                text += `\nCareer Achievements\n${'-'.repeat("Career Achievements".length)}\n`;
+                optimized.career_achievements.forEach(pillar => {
+                    text += `\n${clean(pillar.pillar_name || '').toUpperCase()}\n`;
+                    (pillar.items || []).forEach((item, i) => {
+                        const itemText = getItemText(item);
+                        const formula = getItemFormula(item);
+                        text += `  ${i + 1}. ${clean(itemText)}${formula ? ` [${formula}]` : ""}\n`;
+                    });
+                });
+                text += '\n';
+            }
 
             // Skills
             if (optimized.skills && optimized.skills.length > 0) {
@@ -83,12 +103,12 @@ export default function OptimizationResults({ results, onReset }) {
             if (optimized.experience && optimized.experience.length > 0) {
                 text += `\nExperience\n${'-'.repeat("Experience".length)}\n`;
                 optimized.experience.forEach(exp => {
-                    text += `${exp.position || ''} at ${exp.company || ''}`;
-                    if (exp.location) text += `, ${exp.location}`;
+                    text += `${clean(exp.position || '')} at ${clean(exp.company || '')}`;
+                    if (exp.location) text += `, ${clean(exp.location)}`;
                     text += '\n';
-                    if (exp.duration) text += `${exp.duration}\n`;
+                    if (exp.duration) text += `${clean(exp.duration)}\n`;
                     if (exp.achievements && exp.achievements.length > 0) {
-                        exp.achievements.forEach(ach => text += `  • ${ach}\n`);
+                        exp.achievements.forEach(ach => text += `  - ${clean(ach)}\n`);
                     }
                     text += '\n'; // Separate entries with an extra newline
                 });
@@ -148,13 +168,15 @@ export default function OptimizationResults({ results, onReset }) {
     };
 
     const handleDownloadTxt = () => {
-        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Optimized'}`.replace(/[\\/:*?"<>|]/g, "_");
+        const styleTag = results.cvStyle === "achievement" ? "Exp" : "Chron";
+        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Company'} - ${styleTag}`.replace(/[\\/:*?"<>|]/g, "_");
         const content = buildResumeText();
         downloadFile(content, `${baseName}.txt`, "text/plain");
     };
 
     const handleDownloadJson = () => {
-        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Optimized'}`.replace(/[\\/:*?"<>|]/g, "_");
+        const styleTag = results.cvStyle === "achievement" ? "Exp" : "Chron";
+        const baseName = `${results.jobTitle || 'Resume'} - ${results.companyName || 'Company'} - ${styleTag}`.replace(/[\\/:*?"<>|]/g, "_");
         const payload = {
             job_title: results.jobTitle,
             company_name: results.companyName,
@@ -263,7 +285,7 @@ export default function OptimizationResults({ results, onReset }) {
                     </CardHeader>
                     <CardContent>
                         <p className="text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg">
-                            {results.executive_summary}
+                            {clean(results.executive_summary)}
                         </p>
                     </CardContent>
                 </Card>
@@ -280,7 +302,7 @@ export default function OptimizationResults({ results, onReset }) {
                     </CardHeader>
                     <CardContent>
                         <p className="text-slate-700 leading-relaxed bg-slate-50 p-4 rounded-lg">
-                            {results.humanization_notes}
+                            {clean(results.humanization_notes)}
                         </p>
                     </CardContent>
                 </Card>
@@ -306,7 +328,7 @@ export default function OptimizationResults({ results, onReset }) {
                                     className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200"
                                 >
                                     <TrendingUp className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                                    <span className="text-slate-700">{rec}</span>
+                                    <span className="text-slate-700">{clean(rec)}</span>
                                 </motion.li>
                             ))}
                         </ul>
@@ -328,7 +350,7 @@ export default function OptimizationResults({ results, onReset }) {
                                     key={index} 
                                     className="bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
                                 >
-                                    {keyword}
+                                    {clean(keyword)}
                                 </Badge>
                             ))}
                         </div>
@@ -353,13 +375,62 @@ export default function OptimizationResults({ results, onReset }) {
                             <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
                                 <div className="flex items-start gap-2">
                                     <CheckCircle2 className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                                    <span className="text-slate-700">{highlight}</span>
+                                    <span className="text-slate-700">{clean(highlight)}</span>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Achievement-Based Pillars (Career Achievements) */}
+            {results.optimized_resume_content?.career_achievements?.length > 0 && (
+                <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Star className="w-5 h-5 text-amber-600" />
+                            Career Achievements (Pillar Format)
+                        </CardTitle>
+                        {results.formula_distribution && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                {Object.entries(results.formula_distribution).filter(([,v]) => v > 0).map(([formula, count]) => (
+                                    <Badge key={formula} className="bg-amber-100 text-amber-800 border-amber-200 text-xs">
+                                        {formula}: {count}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {results.optimized_resume_content.career_achievements.map((pillar, pIdx) => (
+                            <div key={pIdx}>
+                                <h3 className="font-semibold text-slate-800 mb-3 uppercase tracking-wide text-sm border-b pb-1">
+                                    {clean(pillar.pillar_name)}
+                                </h3>
+                                <ul className="space-y-2">
+                                    {pillar.items?.map((item, iIdx) => {
+                                        const itemText = getItemText(item);
+                                        const formula = getItemFormula(item);
+                                        return (
+                                            <li key={iIdx} className="flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                                <CheckCircle2 className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                                <div className="flex-1">
+                                                    <span className="text-slate-700 text-sm">{clean(itemText)}</span>
+                                                    {formula && (
+                                                        <Badge className="ml-2 bg-slate-100 text-slate-600 border-slate-200 text-[10px] px-1.5 py-0">
+                                                            {formula}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Optimized Sections */}
             {results.optimized_resume_sections && (
@@ -376,7 +447,7 @@ export default function OptimizationResults({ results, onReset }) {
                             <div>
                                 <h3 className="font-semibold text-slate-800 mb-2">Professional Summary</h3>
                                 <p className="text-slate-700 bg-slate-50 p-4 rounded-lg leading-relaxed">
-                                    {results.optimized_resume_sections.professional_summary}
+                                    {clean(results.optimized_resume_sections.professional_summary)}
                                 </p>
                             </div>
                         )}
@@ -388,7 +459,7 @@ export default function OptimizationResults({ results, onReset }) {
                                 <div className="flex flex-wrap gap-2">
                                     {results.optimized_resume_sections.key_skills.map((skill, index) => (
                                         <Badge key={index} variant="secondary" className="bg-green-50 text-green-800">
-                                            {skill}
+                                            {clean(skill)}
                                         </Badge>
                                     ))}
                                 </div>
@@ -403,7 +474,7 @@ export default function OptimizationResults({ results, onReset }) {
                                     {results.optimized_resume_sections.experience_bullets.map((bullet, index) => (
                                         <li key={index} className="flex items-start gap-2">
                                             <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                            <span className="text-slate-700">{bullet}</span>
+                                            <span className="text-slate-700">{clean(bullet)}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -411,6 +482,23 @@ export default function OptimizationResults({ results, onReset }) {
                         )}
                     </CardContent>
                 </Card>
+            )}
+
+            {/* Human Voice Scan */}
+            <HumanVoiceScanCard
+              text={buildResumeText()}
+              label="Human Voice Scan — Optimized Resume"
+            />
+
+            {/* CV Style Tag */}
+            {results.cvStyle && (
+                <div className="flex items-center gap-2">
+                    <Badge className={results.cvStyle === "achievement" 
+                        ? "bg-amber-100 text-amber-800 border-amber-200" 
+                        : "bg-blue-100 text-blue-800 border-blue-200"}>
+                        {results.cvStyle === "achievement" ? "Achievement-Based (Exp)" : "Chronological (Chron)"}
+                    </Badge>
+                </div>
             )}
 
             {/* Action Buttons */}
@@ -423,6 +511,12 @@ export default function OptimizationResults({ results, onReset }) {
                     <Download className="w-4 h-4" />
                     Download as JSON
                 </Button>
+                <Link to={createPageUrl("MyResumes")}>
+                    <Button variant="outline" className="gap-2 border-green-200 text-green-700 hover:bg-green-50">
+                        <FileText className="w-4 h-4" />
+                        View in My Resumes
+                    </Button>
+                </Link>
                 <Link to={createPageUrl("ResumeTemplates")}>
                     <Button variant="outline" className="gap-2 border-purple-200 text-purple-700 hover:bg-purple-50">
                         <Palette className="w-4 h-4" />

@@ -42,10 +42,10 @@ import { fetchOrgResearch } from "@/components/utils/orgResearch";
 import { logEvent } from "@/components/utils/telemetry"; // Updated import path
 import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
+import { generateAnalysisReport } from "@/components/reports/AnalysisReportGenerator";
+import AnalysisResultsSection from "@/components/jobanalysis/AnalysisResultsSection";
 
-const createPageUrl = (path) => {
-    return path.startsWith('/') ? path : `/${path}`;
-};
+const createPageUrl = (path) => path.startsWith('/') ? path : `/${path}`;
 
 const truncateText = (value, max = 240) => {
     if (!value) return "";
@@ -1855,7 +1855,7 @@ Be thorough and actionable in your analysis. The response MUST be a valid JSON o
                                         {savedApp.analysis_summary_html ? (
                                             <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(savedApp.analysis_summary_html) }} />
                                         ) : (
-                                            <div className="whitespace-pre-wrap text-sm font-sans text-slate-700 leading-relaxed">
+                                            <div className="whitespace-pre-wrap text-sm text-slate-700 leading-relaxed">
                                                 {savedApp.analysis_summary_md || "No summary available."}
                                             </div>
                                         )}

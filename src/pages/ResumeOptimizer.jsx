@@ -23,6 +23,14 @@ import CompanyResearchCard from "@/components/company/CompanyResearchCard";
 import AgentChat from "@/components/agents/AgentChat";
 import CvStylePrompt from "@/components/resume/CvStylePrompt";
 import { resolveCvStyle } from "@/components/utils/cvStyleResolver";
+import { cleanResumeData } from "@/components/utils/cleanResumeText";
+import { buildAchievementCvPrompt } from "@/components/resume/AchievementCvPrompt";
+import { generateAnalysisReport } from "@/components/reports/AnalysisReportGenerator";
+import AnalysisReportView from "@/components/reports/AnalysisReportView";
+import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
+import { generateInterviewPrepReport } from "@/components/reports/InterviewPrepReportGenerator";
+import HumanOptimizationToggle from "@/components/resume/HumanOptimizationToggle";
+import { buildHumanOptimizationEnhancement } from "@/components/resume/HumanOptimizationPrompt";
 
 // Kyle's Expertise Domains
 const KYLE_EXPERTISE_DOMAINS = [
@@ -95,8 +103,14 @@ export default function ResumeOptimizer() {
   const [optimizationCount, setOptimizationCount] = React.useState(0);
 
   // CV Style auto-detection
-  const [resolvedCvStyle, setResolvedCvStyle] = React.useState(null); // null = not yet resolved
-  const [selectedCvStyle, setSelectedCvStyle] = React.useState(null); // user's pick when "both"
+  const [resolvedCvStyle, setResolvedCvStyle] = React.useState(null);
+  const [selectedCvStyle, setSelectedCvStyle] = React.useState(null);
+  const [analysisReportText, setAnalysisReportText] = React.useState("");
+  const [isGeneratingReport, setIsGeneratingReport] = React.useState(false);
+
+  // Human Optimization state
+  const [humanOptEnabled, setHumanOptEnabled] = React.useState(false);
+  const [humanOptCount, setHumanOptCount] = React.useState(0);
 
   React.useEffect(() => {
     const dismissed = localStorage.getItem("guided-tour-dismissed") === "true";
@@ -130,6 +144,14 @@ export default function ResumeOptimizer() {
       ).length;
       setOptimizationCount(optimizedThisWeek);
 
+      // Count this week's human optimizations (track via version name suffix)
+      const humanOptThisWeek = allResumes.filter(r =>
+        !r.is_master_resume &&
+        r.version_name?.includes("Human") &&
+        new Date(r.created_date) >= weekStart
+      ).length;
+      setHumanOptCount(humanOptThisWeek);
+
       if (masterResumesResult.length === 0) {
         setError("Please upload or build a master resume first.");
       }
@@ -151,7 +173,27 @@ export default function ResumeOptimizer() {
     const id = qp.get("id");
     if (id && jobApplications.length > 0) {
       const exists = jobApplications.some(j => j.id === id);
-      if (exists) setSelectedJobId(id);
+      if (exists) {
+        setSelectedJobId(id);
+        // Auto-generate analysis report on handoff from Job Analysis
+        const app = jobApplications.find(j => j.id === id);
+        if (app && !app.analysis_report_text) {
+          setIsGeneratingReport(true);
+          generateAnalysisReport(id).then(text => {
+            setAnalysisReportText(text || "");
+          }).catch(console.error).finally(() => setIsGeneratingReport(false));
+        } else if (app?.analysis_report_text) {
+          setAnalysisReportText(app.analysis_report_text);
+        }
+
+        // Auto-generate interview prep data + report on handoff
+        if (app && !app.summary?.interview_prep) {
+          generateInterviewPrep({ action: "generate", job_application_id: id }).catch(console.error);
+        }
+        if (app && !app.interview_prep_report_text) {
+          generateInterviewPrepReport(id).catch(console.error);
+        }
+      }
     }
   }, [jobApplications]);
 
@@ -173,8 +215,8 @@ export default function ResumeOptimizer() {
 
     const style = resolveCvStyle("auto", job.job_title, roleClassification, resumeText);
     setResolvedCvStyle(style);
-    // Reset user pick when resolved style changes
-    setSelectedCvStyle(style === "both" ? null : style);
+    // Pre-select chronological as default, let user choose
+    setSelectedCvStyle(null);
   }, [selectedJobId, selectedMatchId, selectedResumeId, useJobMatch, jobApplications, jobMatches, masterResumes]);
 
   // Load Kyle's Positioning Analysis
@@ -585,10 +627,11 @@ Return JSON:
       id: selectedJob.id
     };
 
-    const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "Pro 2-Page" : "Full CV";
+    const modeLabel = optimizeMode === "ats_one_page" ? "ATS 1-Page" : optimizeMode === "two_page" ? "2-Page Pro" : "Full CV";
 
     // Determine CV style(s) to generate
-    const finalCvStyle = selectedCvStyle || resolvedCvStyle || "chronological";
+    const userChoice = selectedCvStyle || resolvedCvStyle || "chronological";
+    const finalCvStyle = userChoice;
     const stylesToGenerate = finalCvStyle === "both" ? ["chronological", "achievement"] : [finalCvStyle];
 
     // Define STRICT constraints based on mode - MUST BE ENFORCED
@@ -653,22 +696,186 @@ Return JSON:
 `).join('\n');
 
         for (const cvStyle of stylesToGenerate) {
-          const cvStyleInstruction = cvStyle === "achievement"
-            ? `\n**CV FORMAT: ACHIEVEMENT-BASED**
-- Lead each role with a "Key Achievements" sub-section listing 3-5 quantified impact statements FIRST.
-- Follow with a brief "Responsibilities" section only when essential context is needed.
-- Order bullets by impact magnitude, not chronology.
-- Use bold metrics: "$X revenue", "Y% improvement", "Z team members".
-- The reader should grasp the candidate's value in the first 3 seconds per role.\n`
-            : `\n**CV FORMAT: CHRONOLOGICAL**
+          const styleTag = cvStyle === "achievement" ? "Exp" : "Chron";
+
+          // Build human optimization enhancement if enabled
+          const humanOptEnhancement = humanOptEnabled ? buildHumanOptimizationEnhancement({
+            targetRole: jobData.job_title,
+            targetCompany: jobData.company_name,
+            toneFit: ""
+          }) : "";
+
+          // For achievement style, use the dedicated achievement CV prompt builder
+          if (cvStyle === "achievement") {
+            for (let i = 0; i < numVersions; i++) {
+              const baseAchievementPrompt = buildAchievementCvPrompt({
+                jobTitle: jobData.job_title,
+                companyName: jobData.company_name,
+                jobDescription: jobData.job_description,
+                resumeContent: selectedResume.parsed_content,
+                modeLabel,
+                constraints,
+                variationIndex: i,
+                generateMultiple,
+              });
+              const achievementPrompt = humanOptEnabled 
+                ? `${humanOptEnhancement}\n\n${baseAchievementPrompt}`
+                : baseAchievementPrompt;
+
+              const response = await retryWithBackoff(() =>
+                base44.integrations.Core.InvokeLLM({
+                  prompt: achievementPrompt,
+                  response_json_schema: {
+                    type: "object",
+                    properties: {
+                      optimization_score: { type: "number" },
+                      jd_style_analysis: {
+                        type: "object",
+                        properties: {
+                          bullet_length: { type: "string" },
+                          tone: { type: "string" },
+                          verb_pattern: { type: "array", items: { type: "string" } },
+                          sentence_target: { type: "string" }
+                        }
+                      },
+                      formula_distribution: {
+                        type: "object",
+                        properties: {
+                          ARC: { type: "number" }, TEAL: { type: "number" }, XYZ: { type: "number" },
+                          CAR: { type: "number" }, PAR: { type: "number" }, SOAR: { type: "number" },
+                          STAR: { type: "number" }, LPS: { type: "number" }, ELITE: { type: "number" }
+                        }
+                      },
+                      recommendations: { type: "array", items: { type: "string" } },
+                      pillars: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            name: { type: "string" },
+                            items: { type: "array", items: { type: "string" } }
+                          }
+                        }
+                      },
+                      optimized_resume_content: {
+                        type: "object",
+                        properties: {
+                          personal_info: {
+                            type: "object",
+                            properties: {
+                              name: { type: "string" },
+                              email: { type: "string" },
+                              phone: { type: "string" },
+                              location: { type: "string" },
+                              linkedin: { type: "string" },
+                              portfolio: { type: "string" }
+                            }
+                          },
+                          executive_summary: { type: "string" },
+                          career_achievements: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                pillar_name: { type: "string" },
+                                items: { type: "array", items: {
+                                  type: "object",
+                                  properties: {
+                                    text: { type: "string" },
+                                    formula: { type: "string" }
+                                  },
+                                  required: ["text", "formula"]
+                                } }
+                              }
+                            }
+                          },
+                          skills: { type: "array", items: { type: "string" } },
+                          experience: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                position: { type: "string" },
+                                company: { type: "string" },
+                                location: { type: "string" },
+                                duration: { type: "string" },
+                                achievements: { type: "array", items: { type: "string" } }
+                              }
+                            }
+                          },
+                          education: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                degree: { type: "string" },
+                                institution: { type: "string" },
+                                year: { type: "string" }
+                              }
+                            }
+                          }
+                        },
+                        required: ["personal_info", "skills", "experience"]
+                      }
+                    }
+                  }
+                }),
+                { retries: 3, baseDelay: 1200 }
+              );
+
+              if (response.optimized_resume_content) {
+                response.optimized_resume_content = cleanResumeData(response.optimized_resume_content);
+              }
+              if (response.recommendations) {
+                response.recommendations = response.recommendations.map(r => cleanResumeData(r));
+              }
+
+              const humanTag = humanOptEnabled ? " - Human" : "";
+              const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
+              const newVersion = await Resume.create({
+                version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${humanTag}${versionSuffix}`,
+                original_file_url: selectedResume.original_file_url,
+                parsed_content: selectedResume.parsed_content,
+                optimized_content: JSON.stringify(response.optimized_resume_content),
+                is_master_resume: false,
+                job_application_id: useJobMatch ? null : jobData.id
+              });
+
+              versions.push({
+                ...response,
+                resumeId: newVersion.id,
+                jobTitle: jobData.job_title,
+                companyName: jobData.company_name,
+                cvStyle
+              });
+            }
+            continue; // skip to next style
+          }
+
+          // Chronological style — existing prompt
+          const cvStyleInstruction = `\n**CV FORMAT: CHRONOLOGICAL**
 - Standard reverse-chronological format.
 - Each role lists bullets in natural time-order, blending responsibilities with achievements.
-- ATS-optimized with clear section headers.\n`;
+- ATS-optimized with clear section headers.
+
+**JD POWER TERM EXTRACTION (do this silently before writing):**
+A. VERB+NOUN PAIRS (highest AI screener weight): Extract the specific actions the JD asks for. Match the JD's verb+noun structure but use natural verbs (JD: "conduct investigations" → You: "handled investigations"). Each major JD verb+noun pair MUST map to at least one bullet. These MUST appear in BULLET TEXT, not just skills sidebar.
+B. HARD SKILLS/TOOLS (medium weight): Every named tool/system must appear in BOTH the skills section AND at least one bullet. Skills section alone is not enough — AI weights in-context mentions higher.
+C. SOFT REQUIREMENTS (differentiating): Industry signals in company descriptions, scope signals in bullets ("across CA, IL, and SC"), pace signals ("90 days", "85 locations").
+
+**KEYWORD PLACEMENT (AI screeners weight locations differently):**
+- Professional Summary: HIGH weight — include 2-3 major JD terms naturally
+- Bullet text (recent roles): HIGHEST weight — all MUST requirements mapped here
+- Bullet text (older roles): MEDIUM weight — PLUS requirements here
+- Skills list: MEDIUM weight — every JD skill listed once
+- Role titles: HIGH weight — match JD title where honest
+- KEY: If a MUST requirement only appears in an older role, add a reference in a recent role too (if honest)\n`;
 
         for (let i = 0; i < numVersions; i++) {
+            const chronHumanPrefix = humanOptEnabled ? humanOptEnhancement + "\n\n" : "";
             const response = await retryWithBackoff(() =>
               base44.integrations.Core.InvokeLLM({
-                prompt: `You are a strict, objective Resume Auditor and Career Coach.
+                prompt: `${chronHumanPrefix}You are a strict, objective Resume Auditor and Career Coach.
 ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job Description (JD) provided, adhering to strict TRUTHFULNESS and STRATEGIC REFRAMING principles.
 
             **PART 1: CRITICAL TRUTHFULNESS RULES**
@@ -749,7 +956,20 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                - Example: "optimization_score": 85 (CORRECT)
                - Example: "optimization_score": "85%" (WRONG)
             2. COUNT your bullets before submitting - verify they match the ${modeLabel} requirements above
-            3. PRESERVE the core meaning of achievements - reframe wording but don't invent new achievements`,
+            3. PRESERVE the core meaning of achievements - reframe wording but don't invent new achievements
+            4. **NO MARKDOWN FORMATTING:** Do NOT use asterisks (*), double asterisks (**), underscores (_), hash symbols (#), or any other markdown formatting in ANY output text. All text must be plain, clean, professional text with no special formatting characters.
+
+            **POST-GENERATION AI READINESS CHECK (verify before returning):**
+            KEYWORD COVERAGE:
+            - Every MUST requirement from the JD appears in at least one bullet
+            - Every named tool/system appears in skills AND at least one bullet
+            - Professional Summary includes 2-3 major JD terms
+            - Most recent role addresses the JD's #1 priority
+            HUMAN AUTHENTICITY:
+            - At least 3 bullets with honest context sentences (details only someone who did the work would know)
+            - Metrics use "roughly" or "about" at least twice — avoid overly precise or perfect numbers
+            - Not every bullet starts with a power verb — vary structure naturally
+            - At least 1 bullet per role should be a plain scope statement without a metric`,
                 response_json_schema: {
                   type: "object",
                   properties: {
@@ -809,10 +1029,21 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
               { retries: 3, baseDelay: 1200 }
             );
 
-            const styleSuffix = stylesToGenerate.length > 1 ? ` — ${cvStyle.charAt(0).toUpperCase() + cvStyle.slice(1)}` : "";
+            // Clean all markdown/asterisk formatting from the optimized content
+            if (response.optimized_resume_content) {
+              response.optimized_resume_content = cleanResumeData(response.optimized_resume_content);
+            }
+            if (response.executive_summary) {
+              response.executive_summary = cleanResumeData(response.executive_summary);
+            }
+            if (response.recommendations) {
+              response.recommendations = response.recommendations.map(r => cleanResumeData(r));
+            }
+
+            const chronHumanTag = humanOptEnabled ? " - Human" : "";
             const versionSuffix = generateMultiple ? ` v${i + 1}` : "";
             const newVersion = await Resume.create({
-              version_name: `${jobData.job_title} — ${jobData.company_name} — ${modeLabel}${styleSuffix}${versionSuffix}`,
+              version_name: `${jobData.job_title} - ${jobData.company_name} - ${modeLabel} - ${styleTag}${chronHumanTag}${versionSuffix}`,
               original_file_url: selectedResume.original_file_url,
               parsed_content: selectedResume.parsed_content,
               optimized_content: JSON.stringify(response.optimized_resume_content),
@@ -830,7 +1061,8 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
         }
         } // end stylesToGenerate loop
 
-        if (generateMultiple) {
+        // When "both" is selected or multi-version, show version compare UI
+        if (versions.length > 1) {
             setOptimizedVersions(versions);
             setSelectedVersion(0);
         }
@@ -877,6 +1109,7 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
       setSelectedVersion(0);
       setResolvedCvStyle(null);
       setSelectedCvStyle(null);
+      setHumanOptEnabled(false);
   };
 
   return (
@@ -914,6 +1147,16 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
             </div>
           </CardContent>
         </Card>
+
+        {/* Analysis Report (auto-generated on handoff) */}
+        {(analysisReportText || isGeneratingReport) && (
+          <AnalysisReportView
+            reportText={analysisReportText}
+            jobTitle={jobApplications.find(j => j.id === selectedJobId)?.job_title}
+            companyName={jobApplications.find(j => j.id === selectedJobId)?.company_name}
+            isGenerating={isGeneratingReport}
+          />
+        )}
 
         {error && <Alert variant="destructive" className="mb-6"><AlertDescription>{error}</AlertDescription></Alert>}
 
@@ -994,13 +1237,12 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
 
                   <ResumeLengthControls value={optimizeMode} onChange={setOptimizeMode} />
 
-                  {/* CV Style Prompt — only shown for senior-level roles */}
-                  {resolvedCvStyle === "both" && (
-                    <CvStylePrompt
-                      onSelect={setSelectedCvStyle}
-                      selectedStyle={selectedCvStyle}
-                    />
-                  )}
+                  {/* CV Style Prompt — always shown so user can choose Achievement-Based */}
+                  <CvStylePrompt
+                    onSelect={setSelectedCvStyle}
+                    selectedStyle={selectedCvStyle || resolvedCvStyle}
+                    isSeniorRole={resolvedCvStyle === "both"}
+                  />
 
                   <div className="flex items-center justify-between p-4 bg-slate-100 rounded-lg border border-slate-200">
                     <span className="text-sm font-medium text-slate-700">Aggressive Keyword Matching</span>
@@ -1012,15 +1254,25 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                     <Switch checked={deepHumanize} onCheckedChange={setDeepHumanize} />
                   </div>
 
+                  {/* Human Optimization - Premium Feature */}
+                  <HumanOptimizationToggle
+                    enabled={humanOptEnabled}
+                    onToggle={setHumanOptEnabled}
+                    canUse={canPerformAction(currentUser, "human_optimization", humanOptCount)}
+                    usageCount={humanOptCount}
+                    usageLimit={getTierLimit(currentUser, "human_optimization")}
+                    currentTier={currentUser?.subscription_tier || TIERS.FREE}
+                  />
+
                   <div className="flex gap-3">
                       <Button
                         onClick={() => optimizeResume(false)}
-                        disabled={isProcessing || (resolvedCvStyle === "both" && !selectedCvStyle)}
+                        disabled={isProcessing}
                         className="flex-1 bg-blue-600 hover:bg-blue-700 h-12"
                       >
                         {isProcessing ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Processing...</> : <><Sparkles className="w-5 h-5 mr-2" />Optimize Resume</>}
                       </Button>
-                      <Button onClick={() => optimizeResume(true)} disabled={isProcessing || (resolvedCvStyle === "both" && !selectedCvStyle)} variant="outline" className="border-purple-600 text-purple-700 h-12">
+                      <Button onClick={() => optimizeResume(true)} disabled={isProcessing} variant="outline" className="border-purple-600 text-purple-700 h-12">
                         Generate 3 Versions
                       </Button>
                   </div>
@@ -1232,20 +1484,20 @@ ${cvStyleInstruction} Your goal is to optimize this resume for the specific Job 
                         <CardTitle className="text-blue-900 text-base">Compare Optimized Versions</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex gap-2">
-                          {optimizedVersions.map((version, idx) => (
-                            <Button
-                              key={idx}
-                              onClick={() => {
-                                setSelectedVersion(idx);
-                                setOptimizationResults(version);
-                              }}
-                              variant={selectedVersion === idx ? "default" : "outline"}
-                              size="sm"
-                            >
-                              Version {idx + 1} ({version.optimization_score}%)
-                            </Button>
-                          ))}
+                        <div className="flex flex-wrap gap-2">
+                         {optimizedVersions.map((version, idx) => (
+                           <Button
+                             key={idx}
+                             onClick={() => {
+                               setSelectedVersion(idx);
+                               setOptimizationResults(version);
+                             }}
+                             variant={selectedVersion === idx ? "default" : "outline"}
+                             size="sm"
+                           >
+                             {version.cvStyle === "achievement" ? "Achievement" : "Chronological"} ({version.optimization_score}%)
+                           </Button>
+                         ))}
                         </div>
                       </CardContent>
                     </Card>

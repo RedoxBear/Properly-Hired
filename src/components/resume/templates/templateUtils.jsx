@@ -1,4 +1,5 @@
 // Shared utilities for all resume templates
+import { normalizeAchievementItem, getItemText } from "@/components/utils/achievementItemUtils";
 
 export function parseResumeData(data) {
   if (!data) return null;
@@ -16,8 +17,14 @@ export function parseResumeData(data) {
   const summary = data.executive_summary || data.summary || data.professional_summary || "";
   const profilePhoto = data.profile_photo || pi.photo || "";
   const skillLevels = data.skill_levels || {};
+  // Normalize career achievements: items can be strings or {text, formula} objects
+  const rawAchievements = Array.isArray(data.career_achievements) ? data.career_achievements : [];
+  const careerAchievements = rawAchievements.map(pillar => ({
+    ...pillar,
+    items: (pillar.items || []).map(item => normalizeAchievementItem(item))
+  }));
 
-  return { pi, skills, highlights, experience, education, references, summary, profilePhoto, skillLevels };
+  return { pi, skills, highlights, experience, education, references, summary, profilePhoto, skillLevels, careerAchievements };
 }
 
 export function SkillBar({ name, level = 70, color = "bg-blue-600" }) {

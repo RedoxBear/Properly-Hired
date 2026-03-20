@@ -1,6 +1,5 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Award, Columns2 } from "lucide-react";
 
@@ -14,30 +13,34 @@ const OPTIONS = [
   },
   {
     value: "achievement",
-    label: "Achievement",
-    description: "Impact-first, results-led format",
+    label: "Achievement-Based",
+    description: "Pillar-organized, impact-first (ARC/STAR/SOAR formulas)",
     icon: Award,
     color: "border-amber-300 hover:bg-amber-50"
   },
   {
     value: "both",
     label: "Generate Both",
-    description: "Compare side-by-side (recommended)",
+    description: "Chronological + Achievement — 2 files saved",
     icon: Columns2,
     color: "border-purple-300 hover:bg-purple-50",
     recommended: true
   }
 ];
 
-export default function CvStylePrompt({ onSelect, selectedStyle }) {
+export default function CvStylePrompt({ onSelect, selectedStyle, isSeniorRole }) {
   return (
     <Card className="border-purple-200 bg-gradient-to-br from-purple-50/50 to-indigo-50/50">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2 text-purple-900">
           <Award className="w-5 h-5 text-purple-600" />
-          Kyle detected this is a Senior-level role
+          {isSeniorRole ? "Kyle detected this is a Senior-level role" : "Choose CV Format"}
         </CardTitle>
-        <p className="text-sm text-purple-700">Which CV format would you like?</p>
+        <p className="text-sm text-purple-700">
+          {isSeniorRole 
+            ? "Achievement-Based format recommended — generates pillar-organized Career Achievements" 
+            : "Select how your optimized resume should be structured"}
+        </p>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -54,7 +57,7 @@ export default function CvStylePrompt({ onSelect, selectedStyle }) {
                     : `border-border ${opt.color}`
                 }`}
               >
-                {opt.recommended && (
+                {opt.recommended && isSeniorRole && (
                   <Badge className="absolute -top-2 right-2 bg-purple-600 text-white text-[10px]">
                     Recommended
                   </Badge>

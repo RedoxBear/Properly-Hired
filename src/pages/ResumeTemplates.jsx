@@ -43,8 +43,7 @@ export default function ResumeTemplates() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [templateItems, setTemplateItems] = useState(DEFAULT_TEMPLATES);
-  const [autoRedirectArmed, setAutoRedirectArmed] = useState(false);
-  const redirectTimerRef = useRef(null);
+  const [userConfirmedFormat, setUserConfirmedFormat] = useState(null); // null = not answered, true = project-based, false = standard
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -112,22 +111,12 @@ export default function ResumeTemplates() {
     }
   }, [selectedResumeId, resumes]);
 
-  useEffect(() => {
-    if (!selectedResumeId) return;
-    const key = `resume-templates-redirect-${selectedResumeId}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    setAutoRedirectArmed(true);
-    redirectTimerRef.current = setTimeout(() => {
-      navigate(`${createPageUrl("ResumeEditor")}?resumeId=${selectedResumeId}`);
-    }, 3500);
-    return () => {
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-        redirectTimerRef.current = null;
-      }
-    };
-  }, [selectedResumeId, navigate]);
+  const handleFormatChoice = (isProjectBased) => {
+    setUserConfirmedFormat(isProjectBased);
+    if (selectedResumeId) {
+      navigate(`${createPageUrl("ResumeEditor")}?resumeId=${selectedResumeId}${isProjectBased ? '&format=project' : ''}`);
+    }
+  };
 
   // Show loading while checking user access
   if (isLoadingUser) {
@@ -280,7 +269,7 @@ export default function ResumeTemplates() {
     return <Comp data={resumeData} />;
   };
 
-  // REPLACE: window.print with iframe-based clean printing
+  // iframe-based clean printing that preserves template styles
   const handlePrint = async () => {
     const node = printRef.current;
     if (!node) return;
@@ -296,33 +285,46 @@ export default function ResumeTemplates() {
 
     const doc = iframe.contentDocument || iframe.contentWindow.document;
 
+    // Collect all external stylesheets
     const linkTags = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
       .map(l => `<link rel="stylesheet" href="${l.href}">`)
       .join("");
 
+    // Collect all inline <style> tags from the document (includes Tailwind + component styles)
+    const styleTags = Array.from(document.querySelectorAll('style'))
+      .map(s => `<style>${s.innerHTML}</style>`)
+      .join("");
+
     const html = `
 <!doctype html>
-<html>
+<html class="light">
 <head>
 <meta charset="utf-8" />
 <title>${resume?.version_name || "Resume"}</title>
 ${linkTags}
+${styleTags}
 <style>
-  @page { size: A4; margin: 16mm; }
-  html, body { background: #fff; }
-  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 12mm; }
+  html, body { background: #fff !important; margin: 0; padding: 0; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+  /* Force light mode for printing */
+  .dark { color-scheme: light !important; }
   #printable-resume {
     max-width: 800px;
     margin: 0 auto;
     font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     color: #111827;
   }
+  #printable-resume * { color-scheme: light !important; }
   .page-break { break-after: page; }
+  /* Remove shadows/borders for cleaner print */
+  .shadow, .shadow-lg, .shadow-xl { box-shadow: none !important; }
+  .rounded-xl { border-radius: 0 !important; }
 </style>
 </head>
 <body>
   <div id="printable-resume">
-    ${node.outerHTML}
+    ${node.innerHTML}
   </div>
 </body>
 </html>`.trim();
@@ -331,12 +333,12 @@ ${linkTags}
     doc.write(html);
     doc.close();
 
-    // Give the iframe a tick to load styles/fonts
-    await new Promise(r => setTimeout(r, 150));
+    // Wait longer for styles/fonts to fully load in the iframe
+    await new Promise(r => setTimeout(r, 600));
     iframe.contentWindow.focus();
     iframe.contentWindow.print();
 
-    setTimeout(() => iframe.remove(), 500);
+    setTimeout(() => iframe.remove(), 1000);
   };
 
   const handleDownloadHtml = () => {
@@ -423,77 +425,81 @@ ${el.innerHTML}
         {recommendProjectCV && <ProjectBasedCVHint />}
 
         <KyleOptimizeBanner resumeId={selectedResumeId} />
-        {autoRedirectArmed && selectedResumeId && (
-          <Alert className="border-slate-200 bg-white">
-            <AlertDescription className="flex flex-wrap items-center gap-3">
-              <span>Redirecting to Resume Editor in a few seconds...</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (redirectTimerRef.current) {
-                    clearTimeout(redirectTimerRef.current);
-                    redirectTimerRef.current = null;
-                  }
-                  setAutoRedirectArmed(false);
-                }}
-              >
-                Stay here
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
 
+        {/* Step 1: Select Resume */}
         <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Select Resume & Template</CardTitle>
+            <CardTitle>Step 1: Select Your Resume</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-md">
+              <label className="text-sm font-medium text-slate-700">Resume</label>
+              <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Choose a resume to render" />
+                </SelectTrigger>
+                <SelectContent>
+                  {resumes.map(r => (
+                    <SelectItem key={r.id} value={r.id}>{r.version_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step 2: Template Gallery — shown prominently first */}
+        <TemplateGallery
+          onPick={handleGalleryPick}
+          items={templateItems}
+          showAdminControls={isAdmin(currentUser)}
+          onAdd={handleAddTemplate}
+          onDelete={handleDeleteTemplate}
+        />
+
+        {appliedNote && <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">{appliedNote}</div>}
+
+        {/* Step 3: Project-based format question — shown after template is picked */}
+        {selectedResumeId && template && (
+          <Card className="shadow-lg border-0 bg-gradient-to-r from-blue-50 to-cyan-50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Step 3: Choose Your Resume Format</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-slate-700">
+                {recommendProjectCV
+                  ? "Based on your work history, a **project-based format** may better highlight your skills and accomplishments. Would you like to use a project-based format?"
+                  : "Would you like to use a project-based format (groups work by projects/skills) or a standard chronological format?"}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={() => handleFormatChoice(true)}
+                  className="gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  Yes, Project-Based
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={() => handleFormatChoice(false)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  No, Standard Format
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <TemplateHelperHint />
+
+        {/* Template Preview & Actions */}
+        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>Preview</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700">Resume</label>
-                <Select value={selectedResumeId} onValueChange={setSelectedResumeId}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Choose a resume to render" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {resumes.map(r => (
-                      <SelectItem key={r.id} value={r.id}>{r.version_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-700">Template</label>
-                <Select value={template} onValueChange={setTemplate}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Choose a template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="classic">Classic</SelectItem>
-                    <SelectItem value="modern">Modern</SelectItem>
-                    <SelectItem value="minimal">Minimal</SelectItem>
-                    <SelectItem value="double-column">Double Column</SelectItem>
-                    <SelectItem value="ivy-league">Ivy League</SelectItem>
-                    <SelectItem value="elegant">Elegant</SelectItem>
-                    <SelectItem value="contemporary">Contemporary</SelectItem>
-                    <SelectItem value="polished">Polished</SelectItem>
-                    <SelectItem value="timeline">Timeline</SelectItem>
-                    <SelectItem value="creative">Creative</SelectItem>
-                    <SelectItem value="stylish">Stylish</SelectItem>
-                    <SelectItem value="double-column-logos">Double Column w/ Logos</SelectItem>
-                    <SelectItem value="multicolumn">Multicolumn</SelectItem>
-                    <SelectItem value="high-performer">High Performer</SelectItem>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="prime-ats">Prime ATS</SelectItem>
-                    <SelectItem value="pure-ats">Pure ATS</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {appliedNote && <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">{appliedNote}</div>}
-
             <div className="flex flex-wrap gap-3 no-print">
               <Button onClick={handlePrint} className="gap-2">
                 <Printer className="w-4 h-4" />
@@ -527,29 +533,18 @@ ${el.innerHTML}
           }}
         />
 
-        {/* Printable area: attach ref so we only print this */}
+        {/* Printable area */}
         <div id="print-area" ref={printRef} className="bg-white rounded-xl shadow">
           {renderTemplate()}
         </div>
 
-        <TemplateHelperHint />
-
-        {/* Gallery */}
-        <TemplateGallery
-          onPick={handleGalleryPick}
-          items={templateItems}
-          showAdminControls={isAdmin(currentUser)}
-          onAdd={handleAddTemplate}
-          onDelete={handleDeleteTemplate}
-        />
-
-        {/* Kyle Agent Chat */}
+        {/* Kyle Agent Chat — asks about format */}
         <AgentChat
           agentName="kyle"
           agentTitle="Kyle - CV Expert"
           autoOpen
           autoSendInitial
-          initialMessage={`Start by asking me: "Is there anything you'd like to change or optimize further?" Then advise whether a project-based CV would be stronger. Tenure stats: ${tenureStats ? `avg ${tenureStats.averageMonths} months, short stints ${tenureStats.shortStints}/${tenureStats.totalRoles}` : "not available"}.`}
+          initialMessage={`Start by asking: "Would you like to use a project-based format for your resume? This groups your experience by projects/skills rather than chronologically." Based on tenure stats: ${tenureStats ? `avg ${tenureStats.averageMonths} months, short stints ${tenureStats.shortStints}/${tenureStats.totalRoles}` : "not available"}. ${recommendProjectCV ? "Recommend project-based format." : "Let them choose."} When they answer yes or no, tell them: "Great choice! Click the format button above to proceed to the Resume Editor."`}
           context={{
             page: "ResumeTemplates",
             resumeId: selectedResumeId,

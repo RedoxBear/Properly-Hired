@@ -12,6 +12,9 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MessageSquare, HelpCircle, Star, CheckSquare, ArrowLeft, FileText } from "lucide-react";
 import { generateInterviewPrep } from "@/functions/generateInterviewPrep";
+import { generateInterviewPrepReport } from "@/components/reports/InterviewPrepReportGenerator";
+import InterviewPrepReportView from "@/components/reports/InterviewPrepReportView";
+import JobSelectionPicker from "@/components/interviewprep/JobSelectionPicker";
 
 const CATEGORY_COLORS = {
   behavioral: "bg-blue-100 text-blue-800",
@@ -28,6 +31,8 @@ export default function InterviewPrep() {
   const [generating, setGenerating] = useState(false);
   const [checkedItems, setCheckedItems] = useState({});
   const [error, setError] = useState(null);
+  const [prepReportText, setPrepReportText] = useState("");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const appId = new URLSearchParams(window.location.search).get("id");
 
@@ -35,7 +40,11 @@ export default function InterviewPrep() {
     const init = async () => {
       const user = await base44.auth.me();
       setCurrentUser(user);
-      if (!appId || !hasAccess(user, "interview_prep")) {
+      if (!hasAccess(user, "interview_prep")) {
+        setLoading(false);
+        return;
+      }
+      if (!appId) {
         setLoading(false);
         return;
       }
@@ -49,7 +58,26 @@ export default function InterviewPrep() {
     try {
       const app = await base44.entities.JobApplication.get(appId);
       setApplication(app);
-      setPrep(app?.summary?.interview_prep ?? null);
+      const existingPrep = app?.summary?.interview_prep ?? null;
+      setPrep(existingPrep);
+      setPrepReportText(app?.interview_prep_report_text || "");
+
+      // If prep is missing, it should already have been generated during Resume Optimizer handoff.
+      // Auto-generate as a fallback to ensure data is always present.
+      if (!existingPrep) {
+        setGenerating(true);
+        generateInterviewPrep({ action: "generate", job_application_id: appId })
+          .then(result => setPrep(result.data?.interview_prep))
+          .catch(console.error)
+          .finally(() => setGenerating(false));
+      }
+      if (!app?.interview_prep_report_text) {
+        setIsGeneratingReport(true);
+        generateInterviewPrepReport(appId)
+          .then(text => setPrepReportText(text || ""))
+          .catch(console.error)
+          .finally(() => setIsGeneratingReport(false));
+      }
     } catch (e) {
       setError("Could not load application.");
     } finally {
@@ -57,7 +85,7 @@ export default function InterviewPrep() {
     }
   };
 
-  const handleGenerate = async () => {
+  const handleRegenerate = async () => {
     setGenerating(true);
     setError(null);
     try {
@@ -66,8 +94,15 @@ export default function InterviewPrep() {
         job_application_id: appId
       });
       setPrep(result.data?.interview_prep);
+      // Also regenerate the detailed report
+      setIsGeneratingReport(true);
+      // Clear existing to force re-generation
+      await base44.entities.JobApplication.update(appId, { interview_prep_report_text: "" });
+      generateInterviewPrepReport(appId).then(text => {
+        setPrepReportText(text || "");
+      }).catch(console.error).finally(() => setIsGeneratingReport(false));
     } catch (e) {
-      setError("Generation failed. Please try again.");
+      setError("Regeneration failed. Please try again.");
     } finally {
       setGenerating(false);
     }
@@ -95,6 +130,11 @@ export default function InterviewPrep() {
         <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
       </div>
     );
+  }
+
+  // No app selected — show job selection picker
+  if (!appId) {
+    return <JobSelectionPicker />;
   }
 
   return (
@@ -130,26 +170,27 @@ export default function InterviewPrep() {
         </CardHeader>
       </Card>
 
-      {/* Generate or display */}
-      {!prep ? (
-        <Card className="border-dashed border-2 border-purple-200">
-          <CardContent className="flex flex-col items-center justify-center py-16 gap-4">
-            <MessageSquare className="h-16 w-16 text-purple-300" />
-            <h3 className="text-xl font-semibold text-foreground">Interview Prep Not Generated Yet</h3>
-            <p className="text-muted-foreground text-center max-w-md">
-              Generate a personalized interview guide with likely questions, STAR story templates,
-              and strategic questions to ask your interviewer.
-            </p>
-            <Button onClick={handleGenerate} disabled={generating}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8">
-              {generating
-                ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating…</>
-                : "Generate Interview Prep"}
-            </Button>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+      {/* Detailed Report (primary view) */}
+      <InterviewPrepReportView
+        reportText={prepReportText}
+        jobTitle={application?.job_title}
+        companyName={application?.company_name}
+        isGenerating={isGeneratingReport}
+      />
+
+      {/* Loading state while auto-generating */}
+      {generating && !prep && (
+        <Card className="border-purple-200">
+          <CardContent className="flex items-center justify-center py-12 gap-3">
+            <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+            <span className="text-purple-700 font-medium">Generating interview preparation...</span>
           </CardContent>
         </Card>
-      ) : (
+      )}
+
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+      {prep && (
         <>
           {/* Likely Questions */}
           <Card>
@@ -164,7 +205,7 @@ export default function InterviewPrep() {
               {prep.likely_questions?.map((q, i) => (
                 <div key={i} className="border-b pb-5 last:border-0">
                   <div className="flex items-start gap-3">
-                    <span className="text-muted-foreground font-mono text-sm mt-0.5">Q{i + 1}</span>
+                    <span className="text-muted-foreground text-sm font-medium mt-0.5">Q{i + 1}</span>
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium text-foreground">"{q.question}"</p>
@@ -312,7 +353,7 @@ export default function InterviewPrep() {
 
           {/* Regenerate */}
           <div className="flex justify-end">
-            <Button variant="outline" onClick={handleGenerate} disabled={generating} size="sm">
+            <Button variant="outline" onClick={handleRegenerate} disabled={generating} size="sm">
               {generating
                 ? <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Regenerating…</>
                 : "Regenerate"}

@@ -5,7 +5,7 @@ import { parseResumeData, SkillBar, ProfilePhoto } from "./templateUtils";
 export default function Professional({ data }) {
   const d = parseResumeData(data);
   if (!d) return null;
-  const { pi, skills, highlights, experience, education, references, summary, profilePhoto, skillLevels } = d;
+  const { pi, skills, highlights, experience, education, references, summary, profilePhoto, skillLevels, careerAchievements } = d;
 
   return (
     <div className="max-w-[800px] mx-auto bg-white text-slate-800 flex" style={{ minHeight: 1056 }}>
@@ -73,6 +73,23 @@ export default function Professional({ data }) {
           <section className="mb-5">
             <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#1e3a5f" }}>About Me</h2>
             <p className="text-xs leading-5 text-slate-700">{summary}</p>
+          </section>
+        )}
+
+        {careerAchievements.length > 0 && (
+          <section className="mb-5">
+            <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#1e3a5f" }}>Career Achievements</h2>
+            {careerAchievements.map((pillar, i) => (
+              <div key={i} className="mb-3">
+                <h3 className="text-xs font-bold uppercase text-slate-700 mb-1">{pillar.pillar_name}</h3>
+                {(pillar.items || []).map((item, j) => (
+                  <p key={j} className="text-xs text-slate-700 mb-0.5">
+                    ✦ {item.text}
+                    {item.formula && <span className="text-[8px] text-slate-400 ml-1">[{item.formula}]</span>}
+                  </p>
+                ))}
+              </div>
+            ))}
           </section>
         )}
 

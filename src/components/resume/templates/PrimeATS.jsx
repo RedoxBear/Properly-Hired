@@ -5,7 +5,7 @@ import { parseResumeData } from "./templateUtils";
 export default function PrimeATS({ data }) {
   const d = parseResumeData(data);
   if (!d) return null;
-  const { pi, skills, highlights, experience, education, references, summary } = d;
+  const { pi, skills, highlights, experience, education, references, summary, careerAchievements } = d;
 
   return (
     <div className="max-w-[800px] mx-auto bg-white text-black p-8" style={{ fontFamily: "Arial, Helvetica, sans-serif", minHeight: 1056 }}>
@@ -26,6 +26,25 @@ export default function PrimeATS({ data }) {
         <section className="mb-4">
           <h2 className="text-sm font-bold uppercase border-b border-gray-400 pb-0.5 mb-2">PROFESSIONAL SUMMARY</h2>
           <p className="text-sm leading-6">{summary}</p>
+        </section>
+      )}
+
+      {careerAchievements.length > 0 && (
+        <section className="mb-4">
+          <h2 className="text-sm font-bold uppercase border-b border-gray-400 pb-0.5 mb-2">CAREER ACHIEVEMENTS</h2>
+          {careerAchievements.map((pillar, i) => (
+            <div key={i} className="mb-3">
+              <h3 className="text-sm font-bold uppercase mt-2 mb-1">{pillar.pillar_name}</h3>
+              <ul className="space-y-0.5 ml-4">
+                {(pillar.items || []).map((item, j) => (
+                  <li key={j} className="text-sm list-disc">
+                    {item.text}
+                    {item.formula && <span className="text-[9px] text-gray-400 ml-1">[{item.formula}]</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </section>
       )}
 
