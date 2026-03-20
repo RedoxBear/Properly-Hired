@@ -528,9 +528,6 @@ Deno.serve(async (req) => {
     const candidateName: string = (masterResume.candidate_name ?? user.name ?? user.email ?? 'Candidate') as string;
     const targetRole: string = (jobListing.title ?? jobListing.job_title ?? 'Professional') as string;
 
-    // Update status to tailoring
-    await JobListing.update(job_listing_id, { status: 'tailoring' });
-
     // ── Round 1 ──────────────────────────────────────────────────────────────
     let parsed = parseResumeText(masterText);
     let gapKeywords = findKeywordGaps(jdText, masterText);
@@ -614,9 +611,17 @@ Deno.serve(async (req) => {
     const finalStatus = audit.passed && atsScore >= 60 ? 'pending_review' : 'needs_attention';
     const simonSummary = `ATS: ${atsScore}/100 · ${gapKeywords.length} keywords injected · ${audit.passed ? 'Audit passed' : 'Needs review'} · Round ${round}`;
 
+    // Build flagged_reason for AttentionBanner in ReviewQueue
+    const flaggedReasonParts: string[] = [];
+    if (audit.meta_issues?.length > 0) flaggedReasonParts.push(`Structure: ${audit.meta_issues.join(', ')}`);
+    if (audit.ghost_strings?.length > 0) flaggedReasonParts.push('Ghost strings detected in resume');
+    if (atsScore < 60) flaggedReasonParts.push(`Low ATS score (${atsScore}/100)`);
+    const flaggedReason = flaggedReasonParts.join(' | ');
+
     await JobListing.update(job_listing_id, {
       status: finalStatus,
       simon_summary: simonSummary,
+      ...(flaggedReason && { flagged_reason: flaggedReason }),
     });
 
     return Response.json({

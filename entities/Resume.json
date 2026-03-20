@@ -1,0 +1,17 @@
+{
+  "name": "Resume",
+  "type": "object",
+  "properties": {
+    "user_id":          { "type": "string" },
+    "candidate_name":   { "type": "string" },
+    "content":          { "type": "string" },
+    "resume_text":      { "type": "string" },
+    "parsed_content":   { "type": "string" },
+    "optimized_content":{ "type": "string" },
+    "is_master_resume": { "type": "boolean", "default": false },
+    "created_by":       { "type": "string" },
+    "created_at":       { "type": "string", "format": "date-time" },
+    "updated_at":       { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id"]
+}

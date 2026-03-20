@@ -1,0 +1,17 @@
+{
+  "name": "ApplicationEvent",
+  "type": "object",
+  "properties": {
+    "user_id":           { "type": "string" },
+    "job_listing_id":    { "type": "string" },
+    "resume_version_id": { "type": ["string", "null"] },
+    "event_type": {
+      "type": "string",
+      "enum": ["applied", "manual_required", "application_error", "submitted", "rejected"]
+    },
+    "ats_type":   { "type": "string" },
+    "notes":      { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id", "job_listing_id", "event_type"]
+}

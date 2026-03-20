@@ -1,0 +1,17 @@
+{
+  "name": "Application",
+  "type": "object",
+  "properties": {
+    "user_id":           { "type": "string" },
+    "job_listing_id":    { "type": "string" },
+    "resume_version_id": { "type": ["string", "null"] },
+    "screening_answers": { "type": "object" },
+    "cover_letter_text": { "type": "string" },
+    "fill_summary":      { "type": "object" },
+    "screenshot_url":    { "type": ["string", "null"] },
+    "status":            { "type": "string" },
+    "submitted_at":      { "type": ["string", "null"], "format": "date-time" },
+    "created_at":        { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id", "job_listing_id"]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "JobListing",
+  "type": "object",
+  "properties": {
+    "user_id":          { "type": "string" },
+    "source":           { "type": "string", "enum": ["jsearch", "adzuna", "usajobs", "manual"] },
+    "external_id":      { "type": "string" },
+    "title":            { "type": "string" },
+    "company":          { "type": "string" },
+    "location":         { "type": "string" },
+    "remote":           { "type": "boolean" },
+    "url":              { "type": "string" },
+    "jd_text":          { "type": "string" },
+    "salary_min":       { "type": ["number", "null"] },
+    "salary_max":       { "type": ["number", "null"] },
+    "posted_at":        { "type": ["string", "null"], "format": "date-time" },
+    "match_score":      { "type": "number", "minimum": 0, "maximum": 100 },
+    "match_breakdown":  { "type": "object" },
+    "ghost_score":      { "type": "number" },
+    "simon_summary":    { "type": "string" },
+    "flagged_reason":   { "type": ["string", "null"] },
+    "status": {
+      "type": "string",
+      "enum": [
+        "discovered", "pending_review", "needs_attention", "tailoring",
+        "approved", "applied", "manual_required", "application_error",
+        "rejected", "manual", "submitted"
+      ]
+    },
+    "dedup_hash":       { "type": "string" },
+    "applied_at":       { "type": ["string", "null"], "format": "date-time" },
+    "created_at":       { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id", "title", "company", "url", "status"]
+}

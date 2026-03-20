@@ -65,7 +65,7 @@ function statusConfig(status) {
         rejected:           { label: "Rejected", color: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",    icon: XCircle },
         manual:             { label: "Manual", color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",  icon: BookmarkX },
         discovered:         { label: "Discovered", color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", icon: Eye },
-        tailoring:          { label: "Tailoring", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300", icon: FileText },
+        tailoring:          { label: "Tailoring…", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300", icon: Loader2 },
         filling:            { label: "Filling Form", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300", icon: Edit3 },
     };
     return map[status] || { label: status, color: "bg-slate-100 text-slate-700", icon: Clock };

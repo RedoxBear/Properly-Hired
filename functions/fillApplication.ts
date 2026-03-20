@@ -229,10 +229,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'job_listing_id is required' }, { status: 400 });
     }
 
-    const JobListing      = base44.asServiceRole.entities.JobListing;
-    const ResumeVersion   = base44.asServiceRole.entities.ResumeVersion;
-    const AutofillVault   = base44.asServiceRole.entities.AutofillVault;
+    const JobListing       = base44.asServiceRole.entities.JobListing;
+    const ResumeVersion    = base44.asServiceRole.entities.ResumeVersion;
+    const AutofillVault    = base44.asServiceRole.entities.AutofillVault;
     const ApplicationEvent = base44.asServiceRole.entities.ApplicationEvent;
+    const Application      = base44.asServiceRole.entities.Application;
 
     // ── Load JobListing ──
     let jobListing: Record<string, unknown> | null = null;
@@ -331,6 +332,28 @@ Deno.serve(async (req) => {
     await JobListing.update(job_listing_id, updatePayload).catch(
       (e: unknown) => console.error('[fillApplication] JobListing update failed:', e),
     );
+
+    // ── Update Application entity — persist cover_letter + fill_summary ──
+    const { cover_letter: coverLetterForApp, ...fillSummaryPacket } = autofillPacket as Record<string, unknown>;
+    const existingApps = await Application.filter({ job_listing_id, user_id }).catch(() => []);
+    const existingApp = existingApps?.[0] ?? null;
+    if (existingApp) {
+      await Application.update(existingApp.id, {
+        cover_letter_text: coverLetterForApp ?? '',
+        fill_summary:      fillSummaryPacket,
+        status:            finalStatus,
+      }).catch((e: unknown) => console.error('[fillApplication] Application update failed:', e));
+    } else {
+      await Application.create({
+        user_id,
+        job_listing_id,
+        resume_version_id: resumeVersion?.id ?? null,
+        cover_letter_text: coverLetterForApp ?? '',
+        fill_summary:      fillSummaryPacket,
+        status:            finalStatus,
+        created_at:        new Date().toISOString(),
+      }).catch((e: unknown) => console.error('[fillApplication] Application create failed:', e));
+    }
 
     // Strip binary from response
     const { cover_letter: _cl, ...safePacket } = autofillPacket as Record<string, unknown>;
